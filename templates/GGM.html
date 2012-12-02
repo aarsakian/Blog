@@ -1,0 +1,113 @@
+{% extends "index.html" %}
+
+{% block title %}
+    Armen Arsakian personal blog
+{% endblock %}
+
+{% block content%}
+  
+   
+  <div id="left">
+      
+        <div id="tags">
+
+            <ul id="taglist">
+            </ul>
+        </div>
+        <div id="categories">
+
+            <ul id="categorylist">
+            </ul>
+        </div>
+        <div id="leftinner">
+          
+          <div id="posts">
+            
+            {%if Post %}
+              
+              
+              
+              
+           <div class="post clear">
+                   <div  id="{{Post.key}}">
+			<div class="postTitle">
+                            <h3 class="editable">{{Post.title}}</h3>
+	              
+		        </div>
+			   <div>
+			      <span id="date" >Created:{{Post.timestamp|string|truncate(16,killwords=True,end='')}}	 </span>
+			      <span id="updated"> Updated:{{ Post.updated|string|truncate(16,killwords=True,end='')}}    </span>
+                           </div>
+			   <div id="socialinks">      
+		             <a href="https://twitter.com/share" class="twitter-share-button"
+			        data-url="http://aarsakian.appspot.com" data-text={{Post.title}}
+			        data-via="Aarsakian's blog" data-lang="en" hashtags="{{Post.category}}/{{Post.title}}"
+				>
+				Tweet</a>
+		               <span class="gplus"><g:plusone size="medium"  align="right"></g:plusone></span>
+		           </div>	               
+		         <div  class="article clear">
+		              {{Post.body}}
+		             <span class="backlink"><a href="/categories#{{Post.catname}}">
+			        <img src="{{url_for('static', filename='images/arrow_left_16x16.png')}}" alt="Back"/>
+				 <img src="{{url_for('static', filename='images/arrow_left_16x16.png')}}" alt="Back"/>
+				     <img src="{{url_for('static', filename='images/arrow_left_16x16.png')}}" alt="Back"/></a></span>
+		      
+		
+		      <div class="links">
+		              {%for tag in tagnames%}
+				<a class="button tag" href="/tags#{{tag}}">{{tag}}</a>
+		               {% endfor %}
+		      </div><!--closes links-->
+		      
+	         </div><!--closes article-->
+              
+               </div><!--closes post-->
+           </div>
+            {%endif%}
+  
+          
+       
+        
+          
+          
+      
+ 
+      </div><!--closes posts-->
+      <div id="pagination-area"></div>
+         
+          <!-- <div id="disqus_thread"> </div>-->
+          
+          <div id="newpost" class="clear">
+         
+         </div>
+    </div>
+   </div><!--closes left-->
+       <div id="right">
+            <div class="tweets">
+                  <div class="tweets_header"><h3><a href="https://twitter.com/aarsakian">My Tweets</a></h3></div>
+                  <div class="content_tweets"> </div>
+                  <div class="tweets_footer"> <span id="bird"></span></a>
+                  </div>
+            <!-- <a href="https://twitter.com/aarsakian" class="twitter-follow-button" data-show-count="false">Follow @aarsakian</a>-->
+        </div>
+       
+        
+           
+            
+        
+        </div>              
+        
+
+         
+    <script type='text/javascript'>
+                jQuery(".content_tweets").miniTwitter("aarsakian");
+            </script> 
+  
+{% endblock %}
+
+{% block footer%}
+  
+<p>Armen Arsakian  updated at <span class="siteupdate">{{siteupdated}}</span><span class="countdown">  {{daysleft}} . {{dayspassed}}</span><span class="version">v:0.2</span></p>
+  
+{% endblock %}
