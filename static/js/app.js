@@ -13,7 +13,15 @@
       
     
       var top = $('.tweets').offset().top - parseFloat($('.tweets').css('marginTop').replace(/auto/, 0));
-      $('#nav li ul').css({'width': $('#bd').width()-5});
+     
+      var rightmargin=$(window).width()-$('#bd').offset().left-$('#bd').width();
+      console.log($('#bd').width()-rightmargin/8+2);
+      if ($('#bd').width()<900)
+         $('#nav li ul').css({'width': $('#bd').width()-rightmargin/8+2});
+      else
+       $('#nav li ul').css({'width': $('#bd').width()-5});
+       console.log(rightmargin);
+       console.log($('#bd').width()-5);
       $(window).resize(function() {
             console.log( $('#bd').width());
             $('#nav li ul').css({'width': $('#bd').width()-5});

@@ -107,7 +107,7 @@ ul .navsub:hover{color:#850900;background-color:#9fbcbc;opacity:0.7}
 #nav li a.active{color:#662823;}
 #nav li li a{font-size:0.6em;}
 #nav li:hover ul, #nav li.sfhover ul{max-width:1000px;
-    border-bottom:3px solid #662823;background-color:#9fbcbc;}
+    border-bottom:3px solid #746e62;background-color:#9fbcbc;}
 
 /*for js interaction*/
 .post .destroy,.post .edit-tags{display:none;}
