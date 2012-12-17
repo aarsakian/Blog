@@ -10,21 +10,22 @@ h3{font-size:1.3em;}
 ul li{display:inline;list-style-type:none;}
 
 /*Structure*/
-#bd,#hd,#ft{width:80%;
-    padding-left:10%;
-    padding-right:10%;
+#bd,#hd,#ft{width:85%;
+    margin-left:9%;
+    margin-right:9%;
     text_align:left;
-    max-width:1000px;
+    max-width:900px;
     min-width:400px;
   
 }
+
 .tweets.fixed {margin-top: 20px;
   position: fixed;width:19%;
   top: 0%;
 }
 #bd{margin-top:30px;margin-bottom:20px;}
 #bdinner, #ftinner, #hdinner{oveflow:hidden;height:100%;}
-#hdinner{margin-top:90px;height:80px;}
+#hdinner{margin-top:90px;height:90px;}
 #left,#right{float:left;}
 
 #right{width:24%;left:64%;padding-top:90px;}
@@ -47,9 +48,11 @@ ul li{display:inline;list-style-type:none;}
 }
 
 #nav a {
+      
 	display: block;
      
 }
+
 
 #nav li {
 	float: left;
@@ -57,7 +60,7 @@ ul li{display:inline;list-style-type:none;}
 
 #nav li ul {
 	position: absolute;
-	width: 80%;
+	width: 63%;
      
 	left: -999em;
 }
@@ -65,8 +68,12 @@ ul li{display:inline;list-style-type:none;}
 #nav li:hover ul {
 	left: 0%;
         z-index:1;
-        margin:0px 10%;
-        padding-top:5px;
+        margin:0px 9%;
+  
+        padding:5px 3px 0px 2px;
+    
+   
+
     
      
 }
@@ -86,14 +93,17 @@ body{background:url('../images/subtle_dots.png');}
 #bd h2{text-shadow:1px 1px #fff;font-size:2.6em;color:#606060;}
 #hd #menu{height:50px;}
 #nav li{font-size:1.4em;margin-right:25px;}
-#nav li a{padding:0px;text-shadow:1px 1px #fff;}
+#nav li a{padding:5px;text-shadow:-1px -1px #f0f0f0;opacity:1;}
+#nav li a a{padding:0px;}
 #ftinner{border-top:3px solid #505050;}
 #hdinner{border-bottom:4px solid #2a2a2a;}
-#nav a:hover,ul .navsub:hover{color:#a07370;}
+ul .navsub:hover{color:#850900;background-color:#819a9a;opacity:0.7}
+#nav a:hover,ul .navsub:hover,#nav li:hover ul a{color:#850900;}
 #nav li a.active{color:#662823;}
 #nav li li a{font-size:0.6em;}
 #nav li:hover ul, #nav li.sfhover ul{max-width:1000px;
-    border-bottom:3px solid #662823;}
+    border-bottom:3px solid #662823;background-color:#819a9a;}
+
 /*for js interaction*/
 .post .destroy,.post .edit-tags{display:none;}
 .post:hover .destroy,.post:hover .edit-tags{display:inline;}
@@ -109,7 +119,8 @@ input,textarea{font-size:0.8em;}
 /*posts styling*/
 .post h3{text-align:center;}
 .post a,.post h3{color:#662823;}
-.post,.tweets{background:#fff;border-bottom:1px solid #a8a8a8;margin-bottom:20px;
+.post,.tweets{background:#f9fbfb;border-bottom:1px solid #a8a8a8;margin-bottom:20px;opacity:0.9;
+-moz-opacity:0.9;
 text-shadow:1px 1px #fefefe;overflow:hidden;height:100%;color:#2a2a2a;}/*328f59*/
 .tweets{border-right:1px solid #a5a5a5;font-size:0.8em;}
 #right .content_tweets a{color:#8e2e27!important;}

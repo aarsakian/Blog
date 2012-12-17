@@ -29,6 +29,7 @@ months=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','De
 class Action(object):
     def __init__(self):
         """load basic members using memcache"""
+        logging.info("initialized")
         self.posts_tags_db=[]
         self.catdict={}
       
@@ -36,6 +37,7 @@ class Action(object):
         if self.posts is None:
             self.posts = BlogPost.all().order("-timestamp")
             memcache.add(KEY,self.posts)
+            logging.info(["UPDATE MEMCACHE",self.posts])
         self.tags=memcache.get(TAG)
         if self.tags is None:
             self.tags = Tag.all()
@@ -48,8 +50,9 @@ class Action(object):
             self.posts_tags_db.extend(post.tags)
             self.catdict[post.category.key()]=post.category.category
             
-        logging.info(self.catdict)
-       
+      
+    
+    
       
                 
     @staticmethod
@@ -66,6 +69,37 @@ class Action(object):
         self.categories= Category.all()
         memcache.add(CATEGORY,self.categories)
         
+    
+    def getall(self,catname=None,tagname=None):
+        data=[]
+ 
+        if catname:
+            catkey=[categoryobj.key() for categoryobj in self.categories if categoryobj.category==catname][0]
+            posts=[]
+            [posts.append(post) for post in self.posts if catkey ==post.category.key()]
+        #logging.info([catkey,len(categories)])
+        elif tagname:
+            logging.info(tagname)
+            tagkey=[tagobj.key() for tagobj in self.tags if tagobj.tag==tagname]
+            if tagkey:tagkey=tagkey[0]
+            posts=[]
+            [posts.append(post) for post in self.posts if tagkey in post.tags]
+           
+        else:posts=self.posts
+        
+
+        
+        for post in posts:
+            if post.title!='About':
+                tags=[]
+                [tags.append({"tag":db.get(key).tag,"tagid":db.get(key).key().id()}) for key in post.tags]
+          
+                updated=str(post.updated.day)+" "+str(months[post.updated.month])+" "+str(post.updated.year)
+                dateposted=str(post.timestamp.day)+" "+str(months[post.timestamp.month])+" "+str(post.timestamp.year)
+                data.append({"title":post.title,"body":post.body,"category":db.get(post.category.key()).category,
+                             "catid": db.get(post.category.key()).key().id(),"id":str(post.key().id()),\
+                 "tags":tags,"date":dateposted,"updated":updated})
+        return(data)
 
 
 
@@ -467,23 +501,6 @@ def about(id=None):
 @app.route('/tags/<tag>',methods=['GET','POST'])
 @app.route('/tags/<tag>/<id>',methods=['DELETE','PUT'])
 def getTag(tag=None,id=None):
-    if 'posts' not in globals():
-        global posts
-    from models import Tag
-    posts=memcache.get(KEY)
-    tags=memcache.get(TAG)  
-    categories=memcache.get(CATEGORY)
-   
-    data=[]
-    if not posts:
-      
-        posts = BlogPost.all().order("-timestamp").fetch(20)
-        memcache.add(KEY,posts)
-
-    if not tags:
-        tags = Tag.all().fetch(20)
-        memcache.add(TAG,tags)
-    
 
     if users.is_current_user_admin() and request.method=="DELETE":
      
@@ -502,39 +519,16 @@ def getTag(tag=None,id=None):
         return jsonify(msg="OK",tags=returnedTags,posts=data)
         
     if tag!=None:
-        tagkey=[tagobj.key() for tagobj in tags if tagobj.tag==tag]
-        if tagkey:tagkey=tagkey[0]
         if request.method=="GET":
-            Posts=[]
-            [Posts.append(post) for post in posts if tagkey in post.tags]
-            logging.info(posts)
-            for post in Posts:
-                tags=[]
-                [tags.append({"tag":db.get(key).tag,"tagid":db.get(key).key().id()}) for key in post.tags]
-                post.catname=[categoryobj.category for categoryobj in categories if categoryobj.key()==post.category.key()]
-
-             
-                updated=str(post.updated.day)+" "+str(months[post.updated.month])+" "+str(post.updated.year)
-                dateposted=str(post.timestamp.day)+" "+str(months[post.timestamp.month])+" "+str(post.timestamp.year)
-                data.append({"title":post.title,"body":post.body,"category":post.catname,"id":str(post.key().id()),\
-                    "tags":tags,"date":dateposted,"updated":updated})
-                    #[postTagids.append(int(key.id())) for key in post.tags]
-                    #logging.info(postTagids)
-                    #if tagid  in postTagids:
-                    #    Tag.get_by_id(tagid).key()
-                    #    [tags.append({"tag":db.get(key).tag,"tagid":db.get(key).key().id()}) for key in post.tags]
-                    #    data.append({"title":post.title,"body":post.body,"category":post.category,"id":str(post.key().id()),\
-                    #    "tags":tags,"date":str(post.timestamp)[:-15]})
-                    #    logging.info(tags)
-            
-    
-               
+            action=Action()
+            data=action.getall(tagname=tag)
             return  jsonify(msg="OK",posts=data,type="tag")
      
             
     else:  
-        tagss=[] 
-        [tagss.append([Tag.tag,Tag.key().id()]) for Tag in tags]
+        tagss=[]
+        a=Action()
+        [tagss.append([Tag.tag,Tag.key().id()]) for Tag in a.tags]
         tags=map(lambda tag:{"tag":tag[0],"id":tag[1]} ,tagss)
      
       
@@ -544,54 +538,11 @@ def getTag(tag=None,id=None):
 @app.route('/categories/<catname>/<id>',methods=['DELETE','PUT'])
 @app.route('/categories/<catname>',methods=['GET','POST'])
 def catposts(catname,id=None):
-    posts=memcache.get(KEY)
-    tags=memcache.get(TAG)  
-    categories=memcache.get(CATEGORY)
-  
-    data=[]
-    if not posts:
-      
-        posts = BlogPost.all().order("-timestamp").fetch(20)
-        memcache.add(KEY,posts)
-
-    if not tags:
-        tags = Tag.all().fetch(20)
-        memcache.add(TAG,tags)
-    if not categories:
-        categories= Category.all().fetch(20)
-        memcache.add(CATEGORY,categories)
-    
-    if request.method=="GET":    
-        catkey=[categoryobj.key() for categoryobj in categories if categoryobj.category==catname][0]
-        #logging.info([catkey,len(categories)])
-    
-           
-        Posts=[]
-        [Posts.append(post) for post in posts if catkey ==post.category.key()]
-        logging.info([len(Posts)])
-      
-        for post in Posts:
-            tags=[]
-            [tags.append({"tag":db.get(key).tag,"tagid":db.get(key).key().id()}) for key in post.tags]
-            post.catname=catname
-    
-     
-            updated=str(post.updated.day)+" "+str(months[post.updated.month])+" "+str(post.updated.year)
-            dateposted=str(post.timestamp.day)+" "+str(months[post.timestamp.month])+" "+str(post.timestamp.year)
-            data.append({"title":post.title,"body":post.body,"category":post.catname,"id":str(post.key().id()),\
-               "tags":tags,"date":dateposted,"updated":updated})
-                        #[postTagids.append(int(key.id())) for key in post.tags]
-                        #logging.info(postTagids)
-                        #if tagid  in postTagids:
-                        #    Tag.get_by_id(tagid).key()
-                        #    [tags.append({"tag":db.get(key).tag,"tagid":db.get(key).key().id()}) for key in post.tags]
-                        #    data.append({"title":post.title,"body":post.body,"category":post.category,"id":str(post.key().id()),\
-                        #    "tags":tags,"date":str(post.timestamp)[:-15]})
-                        #    logging.info(tags)
-                
-        
-                   
+    if request.method=="GET":
+        action=Action()
+        data=action.getall(catname)
         return  jsonify(msg="OK",posts=data,type="category")
+        
     if users.is_current_user_admin() and request.method=="POST":#new entity
         title=request.json['title']
         body=request.json['body']
@@ -626,34 +577,11 @@ def catposts(catname,id=None):
         
 @app.route('/posts',methods=['POST','GET'])#all entitites
 def main():    
-    posts=memcache.get(KEY)
-    tags=memcache.get(TAG)
-    categories=memcache.get(CATEGORY)
-    logging.info(request.args)
-    if not posts:
-      
-        posts = BlogPost.all().order("-timestamp").fetch(20)
-        memcache.add(KEY,posts)
-
-    if not tags:
-        tags = Tag.all().fetch(20)
-        memcache.add(TAG,tags)
-    if not categories:
-        categories= Category.all().fetch(20)
-        memcache.add(CATEGORY,categories)
+    
     if request.method=='GET':
-        data=[]
-        for post in posts:
-            if post.title!='About':
-                tags=[]
-                [tags.append({"tag":db.get(key).tag,"tagid":db.get(key).key().id()}) for key in post.tags]
-          
-                updated=str(post.updated.day)+" "+str(months[post.updated.month])+" "+str(post.updated.year)
-                dateposted=str(post.timestamp.day)+" "+str(months[post.timestamp.month])+" "+str(post.timestamp.year)
-                data.append({"title":post.title,"body":post.body,"category":db.get(post.category.key()).category,
-                             "catid": db.get(post.category.key()).key().id(),"id":str(post.key().id()),\
-                 "tags":tags,"date":dateposted,"updated":updated})
-        if posts: return jsonify(posts=data)
+        action=Action()
+        data=action.getall()
+        if data: return jsonify(posts=data)
         else:return jsonify(posts=[])
 
     if users.is_current_user_admin() and request.method=="POST":#new entity
