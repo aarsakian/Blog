@@ -16,6 +16,7 @@ ul li{display:inline;list-style-type:none;}
     text_align:left;
     max-width:900px;
     min-width:400px;
+   
   
 }
 
@@ -60,16 +61,20 @@ ul li{display:inline;list-style-type:none;}
 
 #nav li ul {
 	position: absolute;
-	width: 63%;
-     
+	width: 80%;
+        margin-left:9%;
+         
+         max-width:900px;
+    min-width:400px;
+  
 	left: -999em;
 }
+
 
 #nav li:hover ul {
 	left: 0%;
         z-index:1;
-        margin:0px 9%;
-  
+       
         padding:5px 3px 0px 2px;
     
    
@@ -97,12 +102,12 @@ body{background:url('../images/subtle_dots.png');}
 #nav li a a{padding:0px;}
 #ftinner{border-top:3px solid #505050;}
 #hdinner{border-bottom:4px solid #2a2a2a;}
-ul .navsub:hover{color:#850900;background-color:#819a9a;opacity:0.7}
+ul .navsub:hover{color:#850900;background-color:#9fbcbc;opacity:0.7}
 #nav a:hover,ul .navsub:hover,#nav li:hover ul a{color:#850900;}
 #nav li a.active{color:#662823;}
 #nav li li a{font-size:0.6em;}
 #nav li:hover ul, #nav li.sfhover ul{max-width:1000px;
-    border-bottom:3px solid #662823;background-color:#819a9a;}
+    border-bottom:3px solid #662823;background-color:#9fbcbc;}
 
 /*for js interaction*/
 .post .destroy,.post .edit-tags{display:none;}

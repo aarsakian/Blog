@@ -13,6 +13,11 @@
       
     
       var top = $('.tweets').offset().top - parseFloat($('.tweets').css('marginTop').replace(/auto/, 0));
+      $('#nav li ul').css({'width': $('#bd').width()-5});
+      $(window).resize(function() {
+            console.log( $('#bd').width());
+            $('#nav li ul').css({'width': $('#bd').width()-5});
+      });
 //    console.log(top);
       $(window).scroll(function (event) {
 	// what the y position of the scroll is
