@@ -14,10 +14,16 @@
     
       var top = $('.tweets').offset().top - parseFloat($('.tweets').css('marginTop').replace(/auto/, 0));
      
-      var rightmargin=$(window).width()-$('#bd').offset().left-$('#bd').width();
-      console.log($('#bd').width()-rightmargin/8+2);
-      if ($('#bd').width()<900)
+     
+      if (window.location.pathname==="/about"){
+         var  converter = new Showdown.converter();
+         console.log(converter.makeHtml($('.classic .article').text()));
+         $('.classic .article').append().html(converter.makeHtml($('.article').text()));
+      }
+      if ($('#bd').width()<900){
+         var rightmargin=$(window).width()-$('#bd').offset().left-$('#bd').width();
          $('#nav li ul').css({'width': $('#bd').width()-rightmargin/8+2});
+      }
       else
        $('#nav li ul').css({'width': $('#bd').width()-5});
        console.log(rightmargin);
@@ -202,6 +208,7 @@
                   else{//index page
                      console.log('central index');
                      app.Posts=new app.collections.Posts();
+                      app.Posts.header="All Posts";
                   }
                
                   app.Posts.on('reset', this.render, this);

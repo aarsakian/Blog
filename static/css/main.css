@@ -24,12 +24,12 @@ ul li{display:inline;list-style-type:none;}
   position: fixed;width:19%;
   top: 0%;
 }
-#bd{margin-top:30px;margin-bottom:20px;}
+#bd{margin-top:0px;margin-bottom:20px;}
 #bdinner, #ftinner, #hdinner{oveflow:hidden;height:100%;}
-#hdinner{margin-top:90px;height:90px;}
+#hdinner{margin-top:90px;height:100px;}
 #left,#right{float:left;}
 
-#right{width:24%;left:64%;padding-top:90px;}
+#right{width:24%;left:64%;margin-top:120px;}
 
 #left{width:74%;margin-right:2%;}
 
@@ -102,13 +102,13 @@ body{background:url('../images/subtle_dots.png');}
 #nav li a a{padding:0px;}
 #ftinner{border-top:3px solid #505050;}
 #hdinner{border-bottom:4px solid #2a2a2a;}
-ul .navsub:hover{color:#850900;background-color:#9fbcbc;opacity:0.7}
-#nav a:hover,ul .navsub:hover,#nav li:hover ul a{color:#850900;}
+ul .navsub:hover{color:#850900;background-color:#9fbcbc;}
+#nav a:hover,ul .navsub:hover,#nav li:hover  a{color:#850900;}
 #nav li a.active{color:#662823;}
 #nav li li a{font-size:0.6em;}
 #nav li:hover ul, #nav li.sfhover ul{max-width:1000px;
-    border-bottom:3px solid #746e62;background-color:#9fbcbc;}
-
+    border-bottom:3px solid #746e62;background-color:#c2d2d2;}
+#nav li:hover{background-color:#c2d2d2;opacity:0.8}
 /*for js interaction*/
 .post .destroy,.post .edit-tags{display:none;}
 .post:hover .destroy,.post:hover .edit-tags{display:inline;}
@@ -124,12 +124,13 @@ input,textarea{font-size:0.8em;}
 /*posts styling*/
 .post h3{text-align:center;}
 .post a,.post h3{color:#662823;}
-.post,.tweets{background:#f9fbfb;border-bottom:1px solid #a8a8a8;margin-bottom:20px;opacity:0.9;
+.post,.tweets,.prevposts{background:#f9fbfb;border-bottom:1px solid #a8a8a8;margin-bottom:20px;opacity:0.9;
 -moz-opacity:0.9;
 text-shadow:1px 1px #fefefe;overflow:hidden;height:100%;color:#2a2a2a;}/*328f59*/
-.tweets{border-right:1px solid #a5a5a5;font-size:0.8em;}
-#right .content_tweets a{color:#8e2e27!important;}
-.tweets h3 a{color:#662823;}
+.prevposts ul{padding:3px;}
+.tweets,.prevposts{border-right:1px solid #a5a5a5;font-size:0.8em;}
+#right .content_tweets a,.prevposts ul a{color:#8e2e27!important;}
+.tweets h3 a,.prevposts h3{color:#662823;}
 .tweets_header,.content_tweets{width:96%;margin:3px 5px;}
 .post .article{font-size:0.8em;margin-top:50px;min-width:50px; min-height:30px;}
 .backlink{position:relative;font-weight:bold;left:45%}
@@ -150,7 +151,7 @@ a.button ,#tags a.button{color:#fff;}
 .morelink{color:#a2726e;font-size:1.1em;}
 #ft p{font-size:0.6em;color:#2a2a2a;}
 .post .article{margin-top:1px;}
-.article a{font-size:1em;text-decoration:underline;color:#505050;}
+.article a{font-size:1em;text-decoration:underline;color:#4a5a4a;}
 #post button .edit{border:1px solid red;}
 span.version{float:right;}
 span.rss a{float:right;padding-left:7px;}

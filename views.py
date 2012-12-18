@@ -5,6 +5,7 @@ from flask import render_template,request,jsonify,redirect,url_for, Markup
 from google.appengine.ext import db
 from google.appengine.api import memcache
 from models import BlogPost,Tag,Category
+from datetime import date
 try:
     from simplejson import loads,dumps
 except ImportError:
@@ -15,8 +16,7 @@ from urlparse import urljoin
 from datetime import datetime, timedelta, date
 from math import ceil
 import re
-
-
+from jinja2.environment import Environment
 
 KEY="posts"
 TAG="tags"
@@ -365,17 +365,23 @@ def aboutpage():
  
 
     Post=[postobj for postobj in posts if pattern.search(postobj.title)][0]
+    recentposts=posts[:3]
     ts=ceil(2.0/3.0*8*365)%365
     dayspassed=date.today()-date(2012,3,2)
     daysleft=int(ceil(2.0/3.0*8*365))-dayspassed.days
     tz=date(2012,3,2)+timedelta(daysleft)
     return render_template('about.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
                            daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,tags=tags,categories=categories,\
-                           Post=Post)
+                           Post=Post,recentposts=recentposts)
     
     
 
-    
+def datetimeformat(value, format='%H:%M / %d-%B-%Y'):
+    return value.strftime(format)
+
+environment = Environment()
+app.jinja_env.filters['datetimeformat'] = datetimeformat
+
 @app.route('/categories',methods=['GET'])
 @app.route('/tags',methods=['GET'])
 @app.route('/',methods=['GET'])
@@ -403,7 +409,8 @@ def index(category=None):
         memcache.add(CATEGORY,categories)
 
     #[tags.append({"tag":obj.tag,"tagid":obj.key().id()}) for obj in Tag.all()]
-   
+    recentposts=posts[:3]
+
     try:
         post=posts[0]
         siteupdated=str(post.updated.day)+" "+months[post.updated.month]+" "+str(post.updated.year)
@@ -418,7 +425,7 @@ def index(category=None):
     daysleft=int(ceil(2.0/3.0*8*365))-dayspassed.days
     tz=date(2012,3,2)+timedelta(daysleft)
     return render_template('GGM.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
-                           daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,tags=tags,categories=categories)
+                           daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,tags=tags,categories=categories,recentposts=recentposts)
 @app.route('/posts/about/<id>',methods=['PUT'])
 @app.route('/posts/about',methods=['GET'])
 def about(id=None):
