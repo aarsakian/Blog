@@ -21,28 +21,26 @@
         </div>
         <div id="leftinner">
           
-          <div id="posts">
+          <div id="posts" >
             
             {%if Post %}
               
+               <h2>{{Post.title}}</h2>
               
               
+               <div class="post clear" >
               
-               <div class="post clear"
               
-              
-                   <div  id="{{Post.key}}">
-			<div class="postTitle classic">
-			<h3 class="editable">{{Post.title}}</h3>
-	              
-		        </div>
-			   <div>
+                   <div  id="{{Post.key}}" class="classic" >
+			
+			   
+                        <div>
 			      <span id="date" >Created:{{Post.timestamp|string|truncate(16,killwords=True,end='')}}	 </span>
 			 <span id="updated">
 			  Updated:{{ Post.updated|string|truncate(16,killwords=True,end='')}}
 			  </span>
                    
-		           
+                        </div> 
 	               
 		     <div  class="article clear">
 		         {{Post.body}}

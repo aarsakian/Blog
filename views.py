@@ -209,7 +209,7 @@ class APost(Action):
                 self.obj.tags.pop(pos-i)
           
                 i+=1
-        elif  self.posttags[0]!='':#new tags do exist
+        elif  self.posttags:#new tags do exist
 
             logging.info(self.posttags)
             newtags=set(self.posttags)#does not have tags
@@ -955,14 +955,14 @@ def post(category,postTitle=None):
     #tags=[]
     
     #[tags.append(post.tags) for post in posts if post.tags not in tags]
-  
+    recentposts=posts[:3]
     ts=ceil(2.0/3.0*8*365)%365
     dayspassed=date.today()-date(2012,3,2)
     daysleft=int(ceil(2.0/3.0*8*365))-dayspassed.days
     tz=date(2012,3,2)+timedelta(daysleft)
     return render_template('GGM.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
                            daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,tags=tags,categories=categories,\
-                           Post=Post,tagnames=tagnames)
+                           Post=Post,tagnames=tagnames,recentposts=recentposts)
 
 def make_external(url):
     return urljoin(request.url_root, url)

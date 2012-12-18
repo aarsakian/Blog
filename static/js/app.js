@@ -14,39 +14,45 @@
     
       var top = $('.tweets').offset().top - parseFloat($('.tweets').css('marginTop').replace(/auto/, 0));
      
+    
      
-      if (window.location.pathname==="/about"){
          var  converter = new Showdown.converter();
-         console.log(converter.makeHtml($('.classic .article').text()));
-         $('.classic .article').append().html(converter.makeHtml($('.article').text()));
-      }
+
+         $('.classic .article').append().html(converter.makeHtml($('.classic .article').text()));
+     
       if ($('#bd').width()<900){
          var rightmargin=$(window).width()-$('#bd').offset().left-$('#bd').width();
          $('#nav li ul').css({'width': $('#bd').width()-rightmargin/8+2});
       }
       else
        $('#nav li ul').css({'width': $('#bd').width()-5});
-       console.log(rightmargin);
-       console.log($('#bd').width()-5);
+     
       $(window).resize(function() {
-            console.log( $('#bd').width());
+           
             $('#nav li ul').css({'width': $('#bd').width()-5});
+              $('#right').removeClass('fixed');
       });
 //    console.log(top);
       $(window).scroll(function (event) {
 	// what the y position of the scroll is
 	      var y = $(this).scrollTop();
-         $height=$('.tweets').height();
+         $height=$('#right').height();
        
 	// whether that's below the form
 	if (y >= top) {
 	  // if so, ad the fixed class
-	  $('.tweets').addClass('fixed');
-         $('.tweets').height($height);
+	  $('#right').addClass('fixed');
+         $('#right').height($height);
+         $('#right').css({'left':$('#left').width()+$('#left').offset().left+20});//left div+offset
+         $('#right').width($('#bd').width()-20-$('#left').width());//bd-left dev -margin
+        
         
 	} else {
 	  // otherwise remove it
-	  $('.tweets').removeClass('fixed');
+	  $('#right').removeClass('fixed');
+             $('#right').css({'left':'64%'});//left div+offset
+         $('#right').width('24%');//bd-left dev -margin
+      
 	}
       });
    
@@ -79,21 +85,21 @@
 
     /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
          // required: replace example with your forum shortname
-   $(document).on("mouseenter",'span.backlink a',function(){
-        $(this).children().each(function(){
-            $container=$(this);
-            $container.attr('src','/static/images/arrow_black_left_16x16.png');
-         });
-                          
-   });
-  $(document).on("mouseleave",'span.backlink a',function(){
-        $(this).children().each(function(){
-            $container=$(this);
-            $container.attr('src','/static/images/arrow_left_16x16.png');
-         });
-                          
-   });
-   
+  // $(document).on("mouseenter",'span.backlink a',function(){
+  //      $(this).children().each(function(){
+  //          $container=$(this);
+  //          $container.attr('src','/static/images/arrow_black_left_16x16.png');
+  //       });
+  //                        
+  // });
+  //$(document).on("mouseleave",'span.backlink a',function(){
+  //      $(this).children().each(function(){
+  //          $container=$(this);
+  //          $container.attr('src','/static/images/arrow_left_16x16.png');
+  //       });
+  //                        
+  // });
+  // 
     var disqus_shortname = 'myblogaa';
   //  var disqus_identifier = '1';
     // var disqus_url = 'http://127.0.0.1:8082/#!/machine_learning/1';
