@@ -1,219 +1,208 @@
 <!DOCTYPE html>
-<html lang="en" class="no-js">
-<head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-	<title>{% block title %}title{% endblock %}</title>
-	<link rel="shortcut icon" href="/favicon.ico" />
-	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?3.2.0/build/cssreset/reset-min.css&3.2.0/build/cssfonts/fonts-min.css&3.2.0/build/cssgrids/grids-min.css"> 
-	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/3.2.0/build/cssbase/base-min.css">
-	<link rel="stylesheet" href="/static/css/main.css?v=1" />
-	<link rel="stylesheet" href="/static/css/gh-buttons.css?v=1" />
-	<link href="{{ url_for('recent_feed') }}" rel="alternate" title="Recent Changes"  type="application/atom+xml">
-	
+<html lang="en">
+	<head>
+		<title>{% block title %}title{% endblock %}</title>
+		<meta name="description" content="A blog about programming, machine learning">
+		<meta name="author" content="Armen Arsakian">
+		<meta name="keywords" content="python, gaussian graphical models, javascript, xml, xsl">
+		<link rel="stylesheet" href="/static/css/lib/font-awesome-ie7.css">
+		<link rel="stylesheet" href="/static/css/lib/font-awesome.css">
 
-	{% block style_block %}<!-- Page-level CSS block -->{% endblock %}
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
-	<script data-main="js/main.js" src="{{url_for('static',filename="js/libs/require/require.js")}}"></script>
-	<script src="{{url_for('static', filename="js/libs/modernizr-2.min.js")}}"></script>
-	<script src="{{url_for('static', filename="js/libs/underscore/underscore-min.js")}}"></script>
-	<script src="{{url_for('static', filename="js/libs/jquery/jquery-1.7.2.min.js")}}"></script>
-	<script src="{{url_for('static', filename="js/libs/backbone/backbone-min.js")}}"></script>
-	<script src="{{url_for('static', filename="js/app.js")}}"></script>
-	<script src="{{url_for('static', filename='js/libs/handlebars-1.0.0.beta.6.js')}}"></script>
-	<script src="{{url_for('static', filename='js/libs/jquery.minitwitter.js')}}"></script>
-
-	
-	{% block head_script %}<!-- Defer-incapable JavaScript block -->
-	
-	
-	{% endblock %}
-</head>
-<!--[if lt IE 7 ]><body class="ie6"><![endif]-->
-<!--[if IE 7 ]><body class="ie7"><![endif]-->
-<!--[if IE 8 ]><body class="ie8"><![endif]-->
-<!--[if IE 9 ]><body class="ie9"><![endif]-->
-<!--[if (gt IE 9)|!(IE)]><!-->
-<body id="">
-<!--<![endif]-->
-	<header>
-		<div id="hd">
-			{% block header %}
-			<div id="hdinner">
-				<div id="menu">
-				<ul id="nav">
-			      
-				    <li><a href="#!/programming">Programming</a></li>
+		<!-- Bootstrap -->
+		<link href="/static/css/lib/bootstrap.min.css" rel="stylesheet" media="screen">
+		<link href="/static/css/style.css" rel="stylesheet" media="screen">
+		<link href="{{ url_for('recent_feed') }}" rel="alternate" title="Recent Changes"  type="application/atom+xml">
+		<link href='http://fonts.googleapis.com/css?family=Merriweather:400' rel='stylesheet' type='text/css'>
+		
+	</head>
+	<body>
+		<div class="container">
+			<div class="row-fluid" id="hd">
+				<div class="span9" id="hdinner">
+				   
+					<ul class="nav nav-pills">
+					    <li><a href="/">HOME</a></li>
+					    <li><a href="/random">RANDOM</a></li>
+					    <li><a href="/about">ABOUT</a></li>
 				     
-				   
-				   
-				    </li>
-				
-				    <li><a href="#!/machine_learning">Machine Learning</a></li>
-			            <li id="navsub"><a href="#!/tags">Tags</a>
-				       <ul>
-				           {% for column in tags|slice(3) %}
-					       <div class="column-{{loop.index}}">
-						   {%for tag in column%}
-							<li><a href="#!/tags/{{tag}}">{{tag}}</a></li>
-						   {%endfor%}
-						</div>
-					    {% endfor %}
 					</ul>
-				    
-				    </li>
-				    <li><a href="#!/about">About</a></li>
-			     
-				</ul>
+				
+				</div>
+				<div class="span3" id="images">
+					<div style="font-size: 24px;">
+						
+						<div class="span1 offset5">
+							<a href="https://twitter.com/aarsakian"><i class="icon-twitter"></i></a>
+						</div>
+						<div class="span1 offset1">
+							<a href="https://github.com/aarsakian"><i class="icon-github"></i></a>
+						</div>
+						<div class="span1 offset1">
+							<a href="/recent.atom"><i class="icon-rss"></i></a>
+						</div>
+					</div>
+					
+					
 				</div>
 			</div>
-						    
-				{% endblock %}
+			<div class="row-fluid" id="bd">
+				{% block content %}<!-- main content area -->{% endblock %}
+			
+			</div>
+	
+			<div class="row-fluid" id="ft">
+				
+				{% block footer %}<!-- main content area -->{% endblock %}
+				
+			</div>
 		</div>
-	</header>
-	<div id="bd">
-		<div id="bdinner">
-		<span class="rss">
-		 <a href="/recent.atom"><img src="{{url_for('static', filename='images/rss_32x32.png')}}" alt="Atom Feed"/></a>
-		</span>
 		
-
-		{% block content %}<!-- main content area -->{% endblock %}
-		</div>
-	</div>
-	<footer class="clear">
-		<div id="ft">
-			{% block footer %}{% endblock %}
-		</div>
-	</footer>
-	{% block tail_script %}
+		
+		
+		
+		<script id="new-post-template" type="text/x-handlebars-template">
+			{{'{{'}}#if user_admin{{'}}'}}
+			<form>
+				<input  id="new-post-title" name="title" placeholder="Enter your title here">
+				<textarea id="new-post-body" type="text"  autofocus></textarea>
+				<input  id="new-post-category" name="category" placeholder="Enter your category or use existing one">
+				<input  id="new-post-tag" name="tag" placeholder="Enter your tags here,use comma between">
+				<input id="submit" type="submit" class="button" value="Save">
+			</form>  
+			{{'{{'}}/if{{'}}'}}
+		</script>
 		<script id="tags-template" type="text/x-handlebars-template">
-		       <a class="button taggy" href="#!/tags/{{'{{'}}tag{{'}}'}}">{{'{{'}}tag{{'}}'}}</a>
+		       <a class="button taggy" href="/tags#!{{'{{'}}tag{{'}}'}}">{{'{{'}}tag{{'}}'}}</a>
 			
 		</script>
 		
 		<script id="collection-template" type="text/x-handlebars-template">
-			 <h2> {{'{{'}}#unless type{{'}}'}}
+			 <h1> {{'{{'}}#unless type{{'}}'}}
 				{{'{{'}}title{{'}}'}}
 				 {{'{{'}}/unless{{'}}'}}
 			      {{'{{'}}#if type{{'}}'}}<!--if type not undefined -->
-			      	Tag: {{'{{'}}title{{'}}'}}
+			      {{'{{'}}title{{'}}'}}
 			    {{'{{'}}/if{{'}}'}}
 
 			      
-			 </h2>
+			 </h1>
 		</script>
 		
-		
+		<script id="categories-template" type="text/x-handlebars-template">
+		       <a class="button taggy" href="/categories#!{{'{{'}}category{{'}}'}}">{{'{{'}}category{{'}}'}}</a>
+			
+		</script>
 		
 		<script id="entry-template" type="text/x-handlebars-template">
 			
-		     <div  id={{'{{'}}key{{'}}'}}>
-			<div class="postTitle">
-			<h3
-		            {{'{{'}}#if user_admin{{'}}'}}
-		                {{'{{'}}#if editable{{'}}'}}
-				   class="editable admin"
-			        {{'{{'}}/if{{'}}'}}
-			    {{'{{'}}/if{{'}}'}}
-			 {{'{{'}}#unless user_admin{{'}}'}}
-		             {{'{{'}}#if editable{{'}}'}}
-				   class="editable"
-			        {{'{{'}}/if{{'}}'}}
-			 {{'{{'}}/unless{{'}}'}}
-			 
-		         {{'{{'}}#unless editable{{'}}'}}
-			        class="viewable"
-			  {{'{{'}}/unless {{'}}'}} >
-		            <a class="title" href="#!/{{'{{'}}    category  {{'}}'}}/{{'{{'}}key{{'}}'}}">{{'{{'}}title{{'}}'}}</a></h3>
-	                     {{'{{'}}#if user_admin{{'}}'}}
-  
-  
-		       <input  id="post-title" name="title" placeholder="">
-		       {{'{{'}}/if{{'}}'}}
-		        </div>
-			   
-			   
-				      {{'{{'}}#if editable{{'}}'}}
-				         <div id="socialinks">      
-		             <a href="https://twitter.com/share" class="twitter-share-button"
-			        data-url="http://aarsakian.appspot.com" data-text="{{'{{'}}title{{'}}'}}"
-			        data-via="Aarsakian's blog" data-lang="en" hashtags="{{'{{'}}    category  {{'}}'}}/{{'{{'}}key{{'}}'}}"
-				>
-				Tweet</a>
-		          <span class="gplus"><g:plusone size="medium"  align="right"></g:plusone></span>
-		        </div>
+			<div  id={{'{{'}}key{{'}}'}}>
+				<div class="postTitle">
+					<h3
+						{{'{{'}}#if user_admin{{'}}'}}
+				     
+							class="editable admin">
+				       
+						{{'{{'}}/if{{'}}'}}
+						<a class="title" href="/{{'{{'}}    category  {{'}}'}}/{{'{{'}}title{{'}}'}}">{{'{{'}}title{{'}}'}}</a>
+					</h3>
+					{{'{{'}}#if user_admin{{'}}'}}
+	  
+					
+						<input  id="post-title" class="editmode" name="title" placeholder="">
+					{{'{{'}}/if{{'}}'}}
+				</div>
+				<div id="socialinks">      
+					<a href="https://twitter.com/share" class="twitter-share-button"
+					   data-url="http://aarsakian.appspot.com" data-text="{{'{{'}}title{{'}}'}}"
+					   data-via="Aarsakian's blog" data-lang="en" hashtags="{{'{{'}}    category  {{'}}'}}/{{'{{'}}key{{'}}'}}">
+					   Tweet</a>
+					<span class="gplus"><g:plusone size="medium"  align="right"></g:plusone></span>
+				</div>
 
-		           {{'{{'}}/if{{'}}'}}
-				    
-	               
-		     <div  {{'{{'}}#if user_admin{{'}}'}}
-		                 {{'{{'}}#if editable{{'}}'}}
-				         class="editable admin article clear"
-			        {{'{{'}}/if{{'}}'}}
-			    {{'{{'}}/if{{'}}'}}
-		         {{'{{'}}#unless editable{{'}}'}}  class="viewable admin article clear"
-			 {{'{{'}}/unless {{'}}'}}
-		        {{'{{'}}#unless user_admin{{'}}'}}
+				<div  {{'{{'}}#if user_admin{{'}}'}}
+		                
+						class="editable admin article clear"
+					{{'{{'}}/if{{'}}'}}
+						class="viewable admin article clear"
+			
+					{{'{{'}}#unless user_admin{{'}}'}}
 			        
-			      class="article clear"
-		       {{'{{'}}/unless{{'}}'}}>
+						class="article clear"
+					{{'{{'}}/unless{{'}}'}}>
 		
-	             {{'{{{'}}body{{'}}}'}}
+					{{'{{{'}}body{{'}}}'}}
 		 
-		       {{'{{'}}#if body100{{'}}'}}
-		       <span class="morelink"> <a href="#!/{{'{{'}}    category  {{'}}'}}/{{'{{'}}key{{'}}'}}">Read More</a></span>
-		       {{'{{'}}/if{{'}}'}}
-		     </div>
+					{{'{{'}}#if body100{{'}}'}}
+						<span class="morelink"> <a href="/{{'{{'}}    category  {{'}}'}}/{{'{{'}}title{{'}}'}}">Read More</a></span>
+					{{'{{'}}/if{{'}}'}}
+				</div>
 	                
     
-	               {{'{{'}}#if user_admin{{'}}'}}
-		     <textarea class="clear" type="text">{{ '{{' }}post{{ '}}' }}</textarea>
-	              {{'{{'}}/if{{'}}'}}
-		       {{'{{'}}#if editable{{'}}'}}
-		        <span class="backlink"><a href="#!/{{'{{'}}    category  {{'}}'}}">
+				{{'{{'}}#if user_admin{{'}}'}}
+					<textarea class="clear editmode" type="text">{{ '{{' }}post{{ '}}' }}</textarea>
+				 {{'{{'}}/if{{'}}'}}
+		   
+				<div id="date" >Created: {{'{{'}}date{{'}}'}}	 </div>
+				<div id="updated">Updated: {{'{{'}}updated{{'}}'}}
+			  </div>
+		 <!--      <span class="backlink"><a href="/{{'{{'}}    category  {{'}}'}}">
 			        <img src="{{url_for('static', filename='images/arrow_left_16x16.png')}}" alt="Back"/>
 				 <img src="{{url_for('static', filename='images/arrow_left_16x16.png')}}" alt="Back"/>
-				     <img src="{{url_for('static', filename='images/arrow_left_16x16.png')}}" alt="Back"/></a></span>
-		         <div id="date" >Created: {{'{{'}}date{{'}}'}}	 </div>
-			 <div id="updated">
-			  Updated: {{'{{'}}updated{{'}}'}}
-			  </div>
+				     <img src="{{url_for('static', filename='images/arrow_left_16x16.png')}}" alt="Back"/></a></span>-->
+		    
 		
 		          
 		         
-		      {{'{{'}}/if{{'}}'}}
-		      <div class="links">
-		       {{'{{'}}#unless type{{'}}'}}
-		              {{'{{'}}#each tags{{'}}'}}
-				<a class="button tag" href="#!/tags/{{'{{'}}this{{'}}'}}">{{'{{'}}this{{'}}'}}</a>
-		               {{'{{'}}/each{{'}}'}}
-		            
-			{{'{{'}}/unless{{'}}'}}
-	                     {{'{{'}}#if user_admin{{'}}'}}
-	                    <input  id="post-tag" name="title" placeholder="">
-		          
-	              <button class="destroy button">delete</button>
-		
-	              {{'{{'}}/if{{'}}'}}
+		     
+			<div class="links">
+				{{'{{'}}#unless type{{'}}'}}
+					<div class="btn-group">
+					{{'{{'}}#each tags{{'}}'}}
+						<a class="btn tag" href="/tags#!{{'{{'}}this.tag{{'}}'}}">{{'{{'}}this.tag{{'}}'}}</a>
+					{{'{{'}}/each{{'}}'}}
+					</div>
+				{{'{{'}}/unless{{'}}'}}
+				{{'{{'}}#if user_admin{{'}}'}}
+					<input  id="post_tag" class="editmode" name="title" placeholder="">
+					<div class="btn-group">
+						<button class="edit-title btn"><i class="icon-edit"></i>Edit</button>
+						<button class="save hide btn"><i class="icon-save"></i>Save</button>
+						<button class="destroy btn"><i class="icon-remove"></i>Delete</button>
+						<button class="edit-tags btn"><i class="icon-tag"></i>Edit Tags</button>
+					</div>
+				{{'{{'}}/if{{'}}'}}
 		                
-		     </div><!--closes links-->
-		        {{'{{'}}#if editable{{'}}'}}  
-		          
-	                {{'{{'}}/if{{'}}'}}
+			</div><!--closes links-->
+		        
 	         </div>
-                     
-			
-
-	              
-	   
   </script>
 
-<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
-		<!-- Defer-capable JavaScript block -->{% endblock %}		
-    
-
 		
-</body>
+		
+		<script src="http://code.jquery.com/jquery-latest.js"></script>
+		<script src="{{url_for('static', filename="js/libs/bootstrap.min.js")}}"></script>
+		<script src="{{url_for('static', filename="js/libs/modernizr-2.min.js")}}"></script>
+		<script src="{{url_for('static', filename="js/libs/underscore/underscore-min.js")}}"></script>
+		<script src="{{url_for('static', filename="js/libs/jquery/jquery-1.7.2.min.js")}}"></script>
+		<script src="{{url_for('static', filename="js/libs/backbone/backbone-min.js")}}"></script>
+		<script src="{{url_for('static', filename="js/libs/backbone.pagedcollection.js")}}"></script>
+		<script src="{{url_for('static', filename="js/app.js")}}"></script>
+		<script src="{{url_for('static', filename='js/libs/handlebars-1.0.0.beta.6.js')}}"></script>
+		<script src="{{url_for('static', filename='js/libs/showdown.js')}}"></script>
+		<script src="{{url_for('static', filename='js/libs/to-markdown.js')}}"></script>
+		<script src="{{url_for('static', filename='js/models/user.js')}}"></script>
+		<script src="{{url_for('static', filename='js/models/post.js')}}"></script>
+		<script src="{{url_for('static', filename='js/models/tag.js')}}"></script>
+		<script src="{{url_for('static', filename='js/models/category.js')}}"></script>
+		<script src="{{url_for('static', filename='js/models/Item.js')}}"></script>
+		<script src="{{url_for('static', filename='js/views/tagview.js')}}"></script>
+		<script src="{{url_for('static', filename='js/views/categoryview.js')}}"></script>
+		<script src="{{url_for('static', filename='js/views/postview.js')}}"></script>
+		<script src="{{url_for('static', filename='js/views/aboutview.js')}}"></script>
+		<script src="{{url_for('static', filename='js/collections/postscollection.js')}}"></script>
+		<script src="{{url_for('static', filename='js/collections/tagscollection.js')}}"></script>
+		<script src="{{url_for('static', filename='js/collections/categoriescollection.js')}}"></script>
+		<script src="{{url_for('static', filename="js/routes.js")}}"></script>
+	</body>
+	
 </html>

@@ -15,9 +15,11 @@ from werkzeug.contrib.atom import AtomFeed
 from urlparse import urljoin
 from datetime import datetime, timedelta, date
 from math import ceil
-import re
+from functools import wraps
+from re import compile
 from jinja2.environment import Environment
-
+from random import randint
+from itertools import chain
 KEY="posts"
 TAG="tags"
 CATEGORY="categories"
@@ -32,12 +34,16 @@ class Action(object):
         logging.info("initialized")
         self.posts_tags_db=[]
         self.catdict={}
-      
+        self.posts_tags_dict={}
         self.posts=memcache.get(KEY)
+        self.posts=self.posts
+        self.nofposts=self.posts.count()-2
         if self.posts is None:
-            self.posts = BlogPost.all().order("-timestamp")
+            q = BlogPost.all()
+            self.posts=q.order("-timestamp")
+            self.nofposts=q.count()-2
             memcache.add(KEY,self.posts)
-            logging.info(["UPDATE MEMCACHE",self.posts])
+           
         self.tags=memcache.get(TAG)
         if self.tags is None:
             self.tags = Tag.all()
@@ -46,10 +52,17 @@ class Action(object):
         if self.categories is None:
             self.categories= Category.all()
             memcache.add(CATEGORY,self.categories)
+
         for post in self.posts:
+            logging.info(post)
             self.posts_tags_db.extend(post.tags)
+            tags=[]
+            for key in post.tags:tags.append(db.get(key).tag)
+            self.posts_tags_dict[post.key()]=tags
             self.catdict[post.category.key()]=post.category.category
-            
+        self.tagnames=list(chain.from_iterable(self.posts_tags_dict.values()))
+        
+       
       
     
     
@@ -62,7 +75,7 @@ class Action(object):
         memcache.delete(TAG)
     @staticmethod
     def refetch(self):
-        self.posts = BlogPost.all().order("-timestamp")
+        self.posts =BlogPost.all().order("-timestamp")
         memcache.add(KEY,self.posts)
         self.tags = Tag.all()
         memcache.add(TAG,self.tags)
@@ -90,15 +103,15 @@ class Action(object):
 
         
         for post in posts:
-            if post.title!='About':
-                tags=[]
-                [tags.append({"tag":db.get(key).tag,"tagid":db.get(key).key().id()}) for key in post.tags]
-          
-                updated=str(post.updated.day)+" "+str(months[post.updated.month])+" "+str(post.updated.year)
-                dateposted=str(post.timestamp.day)+" "+str(months[post.timestamp.month])+" "+str(post.timestamp.year)
-                data.append({"title":post.title,"body":post.body,"category":db.get(post.category.key()).category,
-                             "catid": db.get(post.category.key()).key().id(),"id":str(post.key().id()),\
-                 "tags":tags,"date":dateposted,"updated":updated})
+           
+            tags=[]
+            [tags.append({"tag":db.get(key).tag,"tagid":db.get(key).key().id()}) for key in post.tags]
+      
+            updated=str(post.updated.day)+" "+str(months[post.updated.month])+" "+str(post.updated.year)
+            dateposted=str(post.timestamp.day)+" "+str(months[post.timestamp.month])+" "+str(post.timestamp.year)
+            data.append({"title":post.title,"body":post.body,"category":db.get(post.category.key()).category,
+                         "catid": db.get(post.category.key()).key().id(),"id":str(post.key().id()),\
+                        "tags":tags,"date":dateposted,"updated":updated})
         return(data)
 
 
@@ -177,10 +190,10 @@ class APost(Action):
         for tagkey in self.post_tags_keys:post_tagsdb_values.append(db.get(tagkey).tag)#previous Tags of the post
         
          
-        logging.info([self.posttags,type(self.posttags),type(post_tagsdb_values),post_tagsdb_values])  
+     #   logging.info([self.posttags,type(self.posttags),type(post_tagsdb_values),post_tagsdb_values])  
         unchangedtags=[]
         returnedTags=[]
-        logging.info(['posttags',self.posttags,post_tagsdb_values])
+      #  logging.info(['posttags',self.posttags,post_tagsdb_values])
         if post_tagsdb_values:#post does have tags
             logging.info(post_tagsdb_values)
             unchangedtags=set(self.posttags) & set( post_tagsdb_values)#changes tags added or removed
@@ -331,6 +344,7 @@ def findUser(entity=None):
  
     return jsonify(user_status=users.is_current_user_admin())
 
+@app.route('/built with',methods=['GET'])
 @app.route('/about',methods=['GET'])
 def aboutpage():
     if 'posts' not in globals():
@@ -360,9 +374,13 @@ def aboutpage():
         siteupdated="Out of range"
     #tags=[]
     
-    for post in posts:   logging.info([post.title])
-    pattern = re.compile("About")
- 
+    
+    path=request.path[1].upper()+request.path[2:]
+    pattern = compile(path)
+  
+    for postobj in posts:
+        if pattern.search(postobj.title):logging.info(pattern.search(postobj.title))
+        
 
     Post=[postobj for postobj in posts if pattern.search(postobj.title)][0]
     recentposts=posts[:3]
@@ -382,50 +400,63 @@ def datetimeformat(value, format='%H:%M / %d-%B-%Y'):
 environment = Environment()
 app.jinja_env.filters['datetimeformat'] = datetimeformat
 
+def boilercode(func):
+    """accepts function as argument enhance with new vars"""
+    @wraps(func)#propagate func attributes
+    def wrapper_func(*args,**kwargs):
+        posts=memcache.get(KEY)
+        tags=memcache.get(TAG)
+        categories=memcache.get(CATEGORY)
+        action=Action()
+        if not posts:
+            
+            posts=action.posts
+            tags=action.tags
+            categories=action.categories
+        
+       
+    
+        #[tags.append({"tag":obj.tag,"tagid":obj.key().id()}) for obj in Tag.all()]
+        recentposts=posts[:3]
+     
+        try:
+            post=posts[0]
+            siteupdated=str(post.updated.day)+" "+months[post.updated.month]+" "+str(post.updated.year)
+        except IndexError as e:
+            siteupdated="Out of range"
+        #tags=[]
+        
+        #[tags.append(post.tags) for post in posts if post.tags not in tags]
+      
+        ts=ceil(2.0/3.0*8*365)%365
+        dayspassed=date.today()-date(2012,3,2)
+        daysleft=int(ceil(2.0/3.0*8*365))-dayspassed.days
+        tz=date(2012,3,2)+timedelta(daysleft)
+        return func(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed,*args,**kwargs)
+    return wrapper_func
+
+
+
+@app.route('/id/<postkey>',methods=['GET'])
+@app.route('/edit',methods=['GET'])
 @app.route('/categories',methods=['GET'])
 @app.route('/tags',methods=['GET'])
+@boilercode
+def tags(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed,postkey=None):
+    logging.info('selected')
+    return render_template('main.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
+                           daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,tags=tags,categories=categories)
+   
+
+
+
 @app.route('/',methods=['GET'])
-def index(category=None):
+@boilercode
+def index(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed):
     """general url routing for template usage"""
-    if 'posts' not in globals():
-        global posts
-    if 'categories' not in globals():
-        global categories
-    if 'tags' not in globals():
-        global tags
-    posts=memcache.get(KEY)
-    tags=memcache.get(TAG)
-    categories=memcache.get(CATEGORY)
-  
-    if not posts:
-        logging.info("INDEX")
-        posts = BlogPost.all().order("-timestamp").fetch(20)
-        memcache.add(KEY,posts)
-    if not tags:
-        tags = Tag.all().fetch(20)
-        memcache.add(TAG,tags)
-    if not categories:
-        categories= Category.all().fetch(20)
-        memcache.add(CATEGORY,categories)
+    return render_template('posts.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
+                           daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,tags=tags,categories=categories,posts=posts,posts_tags_names=action.posts_tags_dict)
 
-    #[tags.append({"tag":obj.tag,"tagid":obj.key().id()}) for obj in Tag.all()]
-    recentposts=posts[:3]
-
-    try:
-        post=posts[0]
-        siteupdated=str(post.updated.day)+" "+months[post.updated.month]+" "+str(post.updated.year)
-    except IndexError as e:
-        siteupdated="Out of range"
-    #tags=[]
-    
-    #[tags.append(post.tags) for post in posts if post.tags not in tags]
-  
-    ts=ceil(2.0/3.0*8*365)%365
-    dayspassed=date.today()-date(2012,3,2)
-    daysleft=int(ceil(2.0/3.0*8*365))-dayspassed.days
-    tz=date(2012,3,2)+timedelta(daysleft)
-    return render_template('GGM.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
-                           daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,tags=tags,categories=categories,recentposts=recentposts)
 @app.route('/posts/about/<id>',methods=['PUT'])
 @app.route('/posts/about',methods=['GET'])
 def about(id=None):
@@ -437,16 +468,14 @@ def about(id=None):
     categories=memcache.get(CATEGORY)
    
     data=[]
-    if not posts:
-      
-        posts = BlogPost.all().order("-timestamp").fetch(20)
-        memcache.add(KEY,posts)
+    if not posts:action().fetchall()
+       
 
   
     Posts=[]
     
     if request.method=="GET":
-        pattern=re.compile("About")
+        pattern=compile("About")
         post=[post for post in posts if  pattern.search(post.title)][0]
        
            
@@ -913,56 +942,55 @@ def action(id=None):
 #        return jsonify(msg="NOT ALLOWED")
 
 
-
+@app.route('/random',methods=['GET'])
 @app.route('/<category>/<postTitle>',methods=['GET'])
-def post(category,postTitle=None):
-    if 'posts' not in globals():
-        global posts
-    posts=memcache.get(KEY)
-    tags=memcache.get(TAG)  
-    categories=memcache.get(CATEGORY)
-    if not posts:
-        logging.info("INDEX")
-        posts = BlogPost.all().order("-timestamp").fetch(20)
-        memcache.add(KEY,posts)
-
-    if not tags:
-        tags = Tag.all().fetch(20)
-        memcache.add(TAG,tags)
-    if not categories:
-        categories= Category.all().fetch(20)
-        memcache.add(CATEGORY,categories)
-    logging.info([postTitle])
+@boilercode
+def post(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed,category=None,postTitle=None):
     if postTitle:
-        Post=[postobj for postobj in posts if postobj.title==postTitle][0]
-        tagnames=[]
-        [tagnames.append(tag.tag) for tag in tags if tag.key() in Post.tags]
+       # posts=posts.filter('title =',postTitle)
+   
+      
+        Post=[postobj for postobj in posts if postobj.title.replace(' ','')==postTitle.replace(' ','')][0]
+
+       
+        
+       
+       
+               
+        for category in categories:
+    ##    
+            logging.info([category.category,category.key(),Post.category.key()==category.key()])
+            Post.catname=[category.category for category in categories if Post.category.key()==category.key()][0]
+         
+                
+                
    
     else:
-        for post in posts:
-            (t,post.catname)=[(lambda post:posts.remove(post),category.category) for category in categories if not post.category.key()==category.key()][0]
-    for category in categories:
-    ##    
-       logging.info([category.category,category.key(),Post.category.key()==category.key()])
-    Post.catname=[category.category for category in categories if Post.category.key()==category.key()][0]
+        try:
+            Post=posts[randint(0,action.nofposts-1)]
+        except ValueError:
+             
+            return render_template('singlepost.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
+                           daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,RelatedPosts=None,\
+                           Post=None)
+
+        #for post in posts:
+        #    (t,post.catname)=[(lambda post:posts.remove(post),category.category) for category in categories if not post.category.key()==category.key()][0]
+    Posttagnames=[]
+    RelatedPosts=[]
+    for tag in tags:
+        if tag.key() in Post.tags:
+            Posttagnames.append(tag.tag)
+          
     
+    for postkey,tagnames in action.posts_tags_dict.items():
+        if postkey!=Post.key():
+            [RelatedPosts.append(db.get(postkey)) for tag in Posttagnames if tag in tagnames]
+                  
     
-    try:
-        post=posts[0]
-        siteupdated=str(post.updated.day)+" "+months[post.updated.month]+" "+str(post.updated.year)
-    except IndexError as e:
-        siteupdated="Out of range"
-    #tags=[]
-    
-    #[tags.append(post.tags) for post in posts if post.tags not in tags]
-    recentposts=posts[:3]
-    ts=ceil(2.0/3.0*8*365)%365
-    dayspassed=date.today()-date(2012,3,2)
-    daysleft=int(ceil(2.0/3.0*8*365))-dayspassed.days
-    tz=date(2012,3,2)+timedelta(daysleft)
-    return render_template('GGM.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
-                           daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,tags=tags,categories=categories,\
-                           Post=Post,tagnames=tagnames,recentposts=recentposts)
+    return render_template('singlepost.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
+                           daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,RelatedPosts=RelatedPosts,\
+                           Post=Post)
 
 def make_external(url):
     return urljoin(request.url_root, url)
@@ -986,7 +1014,6 @@ def recent_feed():
                  updated=article.updated,
                  published=article.timestamp)
     return feed.get_response()
-
 
 
 

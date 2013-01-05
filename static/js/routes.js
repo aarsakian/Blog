@@ -5,43 +5,38 @@
         
         routes: {
          
-            "":                   "main",
+            "edit":                   "main",
           
-           ":entity":     "displayPosts"
-      
+           "tags":     "displayPosts",
+           "id/:key":             "router"
           
           
           
         },
         main: function(){
+        
+           
+         
+                  window.App=new app.views.Main();
+          
+         
+                     
+         
+        },
+        
+        router:function(key){
           var  url=location.pathname.substring(1);
               //app.models.User.fetch({success: function(model,response){
               //     
               //      model.set("user_status",response);
               //  }});
-              console.log(url);
+              console.log(key);
               //
             
             if ((url) &&  (url.split('/').length===1) && (url!="about"))
                   window.App=new app.views.Main({"url":url});
-           
-                 
-           //else if (url.split('/').length===2)
-           // {   
-           //       
-           //       window.App=new app.views.Main({"postTitle":url.split('/')[1]});
-           // }
-            else if (!url) //index page
-            {   
-            
-                  window.App=new app.views.Main();
-            }
-         
-                     
-         
-        },
      
-       
+        },
          
          displayPosts:function(entity){
               url=location.pathname.substring(1);//part after hash

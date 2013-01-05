@@ -12,7 +12,6 @@
       
       
     
-      var top = $('.tweets').offset().top - parseFloat($('.tweets').css('marginTop').replace(/auto/, 0));
      
     
      
@@ -20,56 +19,62 @@
 
          $('.classic .article').append().html(converter.makeHtml($('.classic .article').text()));
      
-      if ($('#bd').width()<900){
-         var rightmargin=$(window).width()-$('#bd').offset().left-$('#bd').width();
-         $('#nav li ul').css({'width': $('#bd').width()-rightmargin/8+2});
-      }
-      else
-       $('#nav li ul').css({'width': $('#bd').width()-5});
-     
-      $(window).resize(function() {
-           
-            $('#nav li ul').css({'width': $('#bd').width()-5});
-              $('#right').removeClass('fixed');
-      });
+      //if ($('#bd').width()<900){
+      //   var rightmargin=$(window).width()-$('#bd').offset().left-$('#bd').width();
+      //   $('#nav li ul').css({'width': $('#bd').width()-rightmargin/8+2});
+      //}
+      //else
+      // $('#nav li ul').css({'width': $('#bd').width()-5});
+      //
+      //$(window).resize(function() {
+      //     
+      //      $('#nav li ul').css({'width': $('#bd').width()-5});
+      //        $('#right').removeClass('fixed');
+      //});
 //    console.log(top);
-      $(window).scroll(function (event) {
-	// what the y position of the scroll is
-	      var y = $(this).scrollTop();
-         $height=$('#right').height();
-       
-	// whether that's below the form
-	if (y >= top) {
-	  // if so, ad the fixed class
-	  $('#right').addClass('fixed');
-         $('#right').height($height);
-         $('#right').css({'left':$('#left').width()+$('#left').offset().left+20});//left div+offset
-         $('#right').width($('#bd').width()-20-$('#left').width());//bd-left dev -margin
-        
-        
-	} else {
-	  // otherwise remove it
-	  $('#right').removeClass('fixed');
-             $('#right').css({'left':'64%'});//left div+offset
-         $('#right').width('24%');//bd-left dev -margin
-      
-	}
-      });
+
+//      var top = $('#right').offset().top - parseFloat($('#right').css('marginTop').replace(/auto/, 0));
+//     
+//      $(window).scroll(function (event) {
+//	// what the y position of the scroll is
+//	      var y = $(this).scrollTop();
+//         $height=$('#right').height();
+//       
+//	// whether that's below the form
+//	if (y >= top) {
+//	  // if so, ad the fixed class
+//	  $('#right').addClass('fixed');
+//       
+//         $('#right').css({'left':$('#left').width()+$('#left').offset().left+20});//left div+offset
+//         $('#right').width($('#bd').width()-20-$('#left').width());//bd-left dev -margin
+//        
+//        
+//	} else {
+//	  // otherwise remove it
+//	  $('#right').removeClass('fixed');
+//             $('#right').css({'left':'64%'});//left div+offset
+//         $('#right').width('24%');//bd-left dev -margin
+//      
+//	}
+//      });
    
     var actify=function (url){
-   
-      
-         $('#menu a').each(function(){
+    
+         $('.nav-pills li').each(function(){
 	    $(this).removeClass('active');
-            if((this.href.indexOf(url)!==-1) && url!="/"){
+            var link=$(this).children().first()[0].pathname;
+           
+            if (url===link){
                 $(this).addClass('active');}
+               
             });
+         }
             
-   }
+   
     
     
-      
-      
+   var  url=location.pathname;
+   actify(url);
       
 
 
@@ -138,8 +143,12 @@
 
     
     
-	    
-
+	      (function() {
+        var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+        po.src = 'https://apis.google.com/js/plusone.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+      })();
+   $.getScript("http://platform.twitter.com/widgets.js");
     
 
     var ENTER_KEY=13;
@@ -214,7 +223,7 @@
                   else{//index page
                      console.log('central index');
                      app.Posts=new app.collections.Posts();
-                      app.Posts.header="All Posts";
+                     app.Posts.header="All Posts";
                   }
                
                   app.Posts.on('reset', this.render, this);
@@ -264,7 +273,7 @@
                 $el.find("#newpost").empty('');
                 $el.find("#newpost").append(this.newposttemplate(newpostcontext));
 		$el.find('h2').remove();
-		$el.find('#left').prepend(this.template(context));
+		$el.find('.page-header').prepend(this.template(context));
              
                   app.Posts.each(this.addOne, this);
                  
@@ -327,7 +336,7 @@
            
         //     editevent=true;
 
-            console.log(this.title.val());
+            console.log(this.tags.val().split(','));
             app.Posts.create({title:this.title.val(),body:this.body.val(),category:this.category.val(),
                               tags:this.tags.val().split(',')});//add event
       
@@ -357,7 +366,7 @@
     //  disqview();
     // $('#disqus_thread').hide();
      window.siterouting=new  app.routes.Main;
-     Backbone.history.start();
+     Backbone.history.start({pushState: true});
 
     $("#editabout a").on("click",function(){
        var  url=location.pathname.substring(1);

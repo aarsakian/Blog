@@ -40,32 +40,12 @@
 			{% block header %}
 			<div id="hdinner">
 				<div id="menu">
-				<ul id="nav">
-			            <li><a href="/">HOME</a></li>
-				    <li class="navsub"><a href="/categories">CATEGORIES</a>
-				       <ul>
-				              {%for category in categories%}
-						    <li><a href="/categories#!{{category.category}}">{{category.category}}</a></li>
-					      {%endfor%}
-				        </ul>
-				    </li>
-				
-				  
-			            <li class="navsub"><a href="/tags">TAGS</a>
-				       <ul>
-				           {% for column in tags|slice(2) %}
-					       <div class="column-{{loop.index}}">
-						   {%for tag in column%}
-							<li><a href="/tags#!{{tag.tag}}">{{tag.tag}}</a></li>
-						   {%endfor%}
-						</div>
-					    {% endfor %}
-					</ul>
-				    
-				    </li>
-				    <li><a href="/about">ABOUT</a></li>
-			     
-				</ul>
+				    <ul id="nav">
+					<li><a href="/">HOME</a></li>
+					<li><a href="/random">RANDOM</a></li>
+					<li><a href="/about">ABOUT</a></li>
+				 
+				    </ul>
 				</div>
 			
 		<span class="rss">
