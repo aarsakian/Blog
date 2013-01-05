@@ -36,14 +36,14 @@ class Action(object):
         self.catdict={}
         self.posts_tags_dict={}
         self.posts=memcache.get(KEY)
-        self.posts=self.posts
-        self.nofposts=self.posts.count()-2
+
+      
         if self.posts is None:
             q = BlogPost.all()
             self.posts=q.order("-timestamp")
-            self.nofposts=q.count()-2
+         
             memcache.add(KEY,self.posts)
-           
+        self.nofposts=self.posts.count()-2
         self.tags=memcache.get(TAG)
         if self.tags is None:
             self.tags = Tag.all()

@@ -7,9 +7,18 @@
 {% block content%}
 
     <div class="page-header">
-	 <h2 class="editable">{{Post.title}}</h2>
+	 
+	 <div class="row-fluid" id="about">
+	      <div class="span6">
+                    <h2 class="editable">{{Post.title}}</h2>
+                           
+	     </div>
+	     <div class="span3 offset1">
+			     
+            	   <div id="updated"> Updated: {{ Post.updated|datetimeformat('%d-%m-%Y')}}    </div>
+	       </div>
+	 </div>
     </div>
-  
    
             
         {%if Post %}
@@ -25,7 +34,7 @@
                             </div>-->
 			
 			      
-			      <div class="span3" id="updated"> Updated: {{ Post.updated|datetimeformat('%d-%m-%Y')}}    </div>
+			    
                            
                             
                         
