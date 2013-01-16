@@ -24,8 +24,10 @@
             else {//collection ==a model
            //    if (app.Posts.length==1)
              //       return app.Posts.url
-               //else//a collection of a model
-                    return app.Posts.url+"/"+this.id;
+                if (app.Posts.url.split('/').length===3)
+                    return  app.Posts.url;
+		else
+		    return  app.Posts.url+"/"+this.id;
 	
             }
             

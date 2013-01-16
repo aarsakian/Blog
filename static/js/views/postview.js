@@ -7,8 +7,10 @@
         className: "post clear" ,//view is a post
         template :Handlebars.compile($("#entry-template").html()),
         initialize: function(){
+	   console.log('model change');
             this.model.on('change', this.render, this);//rerender event, callback, [context]
             this.model.on('destroy', this.remove, this);
+	    
            // this.model.on('reset', this.render, this)
             //this.render();
             
@@ -22,8 +24,8 @@
        events: {
 	//"click div.viewable":              "getAPost",
 	//"click  h3.viewable":              "getAPost",
-        "dblclick  div.editable.admin":          "editBody",//{"eventType selector": "callback"}.
-        "dblclick  h3.editable.admin":         "editTitle",
+        "click  div.editable.admin":          "editBody",//{"eventType selector": "callback"}.
+        "click  h3.editable.admin":         "editTitle",
         "click  .save":          "close",
         "keypress .post textarea"  :   "updateHeight",
         "keypress #post-title "  :    "updateOnEnter",
@@ -136,7 +138,7 @@
             $body.addClass('edit');
             $body.val(toMarkdown(this.body));
 	    
-	    
+	   
          
            
         },
@@ -165,10 +167,11 @@
                 $.getScript("http://platform.twitter.com/widgets.js");
                 if ($(this.el).find('h3').hasClass('hide')) {//closing title field
                    title=$(this.el).find('#post-title').val();
-		
 		   }
-                else
-                   title=$(this.el).find('.title').text();
+                else{
+			console.log($(this.el).find('.title').text());
+                   title=$(this.el).find('.title').text().replace(/!^\s+|\s+|!\s+$/g, " ");
+		}
                 if ($(this.el).find('.article').hasClass('hide')){
                     bodyMarkup=$(this.el).find('textarea').val();
 		  //  this.tags=tags=$(this.el).find('.tag').text().split(',');
@@ -185,15 +188,14 @@
                   }
                 else if ((!$(this.el).find('.links').has('a').length) && ($(this.el).find('#post_tag').hasClass('edit'))){//first tag
                      tags=$(this.el).find('#post_tag').val().split(',');
-                    
-                     console.log(tags);}
+		}
                 else{
 			 tags=this.tagsnames;
 		     
 		}
 		     // console.log(!$(this.el).find('.links').has('a').length);
                //console.log($(this.el).find('#post_tag').hasClass('edit'));
-		//console.log(tags);
+		console.log(bodyMarkup);
                 id=$(this.el).children().attr("id");
             
                 if (!id){
@@ -213,9 +215,11 @@
         
         updateHeight:function(){
             height=$(this.el).find('.article').height()+20;
-            $body=$(this.el).find('textarea').height(height);
-
-                return
+            $(this.el).find('textarea').height(height);
+	    this.model.body=$(this.el).find('textarea').val();
+	    var count=$(this.el).find('textarea').val().length;
+	   return
+                
          
         },
         updateOnEnter:function(e){

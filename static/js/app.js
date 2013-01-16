@@ -14,10 +14,13 @@
     
      
     
-     
-         var  converter = new Showdown.converter();
+         
 
-         $('.classic .article').append().html(converter.makeHtml($('.classic .article').text()));
+      var  converter = new Showdown.converter();
+      $('.article').each(function(){
+          $(this).html(converter.makeHtml($(this).text()));
+      });
+         
      
       //if ($('#bd').width()<900){
       //   var rightmargin=$(window).width()-$('#bd').offset().left-$('#bd').width();
@@ -175,7 +178,7 @@
               
                   this.changed=true;
                     model.set({"user_status":response});
-                     console.log(this.user);
+                    
                 }});
                 this.user.on('change:user_status', function(model, color) {
                     //  console.log(this.options.url);
@@ -196,6 +199,9 @@
                   
                   }
 		 
+                 else if (this.options.postkey){// a post
+                        app.Posts=new app.collections.Posts([],{"postkey":this.options.postkey});
+                 }
                     else if (this.options.url==='tags') {//a tag view
                         actify("tags");
                         app.Posts=new app.collections.Tags([],{"url":this.options.url});
@@ -372,9 +378,39 @@
        var  url=location.pathname.substring(1);
         window.App=new app.views.Main({"url":url});
       });
-    
-    
-    
+  
+    $('.typeahead').typeahead({
+    minLength:3,
+   updater: function(item) {
+        console.log('55555----');
+        $('#postid').val(item);
+        return item;
+    },
+   
+    source: function (typeahead, query) {
+      
+        return $.get('/search', { query:query}, function (data) {
+            titlesbodies = [];
+            posts = {};
+
+            $.each(data.data, function (i, post) {
+               posts[post.title] = post;
+               titlesbodies.push(post.title);
+               titlesbodies.push(post.body);
+            });
+          //   console.log(titlesbodies);
+              typeahead.process(titlesbodies);
+        });
+    }
+  
+  
+   });
+  
+   
+   $('#searchform').on('submit',function(event){
+      window.location.pathname="";
+      
+      });    
   });
 
 })();

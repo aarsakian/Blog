@@ -3,7 +3,7 @@
         model:model,
 
         initialize:function(models,options){
-	 
+	  console.log(options);
             if (typeof options!="undefined"){
                  
                 if (options['category']){
@@ -31,12 +31,13 @@
                 }
 
 		
-		//else if (options['postTitle'])
-		//{    console.log(options['postTitle']);
-		//    // this.header=options['postTitle'];
-		//     this.url='category/'+options['postTitle'];
-		//    
-		//}
+		else if (options['postkey'])
+		{    
+		    // this.header=options['postTitle'];
+		    console.log(this.url);
+		     this.url='/posts/'+options['postkey'];
+		    
+		}
               
             }
 	    else

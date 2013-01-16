@@ -3,9 +3,10 @@ from blog import app
 from models import BlogPost
 from flask import render_template,request,jsonify,redirect,url_for, Markup
 from google.appengine.ext import db
-from google.appengine.api import memcache
+from google.appengine.api import memcache,search
 from models import BlogPost,Tag,Category
 from datetime import date
+from search import query_options,_INDEX_NAME,createIndex,delete_document
 try:
     from simplejson import loads,dumps
 except ImportError:
@@ -39,9 +40,8 @@ class Action(object):
 
       
         if self.posts is None:
-            q = BlogPost.all()
-            self.posts=q.order("-timestamp")
-         
+            self.posts = BlogPost.all().order("-timestamp")
+            createIndex(self.posts)
             memcache.add(KEY,self.posts)
         self.nofposts=self.posts.count()-2
         self.tags=memcache.get(TAG)
@@ -61,7 +61,7 @@ class Action(object):
             self.posts_tags_dict[post.key()]=tags
             self.catdict[post.category.key()]=post.category.category
         self.tagnames=list(chain.from_iterable(self.posts_tags_dict.values()))
-        
+      
        
       
     
@@ -81,7 +81,7 @@ class Action(object):
         memcache.add(TAG,self.tags)
         self.categories= Category.all()
         memcache.add(CATEGORY,self.categories)
-        
+        createIndex(self.posts)
     
     def getall(self,catname=None,tagname=None):
         data=[]
@@ -118,7 +118,7 @@ class Action(object):
 
 class APost(Action):
     def __init__(self,title=None,body=None,date=None,category=None,posttags=None,id=None):
-        logging.info([title,body,date,category,posttags,id])
+
         Action.__init__(self)
         if id==None:
            
@@ -129,7 +129,7 @@ class APost(Action):
             self.posttags=posttags
             
         elif title==None:
-            self.obj = BlogPost.get_by_id(int(id))
+            self.obj =BlogPost.get_by_id(int(id))
             self.id = self.obj.key().id()
             self.post_tags_keys = self.obj.tags
             
@@ -142,6 +142,22 @@ class APost(Action):
             self.date=date
             self.postcategory=category
             self.posttags=posttags
+            
+    def retrieve(self):
+        """retrieves a post"""
+        tags=[]
+        [tags.append({"tag":db.get(key).tag,"tagid":db.get(key).key().id()}) for key in self.obj.tags]
+          
+        data=[]
+        updated=str(self.obj.updated.day)+" "+str(months[self.obj.updated.month])+" "+str(self.obj.updated.year)
+        dateposted=str(self.obj.timestamp.day)+" "+str(months[self.obj.timestamp.month])+" "+str(self.obj.timestamp.year)    
+        data.append({"title":self.obj.title,"body":self.obj.body,"category":db.get(self.obj.category.key()).category,
+                         "catid": db.get(self.obj.category.key()).key().id(),"id":str(self.obj.key().id()),\
+             "tags":tags,"date":dateposted,"updated":updated})
+        self.deleteMemcache(self)
+        self.refetch(self)
+        return(data)
+        
     def delete(self):
         """delete a post"""
         restTags=list(set(self.posts_tags_db)^set(self.post_tags_keys))
@@ -151,6 +167,7 @@ class APost(Action):
         self.obj.delete()
         self.deleteMemcache(self)
         self.refetch(self)
+        delete_document([str(self.obj.key())])
     
     def update(self):
         """updates a post"""
@@ -253,7 +270,7 @@ class APost(Action):
         self.obj.category=self.catdict.keys()[self.catdict.values().index(self.postcategory)]
         self.obj.updated=datetime.now()
         self.obj.put()
-      
+        createIndex([self.obj])
         tags=[]
         [tags.append({"tag":db.get(key).tag,"tagid":db.get(key).key().id()}) for key in self.obj.tags]
           
@@ -394,7 +411,7 @@ def aboutpage():
     
     
 
-def datetimeformat(value, format='%H:%M / %d-%B-%Y'):
+def datetimeformat(value, format='%H:%M / %A-%B-%Y'):
     return value.strftime(format)
 
 environment = Environment()
@@ -409,12 +426,9 @@ def boilercode(func):
         categories=memcache.get(CATEGORY)
         action=Action()
         if not posts:
-            
             posts=action.posts
-            tags=action.tags
-            categories=action.categories
-        
-       
+            
+     
     
         #[tags.append({"tag":obj.tag,"tagid":obj.key().id()}) for obj in Tag.all()]
         recentposts=posts[:3]
@@ -437,23 +451,48 @@ def boilercode(func):
 
 
 
-@app.route('/id/<postkey>',methods=['GET'])
+
+@app.route('/<postkey>/edit',methods=['GET'])
+@app.route('/edit/<postkey>',methods=['GET'])
 @app.route('/edit',methods=['GET'])
 @app.route('/categories',methods=['GET'])
 @app.route('/tags',methods=['GET'])
 @boilercode
 def tags(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed,postkey=None):
-    logging.info('selected')
+  
     return render_template('main.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
                            daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,tags=tags,categories=categories)
    
 
-
-
+@app.route('/searchresults',methods=['GET'])
+@boilercode
+def searchresults(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed,data=None):
+    query=request.args.get('q')
+    index = search.Index(name=_INDEX_NAME)
+    results=[]
+    posts=[]
+    results=index.search(query)
+    logging.info([query,results])
+    if results:
+        for scored_document in results:
+            posts.append(db.get(scored_document.doc_id))
+    return render_template('index.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
+                           daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,tags=tags,categories=categories,posts=posts,posts_tags_names=action.posts_tags_dict)
 @app.route('/',methods=['GET'])
 @boilercode
 def index(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed):
     """general url routing for template usage"""
+
+    if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
+    return render_template('index.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
+                           daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,tags=tags,categories=categories,posts=posts,posts_tags_names=action.posts_tags_dict)
+
+@app.route('/archives',methods=['GET'])
+@boilercode
+def archives(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed):
+    """general url routing for template usage"""
+
+    if request.args.get('q'):return redirect(url_for('search2',q=request.args.get('q')))
     return render_template('posts.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
                            daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,tags=tags,categories=categories,posts=posts,posts_tags_names=action.posts_tags_dict)
 
@@ -634,7 +673,7 @@ def main():
       
 
 
-@app.route('/posts/<id>',methods=['PUT','DELETE'])
+@app.route('/posts/<id>',methods=['PUT','DELETE','GET'])
 def handleApost(id):
     posts=memcache.get(KEY)
     tags=memcache.get(TAG)
@@ -654,7 +693,12 @@ def handleApost(id):
         
     obj=BlogPost.get_by_id(int(id))
     tagkeys=obj.tags
-    if users.is_current_user_admin() and request.method=="DELETE":
+    
+    if request.method=="GET":
+        apost=APost(id=id)
+        data=apost.retrieve()
+        return jsonify(msg="OK",posts=data)
+    elif users.is_current_user_admin() and request.method=="DELETE":
         apost=APost(id=id)
         apost.delete()
         return jsonify(msg="OK")
@@ -1001,7 +1045,7 @@ def recent_feed():
     feed = AtomFeed('Recent Articles',
                     feed_url=request.url, url=request.url_root)
     #articles = BlogPost.all()
-    pattern=re.compile("About")
+    pattern=compile("About")
     articles=memcache.get(KEY)
     articles.order("-timestamp")
     categories=memcache.get(CATEGORY)
@@ -1016,6 +1060,28 @@ def recent_feed():
     return feed.get_response()
 
 
+@app.route('/search',methods=['GET'])
+def searchsite():
+    data=[]
+    query_string=request.args.get('query', '')
+    try:
+        query = search.Query(query_string=query_string, options=query_options)
 
+        index = search.Index(name=_INDEX_NAME)
+        results=[]
+        results=index.search(query)
+        
+        if results:
+            for scored_document in results:
+                #returns title,body,category
+                data.append({scored_document.fields[0].name: scored_document.fields[0].value,\
+                             scored_document.fields[1].name:scored_document.fields[1].value,\
+                             scored_document.fields[2].name:scored_document.fields[2].value})
+      
+        # process scored_document
+    except search.Error:
+        data.append('Search failed')
+        
+    return jsonify(data=data)
 
 

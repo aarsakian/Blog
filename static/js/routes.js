@@ -8,7 +8,7 @@
             "edit":                   "main",
           
            "tags":     "displayPosts",
-           "id/:key":             "router"
+           "edit/:key":             "router"
           
           
           
@@ -25,16 +25,13 @@
         },
         
         router:function(key){
-          var  url=location.pathname.substring(1);
+              console.log(key.postkey);
               //app.models.User.fetch({success: function(model,response){
               //     
               //      model.set("user_status",response);
               //  }});
-              console.log(key);
-              //
             
-            if ((url) &&  (url.split('/').length===1) && (url!="about"))
-                  window.App=new app.views.Main({"url":url});
+                  window.App=new app.views.Main({"postkey":key});
      
         },
          

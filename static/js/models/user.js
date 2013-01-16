@@ -4,7 +4,8 @@
         
         
         },
-        url:"user",
+        url:"/user",
+    
         //parse:function(data){
         ////    console.log(data.user_admin);
         //    return data.user_status;

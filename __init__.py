@@ -9,3 +9,4 @@ if app.config['DEBUG']:
 
 
 import views
+import search

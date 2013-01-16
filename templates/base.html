@@ -17,11 +17,21 @@
 	</head>
 	<body>
 		<div class="container">
+			<div class="row-fluid" id="searchfield">
+				<div class="span3 offset8">
+					<form class="navbar-search pull-left" id="searchform">
+							
+							<input type="text" name="q"  data-provide="typeahead" class="typeahead" placeholder="Search">
+						
+					</form>
+				</div>
+			</div>
 			<div class="row-fluid" id="hd">
 				<div class="span9" id="hdinner">
 				   
 					<ul class="nav nav-pills">
 					    <li><a href="/">HOME</a></li>
+					    <li><a href="/archives">ARCHIVES</a></li>
 					    <li><a href="/random">RANDOM</a></li>
 					    <li><a href="/about">ABOUT</a></li>
 				     
@@ -100,10 +110,10 @@
 					<h3
 						{{'{{'}}#if user_admin{{'}}'}}
 				     
-							class="editable admin">
+							class="title editable admin">
 				       
 						{{'{{'}}/if{{'}}'}}
-						<a class="title" href="/{{'{{'}}    category  {{'}}'}}/{{'{{'}}title{{'}}'}}">{{'{{'}}title{{'}}'}}</a>
+						{{'{{'}}title{{'}}'}}
 					</h3>
 					{{'{{'}}#if user_admin{{'}}'}}
 	  
@@ -186,6 +196,7 @@
 		<script src="{{url_for('static', filename="js/libs/jquery/jquery-1.7.2.min.js")}}"></script>
 		<script src="{{url_for('static', filename="js/libs/backbone/backbone-min.js")}}"></script>
 		<script src="{{url_for('static', filename="js/libs/backbone.pagedcollection.js")}}"></script>
+		<script src="{{url_for('static', filename="js/libs/bootstrap-typeahead-ajax.js")}}"></script>
 		<script src="{{url_for('static', filename="js/app.js")}}"></script>
 		<script src="{{url_for('static', filename='js/libs/handlebars-1.0.0.beta.6.js')}}"></script>
 		<script src="{{url_for('static', filename='js/libs/showdown.js')}}"></script>
