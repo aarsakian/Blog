@@ -24,7 +24,7 @@ from itertools import chain
 KEY="posts"
 TAG="tags"
 CATEGORY="categories"
-
+CODEVERSION=":v0.6"
 
 headerdict={"machine_learning":"Gaussian Graphical Models","programming":"Programming","about":"About Me"}
 months=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
@@ -461,7 +461,8 @@ def boilercode(func):
 def tags(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed,postkey=None):
   
     return render_template('main.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
-                           daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,tags=tags,categories=categories)
+                           daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,tags=tags,categories=categories,codeversion=CODEVERSION)
+
    
 
 @app.route('/searchresults',methods=['GET'])
@@ -476,8 +477,12 @@ def searchresults(posts,tags,categories,action,siteupdated,daysleft,tz,dayspasse
     if results:
         for scored_document in results:
             posts.append(db.get(scored_document.doc_id))
+    else:posts=[]
+       
     return render_template('index.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
-                           daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,tags=tags,categories=categories,posts=posts,posts_tags_names=action.posts_tags_dict)
+                           daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,tags=tags,categories=categories,\
+                           posts=posts,posts_tags_names=action.posts_tags_dict,codeversion=CODEVERSION)
+
 @app.route('/',methods=['GET'])
 @boilercode
 def index(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed):
@@ -485,7 +490,8 @@ def index(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed):
 
     if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
     return render_template('index.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
-                           daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,tags=tags,categories=categories,posts=posts,posts_tags_names=action.posts_tags_dict)
+                           daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,tags=tags,categories=categories,posts=posts,\
+                           posts_tags_names=action.posts_tags_dict,codeversion=CODEVERSION)
 
 @app.route('/archives',methods=['GET'])
 @boilercode
@@ -494,7 +500,10 @@ def archives(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed):
 
     if request.args.get('q'):return redirect(url_for('search2',q=request.args.get('q')))
     return render_template('posts.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
-                           daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,tags=tags,categories=categories,posts=posts,posts_tags_names=action.posts_tags_dict)
+                           daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,tags=tags,categories=categories,\
+                           posts=posts,posts_tags_names=action.posts_tags_dict,codeversion=CODEVERSION)
+
+
 
 @app.route('/posts/about/<id>',methods=['PUT'])
 @app.route('/posts/about',methods=['GET'])
@@ -1016,7 +1025,7 @@ def post(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed,categor
              
             return render_template('singlepost.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
                            daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,RelatedPosts=None,\
-                           Post=None)
+                           Post=None,codeversion=CODEVERSION)
 
         #for post in posts:
         #    (t,post.catname)=[(lambda post:posts.remove(post),category.category) for category in categories if not post.category.key()==category.key()][0]

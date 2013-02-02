@@ -45,11 +45,11 @@
             if (app.Posts.length==1) 
 	        editmode=true
 	    else {
-		if (this.body.length>150) {
-		        body100=true
-			this.body=this.body.substring(0,150)+"...";
-                       
-		}
+		//if (this.body.length>150) {
+		//        body100=true
+		//	this.body=this.body.substring(0,150)+"...";
+		//                     
+		//}
 		
 	        editmode=false
 	    }
@@ -136,6 +136,7 @@
 	    height=$(this.el).find('.article').height()+20;
             $body=$(this.el).find('textarea').height(height);
             $body.addClass('edit');
+	    console.log(toMarkdown(this.body));
             $body.val(toMarkdown(this.body));
 	    
 	   
@@ -169,7 +170,7 @@
                    title=$(this.el).find('#post-title').val();
 		   }
                 else{
-			console.log($(this.el).find('.title').text());
+			//console.log($(this.el).find('.title').text());
                    title=$(this.el).find('.title').text().replace(/!^\s+|\s+|!\s+$/g, " ");
 		}
                 if ($(this.el).find('.article').hasClass('hide')){

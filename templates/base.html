@@ -13,7 +13,8 @@
 		<link href="/static/css/style.css" rel="stylesheet" media="screen">
 		<link href="{{ url_for('recent_feed') }}" rel="alternate" title="Recent Changes"  type="application/atom+xml">
 		<link href='http://fonts.googleapis.com/css?family=Merriweather:400' rel='stylesheet' type='text/css'>
-		
+		<script src="{{url_for('static', filename='js/libs/to-markdown.js')}}"></script>
+		<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 	</head>
 	<body>
 		<div class="container">
@@ -69,7 +70,7 @@
 		
 		
 		
-		
+	{%if user_status%}
 		<script id="new-post-template" type="text/x-handlebars-template">
 			{{'{{'}}#if user_admin{{'}}'}}
 			<form>
@@ -121,13 +122,7 @@
 						<input  id="post-title" class="editmode" name="title" placeholder="">
 					{{'{{'}}/if{{'}}'}}
 				</div>
-				<div id="socialinks">      
-					<a href="https://twitter.com/share" class="twitter-share-button"
-					   data-url="http://aarsakian.appspot.com" data-text="{{'{{'}}title{{'}}'}}"
-					   data-via="Aarsakian's blog" data-lang="en" hashtags="{{'{{'}}    category  {{'}}'}}/{{'{{'}}key{{'}}'}}">
-					   Tweet</a>
-					<span class="gplus"><g:plusone size="medium"  align="right"></g:plusone></span>
-				</div>
+				
 
 				<div  {{'{{'}}#if user_admin{{'}}'}}
 		                
@@ -152,8 +147,7 @@
 					<textarea class="clear editmode" type="text">{{ '{{' }}post{{ '}}' }}</textarea>
 				 {{'{{'}}/if{{'}}'}}
 		   
-				<div id="date" >Created: {{'{{'}}date{{'}}'}}	 </div>
-				<div id="updated">Updated: {{'{{'}}updated{{'}}'}}
+				
 			  </div>
 		 <!--      <span class="backlink"><a href="/{{'{{'}}    category  {{'}}'}}">
 			        <img src="{{url_for('static', filename='images/arrow_left_16x16.png')}}" alt="Back"/>
@@ -188,19 +182,23 @@
   </script>
 
 		
-		
+	{%endif%}	
 		<script src="http://code.jquery.com/jquery-latest.js"></script>
-		<script src="{{url_for('static', filename="js/libs/bootstrap.min.js")}}"></script>
-		<script src="{{url_for('static', filename="js/libs/modernizr-2.min.js")}}"></script>
-		<script src="{{url_for('static', filename="js/libs/underscore/underscore-min.js")}}"></script>
+		
+	
+	
 		<script src="{{url_for('static', filename="js/libs/jquery/jquery-1.7.2.min.js")}}"></script>
+		<script src="{{url_for('static', filename="js/libs/bootstrap-min.js")}}"></script>
+		<script src="{{url_for('static', filename="js/libs/bootstrap-typeahead-ajax.js")}}"></script>
+		<script src="{{url_for('static', filename="js/general.js")}}"></script>
+		<script src="{{url_for('static', filename='js/libs/showdown.js')}}"></script>
+		
+	{%if user_status%}
+		<script src="{{url_for('static', filename="js/libs/underscore/underscore-min.js")}}"></script>
 		<script src="{{url_for('static', filename="js/libs/backbone/backbone-min.js")}}"></script>
 		<script src="{{url_for('static', filename="js/libs/backbone.pagedcollection.js")}}"></script>
-		<script src="{{url_for('static', filename="js/libs/bootstrap-typeahead-ajax.js")}}"></script>
 		<script src="{{url_for('static', filename="js/app.js")}}"></script>
 		<script src="{{url_for('static', filename='js/libs/handlebars-1.0.0.beta.6.js')}}"></script>
-		<script src="{{url_for('static', filename='js/libs/showdown.js')}}"></script>
-		<script src="{{url_for('static', filename='js/libs/to-markdown.js')}}"></script>
 		<script src="{{url_for('static', filename='js/models/user.js')}}"></script>
 		<script src="{{url_for('static', filename='js/models/post.js')}}"></script>
 		<script src="{{url_for('static', filename='js/models/tag.js')}}"></script>
@@ -214,6 +212,7 @@
 		<script src="{{url_for('static', filename='js/collections/tagscollection.js')}}"></script>
 		<script src="{{url_for('static', filename='js/collections/categoriescollection.js')}}"></script>
 		<script src="{{url_for('static', filename="js/routes.js")}}"></script>
+	{%endif%}
 	</body>
 	
 </html>
