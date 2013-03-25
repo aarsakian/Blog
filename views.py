@@ -40,10 +40,13 @@ class Action(object):
 
       
         if self.posts is None:
-            self.posts = BlogPost.all().order("-timestamp")
+            logging.info('cache is empty creating index')
+            self.posts = BlogPost.all().order('-timestamp')
+   
             createIndex(self.posts)
             memcache.add(KEY,self.posts)
-        self.nofposts=self.posts.count()-2
+        if isinstance(self.posts,list):self.nofposts=len(self.posts)-2
+        else:self.nofposts=self.posts.count()-2
         self.tags=memcache.get(TAG)
         if self.tags is None:
             self.tags = Tag.all()
@@ -54,12 +57,13 @@ class Action(object):
             memcache.add(CATEGORY,self.categories)
 
         for post in self.posts:
-            logging.info(post)
+            logging.info(['posts',post.title])
             self.posts_tags_db.extend(post.tags)
             tags=[]
             for key in post.tags:tags.append(db.get(key).tag)
             self.posts_tags_dict[post.key()]=tags
             self.catdict[post.category.key()]=post.category.category
+        logging.info(['catdict',self.catdict])
         self.tagnames=list(chain.from_iterable(self.posts_tags_dict.values()))
       
        
@@ -75,7 +79,7 @@ class Action(object):
         memcache.delete(TAG)
     @staticmethod
     def refetch(self):
-        self.posts =BlogPost.all().order("-timestamp")
+        self.posts =BlogPost.all().order('-timestamp')
         memcache.add(KEY,self.posts)
         self.tags = Tag.all()
         memcache.add(TAG,self.tags)
@@ -264,7 +268,7 @@ class APost(Action):
                    returnedTags.append({"tag":tagobj.tag,"tagid":tagobj.key().id()})           
                 self.obj.tags.append(tagobj.key())
         if isinstance(self.postcategory,list):self.postcategory=self.postcategory[0]
-        #logging.info([self.catdict.values().index(self.postcategory[0])])
+        logging.info([self.catdict.values()])
         self.obj.title=self.title
         self.obj.body=self.body   
         self.obj.category=self.catdict.keys()[self.catdict.values().index(self.postcategory)]
@@ -361,53 +365,6 @@ def findUser(entity=None):
  
     return jsonify(user_status=users.is_current_user_admin())
 
-@app.route('/built with',methods=['GET'])
-@app.route('/about',methods=['GET'])
-def aboutpage():
-    if 'posts' not in globals():
-        global posts
-    if 'categories' not in globals():
-        global categories
-    if 'tags' not in globals():
-        global tags
-    posts=memcache.get(KEY)
-    tags=memcache.get(TAG)
-    categories=memcache.get(CATEGORY)
-  
-    if not posts:
-        logging.info("INDEX")
-        posts = BlogPost.all().order("-timestamp").fetch(20)
-        memcache.add(KEY,posts)
-    if not tags:
-        tags = Tag.all().fetch(20)
-        memcache.add(TAG,tags)
-    if not categories:
-        categories= Category.all().fetch(20)
-        memcache.add(CATEGORY,categories)
-    try:
-        post=posts[0]
-        siteupdated=str(post.updated.day)+" "+months[post.updated.month]+" "+str(post.updated.year)
-    except IndexError as e:
-        siteupdated="Out of range"
-    #tags=[]
-    
-    
-    path=request.path[1].upper()+request.path[2:]
-    pattern = compile(path)
-  
-    for postobj in posts:
-        if pattern.search(postobj.title):logging.info(pattern.search(postobj.title))
-        
-
-    Post=[postobj for postobj in posts if pattern.search(postobj.title)][0]
-    recentposts=posts[:3]
-    ts=ceil(2.0/3.0*8*365)%365
-    dayspassed=date.today()-date(2012,3,2)
-    daysleft=int(ceil(2.0/3.0*8*365))-dayspassed.days
-    tz=date(2012,3,2)+timedelta(daysleft)
-    return render_template('about.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
-                           daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,tags=tags,categories=categories,\
-                           Post=Post,recentposts=recentposts)
     
     
 
@@ -434,6 +391,7 @@ def boilercode(func):
         recentposts=posts[:3]
      
         try:
+          #  for post in posts:logging.info(str(post.updated.day)+" "+months[post.updated.month]+" "+str(post.updated.year))
             post=posts[0]
             siteupdated=str(post.updated.day)+" "+months[post.updated.month]+" "+str(post.updated.year)
         except IndexError as e:
@@ -459,7 +417,9 @@ def boilercode(func):
 @app.route('/tags',methods=['GET'])
 @boilercode
 def tags(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed,postkey=None):
-  
+    logging.info(['type',type(posts)])
+    for post in posts:
+        logging.info(post.title)
     return render_template('main.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
                            daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,tags=tags,categories=categories,codeversion=CODEVERSION)
 
@@ -483,6 +443,22 @@ def searchresults(posts,tags,categories,action,siteupdated,daysleft,tz,dayspasse
                            daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,tags=tags,categories=categories,\
                            posts=posts,posts_tags_names=action.posts_tags_dict,codeversion=CODEVERSION)
 
+
+@app.route('/built with',methods=['GET'])
+@app.route('/about',methods=['GET'])
+@boilercode
+def aboutpage(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed,data=None):
+    
+    
+    aboutpost=[p for p in posts if p.title.find("About")!=-1][0]
+
+    if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))    
+    
+    
+  
+    return render_template('about.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
+                           daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,Post=aboutpost,codeversion=CODEVERSION)
+
 @app.route('/',methods=['GET'])
 @boilercode
 def index(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed):
@@ -498,88 +474,13 @@ def index(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed):
 def archives(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed):
     """general url routing for template usage"""
 
-    if request.args.get('q'):return redirect(url_for('search2',q=request.args.get('q')))
+    if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
     return render_template('posts.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
                            daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,tags=tags,categories=categories,\
                            posts=posts,posts_tags_names=action.posts_tags_dict,codeversion=CODEVERSION)
 
 
 
-@app.route('/posts/about/<id>',methods=['PUT'])
-@app.route('/posts/about',methods=['GET'])
-def about(id=None):
-    if 'posts' not in globals():
-        global posts
-    from models import Tag
-    posts=memcache.get(KEY)
-    tags=memcache.get(TAG)  
-    categories=memcache.get(CATEGORY)
-   
-    data=[]
-    if not posts:action().fetchall()
-       
-
-  
-    Posts=[]
-    
-    if request.method=="GET":
-        pattern=compile("About")
-        post=[post for post in posts if  pattern.search(post.title)][0]
-       
-           
-            #tags=[]
-            #
-            #post.catname=[categoryobj.category for categoryobj in categories if categoryobj.key()==post.category.key()]
-            #
-        
-        updated=str(post.updated.day)+" "+str(months[post.updated.month])+" "+str(post.updated.year)
-        dateposted=str(post.timestamp.day)+" "+str(months[post.timestamp.month])+" "+str(post.timestamp.year)
-        data.append({"title":post.title,"body":post.body,"category":"","id":str(post.key().id()),\
-           "tags":"","date":dateposted,"updated":updated})
-         
-    
-          
-        return  jsonify(msg="OK",posts=data,type="about")
-    elif users.is_current_user_admin() and request.method=="PUT":
-        for post in posts:
-            logging.info(post.key().id())
-        [Posts.append(post) for post in posts if post.key().id()==int(id)]
-        title=request.json['title']
-        body=request.json['body']
-        date=request.json['date']
-        obj=Posts[0]
-       
-        obj.title=title
-        obj.body=body
-      
-       
-        #for catobj in categories:
-        #    logging.info(["NOT IN",postcatkeys,catobj.key(),catobj.key() not in postcatkeys])
-        
-       
-        obj.updated=datetime.now()
-        post_tagsdb_values=[]
-        post_tagsdb_keys=[]
-        existingTags=[]
-        existingTagskeys=[]
-        tagsleft=[]
-       
-     
-        obj.put()
-        memcache.delete(KEY)
-        posts = BlogPost.all()
-      
-        memcache.add(KEY,posts)
-        
-       
-        data=[]
-        updated=str(obj.updated.day)+" "+str(months[obj.updated.month])+" "+str(obj.updated.year)
-        dateposted=str(obj.timestamp.day)+" "+str(months[obj.timestamp.month])+" "+str(obj.timestamp.year)    
-        data.append({"title":obj.title,"body":obj.body,"category":db.get(obj.category.key()).category,
-                         "catid": "","id":str(obj.key().id()),\
-             "tags":"","date":dateposted,"updated":updated})
-        logging.info(data)
-        return jsonify(msg="OK",posts=data)
         
 @app.route('/posts/tags')
 @app.route('/tags/<tag>',methods=['GET','POST'])
@@ -748,65 +649,7 @@ def action(id=None):
         memcache.add(CATEGORY,categories)
     data=[]
     
-   
-#    if users.is_current_user_admin() and request.method=="POST":#new entity
-#        title=request.json['title']
-#        body=request.json['body']
-#        date=request.json['date']
-#        category=request.json['category']
-#        if isinstance(request.json['tags'],list):
-#            tags=request.json['tags']
-#            logging.info(type(tags))
-#        tagsdb=Tag.all()
-#        returnedTags=[]
-#        
-#        def Tagupdate (tag):
-#            logging.info(tagsdb.filter('tag',tag).count())
-#            if  tag!="" and tagsdb.filter('tag',tag).count()==0:#tag does not exist
-#                return(Tag(tag=tag).put())
-#            else:
-#                return(tagsdb.filter('tag',tag)[0].key())#otherwise find its key
-#            
-#        keys=[]
-#        logging.info(tagsdb.count())
-#        if not bool(tagsdb.count()):#Tags are empty 
-#            keys=[Tag(tag=tag).put() for tag in tags  if tag!=""]
-#          
-#            logging.info(keys)
-#        elif tags[0]!="": keys=map(Tagupdate ,tags)
-#        for key in keys:
-#            obj=db.get(key)
-#            returnedTags.append({"tag":obj.tag,"tagid":obj.key().id()})  
-#        
-#        if categories:    
-#            for catobj in categories:
-#                if catobj.category!=category:
-#                    logging.info(typeCategory())
-#                    newcatobj=Category()
-#                    newcatobj.category=category
-#                    newcatobj.put()
-#                    catkey=newcatobj.put().key()
-#        else:
-#            newcatobj=Category()
-#            newcatobj.category=category
-#            newcatobj.put()
-#            catkey=newcatobj.put().key()
-#                     
-#     
-#              
-#        
-#        post=BlogPost()
-#        post.title=title
-#        post.body=body
-#        post.tags=keys
-#        post.category=catkey
-#        post.put()
-#        memcache.delete(KEY)
-#        memcache.delete(CATEGORY)
-#        categories=Category.all()
-#        posts = BlogPost.all()
-#        memcache.add(KEY,posts)
-#        return jsonify(msg="OK",id=post.key().id(),tags=returnedTags)
+
 #   
     if request.method=='GET':
       
@@ -822,183 +665,12 @@ def action(id=None):
       
   
                 return jsonify(msg="OK",categories=Categories,header="Categories",type="categories")
-            #
-            #elif category!="about":
-            #    if id==None:#get a category
-            #        postss=[]
-            #        [postss.append(post) for post in posts if post.category ==category]
-            #        logging.info(postss)
-            #        for post in postss:
-            #            tags=[]
-            #            [tags.append({"tag":db.get(key).tag,"tagid":db.get(key).key().id()}) for key in post.tags]
-            #         
-            #            updated=str(post.updated.day)+" "+str(months[post.updated.month])+" "+str(post.updated.year)
-            #            dateposted=str(post.timestamp.day)+" "+str(months[post.timestamp.month])+" "+str(post.timestamp.year)
-            #            data.append({"title":post.title,"body":post.body,"category":post.category,"id":str(post.key().id()),\
-            #                "tags":tags,"date":dateposted,"updated":updated})
-            #    else:#get a post with id
-            #        post=BlogPost.get_by_id(int(id))
-            #        tags=[]
-            #        [tags.append({"tag":db.get(key).tag,"tagid":db.get(key).key().id()}) for key in post.tags]
-            #        updated=str(post.updated.day)+" "+str(months[post.updated.month])+" "+str(post.updated.year)
-            #        dateposted=str(post.timestamp.day)+" "+str(months[post.timestamp.month])+" "+str(post.timestamp.year)
-            #        data.append({"title":post.title,"body":post.body,"category":category,"id":str(post.key().id()),\
-            #        "tags":tags,"date":dateposted,"updated":updated})
-            #
-            #
-            #else:
-            #    about=BlogPost.all().filter('category =','about')[0]
-            #    updated=str(about.updated.day)+" "+str(months[about.updated.month])+" "+str(about.updated.year)
-            #    data.append({"title":about.title,"body":about.body,"category":about.category,"id":str(about.key().id()),
-            #                 "updated":updated})
-       
-    
-            
-          
- 
-    
-        #data=dumps(data)
-        #if posts=="None":
-        #    return jsonify(posts="None", header=headerdict[category])
-        #else:
-            #try:
-            #    header=headerdict[category]
-            #except KeyError:
-            #    header="All Posts"
-    #return jsonify(posts=data)
-#       
-#            
-#    elif users.is_current_user_admin() and request.method=="PUT":
-#        posttags=request.json['tags']
-#      #  logging.info(request.json['category'])
-#      #  logging.info(markdown.markdown(request.json['body'],safe_mode=True, enable_attributes=False))
-#        obj=BlogPost.get_by_id(int(id))
-#        obj.body=request.json['body']
-#        obj.date=request.json['date']
-#        obj.title=request.json['title']
-#        postcategory=request.json['category']
-#        catkey=[categoryobj.key() for categoryobj in categories if  postcategory==categoryobj.category]
-#        logging.info(catkey)
-#        if not catkey:#new category
-#            logging.info(request.json['category'])
-#            newcatobj=Category()
-#            catobj=Category(category=postcategory)
-#            catobj.put()
-#            obj.category=catobj.key()
-#        else:
-#            obj.category=catkey[0]
-#       
-#        logging.info(obj.category)
-#        obj.updated=datetime.now()
-#        post_tagsdb_values=[]
-#        post_tagsdb_keys=[]
-#        existingTags=[]
-#        existingTagskeys=[]
-#        tagsleft=[]
-#       
-#        for post in posts:
-#            for tagkey in post.tags:
-#                if post.key()!=obj.key():
-#                    try:
-#                        tagsleft.append(Tag.get_by_id(tagkey.id()).tag)
-#                    except AttributeError:#ops a post without a tag
-#                        continue
-#                existingTagskeys.append(Tag.get_by_id(tagkey.id()).key())
-#                existingTags.append(Tag.get_by_id(tagkey.id()).tag) #existing Tags
-#          
-#     
-#        
-#        for tagkey in obj.tags:post_tagsdb_values.append(db.get(tagkey).tag)#previous Tags of the post
-#        
-#         
-#  
-#        unchangedtags=[]
-#        logging.info(['posttags',posttags,post_tagsdb_values])
-#        if post_tagsdb_values:#post does have tags
-#            logging.info(post_tagsdb_values)
-#            unchangedtags=set(posttags) & set( post_tagsdb_values)#changes tags added or removed
-#            newtags=set(posttags) ^ unchangedtags#new tags for this post
-#            oldtags=list(set(post_tagsdb_values)^unchangedtags)
-#            logging.info(["new",newtags,"old",oldtags,"unchanged",unchangedtags])
-#  
-#            returnedTags=[]
-#            for tag in unchangedtags:
-#                tagid=db.get(existingTagskeys[existingTags.index(tag)]).key().id()
-#                returnedTags.append({"tag":tag,"tagid":tagid})
-#            
-#            i=0
-#            for tag in oldtags:#tags to be removed
-#                
-#                tag_key= existingTagskeys[existingTags.index(tag)]
-#                if tag not in  tagsleft:#delete not used tags
-#                   tagobj=Tag.get(tag_key)
-#                   tagobj.delete()
-#                pos=post_tagsdb_values.index(tag)
-#            
-#          
-#                obj.tags.pop(pos-i)
-#          
-#                i+=1
-#        else:
-#            import ast
-#            newtags=set(ast.literal_eval(str([tags])))#does not have tags
-#            
-#       
-#     
-#     
-#    
-#        #returnedTags=[]
-#       
-#            
-#            
-#            
-#        logging.info( post_tagsdb_values)
-#        for tag in list(newtags):#add new tag and update Post
-#            logging.info(tag)
-#            if tag not in existingTags:   
-#                tagobj=Tag()
-#                tagobj.tag=tag
-#                tagid=tagobj.put().id()
-#                returnedTags.append({"tag":tag,"tagid":tagid})
-#                
-#            else:
-#               tag_key= existingTagskeys[existingTags.index(tag)]
-#               tagobj=Tag.get(tag_key)
-#               returnedTags.append({"tag":tagobj.tag,"tagid":tagobj.key().id()})           
-#            obj.tags.append(tagobj.key())
-#
-#     
-#        obj.put()
-#        memcache.delete(KEY)
-#        posts = BlogPost.all()
-#        memcache.add(KEY,posts)
-#        return jsonify(msg="OK",tags=returnedTags)
-#        
-#    elif users.is_current_user_admin() and request.method=="DELETE":
-#     
-#        obj=BlogPost.get_by_id(int(id))
-#        tagkeys=obj.tags
-#        post_tags_db=[]
-#        
-#        [post_tags_db.extend(post.tags) for post in posts]
-#        restTags=list(set(post_tags_db)^set(tagkeys))
-#        logging.info(restTags)
-#        for tagkey in tagkeys:
-#            if tagkey not in restTags:  db.get(tagkey).delete() #delete the tag if it does not exists in rest posts
-#          
-#        obj.delete() 
-#        posts = BlogPost.all()
-#        memcache.add(KEY,posts)
-#    #    
-#        return jsonify(msg="OK")
-#    else:
-#        return jsonify(msg="NOT ALLOWED")
 
 
 @app.route('/random',methods=['GET'])
-@app.route('/<category>/<postTitle>',methods=['GET'])
+@app.route('/<category>/<year>/<month>/<postTitle>',methods=['GET'])
 @boilercode
-def post(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed,category=None,postTitle=None):
+def post(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed,category=None,postTitle=None,year=None,month=None):
     if postTitle:
        # posts=posts.filter('title =',postTitle)
    
@@ -1019,6 +691,7 @@ def post(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed,categor
                 
    
     else:
+     
         try:
             Post=posts[randint(0,action.nofposts-1)]
         except ValueError:

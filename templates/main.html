@@ -41,7 +41,7 @@
                             <div id="socialinks">      
                                 <a href="https://twitter.com/share" class="twitter-share-button"
                                     data-url="http://aarsakian.appspot.com" data-text={{Post.title}}
-                                    data-via="Aarsakian's blog" data-lang="en" hashtags="{{Post.category.category}}/{{Post.title}}"
+                                    data-via="Aarsakian's blog" data-lang="en" hashtags="{{Post.category.category}}/{{Post.timestamp|datetimeformat('%Y')}}/{{Post.timestamp|datetimeformat('%B')}}/{{Post.title}}"
                                 >
 				Tweet</a>
 		               <span class="gplus"><g:plusone size="medium"  align="right"></g:plusone></span>

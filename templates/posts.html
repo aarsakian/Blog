@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Armen Arsakian personal blog
+{% endblock %}
+
+{% block content%}
+
+    <div class="page-header clear">
+	<div class="page-header-inner">
+	    <h2>Archives</h2>
+
+        </div>
+	    
+    </div>
+    {%if posts %}
+	<div id="posts" id="bdinner">
+	    {%for Post in posts%}
+		
+		<div class="row-fluid">
+              
+              
+		  
+			<div class="post span9">
+			    <div  id="{{Post.key}}" class="classic">
+
+			     
+				<h3 class="editable"><a href="/{{Post.category.category}}/{{Post.timestamp|datetimeformat('%Y')}}/{{Post.timestamp|datetimeformat('%m')}}/{{Post.title|trim}}">{{Post.title}}</a></h3>
+		  
+			</div><!--closes post-->
+		    </div>
+		    <div class="span3 post" id="right">
+		 <!--Sidebar content-->
+			<div class="links row-fluid"  style="font-size: 22px;">
+						
+				{%if Post.tags%}
+				    <a class="tags" href="/tags"><i class="icon-tags"></i></a>
+				
+					{%for tag in posts_tags_names[Post.key()]%}
+					    <a class="tag" href="/tags#{{tag}}">{{tag}}</a>
+					{%endfor%}
+				   
+				   
+				{%endif%}
+			</div><!--closes links-->
+			<div class="row-fluid" id="date">Created: {{Post.timestamp|datetimeformat('%d %B %Y')}} </div>
+		
+		    </div>
+		</div>
+		{% endfor %}
+             </div>		
+
+	{%endif%}	
+    <div id="newpost" class="clear">
+            <!--holdes a form for new post--> 
+    </div>
+    {%if user_status%}
+        <div class="links">   
+            <a class="btn edit" href="/edit">Edit</a>
+                          
+        </div>
+    {%endif%}
+ 
+    
+{% endblock %}
+
+{% block footer%}
+<div id="ftinner">
+    <div class="span10">
+        <p> Armen Arsakian updated at <span class="siteupdate">{{siteupdated}}</span><span class="countdown">  {{daysleft}} . {{dayspassed}}</span></p>
+    </div>
+    <div class="span1 offset1">
+        <span class="version"><a href="/built with...">v:0.6</a></span>
+    </div>
+</div>
+  
+{% endblock %}

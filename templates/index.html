@@ -22,7 +22,11 @@
 		    <div class="row-fluid">
               
 			<div class="post span9">
-			   
+			   <div class="row-fluid date">
+			     <div id="date" class="span3 offset5">
+			        Created: {{post.timestamp|datetimeformat('%d %B %Y')}}
+			     </div>
+			   </div>
 				  <div  class="article clear">
 				    {{post.body}}
 		      
@@ -50,7 +54,13 @@
       </div>
     {%endif%}
     {%if not posts %}
-	<h2>Sorry, No results found</h2>
+	<div class="page-header clear">
+	<div class="page-header-inner">
+	    <h2>Sorry, No results found</h2>
+        </div>
+	    
+    </div>
+	
     {%endif%}
     
     <div id="newpost" class="clear">

@@ -14,6 +14,18 @@
 		<link href="{{ url_for('recent_feed') }}" rel="alternate" title="Recent Changes"  type="application/atom+xml">
 		<link href='http://fonts.googleapis.com/css?family=Merriweather:400' rel='stylesheet' type='text/css'>
 		<script src="{{url_for('static', filename='js/libs/to-markdown.js')}}"></script>
+		<script type="text/x-mathjax-config">
+			MathJax.Hub.Config({
+			  extensions: ["tex2jax.js","AMSmath.js", "AMSsymbols.js"],
+			  jax: ["input/TeX", "output/HTML-CSS"],
+			  tex2jax: {
+			    inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+			    displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+			    processEscapes: true
+			  },
+			  "HTML-CSS": { availableFonts: ["TeX"] }
+			});
+		</script>
 		<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 	</head>
 	<body>
@@ -192,6 +204,20 @@
 		<script src="{{url_for('static', filename="js/libs/bootstrap-typeahead-ajax.js")}}"></script>
 		<script src="{{url_for('static', filename="js/general.js")}}"></script>
 		<script src="{{url_for('static', filename='js/libs/showdown.js')}}"></script>
+		
+		<script type="text/javascript">
+
+			var _gaq = _gaq || [];
+			_gaq.push(['_setAccount', 'UA-38392254-1']);
+			_gaq.push(['_trackPageview']);
+		      
+			(function() {
+			  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+			})();
+
+		</script>
 		
 	{%if user_status%}
 		<script src="{{url_for('static', filename="js/libs/underscore/underscore-min.js")}}"></script>

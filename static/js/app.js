@@ -80,11 +80,11 @@
   //                        
   // });
   // 
-    var disqus_shortname = 'myblogaa';
+   // var disqus_shortname = 'myblogaa';
   //  var disqus_identifier = '1';
     // var disqus_url = 'http://127.0.0.1:8082/#!/machine_learning/1';
-    var disqus_developer = '0';
-    var editevent=false;
+   // var disqus_developer = '0';
+   // var editevent=false;
     /* * * DON'T EDIT BELOW THIS LINE * * */
 //    var disqview=function() {
 //       if (runonce)   {
