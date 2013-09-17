@@ -17,12 +17,12 @@
 	<div id="posts" id="bdinner">
 	    {%for Post in posts%}
 		
-		<div class="row-fluid">
+		<div class="row-fluid list" id="{{Post.key()}}">
               
               
 		  
 			<div class="post span9">
-			    <div  id="{{Post.key}}" class="classic">
+			    <div  class="classic">
 
 			     
 				<h3 class="editable"><a href="/{{Post.category.category}}/{{Post.timestamp|datetimeformat('%Y')}}/{{Post.timestamp|datetimeformat('%m')}}/{{Post.title|trim}}">{{Post.title}}</a></h3>

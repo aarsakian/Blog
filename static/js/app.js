@@ -199,8 +199,7 @@
                   app.Posts.on('reset', this.render, this);
                   app.Posts.on('add', this.render, this);
                   app.Posts.fetch();  
-                 
-		  
+                  		  
 		
 		},
         
@@ -212,7 +211,7 @@
          },
 	
          render:function(){
-
+                console.log(app.Posts);
                 this.$("#posts").html('');
                 this.$("#tags ul").html('');
                 this.$("#categories ul").html('');
@@ -234,7 +233,6 @@
                  
 		context={title:app.Posts.header,type:app.Posts.type}
                 app.Posts.user_status=this.user.toJSON().user_status;
-                console.log(app.Posts.user_status);
                 //if (app.Posts.user_status.user_status)
                 //  window.location=app.Posts.url+"#editmode";
                   
