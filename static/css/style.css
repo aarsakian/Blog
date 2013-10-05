@@ -1,6 +1,5 @@
 /*Initialize*/
-body{font-family:'Merriweather', Geogia, Serif;padding:0px; margin:0px;background:url('../images/cream_dust.png');}
-
+body{font-family:'Merriweather', Geogia, Serif;padding:0px; margin:0px;background: #fefefe;/*url('../images/cream_dust.png');*/}
 a{color:#777;font-family: 'Merriweather', Geogia, Serif;text-decoration:none;}
 
 h2{font-size:1.6em; }
