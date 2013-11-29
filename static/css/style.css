@@ -83,7 +83,7 @@ overflow:hidden;height:100%;color:#111;}/*328f59*/
              letter-spacing:0.03em;word-spacing:0.03em;}
              
 .post ul li{display:block;list-style-type:circle}
-#ft .version{text-align:right;}
+#ft .version,#ft .countdown{text-align:right;margin-left:25px;}
 
 #date,#updated{font-style:italic;font-size:0.8em;padding-top:1px;margin:0px;color:#25363a;}
 #updated{margin-bottom:5px;}
@@ -93,7 +93,7 @@ overflow:hidden;height:100%;color:#111;}/*328f59*/
 #images i{font-weight:normal;font-size:1.1em;}
 #images i:hover,#images  a:hover{text-decoration:none;color:#c1baaf;}
 #images  img{width:30px;opacity:0.9;}
-
+.contactinfo{margin:0px 5px;}
 .icon-tags{padding-top:4px;padding-left:3px;}
 .icon-tags:hover{text-decoration:none;}
 .tag{font-size:0.6em;}
