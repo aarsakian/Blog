@@ -12,7 +12,7 @@ ul li{display:inline;list-style-type:none;}
 /*Structure*/
 #bd,#hd,#ft{
    width:900px;
-  
+
 }
 
 
@@ -31,7 +31,7 @@ background:url('../images/bedge_grunge.png');
      -moz-border-radius: 2px;
           border-radius: 2px;
           -moz-opacity:0.9;
-       
+
 }
 #hd .nav-pills > .active > a{  background:url('../images/little_pluses.png');
     color: #3f3a3a; text-shadow:1px 1px #fafafa;
@@ -70,10 +70,11 @@ input,textarea{font-size:0.8em;}
 .post .destroy,.post .edit-tags{display:none;}
 .post:hover .destroy,.post:hover .edit-tags{display:inline;}
 #posts h2{line-height: 10px;   color: #706b62;}
+#posts h2:hover{color:#706b62;}
 .post a,.post h3{color:#706b62;padding:4px;text-align:left;}/*662823*/
 .post{margin-bottom:0px;opacity:0.8;
 -moz-opacity:0.8;
- 
+
           border-bottom:2px solid #c1baaf;
 
 overflow:hidden;height:100%;color:#111;}/*328f59*/
@@ -81,7 +82,7 @@ overflow:hidden;height:100%;color:#111;}/*328f59*/
 .post .article{font-size:1em;margin-top:10px;min-width:50px; min-height:30px;line-height: 2.1em;
              padding:2px 10px 2px 10px;
              letter-spacing:0.03em;word-spacing:0.03em;}
-             
+
 .post ul li{display:block;list-style-type:circle}
 #ft .version{text-align:right;}
 
@@ -115,6 +116,6 @@ opacity:0.9;
 }
 
 #searchfield input:focus{
-    
+
 border:1px solid #662823;
 }
