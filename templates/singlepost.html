@@ -8,9 +8,9 @@
 {% block header %}
 
    {{ super() }}
-             {%for tag in tags%}
-			          <meta name="keywords"  	content={{tag.tag}}>
-		     {% endfor %}>
+             {%for tag in posttagnames%}
+			          <meta name="keywords"  	content={{tag}}>
+		     {% endfor %}
 {% endblock %}
 
 {% block content%}

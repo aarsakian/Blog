@@ -24,7 +24,7 @@ from itertools import chain
 KEY="posts"
 TAG="tags"
 CATEGORY="categories"
-CODEVERSION=":v0.6"
+CODEVERSION=":v0.65"
 
 headerdict={"machine_learning":"Gaussian Graphical Models","programming":"Programming","about":"About Me"}
 months=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
@@ -716,7 +716,7 @@ def post(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed,categor
     
     return render_template('singlepost.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
                            daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,RelatedPosts=RelatedPosts,\
-                           Post=Post)
+                           Post=Post, posttagnames= Posttagnames)
 
 def make_external(url):
     return urljoin(request.url_root, url)
@@ -767,3 +767,10 @@ def searchsite():
     return jsonify(data=data)
 
 
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html')
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template('500.html')
