@@ -2,9 +2,8 @@
 <html lang="en">
 	<head>
 		<title>{% block title %}title{% endblock %}</title>
-		<meta name="description" content="A blog about programming, machine learning">
-		<meta name="author" content="Armen Arsakian">
-		<meta name="keywords" content="python, gaussian graphical models, javascript, xml, xsl">
+          {% block header %}  <meta name="description" content="A blog about programming, computer forensics">
+		<meta name="author" content="Armen Arsakian">{% endblock %}
 		<link rel="stylesheet" href="/static/css/lib/font-awesome-ie7.css">
 		<link rel="stylesheet" href="/static/css/lib/font-awesome.css">
 
@@ -220,10 +219,10 @@
 		</script>
 		
 	{%if user_status%}
-		<script src="{{url_for('static', filename="js/libs/underscore/underscore-min.js")}}"></script>
-		<script src="{{url_for('static', filename="js/libs/backbone/backbone-min.js")}}"></script>
-		<script src="{{url_for('static', filename="js/libs/backbone.pagedcollection.js")}}"></script>
-		<script src="{{url_for('static', filename="js/app.js")}}"></script>
+		<script src="{{url_for('static', filename='js/libs/underscore/underscore-min.js')}}"></script>
+		<script src="{{url_for('static', filename='js/libs/backbone/backbone-min.js')}}"></script>
+		<script src="{{url_for('static', filename='js/libs/backbone.pagedcollection.js')}}"></script>
+		<script src="{{url_for('static', filename='js/app.js')}}"></script>
 		<script src="{{url_for('static', filename='js/libs/handlebars-1.0.0.beta.6.js')}}"></script>
 		<script src="{{url_for('static', filename='js/models/user.js')}}"></script>
 		<script src="{{url_for('static', filename='js/models/post.js')}}"></script>
@@ -237,7 +236,7 @@
 		<script src="{{url_for('static', filename='js/collections/postscollection.js')}}"></script>
 		<script src="{{url_for('static', filename='js/collections/tagscollection.js')}}"></script>
 		<script src="{{url_for('static', filename='js/collections/categoriescollection.js')}}"></script>
-		<script src="{{url_for('static', filename="js/routes.js")}}"></script>
+		<script src="{{url_for('static', filename='js/routes.js')}}"></script>
 	{%endif%}
 	</body>
 	

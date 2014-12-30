@@ -4,6 +4,15 @@
     Armen Arsakian personal blog
 {% endblock %}
 
+
+{% block header %}
+
+   {{ super() }}
+             {%for tag in tags%}
+			          <meta name="keywords"  	content={{tag.tag}}>
+		     {% endfor %}>
+{% endblock %}
+
 {% block content%}
 
     <div class="page-header">
