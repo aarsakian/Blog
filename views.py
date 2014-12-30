@@ -752,11 +752,12 @@ def searchsite():
         index = search.Index(name=_INDEX_NAME)
         results=[]
         results=index.search(query)
-        
+
+
         if results:
             for scored_document in results:
                 #returns title,body,category
-                data.append({scored_document.fields[0].name: scored_document.fields[0].value,\
+                data.append({scored_document.fields[0].name:scored_document.fields[0].value,\
                              scored_document.fields[1].name:scored_document.fields[1].value,\
                              scored_document.fields[2].name:scored_document.fields[2].value})
       
