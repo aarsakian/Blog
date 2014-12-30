@@ -8,9 +8,11 @@
 {% block header %}
 
    {{ super() }}
+          {%if tags%}
              {%for tag in tags%}
 			          <meta name="keywords"  	content={{tag.tag}}>
-		     {% endfor %}>
+		     {% endfor %}
+          {%endif%}
 {% endblock %}
 
 {% block content%}
