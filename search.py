@@ -5,24 +5,6 @@ from blog import app
 from flask import request, jsonify
 from datetime import datetime, timedelta, date
 
-televisions = {'name': 'hd televisions', 'children': []}
-books = {'name': 'books', 'children': []}
-KEY="posts"
-ctree =  {'name': 'root', 'children': [books, televisions]}
-
-# [The core fields that all products share are: product id, name, description,
-# category, category name, and price]
-# Define the non-'core' (differing) product fields for each category
-# above, and their types.
-product_dict =  {'hd televisions': {'size': search.NumberField,
-                                 'brand': search.TextField,
-                                 'tv_type': search.TextField},
-                 'books': {'publisher': search.TextField,
-                           'pages': search.NumberField,
-                           'author': search.TextField,
-                           'title': search.TextField,
-                           'isbn': search.TextField}
-                }
 
 # sort results by author descending
 expr_list = [search.SortExpression(
