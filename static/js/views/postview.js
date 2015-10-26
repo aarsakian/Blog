@@ -117,7 +117,7 @@
         po.src = 'https://apis.google.com/js/plusone.js';
         var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
       })();
-	          $.getScript("http://platform.twitter.com/widgets.js");
+	          $.getScript("//platform.twitter.com/widgets.js");
 	     
             return this;
             
@@ -165,7 +165,7 @@
         
         close: function() {
 		var tags=[];
-                $.getScript("http://platform.twitter.com/widgets.js");
+                $.getScript("//platform.twitter.com/widgets.js");
                 if ($(this.el).find('h3').hasClass('hide')) {//closing title field
                    title=$(this.el).find('#post-title').val();
 		   }

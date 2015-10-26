@@ -29,7 +29,7 @@ $(function(){
         po.src = 'https://apis.google.com/js/plusone.js';
         var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
       })();
-   $.getScript("http://platform.twitter.com/widgets.js");
+   $.getScript("//platform.twitter.com/widgets.js");
    
    
     $('.typeahead').typeahead({
