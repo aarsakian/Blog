@@ -17,11 +17,11 @@ ul li{display:inline;list-style-type:none;}
 
 #ft{font-size:0.8em;color:#777;
 border-top:2px solid  #e0deda;margin:40px 0px 0px 0px;}
-#hd{margin-top:30px;border-bottom:2px solid  #e0deda;}
+#hd{margin-top:30px;margin-bottom:10px;}
 
 
 #bd h1{text-shadow:1px 1px #fff;font-size:2.6em;color:#777;}
-
+#bd{border-top:1px solid  #e0deda;}
 /*menu */
 #hd .nav > li > a:hover {
 background:url('../images/bedge_grunge.png');
@@ -32,7 +32,7 @@ background:url('../images/bedge_grunge.png');
           -moz-opacity:0.9;
        
 }
-#hd .nav-pills > .active > a{  background:url('../images/little_pluses.png');
+#hd .nav-pills > .active > a{  background: #e0deda;
     color: #3f3a3a; text-shadow:1px 1px #fafafa;
      -webkit-border-radius: 2px;
      -moz-border-radius: 2px;
@@ -83,7 +83,7 @@ overflow:hidden;height:100%;color:#111;}/*328f59*/
              letter-spacing:0.03em;word-spacing:0.03em;}
              
 .post ul li{display:block;list-style-type:circle}
-#ft .version,#ft .countdown{text-align:right;margin-left:25px;}
+#ft .version,#ft .countdown{text-align:right;margin-left:5px;}
 
 #date,#updated{font-style:italic;font-size:0.8em;padding-top:1px;margin:0px;color:#25363a;}
 #updated{margin-bottom:5px;}
@@ -112,6 +112,8 @@ opacity:0.9;
      -moz-border-radius: 2px;
           border-radius: 2px;
           color: #7e7979;
+          border:1px solid #bbb;
+          padding:3px;
 }
 
 #searchfield input:focus{

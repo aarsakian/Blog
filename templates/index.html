@@ -31,11 +31,11 @@
 		   <h2><a href="/{{post.category.category}}/{{post.timestamp|datetimeformat('%Y')}}
 				/{{post.timestamp|datetimeformat('%m')}}/{{post.title|trim}}">
                {{post.title}}</a></h2>
-		    <div class="row-fluid">
+		    <div class="row">
               
-			<div class="post span9">
-			   <div class="row-fluid date">
-			     <div id="date" class="span3 offset5">
+			<div class="post col-md-9">
+			   <div class="row date">
+			     <div id="date" class="col-md-3 col-md-offset">
 			        Created: {{post.timestamp|datetimeformat('%d %B %Y')}}
 			     </div>
 			   </div>
@@ -45,15 +45,15 @@
 				</div><!--closes article-->
 			</div><!--closes post-->
 		     
-		       <div class="span3">
+		       <div class="col-md-3">
 			    {%for Post in RelatedPosts%}
 				    
-				    <div class="row-fluid post">
+				    <div class="row post">
 				  
 				  
 					<h3 class="editable"><a href="/{{Post.category.category}}/{{Post.title|trim|lower}}">{{Post.title}}</a></h3>
-					<div class="row-fluid" id="date">Created: {{Post.timestamp|datetimeformat('%d-%m-%Y')}}	 </div>
-					<div class="row-fluid" id="updated"> Updated: {{ Post.updated|datetimeformat('%d-%m-%Y')}}    </div>
+					<div class="row" id="date">Created: {{Post.timestamp|datetimeformat('%d-%m-%Y')}}	 </div>
+					<div class="row" id="updated"> Updated: {{ Post.updated|datetimeformat('%d-%m-%Y')}}    </div>
 				    </div>
 			       {% endfor %}
 			
@@ -90,11 +90,11 @@
 
 {% block footer%}
 <div id="ftinner">
-    <div class="span10">
+    <div class="col-md-6">
         <p> Armen Arsakian updated at <span class="siteupdate">{{siteupdated}}</span><span class="contactinfo">Contact: contact at arsakian.com</span></p>
     </div>
  
-    <div class="span2 offset0">
+    <div class="col-md-3 col-md-offset-3">
     <span class="countdown">  {{daysleft}} . {{dayspassed}}</span>
 
         <span class="version"><a href="/built with...">{{codeversion}}</a></span>

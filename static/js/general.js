@@ -35,7 +35,6 @@ $(function(){
     $('.typeahead').typeahead({
     minLength:3,
    updater: function(item) {
-        console.log('55555----');
         $('#postid').val(item);
         return item;
     },
