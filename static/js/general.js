@@ -35,23 +35,21 @@ $(function(){
     $('.typeahead').typeahead({
     minLength:3,
     updater: function(item) {
-        $('#postid').val(item);
         return item;
     },
    
     source: function (query,process) {
         return $.get('/search', { query:query}, function (data) {
             titlesbodies = [];
-            posts = {};
             $.each(data.data, function (i, post) {
-               posts[post.title] = post;
-               titlesbodies.push(post.title);
                titlesbodies.push(post.body);
             });
               process(titlesbodies);
         });
     }
-  
+   afterSelect: function(item){
+    $("#searchform").submit();
+  } 
   
    });
    

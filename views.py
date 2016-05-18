@@ -750,7 +750,7 @@ def searchsite():
         query = search.Query(query_string=query_string, options=query_options)
 
         index = search.Index(name=_INDEX_NAME)
-        results=[]
+
         results=index.search(query)
 
 
