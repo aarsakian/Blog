@@ -42,7 +42,7 @@ $(function(){
         return $.get('/search', { query:query}, function (data) {
             titlesbodies = [];
             $.each(data.data, function (i, post) {
-               titlesbodies.push(post.body);
+               titlesbodies.push(post.title);
             });
               process(titlesbodies);
         });
