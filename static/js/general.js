@@ -35,16 +35,18 @@ $(function(){
     $('.typeahead').typeahead({
     minLength:3,
     updater: function(item) {
-        return item;
-    },
+        return item; 
+   },
    
     source: function (query,process) {
         return $.get('/search', { query:query}, function (data) {
             titlesbodies = [];
             $.each(data.data, function (i, post) {
                titlesbodies.push(post.title);
-            });
+               titlesbodies.push(post.body);
+           });
               process(titlesbodies);
+             
         });
     },
    afterSelect: function(item){

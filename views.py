@@ -429,8 +429,11 @@ def tags(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed,postkey
 @boilercode
 def searchresults(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed,data=None):
     query=request.args.get('q')
+    if len(query) > 40:
+        query = query [:40]
+    logging.info(query)
     index = search.Index(name=_INDEX_NAME)
-    results=[]
+
     posts=[]
     results=index.search(query)
     logging.info([query,results])
