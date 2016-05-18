@@ -29,29 +29,26 @@ $(function(){
         po.src = 'https://apis.google.com/js/plusone.js';
         var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
       })();
-   $.getScript("//platform.twitter.com/widgets.js");
+  // $.getScript("//platform.twitter.com/widgets.js");
    
    
     $('.typeahead').typeahead({
     minLength:3,
-   updater: function(item) {
+    updater: function(item) {
         $('#postid').val(item);
         return item;
     },
    
-    source: function (typeahead, query) {
-      
+    source: function (query,process) {
         return $.get('/search', { query:query}, function (data) {
             titlesbodies = [];
             posts = {};
-
             $.each(data.data, function (i, post) {
                posts[post.title] = post;
                titlesbodies.push(post.title);
                titlesbodies.push(post.body);
             });
-          //   console.log(titlesbodies);
-              typeahead.process(titlesbodies);
+              process(titlesbodies);
         });
     }
   
