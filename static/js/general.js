@@ -46,10 +46,10 @@ $(function(){
             });
               process(titlesbodies);
         });
-    }
+    },
    afterSelect: function(item){
     $("#searchform").submit();
-  } 
+    } 
   
    });
    
