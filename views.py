@@ -1,4 +1,4 @@
-import logging
+import logging, json
 from blog import app
 from models import BlogPost
 from flask import render_template,request,jsonify,redirect,url_for, Markup
@@ -429,8 +429,6 @@ def tags(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed,postkey
 @boilercode
 def searchresults(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed,data=None):
     query=request.args.get('q')
-    if len(query) > 40:
-        query = query [:40]
     logging.info(query)
     index = search.Index(name=_INDEX_NAME)
 
@@ -489,7 +487,7 @@ def archives(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed):
 @app.route('/tags/<tag>',methods=['GET','POST'])
 @app.route('/tags/<tag>/<id>',methods=['DELETE','PUT'])
 def getTag(tag=None,id=None):
-
+    if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
     if users.is_current_user_admin() and request.method=="DELETE":
      
         apost=APost(id=id)
@@ -526,6 +524,9 @@ def getTag(tag=None,id=None):
 @app.route('/categories/<catname>/<id>',methods=['DELETE','PUT'])
 @app.route('/categories/<catname>',methods=['GET','POST'])
 def catposts(catname,id=None):
+
+
+
     if request.method=="GET":
         action=Action()
         data=action.getall(catname)
@@ -674,6 +675,9 @@ def action(id=None):
 @app.route('/<category>/<year>/<month>/<postTitle>',methods=['GET'])
 @boilercode
 def post(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed,category=None,postTitle=None,year=None,month=None):
+
+    if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
+
     if postTitle:
        # posts=posts.filter('title =',postTitle)
    
@@ -759,15 +763,18 @@ def searchsite():
 
         if results:
             for scored_document in results:
-                #returns title,body,category
+
                 data.append({scored_document.fields[0].name:scored_document.fields[0].value,\
                              scored_document.fields[1].name:scored_document.fields[1].value,\
-                             scored_document.fields[2].name:scored_document.fields[2].value})
-      
+                             scored_document.fields[2].name:scored_document.fields[2].value,\
+                             "year":scored_document.fields[3].value.year,\
+                             "month":scored_document.fields[3].value.month})
+
+
         # process scored_document
     except search.Error:
         data.append('Search failed')
-        
+
     return jsonify(data=data)
 
 

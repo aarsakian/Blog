@@ -31,7 +31,7 @@ $(function(){
       })();
   // $.getScript("//platform.twitter.com/widgets.js");
    
-   
+    var map = {}
     $('.typeahead').typeahead({
     minLength:3,
     updater: function(item) {
@@ -39,21 +39,26 @@ $(function(){
    },
    
     source: function (query,process) {
-        return $.get('/search', { query:query}, function (data) {
+        
+          $.get('/search', { query:query}, function (data) {
             titlesbodies = [];
             $.each(data.data, function (i, post) {
-               titlesbodies.push(post.title);
                titlesbodies.push(post.body);
+               titlesbodies.push(post.title);
+               map[post.title] = post;
+               map[post.body]= post;
            });
               process(titlesbodies);
              
         });
     },
    afterSelect: function(item){
-    $("#searchform").submit();
-    } 
+     var post = map[item];
+     if (typeof post !== "undefined") 
+       window.location =  "/"+post.category+"/"+post.year+"/"+post.month+"/"+post.title;
+     } 
   
-   });
+  });
    
    
 })

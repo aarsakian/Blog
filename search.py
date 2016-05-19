@@ -28,12 +28,12 @@ def delete_document(document_ids):
 
 
     
-def create_document(doc_id,title, body,category):
+def create_document(doc_id,title, body, category, timestamp):
     return search.Document(doc_id=str(doc_id),
         fields=[search.TextField(name='title', value=title),
                 search.TextField(name='body', value=body),
                 search.TextField(name='category', value=category),
-                search.DateField(name='date', value=datetime.now().date())])
+                search.DateField(name='date', value=timestamp)])
     
 
 
@@ -45,7 +45,7 @@ def createIndex(posts):
             for post in posts:
                 doc_id=post.key()
                 category=db.get(post.category.key()).category
-                doc=create_document(doc_id,post.title,post.body,category)
+                doc=create_document(doc_id,post.title,post.body, category, post.timestamp)
                 search.Index(name=_INDEX_NAME).put(doc)
     except search.Error:
         logging.exception('Put failed')
