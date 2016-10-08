@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+    <form>
+        <label for=form-name>Name</label>
+        <input name=form-name id=form-name type=text required>
+        <label for=form-email>Email</label>
+        <input name=form-email id=form-email type=email required>
+<label for=form-url>URL</label>
+<input name=form-url id=form-url type=url>
+<label for=form-comment>Comment</label>
+<textarea name=form-comment id=form-comment required>
+</textarea>
+<input type=submit>
+</form>
+{% endblock %}
