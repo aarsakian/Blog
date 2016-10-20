@@ -67,7 +67,11 @@
 			</div>
 			<div class="row" id="bd">
 				{% block content %}<!-- main content area -->{% endblock %}
-			
+				{%if user_status%}
+				<div id="newpost" class="clear">
+					{% block new_post%}{% endblock %}
+				</div>
+				{%endif%}
 			</div>
 	
 			<div class="row" id="ft">
@@ -112,7 +116,7 @@
 		       <a class="button taggy" href="/categories#!{{'{{'}}category{{'}}'}}">{{'{{'}}category{{'}}'}}</a>
 			
 		</script>
-		
+		<!-- post area-->
 		<script id="entry-template" type="text/x-handlebars-template">
 			
 			<div  id={{'{{'}}key{{'}}'}}>

@@ -1,6 +1,6 @@
 import logging, json
 from blog import app
-from models import Posts, Tags, Categories, BlogPost
+from models import Posts, Tags, Categories
 from flask import render_template,request,jsonify,redirect,url_for, Markup
 from google.appengine.ext import db
 from google.appengine.api import memcache,search
@@ -21,6 +21,8 @@ from re import compile
 from jinja2.environment import Environment
 from random import randint
 from itertools import chain
+from forms import PostForm
+
 KEY="posts"
 TAG="tags"
 CATEGORY="categories"
@@ -374,38 +376,37 @@ def datetimeformat(value, format='%H:%M / %A-%B-%Y'):
 environment = Environment()
 app.jinja_env.filters['datetimeformat'] = datetimeformat
 
+
+def fetch_everything_from_db():
+    return Posts(), Tags(), Categories()
+
+
+def calculate_work_date_stats():
+    passed_days = (date.today()-date(2012, 3, 2)).days
+    remaining_days = int(ceil(2.0/3.0*8*365))-passed_days
+    return passed_days, remaining_days
+
+
+def find_update_of_site(last_post):
+    return str(last_post.updated.day)+" "+months[last_post.updated.month]+" "\
+                       +str(last_post.updated.year)
+
+
 def boilercode(func):
     """accepts function as argument enhance with new vars"""
     @wraps(func)#propagate func attributes
     def wrapper_func(*args,**kwargs):
-        posts = Posts()
-        tags = Tags()
-        tags.populate()
-        categories = Categories()
-        categories.populate()
+        posts, tags, categories = fetch_everything_from_db()
+       # recentposts=posts[:3]
+        posts_json = posts.to_json()
+        if posts:
+            site_updated = find_update_of_site(posts[-1])
+        else:
+            site_updated = 'NA'
+        passed_days, remaining_days = calculate_work_date_stats()
 
-
-
-
-    
-        #[tags.append({"tag":obj.tag,"tagid":obj.key().id()}) for obj in Tag.all()]
-        recentposts=posts[:3]
-     
-        try:
-          #  for post in posts:logging.info(str(post.updated.day)+" "+months[post.updated.month]+" "+str(post.updated.year))
-            post=posts[0]
-            siteupdated=str(post.updated.day)+" "+months[post.updated.month]+" "+str(post.updated.year)
-        except IndexError as e:
-            siteupdated="Out of range"
-        #tags=[]
-        
-        #[tags.append(post.tags) for post in posts if post.tags not in tags]
-      
-        ts=ceil(2.0/3.0*8*365)%365
-        dayspassed=date.today()-date(2012,3,2)
-        daysleft=int(ceil(2.0/3.0*8*365))-dayspassed.days
-        tz=date(2012,3,2)+timedelta(daysleft)
-        return func(posts.to_json(),tags,categories,action,siteupdated,daysleft,tz,dayspassed,*args,**kwargs)
+        return func(posts_json, tags, categories, site_updated, passed_days,
+                    remaining_days, *args, **kwargs)
     return wrapper_func
 
 
@@ -417,11 +418,12 @@ def boilercode(func):
 @app.route('/categories',methods=['GET'])
 @app.route('/tags',methods=['GET'])
 @boilercode
-def tags(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed,postkey=None):
+def tags(posts, tags, categories, siteupdated, daysleft, dayspassed, postkey=None):
 
-
-    return render_template('main.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
-                           daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,tags=tags,categories=categories,codeversion=CODEVERSION)
+    form = PostForm()
+    return render_template('new_post.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
+                           daysleft=daysleft,dayspassed=dayspassed,tags=tags,categories=categories,
+                           codeversion=CODEVERSION, form=form)
 
    
 
@@ -460,15 +462,18 @@ def aboutpage(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed,da
     return render_template('about.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
                            daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,Post=aboutpost,codeversion=CODEVERSION)
 
-@app.route('/',methods=['GET'])
+
+@app.route('/', methods=['GET'])
 @boilercode
-def index(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed):
+def index(posts_json, tags, categories, siteupdated, passed_days,
+                    remaining_days):
     """general url routing for template usage"""
-    delete_all_in_index()
+   # delete_all_in_index()
     if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
     return render_template('index.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
-                           daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,tags=tags,categories=categories,posts=posts,\
-                           posts_tags_names="",codeversion=CODEVERSION)
+                           daysleft=remaining_days,dayspassed=passed_days,tags=tags,categories=categories,
+                           posts=posts_json,
+                           codeversion=CODEVERSION)
 
 @app.route('/archives',methods=['GET'])
 @boilercode
@@ -566,9 +571,10 @@ def catposts(catname,id=None):
         
 @app.route('/posts',methods=['POST','GET'])
 def main():    
-    
+    posts = Posts()
+    categories = Categories()
+    tags = Tags()
     if request.method=='GET':  #all entitites
-        posts = Posts()
         return jsonify(posts=posts.to_json())
 
     if users.is_current_user_admin() and request.method == "POST":  #new entity
@@ -577,22 +583,29 @@ def main():
         raw_category = raw_post["category"]
         raw_tags = raw_post["tags"]
 
-        tag_keys = Tags.get_keys(raw_tags)
+        tag_keys = [Tags.find(raw_tag) for raw_tag in raw_tags]
 
         logging.info(tag_keys)
         if not tag_keys:
             tag_keys = [ Tag(tag=raw_tag).put() for raw_tag in raw_tags]
 
-        category_key = Categories.get_key(raw_category)
+        category_key = categories.get_key(raw_category)
 
         if not category_key:
-            category_key = Category(category=raw_category).put()
+            category = Category(category=raw_category)
+            category.put()
+            categories.append(category)
 
 
-        saved_post = BlogPost(title=raw_post["title"],
-                              body=raw_post["body"], category=category_key,
-                              tags=tag_keys).put()
-        return jsonify(msg="OK",id=saved_post.id(), tags=raw_tags) ##Needs check
+        post = BlogPost(title=raw_post["title"],
+                              body=raw_post["body"],
+                              category=category_key,
+                              tags=tag_keys)
+        post.put()
+
+        posts.append(post)
+
+        return jsonify(msg="OK",id=post.id(), tags=raw_tags) ##Needs check
       
 
 

@@ -147,7 +147,7 @@
               editevent=true;
             $(this.el).removeClass('view');
             $(this.el).find('.save').removeClass('hide');
-	    $(this.el).find('h3').addClass('hide');//hide textarea and h3
+	        $(this.el).find('h3').addClass('hide');//hide textarea and h3
             $(this.el).find('textarea').addClass('hide');
             $title=$(this.el).find('#post-title');
             $title.addClass('edit');
