@@ -6,7 +6,6 @@
         routes: {
          
             "edit":                   "main",
-          
            "tags":     "displayPosts",
            "edit/:key":             "router"
           

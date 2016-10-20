@@ -1,10 +1,10 @@
-from flask_wtf import Form
+from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, SubmitField
-from wtforms.validators import Required
+from wtforms.validators import DataRequired
 
-class PostForm(Form):
-    title = StringField('Add your title', validators=[Required()])
-    body = TextAreaField('write your post')
-    tags = StringField('Add your tags')
-    category = StringField('category', validators=[Required()])
-    submit = SubmitField('Submit')
+class PostForm(FlaskForm):
+    title = StringField("", validators=[DataRequired()])
+    body = TextAreaField("")
+    tags = StringField("")
+    category = StringField("", validators=[DataRequired()])
+    submit = SubmitField('Save')

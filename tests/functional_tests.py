@@ -11,9 +11,14 @@ class NewVisitorTest(unittest.TestCase):  #
     def tearDown(self):  #
         self.browser.quit()
 
+    def test_can_view_all_posts_in_landing_page(self):
+        #this is the landing page
+         self.browser.get('http://localhost:9082/')
+
+
     def test_can_create_a_post_and_retrieve_it_later(self):  #
         #  after login I am directed to the main page
-        self.browser.get('http://localhost:8000/edit')
+        self.browser.get('http://localhost:9082/edit')
 
         # I notice the page title and header mention my name and title of my blog
         self.assertIn('Armen Arsakian personal blog', self.browser.title)
