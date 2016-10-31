@@ -404,7 +404,6 @@ def boilercode(func):
         else:
             site_updated = 'NA'
         passed_days, remaining_days = calculate_work_date_stats()
-
         return func(posts_json, tags, categories, site_updated, passed_days,
                     remaining_days, *args, **kwargs)
     return wrapper_func
@@ -583,29 +582,25 @@ def main():
         raw_category = raw_post["category"]
         raw_tags = raw_post["tags"]
 
-        tag_keys = [Tags.find(raw_tag) for raw_tag in raw_tags]
-
-        logging.info(tag_keys)
-        if not tag_keys:
-            tag_keys = [ Tag(tag=raw_tag).put() for raw_tag in raw_tags]
-
-        category_key = categories.get_key(raw_category)
-
-        if not category_key:
-            category = Category(category=raw_category)
-            category.put()
-            categories.append(category)
+        new_tags = [raw_tag for raw_tag in raw_tags if raw_tag not in tags]
+        logging.info("BEFORE new tag"+str(new_tags))
+        tag_ids = [tags.add(new_tag) for new_tag in new_tags if new_tags]
 
 
-        post = BlogPost(title=raw_post["title"],
-                              body=raw_post["body"],
-                              category=category_key,
-                              tags=tag_keys)
-        post.put()
+        category = categories[raw_category]
+        logging.info("after new tag"+str(category))
+        if not category:
+            category_key = categories.add(raw_category)
+        else:
+            category_key = category.key()
 
-        posts.append(post)
+        post_id = posts.add(raw_title=raw_post["title"],
+                              raw_body=raw_post["body"],
+                              category_key=category_key,
+                              tags_ids=tag_ids)
 
-        return jsonify(msg="OK",id=post.id(), tags=raw_tags) ##Needs check
+
+        return jsonify(msg="OK", id=post_id, tags=raw_tags) ##Needs check
       
 
 
