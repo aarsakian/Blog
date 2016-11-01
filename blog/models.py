@@ -34,14 +34,13 @@ class BlogList(list):
 class Posts(BlogList):
     """list of posts"""
     def __init__(self):
-        self.posts = []
-        if not self._retrieve_from_memcache():
+        self.posts = self._retrieve_from_memcache()
+        if not self.posts:
             self.posts = BlogPost.all().order('-timestamp')
             self._populate_memcache()
             self._populate_search_index()
-        else:
-            self.posts = self._retrieve_from_memcache()
 
+        logging.info("FSFDS     "+self.posts[0].body)
 
     def _populate_memcache(self):
         """populate memcache
@@ -51,10 +50,12 @@ class Posts(BlogList):
             logging.error("Memcache set failed for posts")
 
     def _retrieve_from_memcache(self):
+
         cached_posts = memcache.get("POSTS_CACHE")
         if not cached_posts:
             return []
         else:
+            logging.info("s---------")
             return list(cached_posts)
 
 
@@ -79,7 +80,8 @@ class Posts(BlogList):
                               body=raw_body,
                               category=category_key,
                               tags=tags_ids).put()
-        self.append(BlogPost.get_by_id(post_key.id()))
+        logging.info("new post with key"+str(post_key))
+        self.posts.append(BlogPost.get_by_id(post_key.id()))
 
     def append(self, post):
         if self.posts:
@@ -106,7 +108,7 @@ class Tags(BlogList):
     def __init__(self):
         self.tags = []
         if not memcache.get("TAGS_CACHE"):
-            self.tags = Tag.all().order('-tag')
+            self.tags = Tag.all()
             self._populate_memcache()
         else:
             self.tags =  self._retrieve_from_memcache()
@@ -128,7 +130,7 @@ class Tags(BlogList):
 
     def add(self, new_tag):
         tag_key = Tag(tag=new_tag).put()
-        self.append(Tag.get_by_id(tag_key.id()))
+        self.tags.append(Tag.get_by_id(tag_key.id()))
         return tag_key
 
     def append(self, tag):
@@ -155,7 +157,8 @@ class Categories(BlogList):
     def __init__(self):
         self.categories = []
         if not self._retrieve_from_memcache():
-            self.categories = Category.all().order('-category')
+            self.categories = Category.all()
+            logging.info("TYPE {}".format(type(self.categories)))
             self._populate_memcache()
         else:
             self.categories = self._retrieve_from_memcache()
@@ -177,7 +180,7 @@ class Categories(BlogList):
 
     def add(self, raw_category):
         category_key = Category(category=raw_category).put()
-        self.append(Category.get_by_id(category_key.id()))
+        self.categories.append(Category.get_by_id(category_key.id()))
         return category_key
 
     def append(self, category):

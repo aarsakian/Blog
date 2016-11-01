@@ -398,11 +398,14 @@ def boilercode(func):
     def wrapper_func(*args,**kwargs):
         posts, tags, categories = fetch_everything_from_db()
        # recentposts=posts[:3]
-        posts_json = posts.to_json()
+
+        logging.info("PSOT{}".format(bool(posts)))
         if posts:
+            posts_json = posts.to_json()
             site_updated = find_update_of_site(posts[-1])
         else:
             site_updated = 'NA'
+            posts_json = []
         passed_days, remaining_days = calculate_work_date_stats()
         return func(posts_json, tags, categories, site_updated, passed_days,
                     remaining_days, *args, **kwargs)
@@ -417,12 +420,15 @@ def boilercode(func):
 @app.route('/categories',methods=['GET'])
 @app.route('/tags',methods=['GET'])
 @boilercode
-def tags(posts, tags, categories, siteupdated, daysleft, dayspassed, postkey=None):
-
+def tags(posts_json, tags, categories, siteupdated, passed_days,
+                    remaining_days, postkey=None):
     form = PostForm()
+
     return render_template('new_post.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
-                           daysleft=daysleft,dayspassed=dayspassed,tags=tags,categories=categories,
+                           daysleft=remaining_days,dayspassed=passed_days,tags=tags,categories=categories,
+                           posts=posts_json,
                            codeversion=CODEVERSION, form=form)
+
 
    
 
@@ -573,8 +579,12 @@ def main():
     posts = Posts()
     categories = Categories()
     tags = Tags()
+
     if request.method=='GET':  #all entitites
-        return jsonify(posts=posts.to_json())
+        if posts:
+            return jsonify(posts=posts.to_json())
+        else:
+            return jsonify(posts=[])
 
     if users.is_current_user_admin() and request.method == "POST":  #new entity
         logging.info("new post was submitted")
@@ -585,7 +595,6 @@ def main():
         new_tags = [raw_tag for raw_tag in raw_tags if raw_tag not in tags]
         logging.info("BEFORE new tag"+str(new_tags))
         tag_ids = [tags.add(new_tag) for new_tag in new_tags if new_tags]
-
 
         category = categories[raw_category]
         logging.info("after new tag"+str(category))
@@ -598,7 +607,6 @@ def main():
                               raw_body=raw_post["body"],
                               category_key=category_key,
                               tags_ids=tag_ids)
-
 
         return jsonify(msg="OK", id=post_id, tags=raw_tags) ##Needs check
       
