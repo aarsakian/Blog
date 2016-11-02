@@ -399,7 +399,7 @@ def boilercode(func):
         posts, tags, categories = fetch_everything_from_db()
        # recentposts=posts[:3]
 
-        logging.info("PSOT{}".format(bool(posts)))
+        logging.info("PSOT{}".format(posts))
         if posts:
             posts_json = posts.to_json()
             site_updated = find_update_of_site(posts[-1])
@@ -473,7 +473,10 @@ def aboutpage(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed,da
 def index(posts_json, tags, categories, siteupdated, passed_days,
                     remaining_days):
     """general url routing for template usage"""
-   # delete_all_in_index()
+
+
+
+
     if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
     return render_template('index.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
                            daysleft=remaining_days,dayspassed=passed_days,tags=tags,categories=categories,
@@ -516,14 +519,14 @@ def getTag(tag=None,id=None):
         
     if tag!=None:
         if request.method=="GET":
-            action=Action()
+
             data=action.getall(tagname=tag)
             return  jsonify(msg="OK",posts=data,type="tag")
      
             
     else:  
         tagss=[]
-        a=Action()
+
         [tagss.append([Tag.tag,Tag.key().id()]) for Tag in a.tags]
         tags=map(lambda tag:{"tag":tag[0],"id":tag[1]} ,tagss)
      
@@ -538,8 +541,7 @@ def catposts(catname,id=None):
 
 
     if request.method=="GET":
-        action=Action()
-        data=action.getall(catname)
+
         return  jsonify(msg="OK",posts=data,type="category")
         
     if users.is_current_user_admin() and request.method=="POST":#new entity
