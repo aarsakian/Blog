@@ -27,37 +27,54 @@ class BlogPost(db.Model):
 
 
 class BlogList(list):
-    def append(self, entity):
-        """update list of posts and memcache"""
-        logging.info("RECEVI ", entity, self.entities)
+    pass
 
-class Posts(BlogList):
+
+class JsonMixin:
+
+    def to_json(self):
+        """prepare data for json consumption add extra fields"""
+        posts_jsonified = []
+        if self.posts:
+            for post in self.posts:
+                post_dict = db.to_dict(post)
+                post_dict["id"] = post.key().id()
+                post_dict["tags"] = [db.get(tag).tag for tag in post.tags]
+                post_dict["category"] = db.get(post.category.key()).category
+                posts_jsonified.append(post_dict)
+
+        return posts_jsonified
+
+class Posts(BlogList, JsonMixin):
     """list of posts"""
+
+    __posts__ = []
+
+    def __new__(cls):
+
+        cls.__posts__ = cls._retrieve_from_memcache()
+        return  super(Posts, cls).__new__(cls)
+
     def __init__(self):
-        self.posts = self._retrieve_from_memcache()
-        if not self.posts:
-            self.posts = BlogPost.all().order('-timestamp')
+        if not self.__posts__:
             self._populate_memcache()
             self._populate_search_index()
-
-        logging.info("FSFDS     "+self.posts[0].body)
 
     def _populate_memcache(self):
         """populate memcache
         use key as post plus post.id"""
         logging.info('cache is empty creating index')
-        if not memcache.add("POSTS_CACHE", self.posts):
+        if not memcache.add("POSTS_CACHE", self.__posts__):
             logging.error("Memcache set failed for posts")
 
+    @classmethod
     def _retrieve_from_memcache(self):
 
         cached_posts = memcache.get("POSTS_CACHE")
         if not cached_posts:
             return []
         else:
-            logging.info("s---------")
             return list(cached_posts)
-
 
     def _populate_search_index(self):
         try:
@@ -82,36 +99,24 @@ class Posts(BlogList):
                               tags=tags_ids).put()
         logging.info("new post with key"+str(post_key))
         self.posts.append(BlogPost.get_by_id(post_key.id()))
+        self._delete_memcache()
+        self._populate_memcache()
 
-    def append(self, post):
-        if self.posts:
-            self._delete_memcache()
-            self._populate_memcache()
-            self.posts.append(post)
+    def bool(self):
+        logging.info("LEBOOOL")
+        return bool(self.__posts__)
 
-    def to_json(self):
-        """prepare data for json consumption add extra fields"""
-        posts_jsonified = []
-        if self.posts:
-            for post in self.posts:
-                post_dict = db.to_dict(post)
-                post_dict["id"] = post.key().id()
-                post_dict["tags"] = [db.get(tag).tag for tag in post.tags]
-                post_dict["category"] = db.get(post.category.key()).category
-                posts_jsonified.append(post_dict)
-
-        return posts_jsonified
-
+    def __iter__(self):
+        logging.info("ITER")
+        yield self.posts
 
 class Tags(BlogList):
 
     def __init__(self):
-        self.tags = []
-        if not memcache.get("TAGS_CACHE"):
+        self.tags = self._retrieve_from_memcache()
+        if not self.tags:
             self.tags = Tag.all()
             self._populate_memcache()
-        else:
-            self.tags =  self._retrieve_from_memcache()
 
     def _retrieve_from_memcache(self):
         cached_tags = memcache.get("TAGS_CACHE")
@@ -155,19 +160,20 @@ class Tags(BlogList):
 class Categories(BlogList):
 
     def __init__(self):
-        self.categories = []
-        if not self._retrieve_from_memcache():
+        self.categories = self._retrieve_from_memcache()
+       # logging.info("TYPE {}".format(self.categories[0]))
+        if not self.categories:
             self.categories = Category.all()
-            logging.info("TYPE {}".format(type(self.categories)))
             self._populate_memcache()
-        else:
-            self.categories = self._retrieve_from_memcache()
 
     def _retrieve_from_memcache(self):
+
         cached_categories = memcache.get("CATEGORIES_CACHE")
         if not cached_categories:
+
             return []
         else:
+           # logging.info("retrieving cat empty {}".format(cached_categories[0]))
             return list(cached_categories)
 
     def _populate_memcache(self):
