@@ -399,7 +399,7 @@ def boilercode(func):
         posts, tags, categories = fetch_everything_from_db()
        # recentposts=posts[:3]
 
-        logging.info("PSOT{}".format(posts))
+        logging.info("PSOT{}".format((posts)))
         if posts:
             posts_json = posts.to_json()
             site_updated = find_update_of_site(posts[-1])
@@ -424,7 +424,7 @@ def tags(posts_json, tags, categories, siteupdated, passed_days,
                     remaining_days, postkey=None):
     form = PostForm()
 
-    return render_template('new_post.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
+    return render_template('main.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
                            daysleft=remaining_days,dayspassed=passed_days,tags=tags,categories=categories,
                            posts=posts_json,
                            codeversion=CODEVERSION, form=form)
@@ -475,7 +475,7 @@ def index(posts_json, tags, categories, siteupdated, passed_days,
     """general url routing for template usage"""
 
 
-
+    logging.info("JSON{}".format(posts_json))
 
     if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
     return render_template('index.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
@@ -584,6 +584,7 @@ def main():
 
     if request.method=='GET':  #all entitites
         if posts:
+
             return jsonify(posts=posts.to_json())
         else:
             return jsonify(posts=[])

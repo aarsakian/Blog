@@ -27,7 +27,11 @@ class BlogPost(db.Model):
 
 
 class BlogList(list):
-    pass
+
+    @staticmethod
+    def retrieve_from_memcache(cache_name):
+        entities = memcache.get(cache_name)
+        return list(entities) if entities else []
 
 
 class JsonMixin:
@@ -45,40 +49,41 @@ class JsonMixin:
 
         return posts_jsonified
 
+
 class Posts(BlogList, JsonMixin):
     """list of posts"""
 
-    __posts__ = []
-
-    def __new__(cls):
-
-        cls.__posts__ = cls._retrieve_from_memcache()
-        return  super(Posts, cls).__new__(cls)
+    __posts__ = BlogList.retrieve_from_memcache("POSTS_CACHE")
 
     def __init__(self):
         if not self.__posts__:
+            self.__posts__ = BlogPost.all().order('-timestamp')
             self._populate_memcache()
             self._populate_search_index()
+
+    @property
+    def posts(self):
+        return self.__posts__
+
+    def __len__(self):
+        return bool(self.__posts__)
+
+    def __iter__(self):
+        return (post for post in self.__posts__)
+
+    def __getitem__(self, post_idx):
+        return self.__posts__[post_idx]
 
     def _populate_memcache(self):
         """populate memcache
         use key as post plus post.id"""
         logging.info('cache is empty creating index')
-        if not memcache.add("POSTS_CACHE", self.__posts__):
+        if not memcache.add("POSTS_CACHE", self.posts):
             logging.error("Memcache set failed for posts")
-
-    @classmethod
-    def _retrieve_from_memcache(self):
-
-        cached_posts = memcache.get("POSTS_CACHE")
-        if not cached_posts:
-            return []
-        else:
-            return list(cached_posts)
 
     def _populate_search_index(self):
         try:
-            for post in self.posts:
+            for post in self.__posts__:
                 category = db.get(post.category.key()).category
                 doc = create_document(post.key().id(), post.title, post.body,
                                       category, post.timestamp)
@@ -98,35 +103,35 @@ class Posts(BlogList, JsonMixin):
                               category=category_key,
                               tags=tags_ids).put()
         logging.info("new post with key"+str(post_key))
-        self.posts.append(BlogPost.get_by_id(post_key.id()))
+        self.append(BlogPost.get_by_id(post_key.id()))
         self._delete_memcache()
         self._populate_memcache()
 
-    def bool(self):
-        logging.info("LEBOOOL")
-        return bool(self.__posts__)
-
-    def __iter__(self):
-        logging.info("ITER")
-        yield self.posts
 
 class Tags(BlogList):
 
+    __tags__ = BlogList.retrieve_from_memcache("TAGS_CACHE")
+
     def __init__(self):
-        self.tags = self._retrieve_from_memcache()
-        if not self.tags:
-            self.tags = Tag.all()
+        if not self.__tags__:
+            self.__tags__ = Tag.all()
             self._populate_memcache()
 
-    def _retrieve_from_memcache(self):
-        cached_tags = memcache.get("TAGS_CACHE")
-        if not cached_tags:
-            return []
-        else:
-            return list(cached_tags)
+    def __getitem__(self, tag):
+        return self.__tags__[tag]
+
+    def __contains__(self, raw_tag):
+        if self.__tags__:
+            for tag in self:
+                if tag == raw_tag:
+                    return True
+        return False
+
+    def __iter__(self):
+        return (tag.tag for tag in self.__tags__)
 
     def _populate_memcache(self):
-        if not memcache.add("TAGS_CACHE", self.tags):
+        if not memcache.add("TAGS_CACHE", self.__tags__):
             logging.error("Memcache set failed for tags")
 
     def _delete_memcache(self):
@@ -135,49 +140,24 @@ class Tags(BlogList):
 
     def add(self, new_tag):
         tag_key = Tag(tag=new_tag).put()
-        self.tags.append(Tag.get_by_id(tag_key.id()))
+        self.__tags__.append(Tag.get_by_id(tag_key.id()))
+        self._delete_memcache()
+        self._populate_memcache()
+
         return tag_key
-
-    def append(self, tag):
-        if self.tags:
-            self._delete_memcache()
-            self._populate_memcache()
-            self.tags.append(tag)
-
-    def __getitem__(self, tag):
-        return self.tags[tag]
-
-    def __contains__(self, raw_tag):
-        if self.tags:
-            for tag in self.tags:
-
-                if tag.tag == raw_tag:
-                    logging.info(tag.tag==raw_tag)
-                    return True
-        return False
 
 
 class Categories(BlogList):
 
+    __categories__ = BlogList.retrieve_from_memcache("CATEGORIES_CACHE")
+
     def __init__(self):
-        self.categories = self._retrieve_from_memcache()
-       # logging.info("TYPE {}".format(self.categories[0]))
-        if not self.categories:
-            self.categories = Category.all()
+        if not self.__categories__:
+            self.__categories__ = Category.all()
             self._populate_memcache()
 
-    def _retrieve_from_memcache(self):
-
-        cached_categories = memcache.get("CATEGORIES_CACHE")
-        if not cached_categories:
-
-            return []
-        else:
-           # logging.info("retrieving cat empty {}".format(cached_categories[0]))
-            return list(cached_categories)
-
     def _populate_memcache(self):
-        if not memcache.add("CATEGORIES_CACHE", self.categories):
+        if not memcache.add("CATEGORIES_CACHE", self.__categories__):
             logging.error("Memcache set failed for categories")
 
     def _delete_memcache(self):
@@ -186,22 +166,20 @@ class Categories(BlogList):
 
     def add(self, raw_category):
         category_key = Category(category=raw_category).put()
-        self.categories.append(Category.get_by_id(category_key.id()))
+        self.__categories__.append(Category.get_by_id(category_key.id()))
+        self._delete_memcache()
+        self._populate_memcache()
         return category_key
 
-    def append(self, category):
-        if self.categories:
-            self._delete_memcache()
-            self._populate_memcache()
-            self.categories.append(category)
-
     def __getitem__(self, raw_category):
-        if self.categories:
-            for category in self.categories:
-                if category.category == raw_category:
-                    logging.info(str(category))
+        if self.__categories__:
+            for category in self:
+                if category == raw_category:
                     return category
         return None
+
+    def __iter__(self):
+        return (category.category for category in self.__categories__)
 
     @staticmethod
     def get_key(category):
