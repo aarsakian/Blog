@@ -10,8 +10,8 @@
 		    
                     this.category=options['category'].replace('!','');
                     this.url='categories/'+this.category;
-		    console.log(this.url);
-		    this.header=this.category;
+                    console.log(this.url);
+                    this.header=this.category;
                 }
               
              
@@ -34,7 +34,7 @@
 		else if (options['postkey'])
 		{    
 		    // this.header=options['postTitle'];
-		    console.log(this.url);
+
 		     this.url='/posts/'+options['postkey'];
 		    
 		}
@@ -48,6 +48,7 @@
         parse:function(data){
 	    this.type=data.type;   
 	    this.dataheader=data.header;
+        console.log("data.posts"+data.posts)
             return data.posts;
         }
         

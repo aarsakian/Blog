@@ -7,7 +7,6 @@
         className: "post clear" ,//view is a post
         template :Handlebars.compile($("#entry-template").html()),
         initialize: function(){
-	   console.log('model change');
             this.model.on('change', this.render, this);//rerender event, callback, [context]
             this.model.on('destroy', this.remove, this);
 	    
@@ -86,7 +85,7 @@
                  tags: this.tags,date:this.model.toJSON().date,updated:this.model.toJSON().updated,
                  onepostmode:editmode,catid:this.model.toJSON().catid,category:this.category,  body100:  body100}
                 }
-                else{
+       else{
                            
                     context = {title: this.title,body:this.body,key:this.id,user_admin:window.App.user.toJSON().user_status.user_status,
                  tags:this.tags,date:this.model.toJSON().date,updated:this.model.toJSON().updated,
@@ -96,8 +95,8 @@
 	    
        
             var $el=$(this.el);//for DOM hooking}
-        
             $el.html(this.template(context));
+          
             $el.find('.save').addClass('hide');
             
            
