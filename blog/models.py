@@ -99,9 +99,9 @@ class Posts(BlogList, JsonMixin):
 
     def add(self, raw_title, raw_body, category_key, tags_ids):
         post_key = BlogPost(title=raw_title,
-                              body=raw_body,
-                              category=category_key,
-                              tags=tags_ids).put()
+                            body=raw_body,
+                            category=category_key,
+                            tags=tags_ids).put()
         logging.info("new post with key"+str(post_key))
         self.append(BlogPost.get_by_id(post_key.id()))
         self._delete_memcache()
@@ -156,6 +156,16 @@ class Categories(BlogList):
             self.__categories__ = Category.all()
             self._populate_memcache()
 
+    def __getitem__(self, raw_category):
+        if self.__categories__:
+            for category in self:
+                if category == raw_category:
+                    return category
+        return None
+
+    def __iter__(self):
+        return (category.category for category in self.__categories__)
+
     def _populate_memcache(self):
         if not memcache.add("CATEGORIES_CACHE", self.__categories__):
             logging.error("Memcache set failed for categories")
@@ -171,19 +181,6 @@ class Categories(BlogList):
         self._populate_memcache()
         return category_key
 
-    def __getitem__(self, raw_category):
-        if self.__categories__:
-            for category in self:
-                if category == raw_category:
-                    return category
-        return None
-
-    def __iter__(self):
-        return (category.category for category in self.__categories__)
-
     @staticmethod
     def get_key(category):
         return memcache.get(category)
-
-
-
