@@ -3,7 +3,7 @@
         model:model,
 
         initialize:function(models,options){
-	  console.log(options);
+	
             if (typeof options!="undefined"){
                  
                 if (options['category']){

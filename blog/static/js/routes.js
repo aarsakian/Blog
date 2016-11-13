@@ -5,7 +5,7 @@
         
         routes: {
          
-            "edit":                   "main",
+           "edit":                   "main",
            "tags":     "displayPosts",
            "edit/:key":             "router"
           
