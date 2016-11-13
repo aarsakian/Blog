@@ -56,27 +56,19 @@
             this.id=this.model.toJSON().id;
             this.tags=[]
             this.tags=this.model.toJSON().tags;
-	    this.category=this.model.toJSON().category;
+            this.category=this.model.toJSON().category;
             var tagsnames=[];
-            console.log(typeof this.tags);
-            if (typeof this.tags[0]==="object")
-               {
-               this.tags.forEach(function(tag){//example of a closure
-                 tagsnames.push(tag);               
-               });
-               this.tagsnames=tagsnames;
-	       console.log(tagsnames);
-	    //   this.tags=tagsnames;
-               }
-            else//categories and tags return Array
-               {
-               var tagsArray=[]
-            
-               this.tagsnames=this.tags;
-               }
-        
-        
+          
            
+            this.tags.forEach(function(tag){//example of a closure
+                 tagsnames.push(tag);               
+            });
+             
+	  
+            this.tags = tagsnames;
+        
+        
+                   
 
 	     
 	    if ((app.Posts.category) || (app.Posts.tag))//tag or category collection
@@ -86,7 +78,7 @@
                  onepostmode:editmode,catid:this.model.toJSON().catid,category:this.category,  body100:  body100}
                 }
        else{
-                           
+                         console.log(this.tags);    
                     context = {title: this.title,body:this.body,key:this.id,user_admin:window.App.user.toJSON().user_status.user_status,
                  tags:this.tags,date:this.model.toJSON().date,updated:this.model.toJSON().updated,
                  onepostmode:editmode,catid:this.model.toJSON().catid,category:this.model.toJSON().category,  body100:  body100}
@@ -159,7 +151,7 @@
          
             $tags=$(this.el).find('#post_tag');
             $tags.addClass('edit');
-            $tags.val(this.tagsnames);
+            $tags.val(this.tags);
         },
         
         close: function() {
