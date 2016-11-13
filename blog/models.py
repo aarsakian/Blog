@@ -25,6 +25,9 @@ class BlogPost(db.Model):
     category = db.ReferenceProperty(Category,
                                     collection_name='category_posts')
 
+    def get_tags(self, id):
+        return [Tag.get_by_id(tag_key.id()).tag for tag_key in self.tags]
+
 
 class BlogList(list):
 
@@ -53,11 +56,10 @@ class JsonMixin:
 class Posts(BlogList, JsonMixin):
     """list of posts"""
 
-    __posts__ = BlogList.retrieve_from_memcache("POSTS_CACHE")
-
     def __init__(self):
+        self.__posts__ = BlogList.retrieve_from_memcache("POSTS_CACHE")
         if not self.__posts__:
-            self.__posts__ = BlogPost.all().order('-timestamp')
+            self.__posts__ = list(BlogPost.all().order('-timestamp'))
             self._populate_memcache()
             self._populate_search_index()
 
@@ -66,7 +68,10 @@ class Posts(BlogList, JsonMixin):
         return self.__posts__
 
     def __len__(self):
-        return bool(self.__posts__)
+        if not isinstance(self.__posts__, list):
+            return len(list(self.__posts__))
+        else:
+            return len(self.__posts__)
 
     def __iter__(self):
         return (post for post in self.__posts__)
@@ -110,11 +115,10 @@ class Posts(BlogList, JsonMixin):
 
 class Tags(BlogList):
 
-    __tags__ = BlogList.retrieve_from_memcache("TAGS_CACHE")
-
     def __init__(self):
+        self.__tags__ = BlogList.retrieve_from_memcache("TAGS_CACHE")
         if not self.__tags__:
-            self.__tags__ = Tag.all()
+            self.__tags__ = list(Tag.all())
             self._populate_memcache()
 
     def __getitem__(self, tag):
@@ -149,11 +153,10 @@ class Tags(BlogList):
 
 class Categories(BlogList):
 
-    __categories__ = BlogList.retrieve_from_memcache("CATEGORIES_CACHE")
-
     def __init__(self):
+        self.__categories__ = BlogList.retrieve_from_memcache("CATEGORIES_CACHE")
         if not self.__categories__:
-            self.__categories__ = Category.all()
+            self.__categories__ = list(Category.all())
             self._populate_memcache()
 
     def __getitem__(self, raw_category):
