@@ -1,8 +1,8 @@
-import unittest
+import unittest, subprocess
 from flask_testing import TestCase
 from flask import url_for, render_template
 from blog import app
-from blog.views import CODEVERSION, fetch_everything_from_db, calculate_work_date_stats
+from blog.views import CODEVERSION, fetch_everything_from_db, calculate_work_date_stats, find_update_of_site
 from google.appengine.ext import testbed
 from google.appengine.api import users
 from blog.forms import PostForm
@@ -28,12 +28,19 @@ class MyTest(TestCase):
         passed_days, remaining_days = calculate_work_date_stats()
         form = PostForm()
 
-        response = self.client.get("/edit")
+        response = self.client.get((url_for('tags')))
+        if posts:
+            posts_json = posts.to_json()
+            site_updated = find_update_of_site(posts[len(posts)-1])
+        else:
+            site_updated = 'NA'
+            posts_json = []
 
-        rendered_template = render_template('new_post.html',user_status=users.is_current_user_admin(),siteupdated="",\
+        rendered_template = render_template('main.html',user_status=users.is_current_user_admin(),siteupdated=site_updated,\
                            daysleft=remaining_days,dayspassed=passed_days,tags=tags,categories=categories,
-                           posts=posts.to_json(),
-                           codeversion=CODEVERSION)
+                           posts=posts_json,
+                           codeversion=CODEVERSION, form=form)
+
 
         self.assertEqual(rendered_template, response.data)
 
