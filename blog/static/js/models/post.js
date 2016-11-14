@@ -4,7 +4,8 @@
             title:"",
             body:"body of post",
             date:"date of the post",
-            updated:""
+            updated:"",
+            tags:""
             
           
         },

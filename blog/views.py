@@ -577,11 +577,11 @@ def catposts(catname,id=None):
         
 @app.route('/posts',methods=['POST','GET'])
 def main():    
-    posts = Posts()
-    categories = Categories()
-    tags = Tags()
+
 
     if request.method=='GET':  #all entitites
+        posts = Posts()
+
         if posts:
 
             return jsonify(posts=posts.to_json())
@@ -589,28 +589,29 @@ def main():
             return jsonify(posts=[])
 
     if users.is_current_user_admin() and request.method == "POST":  #new entity
+        posts = Posts()
+        categories = Categories()
+        tags = Tags()
         logging.info("new post was submitted")
         raw_post = request.get_json()
         raw_category = raw_post["category"]
         raw_tags = raw_post["tags"]
 
         new_tags = [raw_tag for raw_tag in raw_tags if raw_tag not in tags]
-        logging.info("BEFORE new tag"+str(new_tags))
+
         tag_ids = [tags.add(new_tag) for new_tag in new_tags if new_tags]
 
-        category = categories[raw_category]
-        logging.info("after new tag"+str(category))
-        if not category:
+        if raw_category not in categories:
             category_key = categories.add(raw_category)
         else:
-            category_key = category.key()
+            category_key = categories.get_key(raw_category)
 
         post_id = posts.add(raw_title=raw_post["title"],
                               raw_body=raw_post["body"],
                               category_key=category_key,
-                              tags_ids=tag_ids)
+                              tags_ids=tag_ids).id()
 
-        return jsonify(msg="OK", id=post_id, tags=raw_tags) ##Needs check
+        return jsonify(msg="OK", id=str(post_id), tags=raw_tags) ##Needs check
       
 
 
@@ -618,35 +619,36 @@ def main():
 def handleApost(id):
     posts = Posts()
     tags = Tags()
-    categories = Categories
+    categories = Categories()
 
+    tags_keys = []
     if not posts:
       
         posts = BlogPost.all().order("-timestamp").fetch(20)
         memcache.add(KEY,posts)
 
-    if not tags:
-        tags = Tag.all().fetch(20)
-        memcache.add(TAG,tags)
-    if not categories:
-        categories= Category.all().fetch(20)
-        memcache.add(CATEGORY,categories)
-
-    
-    if request.method=="GET":
-        apost=APost(id=id)
-        data=apost.retrieve()
-        return jsonify(msg="OK",posts=data)
-    elif users.is_current_user_admin() and request.method=="DELETE":
-        apost=APost(id=id)
-        apost.delete()
-        return jsonify(msg="OK")
+    # if not tags:
+    #     tags = Tag.all().fetch(20)
+    #     memcache.add(TAG,tags)
+    # if not categories:
+    #     categories= Category.all().fetch(20)
+    #     memcache.add(CATEGORY,categories)
+    #
+    #
+    # if request.method=="GET":
+    #     apost=APost(id=id)
+    #     data=apost.retrieve()
+    #     return jsonify(msg="OK",posts=data)
+    # elif users.is_current_user_admin() and request.method=="DELETE":
+    #     apost=APost(id=id)
+    #     apost.delete()
+    #     return jsonify(msg="OK")
         
-    elif  users.is_current_user_admin() and request.method=="PUT":
-        title=request.json['title']
-        body=request.json['body']
-        date=request.json['date']
-        category=request.json['category']
+    if  users.is_current_user_admin() and request.method=="PUT":
+        title = request.json['title']
+        body = request.json['body']
+        date = request.json['date']
+        raw_category = request.json['category']
         raw_post_tags = request.json['tags']
      #   apost=APost(title,body,date,category,posttags,id)
 
@@ -655,115 +657,113 @@ def handleApost(id):
 
         #potential new tags to be added
         unchanged_tags = set(existing_post_tags) & set(raw_post_tags)#changes tags added or removed
-        potential_new_tags=set(existing_post_tags) ^ unchanged_tags#new tags for this post
-        potential_removed_tags=list(set(existing_post_tags) ^ unchanged_tags)
+        potential_new_tags = set(existing_post_tags) ^ unchanged_tags#new tags for this post
+        potential_removed_tags = list(set(existing_post_tags) ^ unchanged_tags)
 
         if potential_new_tags:
 
             new_tags = [potential_new_tag for potential_new_tag in
                         potential_new_tags if potential_new_tag not in tags]
-        if new_tags:
-            tag_ids = [tags.add(new_tag) for new_tag in new_tags if new_tags]
+            if new_tags:
+                tags_keys = [tags.add(new_tag) for new_tag in new_tags if new_tags]
 
-        post_tagsdb_values=[]
-        post_tagsdb_keys=[]
-        existingTags=[]
-        existingTagskeys=[]
-        tagsleft=[]
+        if potential_removed_tags:
+            other_posts_tags = posts.get_other_tags(id)
+            [tags.delete(tag) for tag in  potential_removed_tags if tag not in other_posts_tags]
+        if not tags_keys:
+            tags_keys = updating_post.tags
+        updating_post.title = title
+        updating_post.body = body
+        updating_post.category = categories.get_key(raw_category)
+        updating_post.tags = tags_keys
 
-       #find the existing tags of the post
-
-
-        for tagkey in self.posts_tags_db:
-            if tagkey not in self.post_tags_keys:
-                try:
-                    tagsleft.append(Tag.get_by_id(tagkey.id()).tag)
-                except AttributeError:#ops a post without a tag
-                    continue
-            existingTagskeys.append(tagkey)
-            existingTags.append(db.get(tagkey).tag) #existing Tags
+     #   self.obj.category=self.catdict.keys()[self.catdict.values().index(self.postcategory)]
+        updating_post.updated=datetime.now()
+        updating_post.put()
 
 
-
-        for tagkey in self.post_tags_keys:post_tagsdb_values.append(db.get(tagkey).tag)#previous Tags of the post
-
-
-     #   logging.info([self.posttags,type(self.posttags),type(post_tagsdb_values),post_tagsdb_values])
-        unchangedtags=[]
-        returnedTags=[]
-      #  logging.info(['posttags',self.posttags,post_tagsdb_values])
-        if post_tagsdb_values:#post does have tags
-            logging.info(post_tagsdb_values)
-            unchangedtags=set(self.posttags) & set( post_tagsdb_values)#changes tags added or removed
-            newtags=set(self.posttags) ^ unchangedtags#new tags for this post
-            oldtags=list(set(post_tagsdb_values)^unchangedtags)
-            logging.info(["new",newtags,"old",oldtags,"unchanged",unchangedtags,list(unchangedtags)])
-
-            if list(unchangedtags):
-                unchangedtags=list(unchangedtags)
-                for tag in unchangedtags:
-                    tagid=db.get(existingTagskeys[existingTags.index(tag)]).key().id()
-                    returnedTags.append({"tag":tag,"tagid":tagid})
-            else:unchangedtags=[]
-            i=0
-            logging.info(['Tags from other posts',existingTags])
-            for tag in oldtags:#tags to be removed
-
-                tag_key= existingTagskeys[existingTags.index(tag)]
-                if tag not in  tagsleft:#delete not used tags
-                    tagobj=db.get(tag_key)
-                    logging.info(["deleting",tag,tagobj])
-                    tagobj.delete()
-                pos=post_tagsdb_values.index(tag)
+       #3 for tagkey in self.post_tags_keys:post_tagsdb_values.append(db.get(tagkey).tag)#previous Tags of the post
 
 
-                self.obj.tags.pop(pos-i)
-
-                i+=1
-        elif  self.posttags:#new tags do exist
-
-            logging.info(self.posttags)
-            newtags=set(self.posttags)#does not have tags
-
-        else:newtags=[]
+     # #   logging.info([self.posttags,type(self.posttags),type(post_tagsdb_values),post_tagsdb_values])
+     #    unchangedtags=[]
+     #    returnedTags=[]
+     #  #  logging.info(['posttags',self.posttags,post_tagsdb_values])
+     #    if post_tagsdb_values:#post does have tags
+     #        logging.info(post_tagsdb_values)
+     #        unchangedtags=set(self.posttags) & set( post_tagsdb_values)#changes tags added or removed
+     #        newtags=set(self.posttags) ^ unchangedtags#new tags for this post
+     #        oldtags=list(set(post_tagsdb_values)^unchangedtags)
+     #        logging.info(["new",newtags,"old",oldtags,"unchanged",unchangedtags,list(unchangedtags)])
+     #
+     #        if list(unchangedtags):
+     #            unchangedtags=list(unchangedtags)
+     #            for tag in unchangedtags:
+     #                tagid=db.get(existingTagskeys[existingTags.index(tag)]).key().id()
+     #                returnedTags.append({"tag":tag,"tagid":tagid})
+     #        else:unchangedtags=[]
+     #        i=0
+     #        logging.info(['Tags from other posts',existingTags])
+     #        for tag in oldtags:#tags to be removed
+     #
+     #            tag_key= existingTagskeys[existingTags.index(tag)]
+     #            if tag not in  tagsleft:#delete not used tags
+     #                tagobj=db.get(tag_key)
+     #                logging.info(["deleting",tag,tagobj])
+     #                tagobj.delete()
+     #            pos=post_tagsdb_values.index(tag)
+     #
+     #
+     #            self.obj.tags.pop(pos-i)
+     #
+     #            i+=1
+     #    elif  self.posttags:#new tags do exist
+     #
+     #        logging.info(self.posttags)
+     #        newtags=set(self.posttags)#does not have tags
+     #
+     #    else:newtags=[]
 
 
 
 
-        if newtags:
-            for tag in list(newtags):#add new tag and update Post
-                logging.info(tag)
-                if tag not in existingTags:
-                    tagobj=Tag()
-                    tagobj.tag=tag
-                    tagid=tagobj.put().id()
-                    returnedTags.append({"tag":tag,"tagid":tagid})
-
-                else:
-                   tag_key= existingTagskeys[existingTags.index(tag)]
-                   tagobj=Tag.get(tag_key)
-                   returnedTags.append({"tag":tagobj.tag,"tagid":tagobj.key().id()})
-                self.obj.tags.append(tagobj.key())
-        if isinstance(self.postcategory,list):self.postcategory=self.postcategory[0]
-        logging.info([self.catdict.values()])
-        self.obj.title=self.title
-        self.obj.body=self.body
-        self.obj.category=self.catdict.keys()[self.catdict.values().index(self.postcategory)]
-        self.obj.updated=datetime.now()
-        self.obj.put()
-        createIndex([self.obj])
-        tags=[]
-        [tags.append({"tag":db.get(key).tag,"tagid":db.get(key).key().id()}) for key in self.obj.tags]
-
-        data=[]
-        updated=str(self.obj.updated.day)+" "+str(months[self.obj.updated.month])+" "+str(self.obj.updated.year)
-        dateposted=str(self.obj.timestamp.day)+" "+str(months[self.obj.timestamp.month])+" "+str(self.obj.timestamp.year)
-        data.append({"title":self.obj.title,"body":self.obj.body,"category":db.get(self.obj.category.key()).category,
-                         "catid": db.get(self.obj.category.key()).key().id(),"id":str(self.obj.key().id()),\
-             "tags":tags,"date":dateposted,"updated":updated})
-        self.deleteMemcache(self)
-        self.refetch(self)
-        return(data,returnedTags)
+        # if newtags:
+        #     for tag in list(newtags):  # add new tag and update Post
+        #         logging.info(tag)
+        #         if tag not in existingTags:
+        #             tagobj = Tag()
+        #             tagobj.tag = tag
+        #             tagid = tagobj.put().id()
+        #             returnedTags.append({"tag": tag, "tagid": tagid})
+        #
+        #         else:
+        #             tag_key = existingTagskeys[existingTags.index(tag)]
+        #             tagobj = Tag.get(tag_key)
+        #             returnedTags.append({"tag": tagobj.tag, "tagid": tagobj.key().id()})
+        #         self.obj.tags.append(tagobj.key())
+        # if isinstance(self.postcategory, list): self.postcategory = self.postcategory[0]
+        # logging.info([self.catdict.values()])
+        # self.obj.title = self.title
+        # self.obj.body = self.body
+        # self.obj.category = self.catdict.keys()[self.catdict.values().index(self.postcategory)]
+        # self.obj.updated = datetime.now()
+        # self.obj.put()
+        # createIndex([self.obj])
+        # tags = []
+        # [tags.append({"tag": db.get(key).tag, "tagid": db.get(key).key().id()}) for key in self.obj.tags]
+        #
+        data = []
+        # updated = str(self.obj.updated.day) + " " + str(months[self.obj.updated.month]) + " " + str(
+        #     self.obj.updated.year)
+        # dateposted = str(self.obj.timestamp.day) + " " + str(months[self.obj.timestamp.month]) + " " + str(
+        #     self.obj.timestamp.year)
+        data.append(
+             {"title": title, "body": body, "category": db.get().category,
+              "catid": db.get().key().id(), "id": str(post.id()), \
+              "tags": tags, "date": dateposted, "updated": updated})
+        # self.deleteMemcache(self)
+        # self.refetch(self)
+        return(data, returnedTags)
 
         (data,returnedTags)=apost.update()
        

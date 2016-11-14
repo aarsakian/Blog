@@ -46,9 +46,9 @@
         },
 	
         parse:function(data){
-	    this.type=data.type;   
-	    this.dataheader=data.header;
-        console.log("data.posts"+data.posts)
+            this.type=data.type;   
+            this.dataheader=data.header;
+            console.log("data.posts"+data.posts)
             return data.posts;
         }
         
