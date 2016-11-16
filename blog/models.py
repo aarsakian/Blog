@@ -26,12 +26,14 @@ class BlogPost(db.Model):
                                     collection_name='category_posts')
 
     def get_tags(self):
-        return [Tag.get_by_id(tag_key.id()).tag for tag_key in self.tags]
+        logging.info("tags  for post {}".format(self.tags))
+        return [db.get(tag).tag for tag in self.tags if self.tags]
 
     def to_json(self):
+        #for tag in self.tags:
         post_dict = db.to_dict(self)
         post_dict["id"] = self.key().id()
-        post_dict["tags"] = [db.get(tag).tag for tag in self.tags]
+        post_dict["tags"] = [db.get(tag).tag for tag in self.tags if self.tags]
         post_dict["category"] = db.get(self.category.key()).category
         return post_dict
 
@@ -42,6 +44,11 @@ class BlogList(list):
     def retrieve_from_memcache(cache_name):
         entities = memcache.get(cache_name)
         return list(entities) if entities else []
+
+    def update(self):
+        self._delete_memcache()
+        self._populate_memcache()
+
 
 
 class JsonMixin:
@@ -100,6 +107,7 @@ class Posts(BlogList, JsonMixin):
 
     def _delete_memcache(self):
         logging.info('deleting cache for Posts')
+        self.__posts__ = []
         if not memcache.delete('POSTS_CACHE') != 2:  # delete not successful
             logging.error("Memcache delete failed for posts")
 
@@ -116,9 +124,12 @@ class Posts(BlogList, JsonMixin):
 
     def get_other_tags(self, post_id):
         posts = []
-        [posts.extend(post.get_tags()) for post in self.__posts__ if post.id != post_id]
+        [posts.extend(post.get_tags()) for post in self.__posts__ if post.key().id() != post_id]
         return posts
 
+    def update(self):
+        self._delete_memcache()
+        self._populate_memcache()
 
 class Tags(BlogList):
 
@@ -147,21 +158,22 @@ class Tags(BlogList):
             logging.error("Memcache set failed for tags")
 
     def _delete_memcache(self):
+      #  self.__tags__ = []
         if not memcache.delete('TAGS_CACHE') != 2:
             logging.error("Memcache delete failed for tags")
 
     def add(self, new_tag):
         tag_key = Tag(tag=new_tag).put()
         self.__tags__.append(Tag.get_by_id(tag_key.id()))
-        self._delete_memcache()
-        self._populate_memcache()
-
+        self.update()
         return tag_key
 
-    def delete(self, tag):
-        obj = self.__tags__[tag]
-        obj.delete()
+    def delete(self, tag_for_deletion):
+        [tag.delete() for tag in self.__tags__ if tag.tag == tag_for_deletion]
+        self.update()
 
+    def get_keys(self, tags):
+        return [tag.key() for tag in self.__tags__ if tag.tag in tags]
 
 
 class Categories(BlogList):
@@ -191,6 +203,7 @@ class Categories(BlogList):
             logging.error("Memcache set failed for categories")
 
     def _delete_memcache(self):
+        self.__categories__ = []
         if not memcache.delete('CATEGORIES_CACHE') != 2:
             logging.error("Memcache delete failed for categories")
 
@@ -202,5 +215,4 @@ class Categories(BlogList):
         return category_key
 
     def get_key(self, raw_category):
-        if raw_category in self.__categories__:
-            return self.__categories[self.__categories__.index(raw_category)].key()
+        return [category.key() for category in self.__categories__ if category.category == raw_category][0]
