@@ -592,12 +592,13 @@ def main():
         posts = Posts()
         categories = Categories()
         tags = Tags()
-        logging.info("new post was submitted")
+
         raw_post = request.get_json()
         raw_category = raw_post["category"]
         raw_tags = raw_post["tags"]
 
         new_tags = [raw_tag for raw_tag in raw_tags if raw_tag not in tags]
+        logging.info("new post was submitted with tags {} new {}".format(raw_tags, new_tags))
 
         tag_keys = [tags.add(new_tag) for new_tag in new_tags if new_tags]
 
@@ -620,6 +621,7 @@ def handleApost(id):
     posts = Posts()
     tags = Tags()
     categories = Categories()
+
 
     tags_keys = []
     tags_already_existing = []
@@ -666,22 +668,19 @@ def handleApost(id):
             new_tags = [potential_new_tag for potential_new_tag in
                         potential_new_tags if potential_new_tag not in tags and potential_new_tag != '']
             if new_tags:
+                logging.info("new tags {}".format(new_tags))
                 tags_keys = [tags.add(new_tag) for new_tag in new_tags if new_tags]
             tags_already_existing = set(potential_new_tags) & set(other_posts_tags)
 
-        logging.info("potential removed tags {} potential "
-                     "new_tags {} unchanged tags {} other post tags {} "
-                     "raw post tags {}".format(potential_removed_tags, potential_new_tags,
-                                                         unchanged_tags,other_posts_tags,raw_post_tags))
         if potential_removed_tags:
-            to_be_removed_tags =  (potential_removed_tags ^ set(other_posts_tags))^potential_removed_tags
-            logging.info(" SS {}".format(to_be_removed_tags))
+            to_be_removed_tags = (set(other_posts_tags) ^ potential_removed_tags)
+            logging.info(" tags to be deleted {} {}".format(to_be_removed_tags, other_posts_tags))
             [tags.delete(tag) for tag in to_be_removed_tags]
 
         tags_keys.extend(tags.get_keys(unchanged_tags))
         if tags_already_existing:
             tags_keys.extend(tags.get_keys(tags_already_existing))
-        logging.info("FINA {} {}".format(tags_keys ,tags.get_keys(unchanged_tags)))
+        logging.info("final tags {}".format(tags_keys))
         updating_post.title = title
         updating_post.body = body
         updating_post.category = categories.get_key(raw_category)
