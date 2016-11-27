@@ -123,9 +123,10 @@ class Posts(BlogList, JsonMixin):
         return post_key
 
     def get_other_tags(self, post_id):
-        posts = []
-        [posts.extend(post.get_tags()) for post in self.__posts__ if post.key().id() != post_id]
-        return posts
+        tags = []
+        [tags.extend(post.get_tags()) for post in self.__posts__ if post.key().id() != post_id]
+        logging.info("tags not {}".format(tags))
+        return tags
 
     def update(self):
         self._delete_memcache()
@@ -141,7 +142,7 @@ class Tags(BlogList):
 
     def __contains__(self, raw_tag):
         if self.__tags__:
-            for tag in self:
+            for tag in self.__tags__:
                 if tag == raw_tag:
                     return True
         return False
@@ -153,7 +154,7 @@ class Tags(BlogList):
         return len(self.__tags__)
 
     def _populate_memcache(self):
-        logging.info("populating cache for tags {}".format(self.__tags__))
+        logging.info("populating cache for tags {}")
         if not memcache.add("TAGS_CACHE", self.__tags__):
             logging.error("Memcache set failed for tags")
 
