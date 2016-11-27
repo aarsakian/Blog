@@ -1,51 +1,109 @@
-import unittest
 from selenium import webdriver
 
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import unittest
 
 class NewVisitorTest(unittest.TestCase):  #
 
     def setUp(self):  #
-        self.browser = webdriver.Firefox()
+        self.browser = webdriver.Chrome()
+
         self.browser.implicitly_wait(3)
 
     def tearDown(self):  #
         self.browser.quit()
 
-    def test_can_view_all_posts_in_landing_page(self):
-        #this is the landing page
-         self.browser.get('http://localhost:9082/')
+    def can_login(self):
 
+        self.browser.get('http://127.0.0.1:9082/login')
+
+        admin_input_checkbox = self.browser.find_element_by_id('admin')
+
+        admin_input_checkbox.click()
+
+        self.browser.find_element_by_id("submit-login").click()
+
+        # after I login i should see an edit link
+        try:
+            edit_element = WebDriverWait(self.browser, 5).until(
+                EC.presence_of_element_located((By.CLASS_NAME, "edit")))
+        except:
+            self.fail("did not locate the element")
+        finally:
+            self.assertEqual("Edit", edit_element.text)
 
     def test_can_create_a_post_and_retrieve_it_later(self):  #
         #  after login I am directed to the main page
-        self.browser.get('http://localhost:9082/edit')
+        self.can_login()
+        self.browser.get('http://127.0.0.1:9082/edit')
 
         # I notice the page title and header mention my name and title of my blog
         self.assertIn('Armen Arsakian personal blog', self.browser.title)
-        self.fail('Finish the test!')
-
-        # The following fields must appear
-
         # A text field for the title
-
+        new_post_title_field = self.browser.find_element_by_id("new-post-title")
         # A text box for the body of the post
-
+        new_post_body_textfield = self.browser.find_element_by_id("new-post-body")
         # a text field for its category
-
+        new_post_category_field = self.browser.find_element_by_id("new-post-category")
         # a text field to write down a list of tags
+        new_post_tags_field = self.browser.find_element_by_id("new-post-tags")
 
+        new_post_title_field.send_keys('my ultimate blog post')
+        new_post_body_textfield.send_keys('introducing TDD requires descipline which is not given')
+
+        self.browser.implicitly_wait(2)
+        new_post_category_field.send_keys('cat1')
+
+        new_post_tags_field.send_keys("tag1, tag2")
         # There is a submit button to post the article
+        self.browser.find_element_by_id("submit").click()
 
         # I hit submit button and the page updates again, showing my new article
-        # as well the above fields available to submit a new post with a link
-        # appearing in the title which directs to page dedicated to this new post.
-        # Links appear for the tags and the category for which the post belongs to.
+        try:
+            wait = WebDriverWait(self.browser, 30)
+            title_element = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".postTitle .title")))
+            body_element = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".article p")))
+            tags = wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, "tag")))
 
+        finally:
+            self.assertEqual(u"my ultimate blog post", title_element.text)
+            self.assertEqual(u"introducing TDD requires descipline which is not given", body_element.text)
+            [self.assertIn(tag.text, "tag1, tag2") for tag in tags]
 
+    def test_can_view_all_posts_in_landing_page(self):
+        #this is the landing page
+        self.can_login()
+        self.browser.implicitly_wait(1)
+        self.browser.get('http://127.0.0.1:9082/')
+
+    def test_can_add_a_tag_to_a_post(self):
+        # an article has been submitted and I want to add a new tag
+        # locate the tags
+
+        self.can_login()
+        self.browser.implicitly_wait(10)
+        post_field_tags = self.browser.find_elements_by_class_name("tag")
+        tags = []
+
+        for tag in post_field_tags:
+            tags.append(tag.text)
+
+        tags.append("tag3")
+        self.browser.find_element_by_class_name("edit-tags").click()
+
+        self.browser.find_element_by_id("post_tag").send_keys(",".join(tags))
+        try:
+            wait = WebDriverWait(self.browser, 30)
+            tags = wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, "tag")))
+
+        finally:
+            [self.assertIn(tag.text, tags) for tag in tags]
 
 
 if __name__ == '__main__':  #
-    unittest.main(warnings='ignore')  #
+    unittest.main()  #
 
 
 
