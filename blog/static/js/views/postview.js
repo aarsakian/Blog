@@ -27,8 +27,8 @@
         "click  h3.editable.admin":         "editTitle",
         "click  .save":          "close",
         "keypress .post textarea"  :   "updateHeight",
-        "keypress #post-title "  :    "updateOnEnter",
-        "keypress #post_tag"  :    "updateOnEnter",
+        "keypress .post-title "  :    "updateOnEnter",
+        "keypress .post_tag"  :    "updateOnEnter",
         "click .destroy" : "clear",
         "click .backlink a" : 'resetCollection',
         "click .edit-tags":"editTags",
@@ -140,7 +140,7 @@
             $(this.el).find('.save').removeClass('hide');
 	        $(this.el).find('h3').addClass('hide');//hide textarea and h3
             $(this.el).find('textarea').addClass('hide');
-            $title=$(this.el).find('#post-title');
+            $title=$(this.el).find('.post-title');
             $title.addClass('edit');
             $title.val(this.title);
         },
@@ -149,7 +149,7 @@
             $(this.el).removeClass('view');
             $(this.el).find('.tag').addClass('hide');//hide tag
          
-            $tags=$(this.el).find('#post_tag');
+            $tags=$(this.el).find('.post_tag');
             $tags.addClass('edit');
             $tags.val(this.tags);
         },
@@ -158,7 +158,7 @@
 		var tags=[];
                 $.getScript("//platform.twitter.com/widgets.js");
                 if ($(this.el).find('h3').hasClass('hide')) {//closing title field
-                   title=$(this.el).find('#post-title').val();
+                   title=$(this.el).find('.post-title').val();
 		   }
                 else{
 			//console.log($(this.el).find('.title').text());
@@ -175,18 +175,18 @@
                     bodyMarkup=$(this.el).find('.article').text();
 		
                 if ($(this.el).find('.tag').hasClass('hide')){
-                    tags=$(this.el).find('#post_tag').val().split(',');
+                    tags=$(this.el).find('.post_tag').val().split(',');
                      console.log(tags);
                   }
-                else if ((!$(this.el).find('.links').has('a').length) && ($(this.el).find('#post_tag').hasClass('edit'))){//first tag
-                     tags=$(this.el).find('#post_tag').val().split(',');
+                else if ((!$(this.el).find('.links').has('a').length) && ($(this.el).find('.post_tag').hasClass('edit'))){//first tag
+                     tags=$(this.el).find('.post_tag').val().split(',');
 		}
                 else{
 			 tags=this.tagsnames;
 		     
 		}
 		     // console.log(!$(this.el).find('.links').has('a').length);
-               //console.log($(this.el).find('#post_tag').hasClass('edit'));
+               //console.log($(this.el).find('.post_tag').hasClass('edit'));
 		console.log(bodyMarkup);
                 id=$(this.el).children().attr("id");
             
