@@ -22,6 +22,7 @@ from jinja2.environment import Environment
 from random import randint
 from itertools import chain
 from forms import PostForm
+from utils import find_tags_to_be_deleted_from_an_edited_post, find_tags_to_added_from_an_edited_post
 
 KEY="posts"
 TAG="tags"
@@ -595,12 +596,13 @@ def main():
 
         raw_post = request.get_json()
         raw_category = raw_post["category"]
-        raw_tags = raw_post["tags"]
+        editing_tags = raw_post["tags"]
 
-        new_tags = [raw_tag for raw_tag in raw_tags if raw_tag not in tags]
-        logging.info("new post was submitted with tags {} new {}".format(raw_tags, new_tags))
+        existing_tags = posts.get_tags()
+        new_tags_to_added = find_tags_to_added_from_an_edited_post(editing_tags, existing_tags)
+        logging.info("new post was submitted with tags {} new {}".format(existing_tags, new_tags_to_added))
 
-        tag_keys = [tags.add(new_tag) for new_tag in new_tags if new_tags]
+        tag_keys = tags.add(new_tags_to_added)
 
         if raw_category not in categories:
             category_key = categories.add(raw_category)
@@ -612,7 +614,7 @@ def main():
                               category_key=category_key,
                               tags_ids=tag_keys).id()
 
-        return jsonify(msg="OK", id=str(post_id), tags=raw_tags) ##Needs check
+        return jsonify(msg="OK", id=str(post_id), tags=editing_tags) ##Needs check
       
 
 
