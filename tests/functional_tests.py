@@ -61,16 +61,22 @@ class NewVisitorTest(unittest.TestCase):  #
         self.browser.find_element_by_id("submit").click()
 
         # I hit submit button and the page updates again, showing my new article
+        post_key = ""
+
         try:
-            wait = WebDriverWait(self.browser, 55)
-            title_element = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".postTitle .title")))
-            body_element = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".article p")))
+            wait = WebDriverWait(self.browser, 60)
+
+            title_element = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "title"))).text
+            body_element = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".article p"))).text
             tags = wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, "tag")))
+            post_key = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "postkey"))).get_attribute('data-key')
+            print "TITLE", title_element
 
         finally:
-            self.assertEqual(u"my ultimate blog post", title_element.text)
-            self.assertEqual(u"introducing TDD requires descipline which is not given", body_element.text)
+            self.assertEqual(u"my ultimate blog post", title_element)
+            self.assertEqual(u"introducing TDD requires descipline which is not given", body_element)
             [self.assertIn(tag.text, "tag1, tag2") for tag in tags]
+            self.assertNotEqual("", post_key)
 
     def test_can_view_all_posts_in_landing_page(self):
         #this is the landing page
