@@ -111,7 +111,7 @@
 		<!-- post area-->
 		<script id="entry-template" type="text/x-handlebars-template">
 			
-			<div  id={{'{{'}}key{{'}}'}}>
+			<div  data-key={{'{{'}}key{{'}}'}} class="postKey">
 				<div class="postTitle">
 					<h3
 						{{'{{'}}#if user_admin{{'}}'}}
@@ -176,7 +176,7 @@
 					<input  class="post_tag" class="editmode" name="title" placeholder="">
 					<div class="btn-group">
 						<button class="edit-title btn"><i class="icon-edit"></i>Edit</button>
-						<button class="save hide btn"><i class="icon-save"></i>Save</button>
+						<button class="save btn"><i class="icon-save"></i>Save</button>
 						<button class="destroy btn"><i class="icon-remove"></i>Delete</button>
 						<button class="edit-tags btn"><i class="icon-tag"></i>Edit Tags</button>
 					</div>
