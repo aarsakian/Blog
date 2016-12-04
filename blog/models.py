@@ -135,10 +135,15 @@ class Posts(BlogList, JsonMixin):
         self._populate_memcache()
         return post_key
 
-    def get_other_tags(self, post_id):
+    def get_tags(self):
         tags = []
-        [tags.extend(post.get_tags()) for post in self.__posts__ if post.key().id() != post_id]
+        [tags.extend(post.get_tags()) for post in self.__posts__]
         return tags
+
+    def get_other_tags(self, post_id):
+        post = BlogPost.get_by_id(post_id)
+        tags = self.get_tags()
+        return set(tags) - set(post.get_tags())  # remove tags the post
 
     def update(self):
         self._delete_memcache()
@@ -146,8 +151,8 @@ class Posts(BlogList, JsonMixin):
 
     def delete(self, post_key):
         post = db.get(post_key)
-        print (self.__posts__, post)
-        self.__posts__.remove(post_key)
+        [self.__posts__.pop(post_idx) for post_idx, post in enumerate(self.__posts__) if post.key() == post_key]
+        post.delete()
         self.update()
 
 
@@ -178,21 +183,21 @@ class Tags(BlogList):
             logging.error("Memcache set failed for tags")
 
     def _delete_memcache(self):
-      #  self.__tags__ = []
         if not memcache.delete('TAGS_CACHE') != 2:
             logging.error("Memcache delete failed for tags")
 
-    def add(self, new_tag):
-        tag_key = Tag(tag=new_tag).put()
-        self.__tags__.append(Tag.get_by_id(tag_key.id()))
+    def add(self, new_tags):
+        new_tags_keys = [Tag(tag=new_tag).put() for new_tag in new_tags]
+        self.__tags__.extend([db.get(tag_key) for tag_key in new_tags_keys])
         self.update()
-        return tag_key
+        return new_tags_keys
 
     def delete(self, tags_for_deletion):
         for tag_idx, tag in enumerate(self.__tags__):
             if tag.tag in tags_for_deletion:
                 tag.delete()
                 self.__tags__.pop(tag_idx)
+                self.delete(tags_for_deletion)
         self.update()
 
     def get_keys(self, tags):
@@ -233,7 +238,6 @@ class Categories(BlogList):
         return category_key
 
     def get_key(self, raw_category):
-        print len(self.__categories__)
         return [category.key() for category in self.__categories__ if category.category == raw_category]
 
     def delete(self, category_for_deletion):
@@ -241,4 +245,5 @@ class Categories(BlogList):
             if category.category == category_for_deletion:
                 category.delete()
                 self.__categories__.pop(cat_idx)
+                self.delete(category_for_deletion)
         self.update()
