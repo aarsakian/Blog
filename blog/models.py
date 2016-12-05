@@ -29,7 +29,7 @@ class BlogPost(db.Model):
         return [db.get(tag).tag for tag in self.tags if self.tags]
 
     def to_json(self):
-        #for tag in self.tags:
+        """creates json based structure"""
         post_dict = db.to_dict(self)
         post_dict["id"] = self.key().id()
         post_dict["tags"] = [db.get(tag).tag for tag in self.tags if self.tags]
@@ -85,7 +85,6 @@ class Posts(BlogList, JsonMixin):
         return self.__posts__
 
     def __len__(self):
-        logging.info("SPOST {}".format(len(self.__posts__)))
         return len(self.__posts__)
 
     def __iter__(self):
@@ -105,8 +104,9 @@ class Posts(BlogList, JsonMixin):
         """populate memcache
         use key as post plus post.id"""
         logging.info('cache is empty creating index')
-        if not memcache.add("POSTS_CACHE", self.posts):
+        if not memcache.add("POSTS_CACHE", self.__posts__):
             logging.error("Memcache set failed for posts")
+            self.__posts__ = list(BlogPost.all().order('-timestamp'))
 
     def _populate_search_index(self):
         try:
@@ -129,10 +129,8 @@ class Posts(BlogList, JsonMixin):
                             body=raw_body,
                             category=category_key,
                             tags=tags_ids).put()
-        logging.info("new post with key"+str(post_key))
         self.__posts__.append(BlogPost.get_by_id(post_key.id()))
-        self._delete_memcache()
-        self._populate_memcache()
+        self.update()
         return post_key
 
     def get_tags(self):
@@ -238,7 +236,8 @@ class Categories(BlogList):
         return category_key
 
     def get_key(self, raw_category):
-        return [category.key() for category in self.__categories__ if category.category == raw_category]
+        logging.info("{} {}".format(raw_category, len(self.__categories__)))
+        return [category.key() for category in self.__categories__ if category.category == raw_category][0]
 
     def delete(self, category_for_deletion):
         for cat_idx, category in enumerate(self.__categories__):
