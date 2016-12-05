@@ -187,8 +187,8 @@
 		}
 		     // console.log(!$(this.el).find('.links').has('a').length);
                //console.log($(this.el).find('.post_tag').hasClass('edit'));
-		console.log(bodyMarkup);
-                id=$(this.el).children().attr("id");
+		
+                id=this.model.id
             
                 if (!id){
                     id=$(".post").filter(function(index) {
