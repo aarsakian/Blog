@@ -17,7 +17,7 @@
 			}
 		},
         url:function(){
-                    console.log(app.Posts.url);
+                    console.log(this.id);
             if ((this.id=="") || (typeof this.id=="undefined")) {
                
                 return app.Posts.url;
