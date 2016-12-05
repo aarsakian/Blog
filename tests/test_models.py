@@ -9,7 +9,8 @@ from google.appengine.api import users
 from google.appengine.ext import ndb, db
 from blog.forms import PostForm
 from blog.models import Tags, Posts, Categories
-from blog.utils import find_tags_to_be_deleted_from_an_edited_post, find_tags_to_added_from_an_edited_post
+from blog.utils import find_tags_to_be_deleted_from_an_edited_post, find_tags_to_added_from_an_edited_post, \
+    find_new_post_tags
 
 class MyTest(TestCase):
 
@@ -55,7 +56,6 @@ class MyTest(TestCase):
                            daysleft=remaining_days,dayspassed=passed_days,tags=self.tags,categories=self.categories,
                            posts=posts_json,
                            codeversion=CODEVERSION, form=form)
-
 
         self.assertEqual(rendered_template, response.data)
 
@@ -105,7 +105,7 @@ class MyTest(TestCase):
         self.assertItemsEqual([], self.categories)
 
     def test_get_key_of_a_category(self):
-        self.assertItemsEqual([self.categories.add("category")], self.categories.get_key("category"))
+        self.assertEqual(self.categories.add("category"), self.categories.get_key("category"))
 
     def test_can_add_a_post(self):
 
@@ -210,7 +210,6 @@ class MyTest(TestCase):
         tags_to_be_added= find_tags_to_added_from_an_edited_post(test_existing_tags, test_existing_tags)
         self.assertItemsEqual(tags_to_be_added, [])
 
-
     def test_edit_post(self):
         category_key = self.categories.add("category")
 
@@ -238,6 +237,35 @@ class MyTest(TestCase):
         self.posts.delete(post_key)
         self.assertItemsEqual(self.posts, [])
 
+    def test_find_new_post_tags(self):
+
+        category_key = self.categories.add("category")
+
+        test_existing_tags = ["a new tag", "a new new tag"]
+        editing_tags = ["a new tag 1", "a new new tag 2"]
+        editing_tags2 = ["a new tag", "a new new tag 2"]
+
+        tag_keys = self.tags.add(test_existing_tags)
+
+        post_key = self.posts.add("a title", "body text", category_key, tag_keys)
+        updating_post = db.get(post_key)
+        existing_tags = self.posts.get_tags()
+        old_post_tags = updating_post.get_tags()
+
+        tags_to_be_deleted = find_tags_to_be_deleted_from_an_edited_post(editing_tags, old_post_tags)
+        tags_to_be_added = find_tags_to_added_from_an_edited_post(editing_tags, old_post_tags )
+
+        # scenario to add all tags "a new tag 1", "a new new tag 1"
+        new_post_tags = find_new_post_tags(old_post_tags, tags_to_be_deleted, tags_to_be_added)
+
+        self.assertItemsEqual(editing_tags, new_post_tags)
+
+        # scenario to add one tag "a new tag 1"
+        tags_to_be_deleted = find_tags_to_be_deleted_from_an_edited_post(editing_tags2, old_post_tags)
+        tags_to_be_added = find_tags_to_added_from_an_edited_post(editing_tags2, old_post_tags )
+        new_post_tags = find_new_post_tags(old_post_tags, tags_to_be_deleted, tags_to_be_added)
+        self.assertItemsEqual(editing_tags2, new_post_tags)
+
     def test_to_json_of_posts(self):
         category_key1 = self.categories.add("category 1")
         category_key2 = self.categories.add("category 2")
@@ -261,6 +289,36 @@ class MyTest(TestCase):
                         'timestamp':  db.get(post_key2).timestamp,
                         'title':  db.get(post_key2).title, 'id': db.get(post_key2).key().id()}]
         self.assertEqual(json_result, self.posts.to_json())
+
+    def test_retrieve_from_memcache(self):
+        category_key = self.categories.add("category")
+
+        test_tags = ["a new tag", "a new new tag"]
+        new_tag_keys = self.tags.add(test_tags)
+
+        post_key = self.posts.add("a title", "body text", category_key, new_tag_keys)
+
+        posts = Posts.retrieve_from_memcache("POSTS_CACHE")
+        self.assertEqual(posts[0].key(), post_key)
+
+        # edit test
+        post = db.get(post_key)
+
+        new_test_tags = ["a new tag 1", "a new new tag2"]
+        new_tag_keys = self.tags.add(new_test_tags)
+
+        post.edit("a modified title 2", "a modified body text", datetime.now(), new_tag_keys, category_key)
+
+        self.posts.update()
+        posts = Posts.retrieve_from_memcache("POSTS_CACHE")
+        self.assertEqual(posts[0].title, "a modified title 2")
+        self.assertItemsEqual(posts[0].tags, new_tag_keys)
+
+
+
+
+
+
 
     def tearDown(self):
         self.testbed.deactivate()
