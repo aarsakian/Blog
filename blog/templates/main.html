@@ -105,6 +105,7 @@
   {{ form.hidden_tag()}}
     {{ wtf.form_errors(form, hiddens="only") }}
      {{ wtf.form_field(form.title, id="new-post-title",placeholder="Enter your title here")}}
+     {{ wtf.form_field(form.summary, id="new-post-summary",placeholder="Enter your summary here")}}
      {{ wtf.form_field(form.body, id="new-post-body", type="text")}}
      {{ wtf.form_field(form.category, id="new-post-category",
     placeholder="Enter your category or use existing one")}}

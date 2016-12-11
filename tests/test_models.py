@@ -71,21 +71,21 @@ class MyTest(TestCase):
                            codeversion=CODEVERSION)
         self.assertEqual(rendered_template, response.data)
 
-    def test_can_add_a_tag(self):
+    def test_add_a_tag(self):
         tag_keys = self.tags.add(["a new tag"])
         self.assertEqual("a new tag", db.get(tag_keys[0]).tag)
 
-    def test_can_add_tags(self):
+    def test_add_tags(self):
         tag_keys = self.tags.add(["a new tag", "a second new tag"])
         self.assertItemsEqual(["a new tag", "a second new tag"],
                               [db.get(tag_keys[0]).tag, db.get(tag_keys[1]).tag])
 
-    def test_can_delete_a_tag(self):
+    def test_delete_a_tag(self):
         self.tags.add(["a new tag"])
         self.tags.delete("a new tag")
         self.assertItemsEqual([], self.tags)
 
-    def test_can_delete_tags(self):
+    def test_delete_tags(self):
         self.tags.add(["a new tag", "a second new tag"])
         self.tags.delete(["a new tag", "a second new tag"])
         self.assertItemsEqual([], self.tags)
@@ -99,7 +99,7 @@ class MyTest(TestCase):
         category_key = self.categories.add("category")
         self.assertEqual("category", db.get(category_key).category)
 
-    def test_can_delete_a_category(self):
+    def test_delete_a_category(self):
         self.categories.add("category")
         self.categories.delete("category")
         self.assertItemsEqual([], self.categories)
@@ -107,17 +107,18 @@ class MyTest(TestCase):
     def test_get_key_of_a_category(self):
         self.assertEqual(self.categories.add("category"), self.categories.get_key("category"))
 
-    def test_can_add_a_post(self):
+    def test_add_a_post(self):
 
         category_key = self.categories.add("category")
 
         test_tags = ["a new tag", "a new new tag"]
         new_tag_keys = self.tags.add(test_tags)
 
-        post_key = self.posts.add("a title", "body text", category_key, new_tag_keys)
+        post_key = self.posts.add("a title", "body text", category_key, new_tag_keys, "this is a summary")
 
         self.assertEqual("a title", db.get(post_key).title)
         self.assertEqual("body text", db.get(post_key).body)
+        self.assertEqual("this is a summary", db.get(post_key).summary)
         self.assertEqual(category_key, db.get(post_key).category.key())
         self.assertItemsEqual(new_tag_keys, db.get(post_key).tags)
 
@@ -151,7 +152,7 @@ class MyTest(TestCase):
         for post in self.posts:
             self.assertItemsEqual(test_tags, post.get_tags())
 
-    def test_can_get_other_tags_from_a_post(self):
+    def test_get_other_tags_from_a_post(self):
         category_key = self.categories.add("category")
 
         test_tags1 = ["a new tag", "a new new tag"]
@@ -226,7 +227,7 @@ class MyTest(TestCase):
         self.assertEqual(category_key, db.get(post_key).category.key())
         self.assertItemsEqual(new_tag_keys, db.get(post_key).tags)
 
-    def test_can_delete_post(self):
+    def test_delete_post(self):
         category_key = self.categories.add("category")
 
         test_tags = ["a new tag", "a new new tag"]
@@ -273,21 +274,23 @@ class MyTest(TestCase):
         test_tags = ["a new tag", "a new new tag"]
         new_tag_keys = self.tags.add(test_tags)
 
-        post_key1 = self.posts.add("a title", "body text", category_key1, new_tag_keys)
-        post_key2 = self.posts.add("a new title", "new body text", category_key2, new_tag_keys)
+        post_key1 = self.posts.add("a title", "body text", category_key1, new_tag_keys, "a summary")
+        post_key2 = self.posts.add("a new title", "new body text", category_key2, new_tag_keys, "a summary  2")
 
         json_result = [{'body':  db.get(post_key1).body, 'category': db.get(post_key1).category.category
                            , 'updated':
                         db.get(post_key1).updated, 'tags':
                         [db.get(db.get(post_key1).tags[0]).tag,  db.get(db.get(post_key1).tags[1]).tag],
                         'timestamp':  db.get(post_key1).timestamp,
-                        'title':  db.get(post_key1).title, 'id': db.get(post_key1).key().id()},
+                        'title':  db.get(post_key1).title, 'id': db.get(post_key1).key().id(),
+                        'summary':db.get(post_key1).summary},
                         {'body':  db.get(post_key2).body, 'category': db.get(post_key2).category.category
                             , 'updated':
                         db.get(post_key2).updated, 'tags':
                         [db.get(db.get(post_key2).tags[0]).tag,  db.get(db.get(post_key2).tags[1]).tag],
                         'timestamp':  db.get(post_key2).timestamp,
-                        'title':  db.get(post_key2).title, 'id': db.get(post_key2).key().id()}]
+                        'title':  db.get(post_key2).title, 'id': db.get(post_key2).key().id(),
+                         'summary':db.get(post_key2).summary}]
         self.assertEqual(json_result, self.posts.to_json())
 
     def test_retrieve_from_memcache(self):

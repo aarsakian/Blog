@@ -24,6 +24,7 @@ class BlogPost(db.Model):
     tags = db.ListProperty(db.Key)  # one to many relation
     category = db.ReferenceProperty(Category,
                                     collection_name='category_posts')
+    summary = db.TextProperty()
 
     def get_tags(self):
         return [db.get(tag).tag for tag in self.tags if self.tags]
@@ -124,11 +125,12 @@ class Posts(BlogList, JsonMixin):
         if not memcache.delete('POSTS_CACHE') != 2:  # delete not successful
             logging.error("Memcache delete failed for posts")
 
-    def add(self, raw_title, raw_body, category_key, tags_ids):
+    def add(self, raw_title, raw_body, category_key, tags_ids, summary=None):
         post_key = BlogPost(title=raw_title,
                             body=raw_body,
                             category=category_key,
-                            tags=tags_ids).put()
+                            tags=tags_ids,
+                            summary=summary).put()
         self.__posts__.append(BlogPost.get_by_id(post_key.id()))
         self.update()
         return post_key
