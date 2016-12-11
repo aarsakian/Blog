@@ -317,6 +317,15 @@ class MyTest(TestCase):
         self.assertEqual(posts[0].title, "a modified title 2")
         self.assertItemsEqual(posts[0].tags, new_tag_keys)
 
+    def test_get_by_title(self):
+        category_key = self.categories.add("category")
+
+        test_tags = ["a new tag", "a new new tag"]
+        new_tag_keys = self.tags.add(test_tags)
+
+        post_key = self.posts.add("a title", "body text", category_key, new_tag_keys)
+        post = self.posts.get_by_title("a title")
+        self.assertEqual(post_key, post.key())
 
 
 

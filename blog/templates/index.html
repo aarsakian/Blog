@@ -26,7 +26,7 @@
 	<div id="posts" id="bdinner">
 	    {%for post in posts%}
 		<div  data-id="{{post.id}}" class="classic">
-		   <h2><a href="/{{post.category.category}}/{{post.timestamp|datetimeformat('%Y')}}
+		   <h2><a href="/{{post.timestamp|datetimeformat('%Y')}}
 				/{{post.timestamp|datetimeformat('%m')}}/{{post.title|trim}}">
                {{post.title}}</a></h2>
 		    <div class="row">
