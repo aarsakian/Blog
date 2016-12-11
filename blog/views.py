@@ -407,6 +407,7 @@ def boilercode(func):
             site_updated = 'NA'
             posts_json = []
         passed_days, remaining_days = calculate_work_date_stats()
+
         return func(posts_json, tags, categories, site_updated, passed_days,
                     remaining_days, *args, **kwargs)
     return wrapper_func
@@ -809,30 +810,25 @@ def action(id=None):
                 return jsonify(msg="OK",categories=Categories,header="Categories",type="categories")
 
 
-@app.route('/random',methods=['GET'])
-@app.route('/<category>/<year>/<month>/<postTitle>',methods=['GET'])
-@boilercode
-def post(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed,category=None,postTitle=None,year=None,month=None):
+#@app.route('/random',methods=['GET'])
+@app.route('/<year>/<month>/<title>', methods=['GET'])
+def post(year, month, title):
+    posts = Posts()
 
     if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
 
-    if postTitle:
+    if title:
        # posts=posts.filter('title =',postTitle)
    
       
-        Post=[postobj for postobj in posts if postobj.title.replace(' ','')==postTitle.replace(' ','')][0]
+        Post=[postobj for postobj in posts if postobj.title.replace(' ','')==title.replace(' ','')][0]
 
        
         
        
        
                
-        for category in categories:
-    ##    
-            logging.info([category.category,category.key(),Post.category.key()==category.key()])
-            Post.catname=[category.category for category in categories if Post.category.key()==category.key()][0]
-         
-                
+
                 
    
     else:
@@ -857,7 +853,7 @@ def post(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed,categor
     for postkey,tagnames in action.posts_tags_dict.items():
         if postkey!=Post.key():
             [RelatedPosts.append(db.get(postkey)) for tag in Posttagnames if tag in tagnames]
-                  
+
     
     return render_template('singlepost.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
                            daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,RelatedPosts=RelatedPosts,\
