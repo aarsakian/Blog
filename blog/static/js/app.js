@@ -98,6 +98,7 @@
          events:{
             "click form #submit"  : "createNewPost",
             "keypress #newpost input"  :    "doNothing",
+            "keypress form #new-post-tags"  :    "createNewPost"
             
             
          },
@@ -173,9 +174,11 @@
             return 
          },
         
-         createNewPost:function(){
-                            //     console.log("NEW "+this.tags.val().split(','));
-                                  
+         createNewPost:function(e){
+             
+          if (e.keyCode === ENTER_KEY || e.type === "click") {
+               
+            
          //if (app.Posts.length==1){
           //       app.Posts.url='/posts/'+ this.options.category;
           //       window.siterouting.navigate('!/'+ this.options.category);
@@ -190,29 +193,29 @@
            
                this.body = $(this.el).find("#new-post-body");
                this.title=$(this.el).find("#new-post-title");
+               this.summary = $(this.el).find("#new-post-summary");
                this.tags=$(this.el).find("#new-post-tags");
                this.category=$(this.el).find("#new-post-category");
-               
-               
-           
-        //     editevent=true;
-                    
+
           
-            app.Posts.create({title:this.title.val(),body:this.body.val(),category:this.category.val(),
-                              tags:this.tags.val().split(',')});//add event
+            app.Posts.create({title:this.title.val(),summary:this.summary.val(),
+                             body:this.body.val(),category:this.category.val(),
+                             tags:this.tags.val().split(',')});//add event
       
+            //clear them after submission
             this.$("#new-post-body").val('');
             this.$('#new-post-tags').val('');
             this.$("#new-post-title").val('');
             this.$("#new-post-category").val('');
+            this.$("#new-post-summary").val('');
             this.unbind();
       
 
            
             return false;
-          
          }
-	 
+            
+         }
 
      
         
