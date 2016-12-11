@@ -5,8 +5,8 @@
             body:"body of post",
             date:"date of the post",
             updated:"",
-            tags:""
-            
+            tags:"",
+            summary:""
           
         },
 

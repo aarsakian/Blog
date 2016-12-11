@@ -28,6 +28,7 @@
         "click  .save":          "close",
         "keypress .post textarea"  :   "updateHeight",
         "keypress .post-title "  :    "updateOnEnter",
+        "keypress .post-summary "  :    "updateOnEnter",
         "keypress .post_tag"  :    "updateOnEnter",
         "click .destroy" : "clear",
         "click .backlink a" : 'resetCollection',
@@ -54,7 +55,7 @@
 	    }
             this.title=this.model.toJSON().title;
             this.id=this.model.toJSON().id;
-          
+            this.summary = this.model.toJSON().summary;
             this.tags=this.model.toJSON().tags;
             this.category=this.model.toJSON().category;
             var tagsnames=[];
@@ -73,13 +74,15 @@
 	     
 	    if ((app.Posts.category) || (app.Posts.tag))//tag or category collection
 		{  //app.Posts.url='posts/'+this.id;
-                    context = {title: this.title,body:this.body,key:this.id,user_admin:window.App.user.toJSON().user_status.user_status,
+                    context = {title: this.title,body:this.body,summary:this.summary,
+                    key:this.id,user_admin:window.App.user.toJSON().user_status.user_status,
                  tags: this.tags,date:this.model.toJSON().date,updated:this.model.toJSON().updated,
                  onepostmode:editmode,catid:this.model.toJSON().catid,category:this.category,  body100:  body100}
                 }
        else{
-                         console.log(this.tags);    
-                    context = {title: this.title,body:this.body,key:this.id,user_admin:window.App.user.toJSON().user_status.user_status,
+               
+                    context = {title: this.title,body:this.body,summary:this.summary,
+                    key:this.id,user_admin:window.App.user.toJSON().user_status.user_status,
                  tags:this.tags,date:this.model.toJSON().date,updated:this.model.toJSON().updated,
                  onepostmode:editmode,catid:this.model.toJSON().catid,category:this.model.toJSON().category,  body100:  body100}
             
