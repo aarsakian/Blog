@@ -84,7 +84,7 @@
          else{//index page
                 
                      app.Posts=new app.collections.Posts();
-                     app.Posts.header="All Posts";
+                    
          }
                
          app.Posts.on('reset', this.render, this);

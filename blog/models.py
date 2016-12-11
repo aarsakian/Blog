@@ -155,6 +155,16 @@ class Posts(BlogList, JsonMixin):
         post.delete()
         self.update()
 
+    def get_by_title(self, title):
+        for post in self.__posts__:
+            if post.title == title:
+
+                return post
+        try:
+            post
+        except:
+            print "reaisn"
+            raise logging.error("Post Not Found")
 
 class Tags(BlogList):
 
