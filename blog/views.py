@@ -597,6 +597,7 @@ def main():
         raw_post = request.get_json()
         raw_category = raw_post["category"]
         editing_tags = raw_post["tags"]
+        raw_summary = raw_post["summary"]
 
         existing_tags = posts.get_tags()
         new_tags_to_added = find_tags_to_added_from_an_edited_post(editing_tags, existing_tags)
@@ -610,9 +611,10 @@ def main():
             category_key = categories.get_key(raw_category)
 
         post_id = posts.add(raw_title=raw_post["title"],
-                              raw_body=raw_post["body"],
-                              category_key=category_key,
-                              tags_ids=tag_keys).id()
+                            raw_body=raw_post["body"],
+                            category_key=category_key,
+                            tags_ids=tag_keys,
+                            summary=raw_summary).id()
 
         return jsonify(msg="OK", id=str(post_id), tags=editing_tags) ##Needs check
       
