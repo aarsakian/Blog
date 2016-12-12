@@ -82,30 +82,31 @@ class MyTest(TestCase):
 
         self.posts.add("a title", "body text", category_key, new_tag_keys, "this is a summary")
 
-        post = self.posts.get_by_title("this is a summary")
-        print (post)
+        post = self.posts.get_by_title("a title")
+
         post_tag_names = post.get_tags()
 
         other_posts_tags = self.posts.get_other_tags(post.key().id())
 
         related_posts = []
-        print url_for('post', year=post.timestamp.year,
-                                           month=post.timestamp.month, title=post.title)
+
         response = self.client.get(url_for('post', year=post.timestamp.year,
-                                           month=post.timestamp.month, title=post.title))
+                                           month=post.timestamp.month, title="a title"))
         for post in self.posts:
             if post != post:
                 for tag in post.tags:
                     if tag in other_posts_tags:
                         related_posts.append(post)
 
+        category = db.get(post.category.key()).category
+
         rendered_template = render_template('singlepost.html',user_status=users.is_current_user_admin(),siteupdated='NA',\
                            daysleft=remaining_days, dayspassed=passed_days,RelatedPosts=related_posts,\
-                           Post=post, posttagnames=post_tag_names)
+                           Post=post, posttagnames=post_tag_names, category=category)
 
 
 
-        self.assertEqual(rendered_template, response.data)
+        self.assertEqual(rendered_template.encode("utf-8"), response.data)
 
 
     def tearDown(self):
