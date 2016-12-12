@@ -158,13 +158,14 @@ class Posts(BlogList, JsonMixin):
     def get_by_title(self, title):
         for post in self.__posts__:
             if post.title == title:
+                post_f = post
+                break
 
-                return post
         try:
-            post
+            return post_f
         except:
-            print "reaisn"
-            raise logging.error("Post Not Found")
+            logging.error("Post Not Found")
+            raise LookupError
 
 class Tags(BlogList):
 
