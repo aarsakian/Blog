@@ -157,8 +157,10 @@ class Posts(BlogList, JsonMixin):
 
     def get_by_title(self, title):
         for post in self.__posts__:
+            print ("SDS",post.title, title)
             if post.title == title:
                 post_f = post
+
                 break
 
         try:
