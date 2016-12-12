@@ -327,6 +327,18 @@ class MyTest(TestCase):
         post = self.posts.get_by_title("a title")
         self.assertEqual(post_key, post.key())
 
+    def test_get_by_title_assert_raises(self):
+        category_key = self.categories.add("category")
+
+        test_tags = ["a new tag", "a new new tag"]
+        new_tag_keys = self.tags.add(test_tags)
+
+        self.posts.add("a title", "body text", category_key, new_tag_keys)
+        # test exception
+        with self.assertRaises(LookupError):
+            self.posts.get_by_title("a non existent title")
+
+
 
 
 
