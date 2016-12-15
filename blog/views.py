@@ -813,23 +813,15 @@ def action(id=None):
 #@app.route('/random',methods=['GET'])
 @app.route('/<year>/<month>/<title>', methods=['GET'])
 def post(year, month, title):
-    posts = Posts()
+    passed_days, remaining_days = calculate_work_date_stats()
 
+    posts = Posts()
+    tags = Tags()
     if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
 
     if title:
-       # posts=posts.filter('title =',postTitle)
-   
-      
-        Post=[postobj for postobj in posts if postobj.title.replace(' ','')==title.replace(' ','')][0]
 
-       
-        
-       
-       
-               
-
-                
+        current_post = posts.get_by_title(title)
    
     else:
      
@@ -841,23 +833,28 @@ def post(year, month, title):
                            daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,RelatedPosts=None,\
                            Post=None,codeversion=CODEVERSION)
 
-        #for post in posts:
-        #    (t,post.catname)=[(lambda post:posts.remove(post),category.category) for category in categories if not post.category.key()==category.key()][0]
-    Posttagnames=[]
-    RelatedPosts=[]
-    for tag in tags:
-        if tag.key() in Post.tags:
-            Posttagnames.append(tag.tag)
-          
-    
-    for postkey,tagnames in action.posts_tags_dict.items():
-        if postkey!=Post.key():
-            [RelatedPosts.append(db.get(postkey)) for tag in Posttagnames if tag in tagnames]
+    current_post = posts.get_by_title(title)
 
-    
-    return render_template('singlepost.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
-                           daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,RelatedPosts=RelatedPosts,\
-                           Post=Post, posttagnames= Posttagnames)
+    post_tag_names = current_post.get_tags()
+
+    other_posts_tags = posts.get_other_tags(current_post.key().id())
+
+    related_posts = []
+
+
+    for post in posts:
+        if post.key() != current_post.key():
+            for tag in post.tags:
+                if tag in other_posts_tags:
+                    related_posts.append(post)
+
+    category = db.get(post.category.key()).category
+
+    return render_template('singlepost.html', user_status=users.is_current_user_admin(), siteupdated='NA', \
+                                        daysleft=remaining_days, dayspassed=passed_days, RelatedPosts=related_posts, \
+                                        Post=post, posttagnames=post_tag_names, category=category)
+
+
 
 def make_external(url):
     return urljoin(request.url_root, url)

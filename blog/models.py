@@ -75,8 +75,8 @@ class Posts(BlogList, JsonMixin):
     """list of posts"""
 
     def __init__(self):
-        self.__posts__ = BlogList.retrieve_from_memcache("POSTS_CACHE")
-        if not self.__posts__:
+       # self.__posts__ = BlogList.retrieve_from_memcache("POSTS_CACHE")
+        #if not self.__posts__:
             self.__posts__ = list(BlogPost.all().order('-timestamp'))
             self._populate_memcache()
             self._populate_search_index()
