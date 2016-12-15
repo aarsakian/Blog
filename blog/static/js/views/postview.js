@@ -33,7 +33,7 @@
         "click .destroy" : "clear",
         "click .backlink a" : 'resetCollection',
         "click .edit-tags":"editTags",
-	"click .edit-title":"editTitle",
+	    "click .edit-title":"editTitle",
 
        },
     
@@ -68,9 +68,6 @@
 	  
             this.tags = tagsnames;
         
-        
-                   
-
 	     
 	    if ((app.Posts.category) || (app.Posts.tag))//tag or category collection
 		{  //app.Posts.url='posts/'+this.id;
@@ -127,10 +124,10 @@
             $(this.el).removeClass('view');
             $(this.el).find('.save').removeClass('hide');
             $(this.el).find('.article').addClass('hide');
-	    height=$(this.el).find('.article').height()+20;
+            height=$(this.el).find('.article').height()+20;
             $body=$(this.el).find('textarea').height(height);
             $body.addClass('edit');
-	    console.log(toMarkdown(this.body));
+            console.log(toMarkdown(this.body));
             $body.val(toMarkdown(this.body));
 	    
 	   
@@ -138,14 +135,15 @@
            
         },
         editTitle:function(){
-              editevent=true;
+            editevent=true;
             $(this.el).removeClass('view');
             $(this.el).find('.save').removeClass('hide');
 	        $(this.el).find('h3').addClass('hide');//hide textarea and h3
-            $(this.el).find('textarea').addClass('hide');
+          
             $title=$(this.el).find('.post-title');
             $title.addClass('edit');
             $title.val(this.title);
+            console.log("tite"+$title)
         },
         
           editTags:function(){
@@ -158,15 +156,15 @@
         },
         
         close: function() {
-		var tags=[];
+	
                 $.getScript("//platform.twitter.com/widgets.js");
                 if ($(this.el).find('h3').hasClass('hide')) {//closing title field
                    title=$(this.el).find('.post-title').val();
-		   }
+                }
                 else{
 			//console.log($(this.el).find('.title').text());
                    title=$(this.el).find('.title').text().replace(/!^\s+|\s+|!\s+$/g, " ");
-		}
+                }
                 if ($(this.el).find('.article').hasClass('hide')){
                     bodyMarkup=$(this.el).find('textarea').val();
 		  //  this.tags=tags=$(this.el).find('.tag').text().split(',');
@@ -178,16 +176,14 @@
                     bodyMarkup=$(this.el).find('.article').text();
 		
                 if ($(this.el).find('.tag').hasClass('hide')){
-                    tags=$(this.el).find('.post_tag').val().split(',');
-                     console.log(tags);
-                  }
+                    this.tags=$(this.el).find('.post_tag').val().split(',');
+                    
+                }
                 else if ((!$(this.el).find('.links').has('a').length) && ($(this.el).find('.post_tag').hasClass('edit'))){//first tag
-                     tags=$(this.el).find('.post_tag').val().split(',');
-		}
-                else{
-			 tags=this.tagsnames;
-		     
-		}
+                    this.tags=$(this.el).find('.post_tag').val().split(',');
+                }
+              
+                
 		     // console.log(!$(this.el).find('.links').has('a').length);
                //console.log($(this.el).find('.post_tag').hasClass('edit'));
 		
@@ -201,7 +197,7 @@
                 
 
                 
-                this.model.save({body: bodyMarkup,title:title,id:id,tags:tags});//a change event is fired
+                this.model.save({body: bodyMarkup,title:title,id:id,tags:this.tags});//a change event is fired
                 //this.remove();//this removes the view from the DOM
                 this.unbind();//removing all view events 
          

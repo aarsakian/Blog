@@ -82,18 +82,18 @@ class MyTest(TestCase):
 
         self.posts.add("a title", "body text", category_key, new_tag_keys, "this is a summary")
 
-        post = self.posts.get_by_title("a title")
+        current_post = self.posts.get_by_title("a title")
 
-        post_tag_names = post.get_tags()
+        post_tag_names = current_post.get_tags()
 
-        other_posts_tags = self.posts.get_other_tags(post.key().id())
+        other_posts_tags = self.posts.get_other_tags(current_post.key().id())
 
         related_posts = []
 
-        response = self.client.get(url_for('post', year=post.timestamp.year,
-                                           month=post.timestamp.month, title="a title"))
+        response = self.client.get(url_for('post', year=current_post.timestamp.year,
+                                           month=current_post.timestamp.month, title="a title"))
         for post in self.posts:
-            if post != post:
+            if post.key() != current_post.key():
                 for tag in post.tags:
                     if tag in other_posts_tags:
                         related_posts.append(post)
@@ -103,8 +103,6 @@ class MyTest(TestCase):
         rendered_template = render_template('singlepost.html',user_status=users.is_current_user_admin(),siteupdated='NA',\
                            daysleft=remaining_days, dayspassed=passed_days,RelatedPosts=related_posts,\
                            Post=post, posttagnames=post_tag_names, category=category)
-
-
 
         self.assertEqual(rendered_template.encode("utf-8"), response.data)
 
