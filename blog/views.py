@@ -651,7 +651,7 @@ def handleApost(id):
     #     apost.delete()
     #     return jsonify(msg="OK")
         
-    if users.is_current_user_admin() and request.method =="PUT":
+    if users.is_current_user_admin() and request.method == "PUT":
         title = request.json['title']
         body = request.json['body']
 
