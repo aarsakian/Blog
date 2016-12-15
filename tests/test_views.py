@@ -9,7 +9,7 @@ from google.appengine.api import users
 from google.appengine.ext import ndb, db
 from blog.forms import PostForm
 from blog.models import Tags, Posts, Categories, BlogPost
-from blog.utils import find_tags_to_be_deleted_from_an_edited_post
+from blog.utils import find_tags_to_be_deleted_from_an_edited_post, find_non_used_tags
 
 class MyTest(TestCase):
 
@@ -106,6 +106,39 @@ class MyTest(TestCase):
 
         self.assertEqual(rendered_template.encode("utf-8"), response.data)
 
+    def test_deleted_post_returns_correct_html(self):
+        form = PostForm()
+
+        site_updated = 'NA'
+
+        passed_days, remaining_days = calculate_work_date_stats()
+
+        category_key = self.categories.add("category")
+
+        test_tags = ["a new tag", "a new new tag"]
+        new_tag_keys = self.tags.add(test_tags)
+
+        post_key = self.posts.add("a title", "body text", category_key, new_tag_keys, "this is a summary")
+
+        remaining_tags = self.posts.get_other_tags(post_key.id())
+
+        non_used_tags = find_non_used_tags(test_tags, remaining_tags)
+
+        self.posts.delete(post_key)
+        self.tags.delete(non_used_tags)
+
+        posts_json = self.posts.to_json()
+
+        response = self.client.get(url_for('tags'))
+
+        rendered_template = render_template('main.html', user_status=users.is_current_user_admin(),
+                                            siteupdated=site_updated, \
+                                            daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
+                                            categories=self.categories,
+                                            posts=posts_json,
+                                            codeversion=CODEVERSION, form=form)
+
+        self.assertEqual(rendered_template.encode("utf-8"), response.data)
 
     def tearDown(self):
         self.testbed.deactivate()

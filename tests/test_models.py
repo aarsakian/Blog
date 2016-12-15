@@ -10,7 +10,7 @@ from google.appengine.ext import ndb, db
 from blog.forms import PostForm
 from blog.models import Tags, Posts, Categories
 from blog.utils import find_tags_to_be_deleted_from_an_edited_post, find_tags_to_added_from_an_edited_post, \
-    find_new_post_tags
+    find_new_post_tags, find_non_used_tags
 
 class MyTest(TestCase):
 
@@ -338,9 +338,12 @@ class MyTest(TestCase):
         with self.assertRaises(LookupError):
             self.posts.get_by_title("a non existent title")
 
+    def test_find_non_used_tags(self):
+        remaining_tags = ["tag1", "tag2"]
+        test_tags = ["tag1", "tag3"]
 
-
-
+        non_used_tags = find_non_used_tags(test_tags, remaining_tags)
+        self.assertItemsEqual(non_used_tags, ["tag3"])
 
 
 
