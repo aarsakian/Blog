@@ -22,7 +22,8 @@ from jinja2.environment import Environment
 from random import randint
 from itertools import chain
 from forms import PostForm
-from utils import find_tags_to_be_deleted_from_an_edited_post, find_tags_to_added_from_an_edited_post, find_new_post_tags
+from utils import find_tags_to_be_deleted_from_an_edited_post, find_tags_to_added_from_an_edited_post, \
+                  find_new_post_tags, find_non_used_tags
 
 KEY="posts"
 TAG="tags"
@@ -620,45 +621,23 @@ def main():
         return jsonify(msg="OK", id=str(post_id), tags=editing_tags) ##Needs check
       
 
+@app.route('/posts/<id>', methods=['PUT'])
+def edit_post(id):
+    data = []
 
-@app.route('/posts/<id>', methods=['PUT','DELETE','GET'])
-def handleApost(id):
-    posts = Posts()
-    tags = Tags()
-    categories = Categories()
+    if users.is_current_user_admin():
+        posts = Posts()
+        tags = Tags()
+        categories = Categories()
 
+        updating_post = BlogPost.get_by_id(int(id))
 
-    tags_keys = []
-    tags_already_existing = []
-
-
-
-
-    # if not tags:
-    #     tags = Tag.all().fetch(20)
-    #     memcache.add(TAG,tags)
-    # if not categories:
-    #     categories= Category.all().fetch(20)
-    #     memcache.add(CATEGORY,categories)
-    #
-    #
-    # if request.method=="GET":
-    #     apost=APost(id=id)
-    #     data=apost.retrieve()
-    #     return jsonify(msg="OK",posts=data)
-    # elif users.is_current_user_admin() and request.method=="DELETE":
-    #     apost=APost(id=id)
-    #     apost.delete()
-    #     return jsonify(msg="OK")
-        
-    if users.is_current_user_admin() and request.method == "PUT":
         title = request.json['title']
         body = request.json['body']
 
         raw_category = request.json['category']
         editing_tags = request.json['tags']
 
-        updating_post = BlogPost.get_by_id(int(id))
         existing_tags = posts.get_tags()
         old_post_tags = updating_post.get_tags()
 
@@ -671,14 +650,43 @@ def handleApost(id):
         new_post_tags = find_new_post_tags(old_post_tags, tags_to_be_deleted, tags_to_be_added)
 
         tags_keys = tags.get_keys(new_post_tags)
-        logging.info("to be deleted tags {} new_tags {} new_post tags {}".format(tags_to_be_deleted ,tags_to_be_added,new_post_tags))
-        updating_post.edit(title, body,  datetime.now(), tags_keys, categories.get_key(raw_category))
+        logging.info("to be deleted tags {} new_tags {} new_post tags {}".format(tags_to_be_deleted, tags_to_be_added,
+                                                                                 new_post_tags))
+        updating_post.edit(title, body, datetime.now(), tags_keys, categories.get_key(raw_category))
 
         posts.update()
 
+        data.append(
+             {"title": updating_post.title, "body": updating_post.body, "category":
+                 db.get(updating_post.category.key()).category,
+              "catid": categories.get_key(raw_category).id(), "id": str(updating_post.key().id()), \
+              "tags": new_post_tags, "date": updating_post.timestamp ,"updated": updating_post.updated})
+
+        return jsonify(msg="OK", tags=new_post_tags, posts=data)  # dangerous
 
 
-       #3 for tagkey in self.post_tags_keys:post_tagsdb_values.append(db.get(tagkey).tag)#previous Tags of the post
+@app.route('/posts/<id>', methods=['DELETE'])
+def delete_post(id):
+
+    if users.is_current_user_admin():
+        posts = Posts()
+
+        tags = Tags()
+
+        updating_post = BlogPost.get_by_id(int(id))
+
+        remaining_tags = posts.get_other_tags(int(id))
+
+        post_tags = updating_post.get_tags()
+
+        non_used_tags = find_non_used_tags(post_tags, remaining_tags)
+
+        posts.delete(updating_post.key())
+        tags.delete(non_used_tags)
+
+    return jsonify(msg="OK")
+
+    #3 for tagkey in self.post_tags_keys:post_tagsdb_values.append(db.get(tagkey).tag)#previous Tags of the post
 
 
      # #   logging.info([self.posttags,type(self.posttags),type(post_tagsdb_values),post_tagsdb_values])
@@ -722,6 +730,23 @@ def handleApost(id):
 
 
 
+        # if not tags:
+        #     tags = Tag.all().fetch(20)
+        #     memcache.add(TAG,tags)
+        # if not categories:
+        #     categories= Category.all().fetch(20)
+        #     memcache.add(CATEGORY,categories)
+        #
+        #
+        # if request.method=="GET":
+        #     apost=APost(id=id)
+        #     data=apost.retrieve()
+        #     return jsonify(msg="OK",posts=data)
+        # elif users.is_current_user_admin() and request.method=="DELETE":
+        #     apost=APost(id=id)
+        #     apost.delete()
+        #     return jsonify(msg="OK")
+
 
         # if newtags:
         #     for tag in list(newtags):  # add new tag and update Post
@@ -748,17 +773,13 @@ def handleApost(id):
         # tags = []
         # [tags.append({"tag": db.get(key).tag, "tagid": db.get(key).key().id()}) for key in self.obj.tags]
         #
-        data = []
+        #data = []
         # updated = str(self.obj.updated.day) + " " + str(months[self.obj.updated.month]) + " " + str(
         #     self.obj.updated.year)
         # dateposted = str(self.obj.timestamp.day) + " " + str(months[self.obj.timestamp.month]) + " " + str(
         #     self.obj.timestamp.year)
-        logging.info("afte {}".format(editing_tags))
-        data.append(
-             {"title": updating_post.title, "body": updating_post.body, "category":
-                 db.get(updating_post.category.key()).category,
-              "catid": categories.get_key(raw_category).id(), "id": str(updating_post.key().id()), \
-              "tags": editing_tags, "date": updating_post.timestamp ,"updated": updating_post.updated})
+        #logging.info("afte {}".format(editing_tags))
+
         # self.deleteMemcache(self)
         # self.refetch(self)
     #    return(data, raw_post_tags)
@@ -767,7 +788,7 @@ def handleApost(id):
        
             
        
-        return jsonify(msg="OK",tags=editing_tags, posts=data)  # dangerous
+
     
 
 @app.route('/posts/categories', methods=['GET','POST'])#new entity
@@ -840,7 +861,6 @@ def post(year, month, title):
     other_posts_tags = posts.get_other_tags(current_post.key().id())
 
     related_posts = []
-
 
     for post in posts:
         if post.key() != current_post.key():
