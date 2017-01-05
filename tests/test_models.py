@@ -150,7 +150,7 @@ class MyTest(TestCase):
 
         self.posts.add("a title", "body text", category_key, new_tag_keys)
         for post in self.posts:
-            self.assertItemsEqual(test_tags, post.get_tags())
+            self.assertItemsEqual(test_tags, post.get_tag_names())
 
     def test_get_other_tags_from_a_post(self):
         category_key = self.categories.add("category")
@@ -251,7 +251,7 @@ class MyTest(TestCase):
         post_key = self.posts.add("a title", "body text", category_key, tag_keys)
         updating_post = db.get(post_key)
         existing_tags = self.posts.get_tags()
-        old_post_tags = updating_post.get_tags()
+        old_post_tags = updating_post.get_tag_names()
 
         tags_to_be_deleted = find_tags_to_be_deleted_from_an_edited_post(editing_tags, old_post_tags)
         tags_to_be_added = find_tags_to_added_from_an_edited_post(editing_tags, old_post_tags )
@@ -345,7 +345,11 @@ class MyTest(TestCase):
         non_used_tags = find_non_used_tags(test_tags, remaining_tags)
         self.assertItemsEqual(non_used_tags, ["tag3"])
 
+    def test_get_names_from_tags(self):
+        test_tags = ["a new tag", "a new new tag"]
+        self.tags.add(test_tags)
 
+        self.assertItemsEqual(test_tags, self.tags.get_names())
 
     def tearDown(self):
         self.testbed.deactivate()
