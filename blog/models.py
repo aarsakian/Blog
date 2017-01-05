@@ -26,9 +26,6 @@ class BlogPost(db.Model):
                                     collection_name='category_posts')
     summary = db.TextProperty()
 
-    def get_tags(self):
-        return [db.get(tag).tag for tag in self.tags if self.tags]
-
     def to_json(self):
         """creates json based structure"""
         post_dict = db.to_dict(self)
@@ -44,6 +41,9 @@ class BlogPost(db.Model):
         self.tags = tags
         self.category = category
         self.put()
+
+    def get_tag_names(self):
+        return [db.get(tag_key).tag for tag_key in self.tags]
 
 
 class BlogList(list):
@@ -137,13 +137,13 @@ class Posts(BlogList, JsonMixin):
 
     def get_tags(self):
         tags = []
-        [tags.extend(post.get_tags()) for post in self.__posts__]
+        [tags.extend(post.get_tag_names()) for post in self.__posts__]
         return tags
 
     def get_other_tags(self, post_id):
         post = BlogPost.get_by_id(post_id)
         tags = self.get_tags()
-        return set(tags) - set(post.get_tags())  # remove tags the post
+        return set(tags) - set(post.get_tag_names())  # remove tags the post
 
     def update(self):
         self._delete_memcache()
@@ -160,7 +160,7 @@ class Posts(BlogList, JsonMixin):
             print ("SDS",post.title, title)
             if post.title == title:
                 post_f = post
-
+                post_f = post
                 break
 
         try:
@@ -169,13 +169,15 @@ class Posts(BlogList, JsonMixin):
             logging.error("Post Not Found")
             raise LookupError
 
+
 class Tags(BlogList):
 
     def __init__(self):
-        self.__tags__ = BlogList.retrieve_from_memcache("TAGS_CACHE")
-        if not self.__tags__:
-            self.__tags__ = list(Tag.all())
-            self._populate_memcache()
+       # self.__tags__ = BlogList.retrieve_from_memcache("TAGS_CACHE")
+       # if not self.__tags__:
+        self.__tags__ = list(Tag.all())
+        print ("TEFS",self.__tags__)
+        self._populate_memcache()
 
     def __contains__(self, raw_tag):
         if self.__tags__:
@@ -216,14 +218,17 @@ class Tags(BlogList):
     def get_keys(self, tags):
         return [tag.key() for tag in self.__tags__ if tag.tag in tags]
 
+    def get_names(self, keys=[]):
+        return [tag.tag for tag in self.__tags__]
+
 
 class Categories(BlogList):
 
     def __init__(self):
-        self.__categories__ = BlogList.retrieve_from_memcache("CATEGORIES_CACHE")
-        if not self.__categories__:
-            self.__categories__ = list(Category.all())
-            self._populate_memcache()
+       # self.__categories__ = BlogList.retrieve_from_memcache("CATEGORIES_CACHE")
+       # if not self.__categories__:
+        self.__categories__ = list(Category.all())
+        self._populate_memcache()
 
     def __contains__(self, raw_category):
         if self.__categories__:

@@ -619,7 +619,33 @@ def main():
                             summary=raw_summary).id()
 
         return jsonify(msg="OK", id=str(post_id), tags=editing_tags) ##Needs check
-      
+
+
+@app.route('/posts/<id>', methods=['GET'])
+def get_post(id):
+    data = []
+
+    if users.is_current_user_admin():
+        posts = Posts()
+        tags = Tags()
+        categories = Categories()
+
+        asked_post = BlogPost.get_by_id(int(id))
+
+        category_id = str(asked_post.category.key().id())
+
+        post_tag_names = asked_post.get_tag_names()
+
+        tag_names = tags.get_names()
+
+        data.append(
+             {"title": asked_post.title, "body": asked_post.body, "category":
+                 db.get(asked_post.category.key()).category,
+              "catid":  category_id, "id": str(asked_post.key().id()), \
+              "tags": post_tag_names, "date": asked_post.timestamp,"updated":asked_post.updated})
+
+        return jsonify(msg="OK", tags=tag_names, posts=data)  # dangerous
+
 
 @app.route('/posts/<id>', methods=['PUT'])
 def edit_post(id):
@@ -639,7 +665,7 @@ def edit_post(id):
         editing_tags = request.json['tags']
 
         existing_tags = posts.get_tags()
-        old_post_tags = updating_post.get_tags()
+        old_post_tags = updating_post.get_tag_names()
 
         tags_to_be_deleted = find_tags_to_be_deleted_from_an_edited_post(editing_tags, existing_tags)
         tags_to_be_added = find_tags_to_added_from_an_edited_post(editing_tags, existing_tags)
@@ -677,7 +703,7 @@ def delete_post(id):
 
         remaining_tags = posts.get_other_tags(int(id))
 
-        post_tags = updating_post.get_tags()
+        post_tags = updating_post.get_tag_names()
 
         non_used_tags = find_non_used_tags(post_tags, remaining_tags)
 
@@ -833,7 +859,7 @@ def action(id=None):
 
 #@app.route('/random',methods=['GET'])
 @app.route('/<year>/<month>/<title>', methods=['GET'])
-def post(year, month, title):
+def view_a_post(year, month, title):
     passed_days, remaining_days = calculate_work_date_stats()
 
     posts = Posts()
@@ -856,7 +882,7 @@ def post(year, month, title):
 
     current_post = posts.get_by_title(title)
 
-    post_tag_names = current_post.get_tags()
+    post_tag_names = current_post.get_tag_names()
 
     other_posts_tags = posts.get_other_tags(current_post.key().id())
 

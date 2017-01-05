@@ -14,6 +14,8 @@ from blog.utils import find_tags_to_be_deleted_from_an_edited_post, find_non_use
 
 class MyTest(TestCase):
 
+    maxDiff = None
+
     def create_app(self):
         app.config['TESTING'] = True
         return app
@@ -93,13 +95,13 @@ class MyTest(TestCase):
 
         current_post = self.posts.get_by_title("a title")
 
-        post_tag_names = current_post.get_tags()
+        post_tag_names = current_post.get_tag_names()
 
         other_posts_tags = self.posts.get_other_tags(current_post.key().id())
 
         related_posts = []
 
-        response = self.client.get(url_for('post', year=current_post.timestamp.year,
+        response = self.client.get(url_for('view_a_post', year=current_post.timestamp.year,
                                            month=current_post.timestamp.month, title="a title"))
         for post in self.posts:
             if post.key() != current_post.key():
@@ -128,9 +130,35 @@ class MyTest(TestCase):
 
         self.assertEqual("OK", response.json["msg"])
 
+    def test_get_post(self):
+
+
+        category_key = self.categories.add("category")
+
+        existing_tags = ["a new tag", "a new new tag"]
+
+        existing_tag_keys = self.tags.add(existing_tags)
+
+        post_key = self.posts.add("a title", "body text", category_key, existing_tag_keys, "this is a summary")
+
+        asked_post = db.get(post_key)
+
+        tag_names = asked_post.get_tag_names()
+
+        data = [{"title": asked_post.title, "body": asked_post.body, "category":
+                db.get(asked_post.category.key()).category,
+             "catid": category_key.id(), "id": str(asked_post.key().id()), \
+             "tags": tag_names , "date": asked_post.timestamp, "updated": asked_post.updated,
+              }]
+
+
+        response = self.client.get(url_for("get_post",id=post_key.id()))
+
+        self.assertDictEqual({"msg":"OK", "tags":tag_names, "posts":data}       , response.json)
+
     def test_edit_post(self):
 
-        data = []
+
         category_key = self.categories.add("category")
 
         existing_tags = ["a new tag", "a new new tag"]
@@ -144,19 +172,17 @@ class MyTest(TestCase):
 
         json_data = {'category':'category', 'tags':editing_tags, 'title': 'a title', 'body': 'body text'}
 
+        tag_names = self.tags.get_names()
 
+        response = self.client.put(url_for('edit_post', id=post_key.id()), data='{"json": "this is"}')
 
-        response = self.client.put(url_for('delete_post', id=post_key.id()), data='{"json": "this is"}')
-
-        data.append(
-            {"title": updating_post.title, "body": updating_post.body, "category":
+        data = [{"title": updating_post.title, "body": updating_post.body, "category":
                 db.get(updating_post.category.key()).category,
              "catid": category_key.id(), "id": str(updating_post.key().id()), \
-             "tags": editing_tags , "date": updating_post.timestamp, "updated": updating_post.updated})
+             "tags": editing_tags , "date": updating_post.timestamp, "updated": updating_post.updated,
+             "msg":"OK", "tags":tag_names}]
 
-
-        print (response.data, response.mimetype)
-        self.assertEqual(data, response.json)
+        self.assertDictEqual({"msg":"OK", "tags":tag_names, "posts":data}, response.json)
 
 
     def tearDown(self):
