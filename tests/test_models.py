@@ -6,7 +6,7 @@ from blog import app
 from blog.views import CODEVERSION, fetch_everything_from_db, calculate_work_date_stats, find_update_of_site
 from google.appengine.ext import testbed
 from google.appengine.api import users
-from google.appengine.ext import ndb, db
+from google.appengine.ext import ndb
 from blog.forms import PostForm
 from blog.models import Tags, Posts, Categories
 from blog.utils import find_tags_to_be_deleted_from_an_edited_post, find_tags_to_added_from_an_edited_post, \
@@ -73,12 +73,12 @@ class MyTest(TestCase):
 
     def test_add_a_tag(self):
         tag_keys = self.tags.add(["a new tag"])
-        self.assertEqual("a new tag", db.get(tag_keys[0]).tag)
+        self.assertEqual("a new tag", tag_keys[0].get().tag)
 
     def test_add_tags(self):
         tag_keys = self.tags.add(["a new tag", "a second new tag"])
         self.assertItemsEqual(["a new tag", "a second new tag"],
-                              [db.get(tag_keys[0]).tag, db.get(tag_keys[1]).tag])
+                              [tag_keys[0].get().tag, tag_keys[1].get().tag])
 
     def test_delete_a_tag(self):
         self.tags.add(["a new tag"])
@@ -97,7 +97,7 @@ class MyTest(TestCase):
 
     def test_add_a_category(self):
         category_key = self.categories.add("category")
-        self.assertEqual("category", db.get(category_key).category)
+        self.assertEqual("category", category_key.get().category)
 
     def test_delete_a_category(self):
         self.categories.add("category")
@@ -116,11 +116,11 @@ class MyTest(TestCase):
 
         post_key = self.posts.add("a title", "body text", category_key, new_tag_keys, "this is a summary")
 
-        self.assertEqual("a title", db.get(post_key).title)
-        self.assertEqual("body text", db.get(post_key).body)
-        self.assertEqual("this is a summary", db.get(post_key).summary)
-        self.assertEqual(category_key, db.get(post_key).category.key())
-        self.assertItemsEqual(new_tag_keys, db.get(post_key).tags)
+        self.assertEqual("a title", post_key.get().title)
+        self.assertEqual("body text", post_key.get().body)
+        self.assertEqual("this is a summary", post_key.get().summary)
+        self.assertEqual(category_key, post_key.get().category)
+        self.assertItemsEqual(new_tag_keys, post_key.get().tags)
 
     def test_get_tags_from_posts(self):
         category_key = self.categories.add("category")
@@ -219,13 +219,13 @@ class MyTest(TestCase):
 
         post_key = self.posts.add("a title", "body text", category_key, new_tag_keys)
 
-        post = db.get(post_key)
+        post = post_key.get()
         post.edit("a modified title", "a modified body text", datetime.now(), new_tag_keys, category_key)
 
-        self.assertEqual("a modified title", db.get(post_key).title)
-        self.assertEqual("a modified body text", db.get(post_key).body)
-        self.assertEqual(category_key, db.get(post_key).category.key())
-        self.assertItemsEqual(new_tag_keys, db.get(post_key).tags)
+        self.assertEqual("a modified title", post_key.get().title)
+        self.assertEqual("a modified body text", post_key.get().body)
+        self.assertEqual(category_key, post_key.get().category)
+        self.assertItemsEqual(new_tag_keys, post_key.get().tags)
 
     def test_delete_post(self):
         category_key = self.categories.add("category")
@@ -249,7 +249,7 @@ class MyTest(TestCase):
         tag_keys = self.tags.add(test_existing_tags)
 
         post_key = self.posts.add("a title", "body text", category_key, tag_keys)
-        updating_post = db.get(post_key)
+        updating_post = post_key.get()
         existing_tags = self.posts.get_tags()
         old_post_tags = updating_post.get_tag_names()
 
@@ -278,20 +278,20 @@ class MyTest(TestCase):
         post_key1 = self.posts.add("a title", "body text", category_key1, new_tag_keys, "a summary")
         post_key2 = self.posts.add("a new title", "new body text", category_key2, new_tag_keys, "a summary  2")
 
-        json_result = [{'body':  db.get(post_key1).body, 'category': db.get(post_key1).category.category
+        json_result = [{'body':  post_key1.get().body, 'category': post_key1.get().category.get().category
                            , 'updated':
-                        db.get(post_key1).updated, 'tags':
-                        [db.get(db.get(post_key1).tags[0]).tag,  db.get(db.get(post_key1).tags[1]).tag],
-                        'timestamp':  db.get(post_key1).timestamp,
-                        'title':  db.get(post_key1).title, 'id': db.get(post_key1).key().id(),
-                        'summary':db.get(post_key1).summary},
-                        {'body':  db.get(post_key2).body, 'category': db.get(post_key2).category.category
+                        post_key1.get().updated, 'tags':
+                        [(post_key1.get().tags[0].get()).tag,  (post_key1.get().tags[1].get()).tag],
+                        'timestamp':  post_key1.get().timestamp,
+                        'title':  post_key1.get().title, 'id': post_key1.get().key.id(),
+                        'summary':post_key1.get().summary},
+                        {'body':  post_key2.get().body, 'category': post_key2.get().category.get().category
                             , 'updated':
-                        db.get(post_key2).updated, 'tags':
-                        [db.get(db.get(post_key2).tags[0]).tag,  db.get(db.get(post_key2).tags[1]).tag],
-                        'timestamp':  db.get(post_key2).timestamp,
-                        'title':  db.get(post_key2).title, 'id': db.get(post_key2).key().id(),
-                         'summary':db.get(post_key2).summary}]
+                        post_key2.get().updated, 'tags':
+                        [(post_key2.get().tags[0].get()).tag,  (post_key2.get().tags[1].get()).tag],
+                        'timestamp':  post_key2.get().timestamp,
+                        'title':  post_key2.get().title, 'id': post_key2.get().key.id(),
+                         'summary':post_key2.get().summary}]
         self.assertEqual(json_result, self.posts.to_json())
 
     def test_retrieve_from_memcache(self):
@@ -303,10 +303,10 @@ class MyTest(TestCase):
         post_key = self.posts.add("a title", "body text", category_key, new_tag_keys)
 
         posts = Posts.retrieve_from_memcache("POSTS_CACHE")
-        self.assertEqual(posts[0].key(), post_key)
+        self.assertEqual(posts[0].key, post_key)
 
         # edit test
-        post = db.get(post_key)
+        post = post_key.get()
 
         new_test_tags = ["a new tag 1", "a new new tag2"]
         new_tag_keys = self.tags.add(new_test_tags)
@@ -326,7 +326,7 @@ class MyTest(TestCase):
 
         post_key = self.posts.add("a title", "body text", category_key, new_tag_keys)
         post = self.posts.get_by_title("a title")
-        self.assertEqual(post_key, post.key())
+        self.assertEqual(post_key, post.key)
 
     def test_get_by_title_assert_raises(self):
         category_key = self.categories.add("category")

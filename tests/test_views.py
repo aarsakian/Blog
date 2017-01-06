@@ -7,7 +7,7 @@ from blog import app
 from blog.views import CODEVERSION, fetch_everything_from_db, calculate_work_date_stats, find_update_of_site
 from google.appengine.ext import testbed
 from google.appengine.api import users
-from google.appengine.ext import ndb, db
+from google.appengine.ext import ndb
 from blog.forms import PostForm
 from blog.models import Tags, Posts, Categories, BlogPost
 from blog.utils import find_tags_to_be_deleted_from_an_edited_post, find_non_used_tags,\
@@ -99,19 +99,19 @@ class MyTest(TestCase):
 
         post_tag_names = current_post.get_tag_names()
 
-        other_posts_tags = self.posts.get_other_tags(current_post.key().id())
+        other_posts_tags = self.posts.get_other_tags(current_post.key.id())
 
         related_posts = []
 
         response = self.client.get(url_for('view_a_post', year=current_post.timestamp.year,
                                            month=current_post.timestamp.month, title="a title"))
         for post in self.posts:
-            if post.key() != current_post.key():
+            if post.key != current_post.key:
                 for tag in post.tags:
                     if tag in other_posts_tags:
                         related_posts.append(post)
 
-        category = db.get(post.category.key()).category
+        category = post.category.get().category
 
         rendered_template = render_template('singlepost.html',user_status=users.is_current_user_admin(),siteupdated='NA',\
                            daysleft=remaining_days, dayspassed=passed_days,RelatedPosts=related_posts,\
@@ -142,15 +142,15 @@ class MyTest(TestCase):
 
         post_key = self.posts.add("a title", "body text", category_key, existing_tag_keys, "this is a summary")
 
-        asked_post = db.get(post_key)
+        asked_post = post_key.get()
 
         post_tag_names = asked_post.get_tag_names()
 
         tag_names = self.tags.get_names()
 
         data = [{u"title": asked_post.title, u"body": asked_post.body, u"category":
-                db.get(asked_post.category.key()).category,
-                u"catid": str(category_key.id()).decode('utf8'), u"id": str(asked_post.key().id()).decode('utf8'), \
+                asked_post.category.get().category,
+                u"catid": str(category_key.id()).decode('utf8'), u"id": str(asked_post.key.id()).decode('utf8'), \
                 u"tags": post_tag_names , u"date": asked_post.timestamp.strftime('%a, %d %b %Y %H:%M:%S GMT').decode('utf8')
                     , u"updated":
                      asked_post.updated.strftime('%a, %d %b %Y %H:%M:%S GMT').decode('utf8'),
@@ -171,7 +171,7 @@ class MyTest(TestCase):
 
         post_key = self.posts.add("a title", "body text", category_key, existing_tag_keys, "this is a summary")
 
-        updating_post = db.get(post_key)
+        updating_post = post_key.get()
 
         json_data = {'category':'category', 'tags':editing_tags, 'title': 'a title', 'body': 'body text'}
 
@@ -182,8 +182,8 @@ class MyTest(TestCase):
         post_tag_names = [u"a new tag", u"tag to added"]
 
         data = [{u"title":  updating_post.title, u"body":  updating_post.body, u"category":
-                db.get(updating_post.category.key()).category,
-                u"catid": str(category_key.id()).decode('utf8'), u"id": str(updating_post.key().id()).decode('utf8'), \
+                updating_post.category.get().category,
+                u"catid": str(category_key.id()).decode('utf8'), u"id": str(updating_post.key.id()).decode('utf8'), \
                 u"tags": post_tag_names , u"date":updating_post.timestamp.strftime('%a, %d %b %Y %H:%M:%S GMT').decode('utf8')
                     , u"updated":
                     updating_post.updated.strftime('%a, %d %b %Y %H:%M:%S GMT').decode('utf8'),

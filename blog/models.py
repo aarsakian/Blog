@@ -1,5 +1,5 @@
 import logging
-from google.appengine.ext import db
+from google.appengine.ext import ndb
 from google.appengine.api import memcache, search
 
 from search import create_document
@@ -8,33 +8,29 @@ from search import create_document
 POSTS_INDEX = "posts_idx"
 
 
-class Tag(db.Model):
-    tag = db.StringProperty()
-
-    def _pre_put_hook(self):
-        logging.info ("--------------",self.title)
+class Tag(ndb.Model):
+    tag = ndb.StringProperty()
 
 
-class Category(db.Model):
-    category = db.StringProperty()
+class Category(ndb.Model):
+    category = ndb.StringProperty()
 
 
-class BlogPost(db.Model):
-    title = db.StringProperty()
-    body = db.TextProperty()
-    timestamp = db.DateTimeProperty(auto_now_add=True)
-    updated = db.DateTimeProperty(auto_now_add=True)
-    tags = db.ListProperty(db.Key)  # one to many relation
-    category = db.ReferenceProperty(Category,
-                                    collection_name='category_posts')
-    summary = db.TextProperty()
+class BlogPost(ndb.Model):
+    title = ndb.StringProperty()
+    body = ndb.TextProperty()
+    timestamp = ndb.DateTimeProperty(auto_now_add=True)
+    updated = ndb.DateTimeProperty(auto_now_add=True)
+    tags = ndb.KeyProperty(repeated=True)  # one to many relation
+    category = ndb.KeyProperty(kind=Category)
+    summary = ndb.TextProperty()
 
     def to_json(self):
         """creates json based structure"""
-        post_dict = db.to_dict(self)
-        post_dict["id"] = self.key().id()
-        post_dict["tags"] = [db.get(tag).tag for tag in self.tags if self.tags]
-        post_dict["category"] = db.get(self.category.key()).category
+        post_dict = self.to_dict()
+        post_dict["id"] = self.key.id()
+        post_dict["tags"] = self.get_tag_names()
+        post_dict["category"] = self.category.get().category
         return post_dict
 
     def edit(self, title, body, updated, tags, category):
@@ -46,18 +42,10 @@ class BlogPost(db.Model):
         self.put()
 
     def get_tag_names(self):
-        return [db.get(tag_key).tag for tag_key in self.tags]
+        return [tag_key.get().tag for tag_key in self.tags if self.tags]
 
     def _pre_put_hook(self):
-        logging.info ("--------------",self.title)
-
-    # @title.setter
-    # def title(self, raw_title):
-    #     self.__title = raw_title.rstrip().lstrip()
-    #
-    # @property
-    # def title(self):
-    #     return self.__title
+        return self.title.lstrip().rstrip()
 
 class BlogList(list):
 
@@ -90,7 +78,7 @@ class Posts(BlogList, JsonMixin):
     def __init__(self):
        # self.__posts__ = BlogList.retrieve_from_memcache("POSTS_CACHE")
         #if not self.__posts__:
-            self.__posts__ = list(BlogPost.all().order('-timestamp'))
+            self.__posts__ = list(BlogPost.query().order(-BlogPost.timestamp))
             self._populate_memcache()
             self._populate_search_index()
 
@@ -110,7 +98,7 @@ class Posts(BlogList, JsonMixin):
     def __contains__(self, post_key):
         if self.__posts__:
             for post in self.__posts__:
-                if post.key() == post_key:
+                if post.key == post_key:
                     return True
         return False
 
@@ -120,13 +108,13 @@ class Posts(BlogList, JsonMixin):
         logging.info('cache is empty creating index')
         if not memcache.add("POSTS_CACHE", self.__posts__):
             logging.error("Memcache set failed for posts")
-            self.__posts__ = list(BlogPost.all().order('-timestamp'))
+            self.__posts__ = list(BlogPost.query().order(-BlogPost.timestamp))
 
     def _populate_search_index(self):
         try:
             for post in self.__posts__:
-                category = db.get(post.category.key()).category
-                doc = create_document(post.key().id(), post.title, post.body,
+                category = post.category.get().category
+                doc = create_document(post.key.id(), post.title, post.body,
                                       category, post.timestamp)
                 search.Index(name=POSTS_INDEX).put(doc)
 
@@ -163,9 +151,9 @@ class Posts(BlogList, JsonMixin):
         self._populate_memcache()
 
     def delete(self, post_key):
-        post = db.get(post_key)
-        [self.__posts__.pop(post_idx) for post_idx, post in enumerate(self.__posts__) if post.key() == post_key]
-        post.delete()
+        post = post_key.get()
+        [self.__posts__.pop(post_idx) for post_idx, post in enumerate(self.__posts__) if post.key == post_key]
+        post.key.delete()
         self.update()
 
     def get_by_title(self, title):
@@ -187,7 +175,7 @@ class Tags(BlogList):
     def __init__(self):
        # self.__tags__ = BlogList.retrieve_from_memcache("TAGS_CACHE")
        # if not self.__tags__:
-        self.__tags__ = list(Tag.all())
+        self.__tags__ = list(Tag.query())
         self._populate_memcache()
 
     def __contains__(self, raw_tag):
@@ -214,20 +202,20 @@ class Tags(BlogList):
 
     def add(self, new_tags):
         new_tags_keys = [Tag(tag=new_tag).put() for new_tag in new_tags]
-        self.__tags__.extend([db.get(tag_key) for tag_key in new_tags_keys])
+        self.__tags__.extend([tag_key.get() for tag_key in new_tags_keys])
         self.update()
         return new_tags_keys
 
     def delete(self, tags_for_deletion):
         for tag_idx, tag in enumerate(self.__tags__):
             if tag.tag in tags_for_deletion:
-                tag.delete()
+                tag.key.delete()
                 self.__tags__.pop(tag_idx)
                 self.delete(tags_for_deletion)
         self.update()
 
     def get_keys(self, tags):
-        return [tag.key() for tag in self.__tags__ if tag.tag in tags]
+        return [tag.key for tag in self.__tags__ if tag.tag in tags]
 
     def get_names(self, keys=[]):
         return [tag.tag for tag in self.__tags__]
@@ -238,7 +226,7 @@ class Categories(BlogList):
     def __init__(self):
        # self.__categories__ = BlogList.retrieve_from_memcache("CATEGORIES_CACHE")
        # if not self.__categories__:
-        self.__categories__ = list(Category.all())
+        self.__categories__ = list(Category.query())
         self._populate_memcache()
 
     def __contains__(self, raw_category):
@@ -268,12 +256,12 @@ class Categories(BlogList):
 
     def get_key(self, raw_category):
         logging.info("{} {}".format(raw_category, len(self.__categories__)))
-        return [category.key() for category in self.__categories__ if category.category == raw_category][0]
+        return [category.key for category in self.__categories__ if category.category == raw_category][0]
 
     def delete(self, category_for_deletion):
         for cat_idx, category in enumerate(self.__categories__):
             if category.category == category_for_deletion:
-                category.delete()
+                category.key.delete()
                 self.__categories__.pop(cat_idx)
                 self.delete(category_for_deletion)
         self.update()
