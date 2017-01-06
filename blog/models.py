@@ -45,7 +45,8 @@ class BlogPost(ndb.Model):
         return [tag_key.get().tag for tag_key in self.tags if self.tags]
 
     def _pre_put_hook(self):
-        return self.title.lstrip().rstrip()
+        self.title = self.title.lstrip().rstrip()
+
 
 class BlogList(list):
 
@@ -142,9 +143,9 @@ class Posts(BlogList, JsonMixin):
         return tags
 
     def get_other_tags(self, post_id):
-        post = BlogPost.get_by_id(post_id)
-        tags = self.get_tags()
-        return set(tags) - set(post.get_tag_names())  # remove tags the post
+        other_tags = []
+        [other_tags.extend(post.get_tag_names()) for post in self.__posts__ if post.key.id() != post_id]
+        return other_tags
 
     def update(self):
         self._delete_memcache()
@@ -160,9 +161,7 @@ class Posts(BlogList, JsonMixin):
         for post in self.__posts__:
             if post.title == title:
                 post_f = post
-                post_f = post
                 break
-
         try:
             return post_f
         except:
