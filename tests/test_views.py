@@ -19,7 +19,7 @@ class MyTest(TestCase):
 
     def create_app(self):
         app.config['WTF_CSRF_ENABLED'] = False
-        app.config['TESTING'] = True
+
         return app
 
     def setUp(self):
@@ -115,7 +115,7 @@ class MyTest(TestCase):
 
         rendered_template = render_template('singlepost.html',user_status=users.is_current_user_admin(),siteupdated='NA',\
                            daysleft=remaining_days, dayspassed=passed_days,RelatedPosts=related_posts,\
-                           Post=post, posttagnames=post_tag_names, category=category)
+                           Post=current_post, posttagnames=post_tag_names, category=category)
 
         self.assertEqual(rendered_template.encode("utf-8"), response.data)
 
@@ -158,7 +158,7 @@ class MyTest(TestCase):
 
         response = self.client.get(url_for("get_post",id=post_key.id()))
 
-        self.assertDictEqual({u"msg":u"OK", u"tags":tag_names, u"posts":data}, response.json)
+        self.assertDictEqual({u"msg":u"OK", u"posts":data}, response.json)
 
     def test_edit_post(self):
 
@@ -171,6 +171,8 @@ class MyTest(TestCase):
 
         post_key = self.posts.add("a title", "body text", category_key, existing_tag_keys, "this is a summary")
 
+        self.posts.add("a title 2", "body text 2", category_key, existing_tag_keys, "this is a summary 2")
+
         updating_post = post_key.get()
 
         json_data = {'category':'category', 'tags':editing_tags, 'title': 'a title', 'body': 'body text'}
@@ -178,18 +180,18 @@ class MyTest(TestCase):
         response = self.client.put(url_for('edit_post', id=post_key.id()), content_type='application/json',
                                    data=json.dumps(json_data))
 
-        tag_names = [u"a new tag", u"tag to added"]
+        tag_names = [u"a new tag", u"a new new tag", u"tag to added"]
         post_tag_names = [u"a new tag", u"tag to added"]
 
         data = [{u"title":  updating_post.title, u"body":  updating_post.body, u"category":
                 updating_post.category.get().category,
                 u"catid": str(category_key.id()).decode('utf8'), u"id": str(updating_post.key.id()).decode('utf8'), \
                 u"tags": post_tag_names , u"date":updating_post.timestamp.strftime('%a, %d %b %Y %H:%M:%S GMT').decode('utf8')
-                    , u"updated":
+                , u"updated":
                     updating_post.updated.strftime('%a, %d %b %Y %H:%M:%S GMT').decode('utf8'),
               }]
 
-        self.assertDictEqual({u"msg":u"OK", u"tags":tag_names, u"posts":data}, response.json)
+        self.assertDictEqual({u"msg":u"OK", u"posts":data}, response.json)
 
 
     def tearDown(self):

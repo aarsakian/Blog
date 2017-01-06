@@ -58,15 +58,9 @@
             this.summary = this.model.toJSON().summary;
             this.tags=this.model.toJSON().tags;
             this.category=this.model.toJSON().category;
-            var tagsnames=[];
-            console.log(this)
-           
-            this.tags.forEach(function(tag){//example of a closure
-                 tagsnames.push(tag);               
-            });
-             
-	  
-            this.tags = tagsnames;
+     
+            console.log(this.model.toJSON())
+     
         
 	     
 	    if ((app.Posts.category) || (app.Posts.tag))//tag or category collection

@@ -156,7 +156,7 @@ class MyTest(TestCase):
         category_key = self.categories.add("category")
 
         test_tags1 = ["a new tag", "a new new tag"]
-        test_tags2 = ["a new tag 1", "a new new tag 2"]
+        test_tags2 = ["a new tag 1", "a new new tag"]
 
         new_tag_keys1 = self.tags.add(test_tags1)
         new_tag_keys2 = self.tags.add(test_tags2)
@@ -171,10 +171,6 @@ class MyTest(TestCase):
         test_existing_tags = ["a new tag", "a new new tag"]
         editing_tags1 = ["a new tag 1", "a new new tag 2"]
         editing_tags2 = ["a new tag 1", "a new tag"]
-
-        tag_keys = self.tags.add(test_existing_tags)
-
-        self.posts.add("a title", "body text", category_key, tag_keys)
 
         # scenario to delete all tags "a new tag", "a new new tag"
         tags_to_be_removed = find_tags_to_be_deleted_from_an_edited_post(editing_tags1, test_existing_tags)
