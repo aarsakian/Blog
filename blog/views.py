@@ -676,19 +676,21 @@ def edit_post(id):
         new_post_tags = find_new_post_tags(old_post_tags, tags_to_be_deleted, tags_to_be_added)
 
         tags_keys = tags.get_keys(new_post_tags)
-        logging.info("to be deleted tags {} new_tags {} new_post tags {}".format(tags_to_be_deleted, tags_to_be_added,
-                                                                                 new_post_tags))
+
         updating_post.edit(title, body, datetime.now(), tags_keys, categories.get_key(raw_category))
 
         posts.update()
+        tag_names = tags.get_names()
+
+        post_tag_names = updating_post.get_tag_names()
 
         data.append(
              {"title": updating_post.title, "body": updating_post.body, "category":
                  db.get(updating_post.category.key()).category,
-              "catid": categories.get_key(raw_category).id(), "id": str(updating_post.key().id()), \
-              "tags": new_post_tags, "date": updating_post.timestamp ,"updated": updating_post.updated})
+              "catid": str(categories.get_key(raw_category).id()).decode('utf8'), "id": str(updating_post.key().id()), \
+              "tags": post_tag_names , "date": updating_post.timestamp ,"updated": updating_post.updated})
 
-        return jsonify(msg="OK", tags=new_post_tags, posts=data)  # dangerous
+        return jsonify(msg="OK", tags=tag_names, posts=data)  # dangerous
 
 
 @app.route('/posts/<id>', methods=['DELETE'])

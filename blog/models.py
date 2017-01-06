@@ -11,6 +11,9 @@ POSTS_INDEX = "posts_idx"
 class Tag(db.Model):
     tag = db.StringProperty()
 
+    def _pre_put_hook(self):
+        logging.info ("--------------",self.title)
+
 
 class Category(db.Model):
     category = db.StringProperty()
@@ -45,6 +48,16 @@ class BlogPost(db.Model):
     def get_tag_names(self):
         return [db.get(tag_key).tag for tag_key in self.tags]
 
+    def _pre_put_hook(self):
+        logging.info ("--------------",self.title)
+
+    # @title.setter
+    # def title(self, raw_title):
+    #     self.__title = raw_title.rstrip().lstrip()
+    #
+    # @property
+    # def title(self):
+    #     return self.__title
 
 class BlogList(list):
 
@@ -157,7 +170,6 @@ class Posts(BlogList, JsonMixin):
 
     def get_by_title(self, title):
         for post in self.__posts__:
-            print ("SDS",post.title, title)
             if post.title == title:
                 post_f = post
                 post_f = post
@@ -176,7 +188,6 @@ class Tags(BlogList):
        # self.__tags__ = BlogList.retrieve_from_memcache("TAGS_CACHE")
        # if not self.__tags__:
         self.__tags__ = list(Tag.all())
-        print ("TEFS",self.__tags__)
         self._populate_memcache()
 
     def __contains__(self, raw_tag):
