@@ -1,4 +1,5 @@
 import unittest
+import json
 from datetime import datetime
 from flask_testing import TestCase
 from flask import url_for, render_template
@@ -17,6 +18,7 @@ class MyTest(TestCase):
     maxDiff = None
 
     def create_app(self):
+        app.config['WTF_CSRF_ENABLED'] = False
         app.config['TESTING'] = True
         return app
 
@@ -132,7 +134,6 @@ class MyTest(TestCase):
 
     def test_get_post(self):
 
-
         category_key = self.categories.add("category")
 
         existing_tags = ["a new tag", "a new new tag"]
@@ -143,26 +144,28 @@ class MyTest(TestCase):
 
         asked_post = db.get(post_key)
 
-        tag_names = asked_post.get_tag_names()
+        post_tag_names = asked_post.get_tag_names()
 
-        data = [{"title": asked_post.title, "body": asked_post.body, "category":
+        tag_names = self.tags.get_names()
+
+        data = [{u"title": asked_post.title, u"body": asked_post.body, u"category":
                 db.get(asked_post.category.key()).category,
-             "catid": category_key.id(), "id": str(asked_post.key().id()), \
-             "tags": tag_names , "date": asked_post.timestamp, "updated": asked_post.updated,
+                u"catid": str(category_key.id()).decode('utf8'), u"id": str(asked_post.key().id()).decode('utf8'), \
+                u"tags": post_tag_names , u"date": asked_post.timestamp.strftime('%a, %d %b %Y %H:%M:%S GMT').decode('utf8')
+                    , u"updated":
+                     asked_post.updated.strftime('%a, %d %b %Y %H:%M:%S GMT').decode('utf8'),
               }]
-
 
         response = self.client.get(url_for("get_post",id=post_key.id()))
 
-        self.assertDictEqual({"msg":"OK", "tags":tag_names, "posts":data}       , response.json)
+        self.assertDictEqual({u"msg":u"OK", u"tags":tag_names, u"posts":data}, response.json)
 
     def test_edit_post(self):
-
 
         category_key = self.categories.add("category")
 
         existing_tags = ["a new tag", "a new new tag"]
-        editing_tags = ["a new tag", "tag to added"]
+        editing_tags = ["a new tag", "tag to added"] # final tags are "a new tag", "tag to added"
 
         existing_tag_keys = self.tags.add(existing_tags)
 
@@ -172,17 +175,21 @@ class MyTest(TestCase):
 
         json_data = {'category':'category', 'tags':editing_tags, 'title': 'a title', 'body': 'body text'}
 
-        tag_names = self.tags.get_names()
+        response = self.client.put(url_for('edit_post', id=post_key.id()), content_type='application/json',
+                                   data=json.dumps(json_data))
 
-        response = self.client.put(url_for('edit_post', id=post_key.id()), data='{"json": "this is"}')
+        tag_names = [u"a new tag", u"tag to added"]
+        post_tag_names = [u"a new tag", u"tag to added"]
 
-        data = [{"title": updating_post.title, "body": updating_post.body, "category":
+        data = [{u"title":  updating_post.title, u"body":  updating_post.body, u"category":
                 db.get(updating_post.category.key()).category,
-             "catid": category_key.id(), "id": str(updating_post.key().id()), \
-             "tags": editing_tags , "date": updating_post.timestamp, "updated": updating_post.updated,
-             "msg":"OK", "tags":tag_names}]
+                u"catid": str(category_key.id()).decode('utf8'), u"id": str(updating_post.key().id()).decode('utf8'), \
+                u"tags": post_tag_names , u"date":updating_post.timestamp.strftime('%a, %d %b %Y %H:%M:%S GMT').decode('utf8')
+                    , u"updated":
+                    updating_post.updated.strftime('%a, %d %b %Y %H:%M:%S GMT').decode('utf8'),
+              }]
 
-        self.assertDictEqual({"msg":"OK", "tags":tag_names, "posts":data}, response.json)
+        self.assertDictEqual({u"msg":u"OK", u"tags":tag_names, u"posts":data}, response.json)
 
 
     def tearDown(self):

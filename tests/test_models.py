@@ -265,6 +265,7 @@ class MyTest(TestCase):
         tags_to_be_deleted = find_tags_to_be_deleted_from_an_edited_post(editing_tags2, old_post_tags)
         tags_to_be_added = find_tags_to_added_from_an_edited_post(editing_tags2, old_post_tags )
         new_post_tags = find_new_post_tags(old_post_tags, tags_to_be_deleted, tags_to_be_added)
+
         self.assertItemsEqual(editing_tags2, new_post_tags)
 
     def test_to_json_of_posts(self):
