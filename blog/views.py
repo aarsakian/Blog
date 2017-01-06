@@ -636,15 +636,13 @@ def get_post(id):
 
         post_tag_names = asked_post.get_tag_names()
 
-        tag_names = tags.get_names()
-
         data.append(
              {"title": asked_post.title, "body": asked_post.body, "category":
                  asked_post.category.get().category,
               "catid":  category_id, "id": str(asked_post.key.id()), \
               "tags": post_tag_names, "date": asked_post.timestamp,"updated":asked_post.updated})
 
-        return jsonify(msg="OK", tags=tag_names, posts=data)  # dangerous
+        return jsonify(msg="OK", posts=data)  # dangerous
 
 
 @app.route('/posts/<id>', methods=['PUT'])
@@ -671,9 +669,14 @@ def edit_post(id):
         tags_to_be_added = find_tags_to_added_from_an_edited_post(editing_tags, existing_tags)
 
         tags.add(tags_to_be_added)
-        tags.delete(tags_to_be_deleted)
+
+        remaining_tags = posts.get_other_tags(int(id))
 
         new_post_tags = find_new_post_tags(old_post_tags, tags_to_be_deleted, tags_to_be_added)
+
+        non_used_tags = find_non_used_tags(tags_to_be_deleted, remaining_tags)
+
+        tags.delete(non_used_tags)
 
         tags_keys = tags.get_keys(new_post_tags)
 
@@ -690,7 +693,7 @@ def edit_post(id):
               "catid": str(categories.get_key(raw_category).id()).decode('utf8'), "id": str(updating_post.key.id()), \
               "tags": post_tag_names , "date": updating_post.timestamp ,"updated": updating_post.updated})
 
-        return jsonify(msg="OK", tags=tag_names, posts=data)  # dangerous
+        return jsonify(msg="OK", posts=data)  # dangerous
 
 
 @app.route('/posts/<id>', methods=['DELETE'])
@@ -868,19 +871,19 @@ def view_a_post(year, month, title):
     tags = Tags()
     if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
 
-    if title:
-
-        current_post = posts.get_by_title(title)
-   
-    else:
-     
-        try:
-            Post=posts[randint(0,action.nofposts-1)]
-        except ValueError:
-             
-            return render_template('singlepost.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
-                           daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,RelatedPosts=None,\
-                           Post=None,codeversion=CODEVERSION)
+    # if title:
+    #
+    #     current_post = posts.get_by_title(title)
+    #
+    # else:
+    #
+    #     try:
+    #         Post=posts[randint(0,action.nofposts-1)]
+    #     except ValueError:
+    #
+    #         return render_template('singlepost.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
+    #                        daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,RelatedPosts=None,\
+    #                        Post=None,codeversion=CODEVERSION)
 
     current_post = posts.get_by_title(title)
 
@@ -900,7 +903,7 @@ def view_a_post(year, month, title):
 
     return render_template('singlepost.html', user_status=users.is_current_user_admin(), siteupdated='NA', \
                                         daysleft=remaining_days, dayspassed=passed_days, RelatedPosts=related_posts, \
-                                        Post=post, posttagnames=post_tag_names, category=category)
+                                        Post=current_post, posttagnames=post_tag_names, category=category)
 
 
 
