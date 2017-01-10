@@ -348,6 +348,24 @@ class MyTest(TestCase):
 
         self.assertItemsEqual(test_tags, self.tags.get_names())
 
+    def test_to_json_of_a_tag(self):
+        test_tags = ["a new tag", "a new new tag"]
+        tag_key1, tag_key2 = self.tags.add(test_tags)
+        tag = tag_key1.get()
+
+        test_dict = {"id":str(tag_key1.id()), "tag":u"a new tag"}
+
+        self.assertDictEqual(test_dict, tag.to_json())
+
+    def test_to_json_of_tags(self):
+        test_tags = [u"a new tag", u"a new new tag"]
+        tag_key1, tag_key2 = self.tags.add(test_tags)
+
+        json_data = [{"id":key,"tag":val} for key, val in zip([str(tag_key1.id()), str(tag_key2.id())], test_tags)]
+
+        self.assertListEqual(json_data, self.tags.to_json())
+
+
     def tearDown(self):
         self.testbed.deactivate()
 
