@@ -72,6 +72,27 @@ class MyTest(TestCase):
 
         self.assertEqual(rendered_template, response.data)
 
+    def test_archives_url_resolves_to_archive_page(self):
+
+        passed_days, remaining_days = calculate_work_date_stats()
+        form = PostForm()
+
+        response = self.client.get((url_for('archives')))
+        if self.posts:
+            posts_json = self.posts.to_json()
+            site_updated = find_update_of_site(self.posts[len(self.posts)-1])
+        else:
+            site_updated = 'NA'
+            posts_json = []
+        post_tag_names = self.tags.to_json()
+
+        rendered_template = render_template('posts.html',user_status=users.is_current_user_admin(),siteupdated=site_updated,\
+                           daysleft=remaining_days,dayspassed=passed_days,tags=self.tags,categories=self.categories,
+                           posts=posts_json,
+                           codeversion=CODEVERSION, form=form,posts_tags_names=post_tag_names)
+
+        self.assertEqual(rendered_template, response.data)
+
     def test_index_page_returns_correct_html(self):
 
         passed_days, remaining_days = calculate_work_date_stats()

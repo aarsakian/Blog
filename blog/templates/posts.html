@@ -26,7 +26,7 @@
 	<div id="posts" id="bdinner">
 	    {%for Post in posts%}
 		
-		<div class="row list post_key" data-key="{{Post.key()}}">
+		<div class="row list post_key" data-key="{{Post.key.id()}}">
               
               
 		  
@@ -46,7 +46,7 @@
 				{%if Post.tags%}
 				    <a class="tags" href="/tags"><i class="icon-tags"></i></a>
 				
-					{%for tag in posts_tags_names[Post.key()]%}
+					{%for tag in posts_tags_names[Post.key.id()]%}
 					    <a class="tag" href="/tags#{{tag}}">{{tag}}</a>
 					{%endfor%}
 				   

@@ -11,6 +11,10 @@ POSTS_INDEX = "posts_idx"
 class Tag(ndb.Model):
     tag = ndb.StringProperty()
 
+    def to_json(self):
+        tag_dict = self.to_dict()
+        tag_dict["id"] = str(self.key.id())
+        return tag_dict
 
 class Category(ndb.Model):
     category = ndb.StringProperty()
@@ -55,6 +59,10 @@ class BlogList(list):
         entities = memcache.get(cache_name)
         return list(entities) if entities else []
 
+    @classmethod
+    def get_attr(cls):
+        return str(cls.__name__.lower())
+
     def update(self):
         self._delete_memcache()
         self._populate_memcache()
@@ -65,12 +73,8 @@ class JsonMixin:
 
     def to_json(self):
         """prepare data for json consumption add extra fields"""
-        posts_jsonified = []
-        if self.posts:
-            for post in self.posts:
-                posts_jsonified.append(post.to_json())
-
-        return posts_jsonified
+        entities = getattr(self, self.__class__.get_attr())
+        return [entity.to_json() for entity in entities]
 
 
 class Posts(BlogList, JsonMixin):
@@ -169,7 +173,7 @@ class Posts(BlogList, JsonMixin):
             raise LookupError
 
 
-class Tags(BlogList):
+class Tags(BlogList, JsonMixin):
 
     def __init__(self):
        # self.__tags__ = BlogList.retrieve_from_memcache("TAGS_CACHE")
@@ -189,6 +193,10 @@ class Tags(BlogList):
 
     def __len__(self):
         return len(self.__tags__)
+
+    @property
+    def tags(self):
+        return self.__tags__
 
     def _populate_memcache(self):
         logging.info("populating cache for tags {}")
