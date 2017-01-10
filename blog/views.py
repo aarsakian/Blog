@@ -487,13 +487,20 @@ def index(posts_json, tags, categories, siteupdated, passed_days,
 
 @app.route('/archives',methods=['GET'])
 @boilercode
-def archives(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed):
+def archives(posts_json, tags, categories, site_updated, passed_days,
+                    remaining_days):
     """general url routing for template usage"""
 
     if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
-    return render_template('posts.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
-                           daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,tags=tags,categories=categories,\
-                           posts=posts,posts_tags_names=action.posts_tags_dict,codeversion=CODEVERSION)
+
+    form = PostForm()
+
+    post_tag_names = tags.to_json()
+
+    return render_template('posts.html',user_status=users.is_current_user_admin(),siteupdated=site_updated,\
+                           daysleft=remaining_days,dayspassed=passed_days,tags=tags,categories=categories,
+                           posts=posts_json,
+                           codeversion=CODEVERSION, form=form,posts_tags_names=post_tag_names)
 
 
 
