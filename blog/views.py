@@ -504,7 +504,7 @@ def archives(posts_json, tags, categories, site_updated, passed_days,
 
         
 @app.route('/posts/tags')
-@app.route('/tags/<tag>',methods=['GET','POST'])
+@app.route('/tags/<tag>',methods=['GET'])
 @app.route('/tags/<tag>/<id>',methods=['DELETE','PUT'])
 def getTag(tag=None,id=None):
     if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
