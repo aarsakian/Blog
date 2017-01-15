@@ -22,49 +22,51 @@
         </div>
 	    
     </div>
-    {%if posts %}
+
 	<div id="posts" id="bdinner">
-	    {%for Post in posts%}
-		
-		<div class="row list post_key" data-key="{{Post.key}}">
-              
-              
-		  
-			<div class="post col-md-9">
-			    <div  class="classic">
+		{%if posts %}
+	    	{%for Post in posts%}
 
-			     
-				<h3 class="editable"><a href="/{{Post.category.category}}/{{Post.timestamp|datetimeformat('%Y')}}
+				<div class="row list post_key" data-id="{{Post.id}}">
+
+
+
+					<div class="post col-md-9">
+			    		<div  class="classic">
+
+
+							<h3 class="editable"><a href="{{Post.category.category}}/{{Post.timestamp|datetimeformat('%Y')}}
 				/{{Post.timestamp|datetimeformat('%m')}}/{{Post.title|trim}}">{{Post.title}}</a></h3>
-		  
-			</div><!--closes post-->
-		    </div>
-		    <div class="col-md-3 post" id="right">
-		 <!--Sidebar content-->
-			<div class="links row"  style="font-size: 22px;">
-						
-				{%if Post.tags%}
-				    <a class="tags" href="/tags"><i class="icon-tags"></i></a>
-				
-					{%for tag in Post.tags%}
-					    <a class="tag" href="/tags/{{tag}}">{{tag}}</a>
-					{%endfor%}
-				   
-				   
-				{%endif%}
-			</div><!--closes links-->
-			<div class="row" id="date">Created: {{Post.timestamp|datetimeformat('%d %B %Y')}} </div>
-		
-		    </div>
-		</div>
-		{% endfor %}
-             </div>		
 
-	{%endif%}	
+						</div><!--closes post-->
+					</div>
+		    		<div class="col-md-3 post" id="right">
+		 <!--Sidebar content-->
+						<div class="links row"  style="font-size: 22px;">
+							{%if user_status%}
+								<a class="btn edit" href="/edit/{{Post.id}}">Edit</a>
+							{%endif%}
+							{%if Post.tags%}
+				    			<a class="tags" href="/tags"><i class="icon-tags"></i></a>
+
+								{%for tag in Post.tags%}
+					    			<a class="tag" href="/tags/{{tag}}">{{tag}}</a>
+								{%endfor%}
+
+							{%endif%}
+
+						</div><!--closes links-->
+					<div class="row" id="date">Created: {{Post.timestamp|datetimeformat('%d %B %Y')}} </div>
+
+		    		</div>
+				</div>
+			{% endfor %}
+		{%endif%}
+	</div>
     <div id="newpost" class="clear">
             <!--holdes a form for new post--> 
     </div>
-    {%if user_status%}
+    {%if user_status and posts%}
         <div class="links">   
             <a class="btn edit" href="/edit">Edit</a>
                           
@@ -87,4 +89,23 @@
     </div>
 </div>
   
+{% endblock %}
+
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block new_post %}
+ {%if user_status%}
+<form class="form form-horizontal" method="post" role="form">
+    {{ form.hidden_tag()}}
+    {{ wtf.form_errors(form, hiddens="only") }}
+    {{ wtf.form_field(form.title, id="new-post-title",placeholder="Enter your title here")}}
+    {{ wtf.form_field(form.summary, id="new-post-summary",placeholder="Enter your summary here")}}
+    {{ wtf.form_field(form.body, id="new-post-body", type="text")}}
+    {{ wtf.form_field(form.category, id="new-post-category",
+    placeholder="Enter your category or use existing one")}}
+    {{ wtf.form_field(form.tags,id="new-post-tags",
+    placeholder="Enter your tags here,use comma between")}}
+    {{ wtf.form_field(form.submit, type="submit", class="submit button")}}
+</form>
+{%endif%}
 {% endblock %}

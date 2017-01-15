@@ -416,9 +416,7 @@ def boilercode(func):
 
 
 
-@app.route('/<postkey>/edit',methods=['GET'])
-@app.route('/edit/<postkey>',methods=['GET'])
-@app.route('/edit',methods=['GET'])
+
 @app.route('/categories',methods=['GET'])
 @app.route('/tags',methods=['GET'])
 @boilercode
@@ -426,7 +424,7 @@ def tags(posts_json, tags, categories, siteupdated, passed_days,
                     remaining_days, postkey=None):
     form = PostForm()
 
-    return render_template('main.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
+    return render_template('posts.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
                            daysleft=remaining_days,dayspassed=passed_days,tags=tags,categories=categories,
                            posts=posts_json,
                            codeversion=CODEVERSION, form=form)
@@ -909,6 +907,17 @@ def view_a_post(year, month, title):
     return render_template('singlepost.html', user_status=users.is_current_user_admin(), siteupdated='NA', \
                                         daysleft=remaining_days, dayspassed=passed_days, RelatedPosts=related_posts, \
                                         Post=current_post, posttagnames=post_tag_names, category=category)
+
+@app.route('/edit',methods=['GET'])
+@app.route('/edit/<postkey>',methods=['GET'])
+def edit_a_post_view(postkey=None):
+    form = PostForm()
+
+    passed_days, remaining_days = calculate_work_date_stats()
+    siteupdated=""
+    return render_template('posts.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
+                           daysleft=remaining_days,dayspassed=passed_days,
+                           codeversion=CODEVERSION, form=form)
 
 
 

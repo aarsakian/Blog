@@ -93,14 +93,41 @@ class MyTest(TestCase):
             site_updated = 'NA'
             posts_json = []
 
-        rendered_template = render_template('main.html', user_status=users.is_current_user_admin(),
+        rendered_template = render_template('posts.html', user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated, \
                                             daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
                                             categories=self.categories,
                                             posts=posts_json,
                                             codeversion=CODEVERSION, form=form)
 
-        self.assertEqual(rendered_template, response.data.decode('utf-8'))
+        self.assertEqualHTML(rendered_template, response.data.decode('utf-8'))
+
+    def test_edit_url_with_contents_is_ok(self):
+
+        category_key = self.categories.add("category")
+        test_tags = ["a new tag", "a new new tag"]
+        new_tag_keys = self.tags.add(test_tags)
+        self.posts.add("a title", "body text", category_key, new_tag_keys, "this is a summary")
+
+        passed_days, remaining_days = calculate_work_date_stats()
+        form = PostForm()
+
+        response = self.client.get((url_for('tags')))
+        if self.posts:
+            posts_json = self.posts.to_json()
+            site_updated = find_update_of_site(self.posts[len(self.posts) - 1])
+        else:
+            site_updated = 'NA'
+            posts_json = []
+
+        rendered_template = render_template('posts.html', user_status=users.is_current_user_admin(),
+                                            siteupdated=site_updated, \
+                                            daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
+                                            categories=self.categories,
+                                            posts=posts_json,
+                                            codeversion=CODEVERSION, form=form)
+
+        self.assertEqualHTML(rendered_template, response.data.decode('utf-8'))
 
     def test_archives_url_resolves_to_archive_page(self):
 
@@ -123,7 +150,7 @@ class MyTest(TestCase):
                                             posts=posts_json,
                                             codeversion=CODEVERSION, form=form, posts_tags_names=post_tag_names)
 
-        self.assertEqual(rendered_template, response.data.decode('utf-8'))
+        self.assertEqualHTML(rendered_template, response.data.decode('utf-8'))
 
     def test_archives_url_content_is_ok(self):
 
@@ -151,7 +178,7 @@ class MyTest(TestCase):
                                             posts=posts_json,
                                             codeversion=CODEVERSION, form=form, posts_tags_names=post_tag_names)
 
-        self.assertEqual(rendered_template, response.data.decode('utf-8'))
+        self.assertEqualHTML(rendered_template, response.data.decode('utf-8'))
 
     def test_index_page_returns_correct_html(self):
 
@@ -164,7 +191,7 @@ class MyTest(TestCase):
                                             categories=self.categories,
                                             posts=self.posts.to_json(),
                                             codeversion=CODEVERSION)
-        self.assertEqual(rendered_template, response.data.decode('utf-8'))
+        self.assertEqualHTML(rendered_template, response.data.decode('utf-8'))
 
     def test_index_page_with_content_is_ok(self):
 
@@ -239,7 +266,7 @@ class MyTest(TestCase):
                                             categories=self.categories,
                                             posts=self.posts.to_json(),
                                             codeversion=CODEVERSION)
-        self.assertEqual(rendered_template, response.data.decode('utf-8'))
+        self.assertEqualHTML(rendered_template, response.data.decode('utf-8'))
 
     def test_delete_post(self):
 
