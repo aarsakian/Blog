@@ -100,7 +100,7 @@ class MyTest(TestCase):
                                             posts=posts_json,
                                             codeversion=CODEVERSION, form=form)
 
-        self.assertEqual(rendered_template, response.data)
+        self.assertEqual(rendered_template, response.data.decode('utf-8'))
 
     def test_archives_url_resolves_to_archive_page(self):
 
@@ -123,7 +123,7 @@ class MyTest(TestCase):
                                             posts=posts_json,
                                             codeversion=CODEVERSION, form=form, posts_tags_names=post_tag_names)
 
-        self.assertEqual(rendered_template, response.data)
+        self.assertEqual(rendered_template, response.data.decode('utf-8'))
 
     def test_archives_url_content_is_ok(self):
 
@@ -151,7 +151,7 @@ class MyTest(TestCase):
                                             posts=posts_json,
                                             codeversion=CODEVERSION, form=form, posts_tags_names=post_tag_names)
 
-        self.assertEqual(rendered_template, response.data)
+        self.assertEqual(rendered_template, response.data.decode('utf-8'))
 
     def test_index_page_returns_correct_html(self):
 
@@ -164,7 +164,7 @@ class MyTest(TestCase):
                                             categories=self.categories,
                                             posts=self.posts.to_json(),
                                             codeversion=CODEVERSION)
-        self.assertEqual(rendered_template, response.data)
+        self.assertEqual(rendered_template, response.data.decode('utf-8'))
 
     def test_index_page_with_content_is_ok(self):
 
@@ -227,6 +227,19 @@ class MyTest(TestCase):
                                             Post=current_post, posttagnames=post_tag_names, category=category)
 
         self.assertEqual(rendered_template.encode("utf-8"), response.data)
+
+    def test_tag_pag_returns_correct_html(self):
+
+        passed_days, remaining_days = calculate_work_date_stats()
+
+        response = self.client.get((url_for('index')))  # create a request object
+
+        rendered_template = render_template("index.html", user_status=users.is_current_user_admin(), siteupdated='NA', \
+                                            daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
+                                            categories=self.categories,
+                                            posts=self.posts.to_json(),
+                                            codeversion=CODEVERSION)
+        self.assertEqual(rendered_template, response.data.decode('utf-8'))
 
     def test_delete_post(self):
 
