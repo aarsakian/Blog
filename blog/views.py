@@ -495,12 +495,10 @@ def archives(posts_json, tags, categories, site_updated, passed_days,
 
     form = PostForm()
 
-    post_tag_names = tags.to_json()
-
     return render_template('posts.html',user_status=users.is_current_user_admin(),siteupdated=site_updated,\
                            daysleft=remaining_days,dayspassed=passed_days,tags=tags,categories=categories,
                            posts=posts_json,
-                           codeversion=CODEVERSION, form=form,posts_tags_names=post_tag_names)
+                           codeversion=CODEVERSION, form=form)
 
 
 
