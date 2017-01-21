@@ -29,6 +29,18 @@ class BlogPost(ndb.Model):
     category = ndb.KeyProperty(kind=Category)
     summary = ndb.TextProperty()
 
+    @classmethod
+    def get(cls, id):
+        post = memcache.get('{}:posts'.format(id))
+        if not post:
+            post = cls.get_by_id(int(id))
+            added = memcache.add(
+                '{}:posts'.format(id), post, 100)
+            if not added:
+                logging.error('Memcache set failed for entity {}'.format(id))
+
+        return post
+
     def to_json(self):
         """creates json based structure"""
         post_dict = self.to_dict()
@@ -78,31 +90,33 @@ class JsonMixin:
 
 
 class Posts(BlogList, JsonMixin):
-    """list of posts"""
+    """
+        list of posts
+    """
 
     def __init__(self):
-       # self.__posts__ = BlogList.retrieve_from_memcache("POSTS_CACHE")
-        #if not self.__posts__:
-            self.__posts__ = list(BlogPost.query().order(-BlogPost.timestamp))
+       # self._posts = BlogList.retrieve_from_memcache("POSTS_CACHE")
+        #if not self._posts:
+            self._posts = list(BlogPost.query().order(-BlogPost.timestamp))
             self._populate_memcache()
             self._populate_search_index()
 
     @property
     def posts(self):
-        return self.__posts__
+        return self._posts
 
     def __len__(self):
-        return len(self.__posts__)
+        return len(self._posts)
 
     def __iter__(self):
-        return (post for post in self.__posts__)
+        return (post for post in self._posts)
 
     def __getitem__(self, post_idx):
-        return self.__posts__[post_idx]
+        return self._posts[post_idx]
 
     def __contains__(self, post_key):
-        if self.__posts__:
-            for post in self.__posts__:
+        if self._posts:
+            for post in self._posts:
                 if post.key == post_key:
                     return True
         return False
@@ -111,13 +125,13 @@ class Posts(BlogList, JsonMixin):
         """populate memcache
         use key as post plus post.id"""
         logging.info('cache is empty creating index')
-        if not memcache.add("POSTS_CACHE", self.__posts__):
+        if not memcache.add("POSTS_CACHE", self._posts):
             logging.error("Memcache set failed for posts")
-            self.__posts__ = list(BlogPost.query().order(-BlogPost.timestamp))
+            self._posts = list(BlogPost.query().order(-BlogPost.timestamp))
 
     def _populate_search_index(self):
         try:
-            for post in self.__posts__:
+            for post in self._posts:
                 category = post.category.get().category
                 doc = create_document(post.key.id(), post.title, post.body,
                                       category, post.timestamp)
@@ -137,18 +151,18 @@ class Posts(BlogList, JsonMixin):
                             category=category_key,
                             tags=tags_ids,
                             summary=summary).put()
-        self.__posts__.append(BlogPost.get_by_id(post_key.id()))
+        self._posts.append(BlogPost.get_by_id(post_key.id()))
         self.update()
         return post_key
 
     def get_tags(self):
         tags = []
-        [tags.extend(post.get_tag_names()) for post in self.__posts__]
+        [tags.extend(post.get_tag_names()) for post in self._posts]
         return tags
 
     def get_other_tags(self, post_id):
         other_tags = []
-        [other_tags.extend(post.get_tag_names()) for post in self.__posts__ if post.key.id() != post_id]
+        [other_tags.extend(post.get_tag_names()) for post in self._posts if post.key.id() != post_id]
         return other_tags
 
     def update(self):
@@ -157,12 +171,12 @@ class Posts(BlogList, JsonMixin):
 
     def delete(self, post_key):
         post = post_key.get()
-        [self.__posts__.pop(post_idx) for post_idx, post in enumerate(self.__posts__) if post.key == post_key]
+        [self._posts.pop(post_idx) for post_idx, post in enumerate(self._posts) if post.key == post_key]
         post.key.delete()
         self.update()
 
     def get_by_title(self, title):
-        for post in self.__posts__:
+        for post in self._posts:
             if post.title == title:
                 post_f = post
                 break
@@ -176,31 +190,31 @@ class Posts(BlogList, JsonMixin):
 class Tags(BlogList, JsonMixin):
 
     def __init__(self):
-       # self.__tags__ = BlogList.retrieve_from_memcache("TAGS_CACHE")
-       # if not self.__tags__:
-        self.__tags__ = list(Tag.query())
+       # self._tags = BlogList.retrieve_from_memcache("TAGS_CACHE")
+       # if not self._tags:
+        self._tags = list(Tag.query())
         self._populate_memcache()
 
     def __contains__(self, raw_tag):
-        if self.__tags__:
-            for tag in self.__tags__:
+        if self._tags:
+            for tag in self._tags:
                 if tag == raw_tag:
                     return True
         return False
 
     def __iter__(self):
-        return (tag.tag for tag in self.__tags__)
+        return (tag.tag for tag in self._tags)
 
     def __len__(self):
-        return len(self.__tags__)
+        return len(self._tags)
 
     @property
     def tags(self):
-        return self.__tags__
+        return self._tags
 
     def _populate_memcache(self):
         logging.info("populating cache for tags {}")
-        if not memcache.add("TAGS_CACHE", self.__tags__):
+        if not memcache.add("TAGS_CACHE", self._tags):
             logging.error("Memcache set failed for tags")
 
     def _delete_memcache(self):
@@ -209,46 +223,46 @@ class Tags(BlogList, JsonMixin):
 
     def add(self, new_tags):
         new_tags_keys = [Tag(tag=new_tag).put() for new_tag in new_tags]
-        self.__tags__.extend([tag_key.get() for tag_key in new_tags_keys])
+        self._tags.extend([tag_key.get() for tag_key in new_tags_keys])
         self.update()
         return new_tags_keys
 
     def delete(self, tags_for_deletion):
-        for tag_idx, tag in enumerate(self.__tags__):
+        for tag_idx, tag in enumerate(self._tags):
             if tag.tag in tags_for_deletion:
                 tag.key.delete()
-                self.__tags__.pop(tag_idx)
+                self._tags.pop(tag_idx)
                 self.delete(tags_for_deletion)
         self.update()
 
     def get_keys(self, tags):
-        return [tag.key for tag in self.__tags__ if tag.tag in tags]
+        return [tag.key for tag in self._tags if tag.tag in tags]
 
     def get_names(self, keys=[]):
-        return [tag.tag for tag in self.__tags__]
+        return [tag.tag for tag in self._tags]
 
 
 class Categories(BlogList):
 
     def __init__(self):
-       # self.__categories__ = BlogList.retrieve_from_memcache("CATEGORIES_CACHE")
-       # if not self.__categories__:
-        self.__categories__ = list(Category.query())
+       # self._categories = BlogList.retrieve_from_memcache("CATEGORIES_CACHE")
+       # if not self._categories:
+        self._categories = list(Category.query())
         self._populate_memcache()
 
     def __contains__(self, raw_category):
-        if self.__categories__:
-            for category in self.__categories__:
+        if self._categories:
+            for category in self._categories:
                 if category.category == raw_category:
                     return True
         return False
 
     def __iter__(self):
-        return (category.category for category in self.__categories__)
+        return (category.category for category in self._categories)
 
     def _populate_memcache(self):
-        logging.info("populating cache for categories {}".format(self.__categories__))
-        if not memcache.add("CATEGORIES_CACHE", self.__categories__):
+        logging.info("populating cache for categories {}".format(self._categories))
+        if not memcache.add("CATEGORIES_CACHE", self._categories):
             logging.error("Memcache set failed for categories")
 
     def _delete_memcache(self):
@@ -257,18 +271,18 @@ class Categories(BlogList):
 
     def add(self, raw_category):
         category_key = Category(category=raw_category).put()
-        self.__categories__.append(Category.get_by_id(category_key.id()))
+        self._categories.append(Category.get_by_id(category_key.id()))
         self.update()
         return category_key
 
     def get_key(self, raw_category):
-        logging.info("{} {}".format(raw_category, len(self.__categories__)))
-        return [category.key for category in self.__categories__ if category.category == raw_category][0]
+        logging.info("{} {}".format(raw_category, len(self._categories)))
+        return [category.key for category in self._categories if category.category == raw_category][0]
 
     def delete(self, category_for_deletion):
-        for cat_idx, category in enumerate(self.__categories__):
+        for cat_idx, category in enumerate(self._categories):
             if category.category == category_for_deletion:
                 category.key.delete()
-                self.__categories__.pop(cat_idx)
+                self._categories.pop(cat_idx)
                 self.delete(category_for_deletion)
         self.update()

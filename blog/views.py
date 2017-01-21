@@ -628,24 +628,19 @@ def main():
 def get_post(id):
     data = []
 
-    if users.is_current_user_admin():
-        posts = Posts()
-        tags = Tags()
-        categories = Categories()
+    asked_post = BlogPost.get(id)
 
-        asked_post = BlogPost.get_by_id(int(id))
+    category_id = str(asked_post.category.id())
 
-        category_id = str(asked_post.category.id())
+    post_tag_names = asked_post.get_tag_names()
 
-        post_tag_names = asked_post.get_tag_names()
-
-        data.append(
+    data.append(
              {"title": asked_post.title, "body": asked_post.body, "category":
                  asked_post.category.get().category,
               "catid":  category_id, "id": str(asked_post.key.id()), \
               "tags": post_tag_names, "date": asked_post.timestamp,"updated":asked_post.updated})
 
-        return jsonify(msg="OK", posts=data)  # dangerous
+    return jsonify(msg="OK", posts=data)  # dangerous
 
 
 @app.route('/posts/<id>', methods=['PUT'])
@@ -657,7 +652,7 @@ def edit_post(id):
         tags = Tags()
         categories = Categories()
 
-        updating_post = BlogPost.get_by_id(int(id))
+        updating_post = BlogPost.get(int(id))
 
         title = request.json['title']
         body = request.json['body']
@@ -707,7 +702,7 @@ def delete_post(id):
 
         tags = Tags()
 
-        updating_post = BlogPost.get_by_id(int(id))
+        updating_post = BlogPost.get(int(id))
 
         remaining_tags = posts.get_other_tags(int(id))
 

@@ -8,7 +8,7 @@ from google.appengine.ext import testbed
 from google.appengine.api import users
 from google.appengine.ext import ndb
 from blog.forms import PostForm
-from blog.models import Tags, Posts, Categories
+from blog.models import Tags, Posts, Categories, BlogPost
 from blog.utils import find_tags_to_be_deleted_from_an_edited_post, find_tags_to_added_from_an_edited_post, \
     find_new_post_tags, find_non_used_tags
 
@@ -38,38 +38,6 @@ class MyTest(TestCase):
         self.tags = Tags()
         self.categories = Categories()
         self.posts = Posts()
-
-    def test_edit_url_resolves_to_edit_page_view(self):
-
-        passed_days, remaining_days = calculate_work_date_stats()
-        form = PostForm()
-
-        response = self.client.get((url_for('tags')))
-        if self.posts:
-            posts_json = self.posts.to_json()
-            site_updated = find_update_of_site(self.posts[len(self.posts)-1])
-        else:
-            site_updated = 'NA'
-            posts_json = []
-
-        rendered_template = render_template('main.html',user_status=users.is_current_user_admin(),siteupdated=site_updated,\
-                           daysleft=remaining_days,dayspassed=passed_days,tags=self.tags,categories=self.categories,
-                           posts=posts_json,
-                           codeversion=CODEVERSION, form=form)
-
-        self.assertEqual(rendered_template, response.data)
-
-    def test_index_page_returns_correct_html(self):
-
-        passed_days, remaining_days = calculate_work_date_stats()
-
-        response = self.client.get((url_for('index')))  # create a request object
-
-        rendered_template = render_template("index.html",user_status=users.is_current_user_admin(),siteupdated='NA',\
-                           daysleft=remaining_days,dayspassed=passed_days,tags=self.tags,categories=self.categories,
-                           posts=self.posts.to_json(),
-                           codeversion=CODEVERSION)
-        self.assertEqual(rendered_template, response.data)
 
     def test_add_a_tag(self):
         tag_keys = self.tags.add(["a new tag"])
@@ -365,6 +333,19 @@ class MyTest(TestCase):
 
         self.assertListEqual(json_data, self.tags.to_json())
 
+    def test_get_a_post(self):
+        category_key = self.categories.add("category")
+        test_tags = ["a new tag", "a new new tag"]
+        new_tag_keys = self.tags.add(test_tags)
+        post_key = self.posts.add("a title", "body text", category_key, new_tag_keys)
+
+        #test with no memcache
+        post = BlogPost.get(post_key.id())
+        self.assertEqual(post.key, post_key)
+
+        #test memcached
+        post = BlogPost.get(post_key.id())
+        self.assertEqual(post.key, post_key)
 
     def tearDown(self):
         self.testbed.deactivate()
