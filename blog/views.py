@@ -341,14 +341,17 @@ months=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','De
 
 @app.route('/login')
 def login():
-    """uses gae api to get information about current user
+    """
+    uses gae api to get information about current user
     if not connected redirected him to login page
-    otherwise redirect him to index"""
+    otherwise redirect him to index
+    """
     user = users.get_current_user()
     if not user:
         return redirect(users.create_login_url())
-    else:
-        return redirect(url_for('index'))
+    elif users.is_current_user_admin():
+        logging.info(url_for('edit_a_post_view'))
+        return redirect(url_for('edit_a_post_view'))
 
 
 @app.route('/logout')

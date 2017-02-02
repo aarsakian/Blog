@@ -14,7 +14,7 @@ from blog.utils import find_tags_to_be_deleted_from_an_edited_post, find_non_use
     find_tags_to_added_from_an_edited_post, find_new_post_tags
 
 
-class MyTest(TestCase):
+class TestModel(TestCase):
     maxDiff = None
 
     def create_app(self):
