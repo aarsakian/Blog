@@ -339,7 +339,7 @@ months=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','De
       
    
 
-@app.route('/login')
+@app.route('/login', methods=['GET'])
 def login():
     """
     uses gae api to get information about current user
@@ -348,13 +348,12 @@ def login():
     """
     user = users.get_current_user()
     if not user:
-        return redirect(users.create_login_url())
+        return redirect(users.create_login_url('/'))
     elif users.is_current_user_admin():
-        logging.info(url_for('edit_a_post_view'))
         return redirect(url_for('edit_a_post_view'))
 
 
-@app.route('/logout')
+@app.route('/logout', methods=['GET'])
 def logout():
     """uses gae api to get information about current user
     if connected redirected him to logout page
@@ -479,7 +478,7 @@ def index(posts_json, tags, categories, siteupdated, passed_days,
 
 
     logging.info("JSON{}".format(posts_json))
-
+    print (users.is_current_user_admin())
     if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
     return render_template('index.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
                            daysleft=remaining_days,dayspassed=passed_days,tags=tags,categories=categories,
