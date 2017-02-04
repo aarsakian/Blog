@@ -2,17 +2,13 @@ import logging
 
 
 from flask_testing import TestCase
-from flask import url_for, render_template, redirect
+from flask import url_for, redirect
 from blog import app
 
-from blog.views import CODEVERSION, fetch_everything_from_db, calculate_work_date_stats, find_update_of_site
+
 from google.appengine.ext import testbed
 from google.appengine.api import users
 from google.appengine.ext import ndb
-from blog.forms import PostForm
-from blog.models import Tags, Posts, Categories, BlogPost
-from blog.utils import find_tags_to_be_deleted_from_an_edited_post, find_non_used_tags, \
-    find_tags_to_added_from_an_edited_post, find_new_post_tags
 
 
 class TestModel(TestCase):
@@ -36,17 +32,16 @@ class TestModel(TestCase):
 
         ndb.get_context().clear_cache()
 
-
     def assertEqualHTML(self, string1, string2, file1='', file2=''):
-
-        u'''
+        """
         Compare two unicode strings containing HTML.
         A human friendly diff goes to logging.error() if there
         are not equal, and an exception gets raised.
-        '''
+        """
 
         from BeautifulSoup import BeautifulSoup as bs
         import difflib
+
         def short(mystr):
             max = 20
             if len(mystr) > max:
@@ -81,8 +76,8 @@ class TestModel(TestCase):
 
     def logoutUser(self):
         self.loginUserGAE(is_admin=True)
-        return self.client.get('/logout')# follow_redirects=True)
-
+        return self.client.get('/logout')
+    
     def testLogin(self):
         rv = self.loginUser()
         self.loginUserGAE(is_admin=True)
@@ -93,4 +88,3 @@ class TestModel(TestCase):
         rv = self.logoutUser()
         self.assertEqualHTML(redirect(users.create_logout_url('http://localhost/logout')).data.decode('utf-8'),
                              rv.data.decode('utf-8'))
-    
