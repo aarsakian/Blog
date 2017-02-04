@@ -350,7 +350,7 @@ def login():
     if not user:
         return redirect(users.create_login_url('/'))
     elif users.is_current_user_admin():
-        return redirect(url_for('edit_a_post_view'))
+        return redirect(url_for('index'))
 
 
 @app.route('/logout', methods=['GET'])
@@ -473,15 +473,16 @@ def aboutpage(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed,da
 @app.route('/', methods=['GET'])
 @boilercode
 def index(posts_json, tags, categories, siteupdated, passed_days,
-                    remaining_days):
-    """general url routing for template usage"""
-
+          remaining_days):
+    """
+    general url routing for template usage
+    """
 
     logging.info("JSON{}".format(posts_json))
     print (users.is_current_user_admin())
-    if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
-    return render_template('index.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
-                           daysleft=remaining_days,dayspassed=passed_days,tags=tags,categories=categories,
+    if request.args.get('q'): return redirect(url_for('searchresults', q=request.args.get('q')))
+    return render_template('index.html', user_status=users.is_current_user_admin(), siteupdated=siteupdated, \
+                           daysleft=remaining_days, dayspassed=passed_days, tags=tags, categories=categories,
                            posts=posts_json,
                            codeversion=CODEVERSION)
 
@@ -491,7 +492,7 @@ def archives(posts_json, tags, categories, site_updated, passed_days,
                     remaining_days):
     """general url routing for template usage"""
 
-    if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
+    #if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
 
     form = PostForm()
 

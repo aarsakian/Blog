@@ -2,7 +2,7 @@ import logging
 
 
 from flask_testing import TestCase
-from flask import url_for, render_template
+from flask import url_for, render_template, redirect
 from blog import app
 
 from blog.views import CODEVERSION, fetch_everything_from_db, calculate_work_date_stats, find_update_of_site
@@ -65,7 +65,6 @@ class TestModel(TestCase):
                 logging.error(line)
             raise Exception('Not equal %s %s' % (file1, file2))
 
-
     def tearDown(self):
         self.testbed.deactivate()
 
@@ -78,15 +77,25 @@ class TestModel(TestCase):
 
     def loginUser(self):
         self.loginUserGAE(is_admin=True)
-        return self.client.get('/login',follow_redirects=True)
+        return self.client.get('/login', follow_redirects=True)
+
+    def logoutUser(self):
+        self.loginUserGAE(is_admin=True)
+        return self.client.get('/logout')# follow_redirects=True)
 
     def testLogin(self):
-
         rv = self.loginUser()
-
         self.loginUserGAE(is_admin=True)
-        print (self.client.get(url_for('index')).data.decode('utf-8'))
-        self.assertEqualHTML(self.client.get(url_for('archives')).data.decode('utf-8'), rv.data.decode('utf-8'))
+
+        self.assertEqualHTML(self.client.get(url_for('index')).data.decode('utf-8'), rv.data.decode('utf-8'))
+
+    def testLogout(self):
+        rv = self.logoutUser()
+        self.assertEqualHTML(redirect(users.create_logout_url('http://localhost/logout')).data.decode('utf-8'),
+                             rv.data.decode('utf-8'))
+        #self.assertEqualHTML(self.client.get(url_for('index')).data.decode('utf-8'), rv.data.decode('utf-8'))
+        #self.assertEqualHTML(self.client.get(url_for('index')).data.decode('utf-8'), rv.data.decode('utf-8'))
+
         # self.assertFalse(users.get_current_user())
         # self.loginUser()
         # self.assertEqual(users.get_current_user().email(), 'user@example.com')
