@@ -186,6 +186,9 @@ class Posts(BlogList, JsonMixin):
             logging.error("Post Not Found")
             raise LookupError
 
+    def filter_by_tag(self, tag):
+        return [post for post in self._posts if tag in post.get_tag_names()]
+
 
 class Tags(BlogList, JsonMixin):
 

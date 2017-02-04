@@ -478,8 +478,7 @@ def index(posts_json, tags, categories, siteupdated, passed_days,
     general url routing for template usage
     """
 
-    logging.info("JSON{}".format(posts_json))
-    print (users.is_current_user_admin())
+
     if request.args.get('q'): return redirect(url_for('searchresults', q=request.args.get('q')))
     return render_template('index.html', user_status=users.is_current_user_admin(), siteupdated=siteupdated, \
                            daysleft=remaining_days, dayspassed=passed_days, tags=tags, categories=categories,
@@ -492,7 +491,7 @@ def archives(posts_json, tags, categories, site_updated, passed_days,
                     remaining_days):
     """general url routing for template usage"""
 
-    #if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
+    if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
 
     form = PostForm()
 
@@ -504,43 +503,54 @@ def archives(posts_json, tags, categories, site_updated, passed_days,
 
 
         
-@app.route('/posts/tags')
+
 @app.route('/tags/<tag>',methods=['GET'])
-@app.route('/tags/<tag>/<id>',methods=['DELETE','PUT'])
-def getTag(tag=None,id=None):
+#@app.route('/tags/<tag>/<id>',methods=['DELETE','PUT']) SHOULD GO TO JSON
+@boilercode
+def get_all_posts_with_requested_tag(posts_json, tags, categories, siteupdated, passed_days,
+                    remaining_days,tag):
     if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
-    if users.is_current_user_admin() and request.method=="DELETE":
-     
-        apost=APost(id=id)
-        apost.delete()
-        return jsonify(msg="OK")
-    
-    elif users.is_current_user_admin() and request.method=="PUT":
-        title=request.json['title']
-        body=request.json['body']
-        date=request.json['date']
-        category=request.json['category']
-        posttags=request.json['tags']
-        apost=APost(title,body,date,category,posttags,id)
-        (data,returnedTags)=apost.update()
-        return jsonify(msg="OK",tags=returnedTags,posts=data)
-        
-    if tag!=None:
-        if request.method=="GET":
+    posts = Posts ()
+    posts.filter_by_tag(tag)
+    form = PostForm()
 
-            data=action.getall(tagname=tag)
-            return  jsonify(msg="OK",posts=data,type="tag")
-     
-            
-    else:  
-        tagss=[]
 
-        [tagss.append([Tag.tag,Tag.key.id()]) for Tag in a.tags]
-        tags=map(lambda tag:{"tag":tag[0],"id":tag[1]} ,tagss)
+    return render_template('posts.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
+                           daysleft=remaining_days,dayspassed=passed_days,tags=tags,categories=categories,
+                           posts=posts.to_json(),
+                           codeversion=CODEVERSION, form=form)
+    # if users.is_current_user_admin() and request.method=="DELETE":
+    #
+    #     apost=APost(id=id)
+    #     apost.delete()
+    #     return jsonify(msg="OK")
+    #
+    # elif users.is_current_user_admin() and request.method=="PUT":
+    #     title=request.json['title']
+    #     body=request.json['body']
+    #     date=request.json['date']
+    #     category=request.json['category']
+    #     posttags=request.json['tags']
+    #     apost=APost(title,body,date,category,posttags,id)
+    #     (data,returnedTags)=apost.update()
+    #     return jsonify(msg="OK",tags=returnedTags,posts=data)
+    #
+    # if tag!=None:
+    #     if request.method=="GET":
+    #
+    #         data=action.getall(tagname=tag)
+    #         return  jsonify(msg="OK",posts=data,type="tag")
+    #
+    #
+    # else:
+    #     tagss=[]
+    #
+    #     [tagss.append([Tag.tag,Tag.key.id()]) for Tag in a.tags]
+    #     tags=map(lambda tag:{"tag":tag[0],"id":tag[1]} ,tagss)
      
       
   
-        return jsonify(msg="OK",tags=tags,header="My Tags used",type="tags")
+   #     return jsonify(msg="OK",tags=tags,header="My Tags used",type="tags")
 
 @app.route('/categories/<catname>/<id>',methods=['DELETE','PUT'])
 @app.route('/categories/<catname>',methods=['GET','POST'])
@@ -665,7 +675,7 @@ def edit_post(id):
 
         existing_tags = posts.get_tags()
         old_post_tags = updating_post.get_tag_names()
-
+        # find first new tags and unused tags
         tags_to_be_deleted = find_tags_to_be_deleted_from_an_edited_post(editing_tags, existing_tags)
         tags_to_be_added = find_tags_to_added_from_an_edited_post(editing_tags, existing_tags)
 
