@@ -93,12 +93,4 @@ class TestModel(TestCase):
         rv = self.logoutUser()
         self.assertEqualHTML(redirect(users.create_logout_url('http://localhost/logout')).data.decode('utf-8'),
                              rv.data.decode('utf-8'))
-        #self.assertEqualHTML(self.client.get(url_for('index')).data.decode('utf-8'), rv.data.decode('utf-8'))
-        #self.assertEqualHTML(self.client.get(url_for('index')).data.decode('utf-8'), rv.data.decode('utf-8'))
-
-        # self.assertFalse(users.get_current_user())
-        # self.loginUser()
-        # self.assertEqual(users.get_current_user().email(), 'user@example.com')
-        # self.loginUser(is_admin=True)
-        # self.assertTrue(users.is_current_user_admin())
-
+    
