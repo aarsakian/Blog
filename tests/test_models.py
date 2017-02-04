@@ -11,12 +11,9 @@ from blog.forms import PostForm
 from blog.models import Tags, Posts, Categories, BlogPost
 from blog.utils import find_tags_to_be_deleted_from_an_edited_post, find_tags_to_added_from_an_edited_post, \
     find_new_post_tags, find_non_used_tags
+from . import BlogTestBase
 
-class MyTest(TestCase):
-
-    def create_app(self):
-        app.config['TESTING'] = True
-        return app
+class TestModels(BlogTestBase):
 
     def setUp(self):
         self.testbed = testbed.Testbed()
@@ -347,8 +344,6 @@ class MyTest(TestCase):
         post = BlogPost.get(post_key.id())
         self.assertEqual(post.key, post_key)
 
-    def tearDown(self):
-        self.testbed.deactivate()
 
 if __name__ == '__main__':
     unittest.main()

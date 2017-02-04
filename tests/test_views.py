@@ -12,15 +12,10 @@ from blog.forms import PostForm
 from blog.models import Tags, Posts, Categories, BlogPost
 from blog.utils import find_tags_to_be_deleted_from_an_edited_post, find_non_used_tags, \
     find_tags_to_added_from_an_edited_post, find_new_post_tags
+from . import BlogTestBase
 
-
-class TestModel(TestCase):
+class TestViews(BlogTestBase):
     maxDiff = None
-
-    def create_app(self):
-        app.config['WTF_CSRF_ENABLED'] = False
-
-        return app
 
     def setUp(self):
         self.testbed = testbed.Testbed()
@@ -343,8 +338,6 @@ class TestModel(TestCase):
 
         self.assertDictEqual({u"msg": u"OK", u"posts": data}, response.json)
 
-    def tearDown(self):
-        self.testbed.deactivate()
 
 
 if __name__ == '__main__':
