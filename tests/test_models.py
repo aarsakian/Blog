@@ -9,8 +9,7 @@ from google.appengine.api import users
 from google.appengine.ext import ndb
 from blog.forms import PostForm
 from blog.models import Tags, Posts, Categories, BlogPost
-from blog.utils import find_tags_to_be_deleted_from_an_edited_post, find_tags_to_added_from_an_edited_post, \
-    find_new_post_tags, find_non_used_tags
+from blog.utils import find_modified_tags, find_tags_to_be_added, find_tags_to_be_removed
 from . import BlogTestBase
 
 class TestModels(BlogTestBase):
@@ -130,23 +129,37 @@ class TestModels(BlogTestBase):
         self.posts.add("a title 2", "body text 2", category_key, new_tag_keys2)
         self.assertItemsEqual(test_tags2, self.posts.get_other_tags(post_key1.id()))
 
-    def test_find_tags_to_be_deleted_from_an_edited_post(self):
-        category_key = self.categories.add("category")
-
+    def test_find_modified_tags(self):
         test_existing_tags = ["a new tag", "a new new tag"]
         editing_tags1 = ["a new tag 1", "a new new tag 2"]
         editing_tags2 = ["a new tag 1", "a new tag"]
 
-        # scenario to delete all tags "a new tag", "a new new tag"
-        tags_to_be_removed = find_tags_to_be_deleted_from_an_edited_post(editing_tags1, test_existing_tags)
-        self.assertItemsEqual(tags_to_be_removed,  test_existing_tags)
+        modified_tags = find_modified_tags(editing_tags1, test_existing_tags)
+        self.assertItemsEqual(modified_tags,  editing_tags1)
 
-        # scenario to delete one tag "a new new tag"
-        tags_to_be_removed = find_tags_to_be_deleted_from_an_edited_post(editing_tags2, test_existing_tags)
-        self.assertItemsEqual(tags_to_be_removed, ["a new new tag"])
+        modified_tags = find_modified_tags(editing_tags2, test_existing_tags)
+        self.assertItemsEqual(modified_tags,  ["a new tag 1"])
 
+    def test_find_tags_to_be_deleted(self):
+        category_key = self.categories.add("category")
+
+        other_tags = ["a new tag 3", "a new new tag"]
+        test_existing_tags = ["a new tag", "a new new tag"]
+        editing_tags1 = ["a new tag 1", "a new new tag 2"]
+        editing_tags2 = ["a new tag 1", "a new tag"]
+
+        # scenario to delete tags "a new tag",
+        non_modified_tags = set(editing_tags1) & set(test_existing_tags)
+
+        tags_to_be_removed = find_tags_to_be_removed(test_existing_tags, non_modified_tags, other_tags)
+        self.assertItemsEqual(tags_to_be_removed, ["a new tag"])
+
+        # scenario to delete all tags
+        non_modified_tags = set(editing_tags1) & set(test_existing_tags)
+        tags_to_be_removed = find_tags_to_be_removed(test_existing_tags, non_modified_tags, [])
+        self.assertItemsEqual(tags_to_be_removed, test_existing_tags)
         # scenario not to delete any tag
-        tags_to_be_removed = find_tags_to_be_deleted_from_an_edited_post(test_existing_tags, test_existing_tags)
+        tags_to_be_removed = find_tags_to_be_removed(test_existing_tags, [], test_existing_tags)
         self.assertItemsEqual(tags_to_be_removed, [])
 
     def test_find_tags_to_be_added_from_an_edited_post(self):
@@ -161,15 +174,15 @@ class TestModels(BlogTestBase):
         self.posts.add("a title", "body text", category_key, tag_keys)
 
         # scenario to add all tags "a new tag", "a new new tag"
-        tags_to_be_added = find_tags_to_added_from_an_edited_post(editing_tags1, test_existing_tags)
+        tags_to_be_added = find_modified_tags(editing_tags1, test_existing_tags)
         self.assertItemsEqual(tags_to_be_added,  editing_tags1)
 
         # scenario to add one tag "a new tag 1"
-        tags_to_be_added = find_tags_to_added_from_an_edited_post(editing_tags2, test_existing_tags)
+        tags_to_be_added = find_modified_tags(editing_tags2, test_existing_tags)
         self.assertItemsEqual(tags_to_be_added, ["a new tag 1"])
 
         # scenario not to delete any tag
-        tags_to_be_added= find_tags_to_added_from_an_edited_post(test_existing_tags, test_existing_tags)
+        tags_to_be_added= find_modified_tags(test_existing_tags, test_existing_tags)
         self.assertItemsEqual(tags_to_be_added, [])
 
     def test_edit_post(self):
@@ -199,35 +212,24 @@ class TestModels(BlogTestBase):
         self.posts.delete(post_key)
         self.assertItemsEqual(self.posts, [])
 
-    def test_find_new_post_tags(self):
+    def test_find_tags_to_be_added(self):
 
-        category_key = self.categories.add("category")
 
         test_existing_tags = ["a new tag", "a new new tag"]
         editing_tags = ["a new tag 1", "a new new tag 2"]
         editing_tags2 = ["a new tag", "a new new tag 2"]
 
-        tag_keys = self.tags.add(test_existing_tags)
+        non_modified_tags = set(editing_tags) & set(test_existing_tags)
+        tags_to_be_added = find_tags_to_be_added(editing_tags, non_modified_tags, test_existing_tags)
 
-        post_key = self.posts.add("a title", "body text", category_key, tag_keys)
-        updating_post = post_key.get()
-        existing_tags = self.posts.get_tags()
-        old_post_tags = updating_post.get_tag_names()
+        # scenario to add all tags "a new tag 1", "a new new tag 2"
+        self.assertItemsEqual(editing_tags, tags_to_be_added)
 
-        tags_to_be_deleted = find_tags_to_be_deleted_from_an_edited_post(editing_tags, old_post_tags)
-        tags_to_be_added = find_tags_to_added_from_an_edited_post(editing_tags, old_post_tags )
+        # scenario to add one tag "a new new tag 2"
+        non_modified_tags = set(editing_tags2) & set(test_existing_tags)
+        tags_to_be_added = find_tags_to_be_added(editing_tags2, non_modified_tags, test_existing_tags)
 
-        # scenario to add all tags "a new tag 1", "a new new tag 1"
-        new_post_tags = find_new_post_tags(old_post_tags, tags_to_be_deleted, tags_to_be_added)
-
-        self.assertItemsEqual(editing_tags, new_post_tags)
-
-        # scenario to add one tag "a new tag 1"
-        tags_to_be_deleted = find_tags_to_be_deleted_from_an_edited_post(editing_tags2, old_post_tags)
-        tags_to_be_added = find_tags_to_added_from_an_edited_post(editing_tags2, old_post_tags )
-        new_post_tags = find_new_post_tags(old_post_tags, tags_to_be_deleted, tags_to_be_added)
-
-        self.assertItemsEqual(editing_tags2, new_post_tags)
+        self.assertItemsEqual(["a new new tag 2"], tags_to_be_added)
 
     def test_to_json_of_posts(self):
         category_key1 = self.categories.add("category 1")
@@ -299,13 +301,6 @@ class TestModels(BlogTestBase):
         # test exception
         with self.assertRaises(LookupError):
             self.posts.get_by_title("a non existent title")
-
-    def test_find_non_used_tags(self):
-        remaining_tags = ["tag1", "tag2"]
-        test_tags = ["tag1", "tag3"]
-
-        non_used_tags = find_non_used_tags(test_tags, remaining_tags)
-        self.assertItemsEqual(non_used_tags, ["tag3"])
 
     def test_get_names_from_tags(self):
         test_tags = ["a new tag", "a new new tag"]

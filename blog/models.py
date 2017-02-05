@@ -58,7 +58,7 @@ class BlogPost(ndb.Model):
         self.put()
 
     def get_tag_names(self):
-        return [tag_key.get().tag for tag_key in self.tags if self.tags]
+        return [tag_key.get().tag for tag_key in self.tags if self.tags and tag_key.get()]
 
     def _pre_put_hook(self):
         self.title = self.title.lstrip().rstrip()
@@ -196,7 +196,7 @@ class Tags(BlogList, JsonMixin):
        # self._tags = BlogList.retrieve_from_memcache("TAGS_CACHE")
        # if not self._tags:
         self._tags = list(Tag.query())
-        self._populate_memcache()
+       # self._populate_memcache()
 
     def __contains__(self, raw_tag):
         if self._tags:
