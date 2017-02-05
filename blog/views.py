@@ -22,8 +22,7 @@ from jinja2.environment import Environment
 from random import randint
 from itertools import chain
 from forms import PostForm
-from utils import find_tags_to_be_deleted_from_an_edited_post, find_tags_to_added_from_an_edited_post, \
-                  find_new_post_tags, find_non_used_tags
+from utils import find_modified_tags, find_tags_to_be_removed, find_tags_to_be_added
 
 KEY="posts"
 TAG="tags"
@@ -618,8 +617,8 @@ def main():
         raw_summary = raw_post["summary"]
 
         existing_tags = posts.get_tags()
-        new_tags_to_added = find_tags_to_added_from_an_edited_post(editing_tags, existing_tags)
-        logging.info("new post was submitted with tags {} new {}".format(existing_tags, new_tags_to_added))
+        new_tags_to_added = find_modified_tags(editing_tags, existing_tags)
+
 
         tag_keys = tags.add(new_tags_to_added)
 
@@ -673,28 +672,23 @@ def edit_post(id):
         raw_category = request.json['category']
         editing_tags = request.json['tags']
 
-        existing_tags = posts.get_tags()
-        old_post_tags = updating_post.get_tag_names()
-        # find first new tags and unused tags
-        tags_to_be_deleted = find_tags_to_be_deleted_from_an_edited_post(editing_tags, existing_tags)
-        tags_to_be_added = find_tags_to_added_from_an_edited_post(editing_tags, existing_tags)
-
-        tags.add(tags_to_be_added)
-
         remaining_tags = posts.get_other_tags(int(id))
 
-        new_post_tags = find_new_post_tags(old_post_tags, tags_to_be_deleted, tags_to_be_added)
+        old_post_tags = updating_post.get_tag_names()
 
-        non_used_tags = find_non_used_tags(tags_to_be_deleted, remaining_tags)
+        non_modified_tags = set(editing_tags) & set(old_post_tags )
 
-        tags.delete(non_used_tags)
+        tags_to_be_removed = find_tags_to_be_removed(old_post_tags, non_modified_tags, remaining_tags)
+        tags_to_be_added = find_tags_to_be_added(editing_tags, non_modified_tags, remaining_tags)
 
-        tags_keys = tags.get_keys(new_post_tags)
+        tags.add(tags_to_be_added)
+        tags.delete(tags_to_be_removed)
+
+        tags_keys = tags.get_keys(editing_tags)
 
         updating_post.edit(title, body, datetime.now(), tags_keys, categories.get_key(raw_category))
 
         posts.update()
-        tag_names = tags.get_names()
 
         post_tag_names = updating_post.get_tag_names()
 
@@ -721,7 +715,7 @@ def delete_post(id):
 
         post_tags = updating_post.get_tag_names()
 
-        non_used_tags = find_non_used_tags(post_tags, remaining_tags)
+        non_used_tags = find_modified_tags(post_tags, remaining_tags)
 
         posts.delete(updating_post.key)
         tags.delete(non_used_tags)

@@ -10,8 +10,8 @@ from google.appengine.api import users
 from google.appengine.ext import ndb
 from blog.forms import PostForm
 from blog.models import Tags, Posts, Categories, BlogPost
-from blog.utils import find_tags_to_be_deleted_from_an_edited_post, find_non_used_tags, \
-    find_tags_to_added_from_an_edited_post, find_new_post_tags
+from blog.utils import find_modified_tags
+
 from . import BlogTestBase
 
 class TestViews(BlogTestBase):
@@ -303,6 +303,19 @@ class TestViews(BlogTestBase):
         response = self.client.get(url_for("get_post", id=post_key.id()))
 
         self.assertDictEqual({u"msg": u"OK", u"posts": data}, response.json)
+
+    def test_add_post(self):
+
+        existing_tags = [u"a new tag", u"a new new tag"]
+
+        json_data = {'category': 'category', 'tags': existing_tags, "summary": "this is a summary",
+                     'title': 'a title', 'body': 'body text'}
+        response = self.client.post(url_for('main'), content_type='application/json',
+                                   data=json.dumps(json_data))
+        self.posts.update()
+
+        self.assertDictEqual({u"msg": u"OK", u"id": u"4", u"tags": existing_tags}, response.json)
+
 
     def test_edit_post(self):
 
