@@ -358,10 +358,26 @@ class TestViews(BlogTestBase):
 
         existing_tag_keys = self.tags.add(existing_tags)
 
-        post_key = self.posts.add("about", "body text", category_key, existing_tag_keys, "this is a summary")
-        post = self.posts.get_by_title("about")
+        self.posts.add("about", "body text", category_key, existing_tag_keys, "this is a summary")
 
-        self.assertEqual(post.key, post_key)
+        requested_post = self.posts.get_by_title('about')
+
+        response = self.client.get(url_for('aboutpage'))
+
+        passed_days, remaining_days = calculate_work_date_stats()
+
+        if self.posts:
+            posts_json = self.posts.to_json()
+            site_updated = find_update_of_site(self.posts[len(self.posts) - 1])
+        else:
+            site_updated = 'NA'
+            posts_json = []
+        rendered_template = render_template('about.html',user_status=users.is_current_user_admin(),
+                                            siteupdated=site_updated,\
+                           daysleft=remaining_days,dayspassed=passed_days,Post=requested_post,
+                           codeversion=CODEVERSION)
+
+        self.assertEqualHTML(rendered_template.decode('utf8'), response.data.decode('utf8'))
 
 if __name__ == '__main__':
     unittest.main()
