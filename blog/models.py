@@ -125,6 +125,15 @@ class Posts(BlogList, JsonMixin):
         return False
 
     def add(self, raw_title, raw_body, category_key, tags_ids, summary=None):
+        """
+        
+        :param raw_title:
+        :param raw_body:
+        :param category_key:
+        :param tags_ids:
+        :param summary:
+        :return:
+        """
         post_key = BlogPost(title=raw_title,
                             body=raw_body,
                             category=category_key,
