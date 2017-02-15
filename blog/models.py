@@ -126,13 +126,14 @@ class Posts(BlogList, JsonMixin):
 
     def add(self, raw_title, raw_body, category_key, tags_ids, summary=None):
         """
-        
+            adds a post to the list of current posts
+            and updates search index
         :param raw_title:
         :param raw_body:
         :param category_key:
         :param tags_ids:
         :param summary:
-        :return:
+        :return: key of the added post
         """
         post_key = BlogPost(title=raw_title,
                             body=raw_body,
