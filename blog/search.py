@@ -26,16 +26,25 @@ def delete_document(document_ids):
     doc_index.remove(document_ids)
 
 
-
+def update_search_index(doc_id, title, body, summary, category, timestamp):
+    document = create_document(doc_id, title, body, summary, category, timestamp)
+    add_document_to_index(document)
     
-def create_document(doc_id,title, body, category, timestamp):
+def create_document(doc_id, title, body, summary, category, timestamp):
     return search.Document(doc_id=str(doc_id),
         fields=[search.TextField(name='title', value=title),
                 search.TextField(name='body', value=body),
+                search.TextField(name='summary', value=summary),
                 search.TextField(name='category', value=category),
                 search.DateField(name='date', value=timestamp)])
     
 
+def add_document_to_index(document):
+    try:
+        index = search.Index(name=_INDEX_NAME)
+        index.put(document)
+    except search.Error:
+        logging.exception('Search Indexing failed')
 
 
 def delete_all_in_index():
