@@ -383,8 +383,6 @@ def edit_post(id):
 
         updating_post.edit(title, body, datetime.now(), tags_keys, categories.get_key(raw_category))
 
-        posts.update()
-
         post_tag_names = updating_post.get_tag_names()
 
         data.append(

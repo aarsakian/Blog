@@ -25,6 +25,7 @@ class TestModels(BlogTestBase):
 
         self.testbed.init_user_stub()
 
+        self.testbed.init_search_stub(enable=True)
         # Clear ndb's in-context cache between tests.
         # This prevents data from leaking between tests.
         # Alternatively, you could disable caching by
@@ -347,6 +348,15 @@ class TestModels(BlogTestBase):
         filtered_posts = self.posts.filter_by_tag("a new tag")
         self.assertItemsEqual(self.posts.posts, filtered_posts)
 
+    def test_get_category(self):
+        category_key = self.categories.add("category")
+        test_tags = ["a new tag", "a new new tag"]
+        new_tag_keys = self.tags.add(test_tags)
+        post_key = self.posts.add("a title", "body text", category_key, new_tag_keys)
+
+        post = BlogPost.get(post_key.id())
+
+        self.assertEqual("category", post.get_category())
 
 
 if __name__ == '__main__':

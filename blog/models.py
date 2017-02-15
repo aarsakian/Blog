@@ -2,7 +2,7 @@ import logging
 from google.appengine.ext import ndb
 from google.appengine.api import memcache, search
 
-from search import update_search_index
+from search import add_document_in_search_index, delete_document
 
 
 POSTS_INDEX = "posts_idx"
@@ -42,6 +42,10 @@ class BlogPost(ndb.Model):
 
         return post
 
+    @property
+    def id(self):
+        return self.key.id()
+
     def to_json(self):
         """creates json based structure"""
         post_dict = self.to_dict()
@@ -57,6 +61,8 @@ class BlogPost(ndb.Model):
         self.tags = tags
         self.category = category
         self.put()
+        add_document_in_search_index(self.id, self.title, self.body, self.summary,
+                                        self.get_category(), self.timestamp)
 
     def get_tag_names(self):
         return [tag_key.get().tag for tag_key in self.tags if self.tags and tag_key.get()]
@@ -96,10 +102,7 @@ class Posts(BlogList, JsonMixin):
     """
 
     def __init__(self):
-       # self._posts = BlogList.retrieve_from_memcache("POSTS_CACHE")
-        #if not self._posts:
-            self._posts = list(BlogPost.query().order(-BlogPost.timestamp))
-            self._populate_memcache()
+        self._posts = list(BlogPost.query().order(-BlogPost.timestamp))
 
     @property
     def posts(self):
@@ -129,7 +132,7 @@ class Posts(BlogList, JsonMixin):
                             summary=summary).put()
         post = post_key.get()
         self._posts.append(post)
-        update_search_index(post.id(), post.title, post.body, post.summary,
+        add_document_in_search_index(post.id, post.title, post.body, post.summary,
                         post.get_category(), post.timestamp)
 
         return post_key
@@ -148,6 +151,7 @@ class Posts(BlogList, JsonMixin):
         post = post_key.get()
         [self._posts.pop(post_idx) for post_idx, post in enumerate(self._posts) if post.key == post_key]
         post.key.delete()
+        delete_document(post.id)
 
     def get_by_title(self, title):
         for post in self._posts:
@@ -221,10 +225,7 @@ class Tags(BlogList, JsonMixin):
 class Categories(BlogList):
 
     def __init__(self):
-       # self._categories = BlogList.retrieve_from_memcache("CATEGORIES_CACHE")
-       # if not self._categories:
         self._categories = list(Category.query())
-        self._populate_memcache()
 
     def __contains__(self, raw_category):
         if self._categories:

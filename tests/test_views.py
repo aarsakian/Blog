@@ -312,7 +312,6 @@ class TestViews(BlogTestBase):
                      'title': 'a title', 'body': 'body text'}
         response = self.client.post(url_for('main'), content_type='application/json',
                                    data=json.dumps(json_data))
-        self.posts.update()
 
         self.assertDictEqual({u"msg": u"OK", u"id": u"4", u"tags": existing_tags}, response.json)
 
