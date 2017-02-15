@@ -2,11 +2,11 @@ import logging, json
 from blog import app
 from models import Posts, Tags, Categories
 from flask import render_template,request,jsonify,redirect,url_for, Markup
-from google.appengine.ext import ndb
+
 from google.appengine.api import memcache,search
 from models import BlogPost,Tag,Category
-from datetime import date
-from search import query_options,_INDEX_NAME,delete_document, delete_all_in_index
+
+from search import query_options,_INDEX_NAME
 try:
     from simplejson import loads,dumps
 except ImportError:
@@ -213,38 +213,8 @@ def get_all_posts_with_requested_tag(posts_json, tags, categories, siteupdated, 
                            daysleft=remaining_days,dayspassed=passed_days,tags=tags,categories=categories,
                            posts=posts.to_json(),
                            codeversion=CODEVERSION, form=form)
-    # if users.is_current_user_admin() and request.method=="DELETE":
-    #
-    #     apost=APost(id=id)
-    #     apost.delete()
-    #     return jsonify(msg="OK")
-    #
-    # elif users.is_current_user_admin() and request.method=="PUT":
-    #     title=request.json['title']
-    #     body=request.json['body']
-    #     date=request.json['date']
-    #     category=request.json['category']
-    #     posttags=request.json['tags']
-    #     apost=APost(title,body,date,category,posttags,id)
-    #     (data,returnedTags)=apost.update()
-    #     return jsonify(msg="OK",tags=returnedTags,posts=data)
-    #
-    # if tag!=None:
-    #     if request.method=="GET":
-    #
-    #         data=action.getall(tagname=tag)
-    #         return  jsonify(msg="OK",posts=data,type="tag")
-    #
-    #
-    # else:
-    #     tagss=[]
-    #
-    #     [tagss.append([Tag.tag,Tag.key.id()]) for Tag in a.tags]
-    #     tags=map(lambda tag:{"tag":tag[0],"id":tag[1]} ,tagss)
-     
-      
-  
-   #     return jsonify(msg="OK",tags=tags,header="My Tags used",type="tags")
+
+
 
 @app.route('/categories/<catname>/<id>',methods=['DELETE','PUT'])
 @app.route('/categories/<catname>',methods=['GET','POST'])
@@ -652,7 +622,6 @@ def searchsite():
 
         if results:
             for scored_document in results:
-                print (scored_document.fields)
                 data.append({scored_document.fields[0].name:scored_document.fields[0].value,\
                              scored_document.fields[1].name:scored_document.fields[1].value,\
                              scored_document.fields[2].name:scored_document.fields[2].value,\
@@ -662,7 +631,7 @@ def searchsite():
 
         # process scored_document
     except search.Error:
-        data.append('Search failed')
+        logging.error("Search Failed")
 
     return jsonify(data=data)
 
