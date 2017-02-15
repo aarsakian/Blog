@@ -232,7 +232,7 @@ class TestViews(BlogTestBase):
 
         related_posts = []
 
-        response = self.client.get(url_for('view_a_post', year=current_post.timestamp.year,
+        response = self.client.get(url_for('view_a_post', category="category", year=current_post.timestamp.year,
                                            month=current_post.timestamp.month, title="a title"))
         for post in self.posts:
             if post.key != current_post.key:
@@ -350,7 +350,18 @@ class TestViews(BlogTestBase):
 
         self.assertDictEqual({u"msg": u"OK", u"posts": data}, response.json)
 
+    def test_about_page(self):
 
+        category_key = self.categories.add("category")
+
+        existing_tags = ["a new tag", "a new new tag"]
+
+        existing_tag_keys = self.tags.add(existing_tags)
+
+        post_key = self.posts.add("about", "body text", category_key, existing_tag_keys, "this is a summary")
+        post = self.posts.get_by_title("about")
+
+        self.assertEqual(post.key, post_key)
 
 if __name__ == '__main__':
     unittest.main()

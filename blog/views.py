@@ -151,17 +151,17 @@ def searchresults(posts,tags,categories,action,siteupdated,daysleft,tz,dayspasse
 @app.route('/built with',methods=['GET'])
 @app.route('/about',methods=['GET'])
 @boilercode
-def aboutpage(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed,data=None):
+def aboutpage(posts_json, tags, categories, siteupdated, passed_days,
+                    remaining_days, postkey=None):
     
-    
-    aboutpost=[p for p in posts if p.title.find("About")!=-1][0]
+    posts = Posts()
+    requested_post = posts.get_by_title("about")
 
     if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))    
-    
-    
 
     return render_template('about.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
-                           daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,Post=aboutpost,codeversion=CODEVERSION)
+                           daysleft=remaining_days,dayspassed=passed_days,Post=requested_post,
+                           codeversion=CODEVERSION)
 
 
 @app.route('/', methods=['GET'])

@@ -23,7 +23,7 @@ _INDEX_NAME="posts"
 def delete_document(document_id):
     """deletes document from search index"""
     doc_index = search.Index(name=_INDEX_NAME)
-    doc_index.delete(document_id)
+    doc_index.delete(str(document_id))
 
 
 def add_document_in_search_index(doc_id, title, body, summary, category, timestamp):
