@@ -561,8 +561,8 @@ def action(id=None):
 
 
 #@app.route('/random',methods=['GET'])
-@app.route('/<year>/<month>/<title>', methods=['GET'])
-def view_a_post(year, month, title):
+@app.route('/<category>/<year>/<month>/<title>', methods=['GET'])
+def view_a_post(category, year, month, title):
     passed_days, remaining_days = calculate_work_date_stats()
 
     posts = Posts()
