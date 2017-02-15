@@ -1,6 +1,6 @@
 import logging
 from google.appengine.ext import ndb
-from google.appengine.api import memcache, search
+from google.appengine.api import memcache
 
 from search import add_document_in_search_index, delete_document
 
@@ -61,11 +61,13 @@ class BlogPost(ndb.Model):
         self.tags = tags
         self.category = category
         self.put()
-        add_document_in_search_index(self.id, self.title, self.body, self.summary,
-                                        self.get_category(), self.timestamp)
+        add_document_in_search_index(self.id, self.title, self.body,
+                                     self.summary, self.get_category(),
+                                     self.timestamp)
 
     def get_tag_names(self):
-        return [tag_key.get().tag for tag_key in self.tags if self.tags and tag_key.get()]
+        return [tag_key.get().tag for tag_key in self.tags
+                if self.tags and tag_key.get()]
 
     def get_category(self):
         return self.category.get().category
@@ -84,8 +86,6 @@ class BlogList(list):
     @classmethod
     def get_attr(cls):
         return str(cls.__name__.lower())
-
-
 
 
 class JsonMixin:
@@ -132,8 +132,9 @@ class Posts(BlogList, JsonMixin):
                             summary=summary).put()
         post = post_key.get()
         self._posts.append(post)
-        add_document_in_search_index(post.id, post.title, post.body, post.summary,
-                        post.get_category(), post.timestamp)
+        add_document_in_search_index(post.id, post.title, post.body,
+                                     post.summary, post.get_category(),
+                                     post.timestamp)
 
         return post_key
 
@@ -144,12 +145,13 @@ class Posts(BlogList, JsonMixin):
 
     def get_other_tags(self, post_id):
         other_tags = []
-        [other_tags.extend(post.get_tag_names()) for post in self._posts if post.key.id() != post_id]
+        [other_tags.extend(post.get_tag_names())
+         for post in self._posts if post.key.id() != post_id]
         return other_tags
 
     def delete(self, post_key):
-        post = post_key.get()
-        [self._posts.pop(post_idx) for post_idx, post in enumerate(self._posts) if post.key == post_key]
+        [self._posts.pop(post_idx) for post_idx, post
+         in enumerate(self._posts) if post.key == post_key]
         post.key.delete()
         delete_document(post.id)
 
@@ -245,7 +247,8 @@ class Categories(BlogList):
 
     def get_key(self, raw_category):
         logging.info("{} {}".format(raw_category, len(self._categories)))
-        return [category.key for category in self._categories if category.category == raw_category][0]
+        return [category.key for category in self._categories
+                if category.category == raw_category][0]
 
     def delete(self, category_for_deletion):
         for cat_idx, category in enumerate(self._categories):
@@ -253,4 +256,3 @@ class Categories(BlogList):
                 category.key.delete()
                 self._categories.pop(cat_idx)
                 self.delete(category_for_deletion)
-
