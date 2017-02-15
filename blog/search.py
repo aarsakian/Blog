@@ -20,16 +20,17 @@ query_options = search.QueryOptions(
 
 _INDEX_NAME="posts"
 
-def delete_document(document_ids):
+def delete_document(document_id):
     """deletes document from search index"""
     doc_index = search.Index(name=_INDEX_NAME)
-    doc_index.remove(document_ids)
+    doc_index.delete(document_id)
 
 
-def update_search_index(doc_id, title, body, summary, category, timestamp):
+def add_document_in_search_index(doc_id, title, body, summary, category, timestamp):
     document = create_document(doc_id, title, body, summary, category, timestamp)
     add_document_to_index(document)
-    
+
+
 def create_document(doc_id, title, body, summary, category, timestamp):
     return search.Document(doc_id=str(doc_id),
         fields=[search.TextField(name='title', value=title),
