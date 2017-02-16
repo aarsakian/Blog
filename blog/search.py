@@ -48,6 +48,19 @@ def add_document_to_index(document):
         logging.exception('Search Indexing failed')
 
 
+def query_search_index(query_string):
+    try:
+        query = search.Query(query_string=query_string, options=query_options)
+
+        index = search.Index(name=_INDEX_NAME)
+        return index.search(query)
+
+        # process scored_document
+    except search.Error:
+        logging.error("Search Failed")
+        raise search.Error
+
+
 def delete_all_in_index():
     index = search.Index(name=_INDEX_NAME)
     # index.get_range by returns up to 100 documents at a time, so we must

@@ -1,13 +1,10 @@
-import unittest
+
 from datetime import datetime
-from flask_testing import TestCase
-from flask import url_for, render_template
-from blog import app
-from blog.views import CODEVERSION, fetch_everything_from_db, calculate_work_date_stats, find_update_of_site
+
 from google.appengine.ext import testbed
-from google.appengine.api import users
+
 from google.appengine.ext import ndb
-from blog.forms import PostForm
+
 from blog.models import Tags, Posts, Categories, BlogPost
 from blog.utils import find_modified_tags, find_tags_to_be_added, find_tags_to_be_removed
 from . import BlogTestBase
@@ -357,7 +354,3 @@ class TestModels(BlogTestBase):
         post = BlogPost.get(post_key.id())
 
         self.assertEqual("category", post.get_category())
-
-
-if __name__ == '__main__':
-    unittest.main()
