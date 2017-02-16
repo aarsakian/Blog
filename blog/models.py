@@ -256,6 +256,11 @@ class Categories(BlogList):
         return category_key
 
     def get_key(self, raw_category):
+        """
+            get key from a category string
+        :param raw_category:
+        :return: the key of the requested category
+        """
         logging.info("{} {}".format(raw_category, len(self._categories)))
         return [category.key for category in self._categories
                 if category.category == raw_category][0]
