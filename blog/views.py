@@ -6,7 +6,7 @@ from flask import render_template,request,jsonify,redirect,url_for, Markup
 from google.appengine.api import memcache,search
 from models import BlogPost,Tag,Category
 
-from search import query_options,_INDEX_NAME
+from search import query_options,_INDEX_NAME, query_search_index
 try:
     from simplejson import loads,dumps
 except ImportError:
@@ -612,26 +612,20 @@ def recent_feed():
 
 @app.route('/search',methods=['GET'])
 def searchsite():
-    data = []
+
     query_string = request.args.get('query', '')
     try:
-        query = search.Query(query_string=query_string, options=query_options)
-
-        index = search.Index(name=_INDEX_NAME)
-        results = index.search(query)
-
-        if results:
-            for scored_document in results:
-                data.append({scored_document.fields[0].name:scored_document.fields[0].value,\
-                             scored_document.fields[1].name:scored_document.fields[1].value,\
-                             scored_document.fields[2].name:scored_document.fields[2].value,\
-                             scored_document.fields[3].name:scored_document.fields[3].value,\
-                             "year":scored_document.fields[4].value.year,\
-                             "month":scored_document.fields[4].value.month})
-
-        # process scored_document
-    except search.Error:
-        logging.error("Search Failed")
+        data = []
+        results = query_search_index(query_string)
+        for scored_document in results:
+            data.append({scored_document.fields[0].name:scored_document.fields[0].value,\
+                         scored_document.fields[1].name:scored_document.fields[1].value,\
+                         scored_document.fields[2].name:scored_document.fields[2].value,\
+                         scored_document.fields[3].name:scored_document.fields[3].value,\
+                         "year":scored_document.fields[4].value.year,\
+                         "month":scored_document.fields[4].value.month})
+    except Exception:
+        data = "something went wrong while searching"
 
     return jsonify(data=data)
 
