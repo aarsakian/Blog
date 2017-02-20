@@ -220,7 +220,7 @@
 		<script src="{{url_for('static', filename='js/libs/backbone.pagedcollection.js')}}"></script>
 		<script src="{{url_for('static', filename='js/app.js')}}"></script>
 		<script src="{{url_for('static', filename='js/libs/handlebars-1.0.0.beta.6.js')}}"></script>
-		<script src="{{url_for('static', filename='js/models/user.js')}}"></script>
+		<!--<script src="{{url_for('static', filename='js/models/user.js')}}"></script>
 		<script src="{{url_for('static', filename='js/models/post.js')}}"></script>
 		<script src="{{url_for('static', filename='js/models/tag.js')}}"></script>
 		<script src="{{url_for('static', filename='js/models/category.js')}}"></script>
@@ -228,11 +228,14 @@
 		<script src="{{url_for('static', filename='js/views/tagview.js')}}"></script>
 		<script src="{{url_for('static', filename='js/views/categoryview.js')}}"></script>
 		<script src="{{url_for('static', filename='js/views/postview.js')}}"></script>
-		<script src="{{url_for('static', filename='js/views/aboutview.js')}}"></script>
-		<script src="{{url_for('static', filename='js/collections/postscollection.js')}}"></script>
-		<script src="{{url_for('static', filename='js/collections/tagscollection.js')}}"></script>
-		<script src="{{url_for('static', filename='js/collections/categoriescollection.js')}}"></script>
+		<script src="{{url_for('static', filename='js/views/aboutview.js')}}"></script>-->
+		<script src="{{url_for('static', filename='js/apps/posts/collections/postscollection.js')}}"></script>
+		<!--<script src="{{url_for('static', filename='js/collections/tagscollection.js')}}"></script>
+		<script src="{{url_for('static', filename='js/collections/categoriescollection.js')}}"></script>-->
+		<script src="{{url_for('static', filename='js/apps/posts/app.js')}}"></script>
 		<script src="{{url_for('static', filename='js/routes.js')}}"></script>
+	
+		<script type="text/javascript">App.start();</script>
 	{%endif%}
 	</body>
 	
