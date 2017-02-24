@@ -1,0 +1,200 @@
+'use strict';
+
+class PostListLayout extends Layout {
+  constructor(options) {
+    super(options);
+    this.template = '#post-list-layout';
+    this.regions = {
+      actions: '.actions-bar-container',
+      list: '.list-container',
+      postform: '.post-form-container'
+    };
+  }
+
+  
+}
+
+class PostListActionBar extends ModelView {
+  constructor(options) {
+    super(options);
+    this.template = '#tags-template';
+  }
+
+  get className() {
+    return 'options-bar col-xs-12';
+  }
+
+  get events() {
+    return {
+      'click button': 'createContact'
+    };
+  }
+
+  createContact() {
+    App.router.navigate('contacts/new', true);
+  }
+}
+
+
+class PostListView extends CollectionView {
+  constructor(options) {
+    super(options);
+    this.modelView = PostListItemView;
+  }
+
+  get className() {
+    return 'post-list';
+  }
+  
+  get events() {
+
+    return {
+    }
+  }
+  
+}
+
+
+class PostListItemView extends ModelView {
+  constructor(options) {
+    super(options);
+    this.template = '#post-list-item';
+  }
+
+  get className() {
+    return 'col-xs-12 col-sm-6 col-md-3';
+  }
+
+  get events() {
+    return {
+      'click #delete': 'deletePost',
+      'click #view': 'viewPost'
+    };
+  }
+
+  initialize(options) {
+    this.listenTo(options.model, 'change', this.render);
+  }
+
+  deleteContact() {
+    this.trigger('contact:delete', this.model);
+  }
+
+  viewContact() {
+    var contactId = this.model.get('id');
+    App.router.navigate(`edit/${postId}`, true);
+  }
+}
+
+
+
+class PostList {
+  constructor(options) {
+    // Region where the application will be placed
+    this.region = options.region;
+
+    // Allow subapplication to listen and trigger events,
+    // useful for subapplication wide events
+    _.extend(this, Backbone.Events);
+  }
+
+  showList(posts) {
+    // Create the views
+    var layout = new PostListLayout();
+    var actionBar = new PostListActionBar();
+    var postList = new PostListView({collection: posts});
+
+    var postForm = new PostForm({model: new Post()});
+
+    // Show the views
+    this.region.show(layout);
+    layout.getRegion('actions').show(actionBar);
+    layout.getRegion('list').show(postList);
+    layout.getRegion('postform').show(postForm);
+
+    this.listenTo(postList, 'post:contact:delete', this.deletePost);
+    this.listenTo(postForm, 'form:save', this.savePost);
+    this.listenTo(postForm, 'form:cancel', this.cancel);
+    
+  }
+  
+  addPost(view, post) {
+    
+    
+  }
+  
+  
+  deletePost(view, contact) {
+    App.askConfirmation('The contact will be deleted', (isConfirm) => {
+      if (isConfirm) {
+        contact.destroy({
+          success() {
+            App.notifySuccess('Contact was deleted');
+          },
+          error() {
+            App.notifyError('Ooops... Something went wrong');
+          }
+        });
+      }
+    });
+  }
+
+  // Close any active view and remove event listeners
+  // to prevent zombie functions
+  destroy() {
+    this.region.remove();
+    this.stopListening();
+  }
+}
+
+
+class PostForm extends ModelView {
+  constructor(options) {
+    super(options);
+    this.template = '#post-form';
+  }
+
+  get className() {
+    return 'form-horizontal';
+  }
+
+  get events() {
+    return {
+      'click #submit': 'savePost',
+      'click #cancel': 'cancel'
+    };
+  }
+
+  serializeData() {
+    return _.defaults(this.model.toJSON());
+  }
+
+  savePost(event) {
+    event.preventDefault();
+    this.model.set('body',this.getInput('#new-post-body'));
+    this.model.set('title',this.getInput('#new-post-title'));
+    this.model.set('summary',this.getInput('#new-post-summary'));
+    this.model.set('tags',this.getInput('#new-post-tags'));
+    this.model.set('category',this.getInput('#new-post-category'));
+    this.model.save(null, {
+      success() {
+        // Redirect user to contact list after save
+     //   App.notifySuccess('Contact saved');
+    
+      },
+      error() {
+        // Show error message if something goes wrong
+     //   App.notifyError('Something goes wrong');
+      }
+    });
+    this.trigger('form:save', this.model); 
+  }
+  
+  getInput(selector) {
+    return this.$el.find(selector).val();
+  }
+
+  cancel() {
+    this.trigger('form:cancel');
+  }
+}
