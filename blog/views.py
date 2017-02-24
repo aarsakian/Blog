@@ -258,7 +258,7 @@ def catposts(catname,id=None):
         return jsonify(msg="OK",tags=returnedTags,posts=data)
         
         
-@app.route('/posts',methods=['POST','GET'])
+@app.route('/api/posts',methods=['POST','GET'])
 def main():    
 
 
