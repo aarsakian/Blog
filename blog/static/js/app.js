@@ -6,20 +6,19 @@ var App = {
    
   start() {
     // Initialize all available routes
-      console.log(this.Routers);
     _.each(_.values(this.Routers), function(Router) {
       new Router();
     });
 
     // The common place where sub-applications will be showed
-   App.el = "#bd";
+    App.mainRegion = new Region({el: '#bd'});
 
     // Create a global router to enable sub-applications to redirect to
     // other urls
   
-   Backbone.history.start({pushState: true});
+    Backbone.history.start({pushState: true});
    
-   this.alterPostForm();
+    this.alterPostForm();
   },
    
    
