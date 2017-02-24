@@ -9,7 +9,7 @@ h3{font-size:1.1em;}
 ul li{display:inline;list-style-type:none;}
 
 /*Structure*/
-#bd,#hd,#ft{
+#bd,#hd,#ft, #ld{
    width:900px;
   
 }
