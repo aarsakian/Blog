@@ -2,12 +2,12 @@
 
 class PostsApp {
    constructor(options){
+    this.region = options.region;
    }
 
    showPostsList() {
       App.trigger('loading:start');
       App.trigger('app:posts:started');
-      
       new PostCollection().fetch({
          success: (collection) => {
             this.showPosts(collection);
@@ -24,7 +24,8 @@ class PostsApp {
    
    showPosts(posts) {
       var postList = this.startController(PostList);
-      postList.showList(contacts);
+
+      postList.showList(posts);
    }
    
    startController(Controller) {
