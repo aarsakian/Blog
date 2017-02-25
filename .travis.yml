@@ -19,4 +19,4 @@ install:
   - "pip install -r requirements.txt"
 
 # command to run tests
-script: nosetests --with-gae
+script: nosetests --with-gae  --gae-lib-root=google_appengine/ tests/test_views.py
