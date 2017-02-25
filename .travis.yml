@@ -2,6 +2,18 @@ language: python
 python:
   - "2.7"
 
+
+env:
+  global:
+  - API_CHECK=https://appengine.google.com/api/updatecheck
+before_script:
+# Idea from https://blog.bekt.net/p/gae-sdk/ retrieve GAE SDK
+- SDK_VERSION=$(curl -s $API_CHECK | awk -F '\"' '/release/ {print $2}')
+- SDK_URL=https://storage.googleapis.com/appengine-sdks/featured/google_appengine_$SDK_VERSION.zip
+- wget $SDK_URL -nv
+- unzip -q google_appengine_$SDK_VERSION.zip
+
+
 # command to install dependencies 
 install:
   - "pip install -r requirements.txt"
