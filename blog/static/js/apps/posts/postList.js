@@ -81,7 +81,8 @@ class PostListItemView extends ModelView {
   }
 
   viewContact() {
-    var contactId = this.model.get('id');
+    var postId = this.model.get('id');
+    console.log("PSOT"+postID);
     App.router.navigate(`edit/${postId}`, true);
   }
 }
@@ -174,24 +175,36 @@ class PostForm extends ModelView {
     this.model.set('body',this.getInput('#new-post-body'));
     this.model.set('title',this.getInput('#new-post-title'));
     this.model.set('summary',this.getInput('#new-post-summary'));
-    this.model.set('tags',this.getInput('#new-post-tags'));
+    this.model.set('tags',this.getInput('#new-post-tags').split(','));
     this.model.set('category',this.getInput('#new-post-category'));
     this.model.save(null, {
-      success() {
+      success(model, response, options) {
         // Redirect user to contact list after save
      //   App.notifySuccess('Contact saved');
-    
+        console.log(App.router);
+        App.router.navigate('edit', true);
+     
       },
       error() {
         // Show error message if something goes wrong
      //   App.notifyError('Something goes wrong');
       }
     });
-    this.trigger('form:save', this.model); 
+    this.trigger('form:save', this.model);
+    this.clearForm();
   }
-  
+  clearForm() {
+    this.clearInput("#new-post-body");
+    this.clearInput('#new-post-tags');
+    this.clearInput("#new-post-title");
+    this.clearInput("#new-post-category");
+    this.clearInput("#new-post-summary");
+  }
   getInput(selector) {
     return this.$el.find(selector).val();
+  }
+  clearInput(selector) {
+    this.$el.find(selector).val('');
   }
 
   cancel() {
