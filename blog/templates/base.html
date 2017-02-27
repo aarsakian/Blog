@@ -103,15 +103,11 @@
 		</script>
 		<!-- post area-->
 		<script id="post-list-item" type="text/x-handlebars-template">
-			
-			<div  data-key={{'{{'}}key{{'}}'}} class="postKey">
+			<div  data-id={{'{{'}}id{{'}}'}} class="postKey">
 				<div class="postTitle">
-					<h3
-						{{'{{'}}#if user_admin{{'}}'}}
-					 
-							class="title editable admin">
+					<h3 <!--{{'{{'}}#if user_admin{{'}}'}} class="title editable admin">
 					   
-						{{'{{'}}/if{{'}}'}}
+						{{'{{'}}/if{{'}}'}}-->
 						{{'{{'}}title{{'}}'}}
 					</h3>
 					{{'{{'}}#if user_admin{{'}}'}}
