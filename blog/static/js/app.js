@@ -1,3 +1,14 @@
+var DefaultRouter = Backbone.Router.extend({
+  routes: {
+  
+  },
+
+  // Redirect to contacts app by default
+  defaultRoute() {
+    this.navigate('edit', true);
+  }
+});
+
 
 var App = {
    Models: {},
@@ -15,10 +26,9 @@ var App = {
 
     // Create a global router to enable sub-applications to redirect to
     // other urls
-  
+    App.router = new DefaultRouter();
     Backbone.history.start({pushState: true});
-   
-    this.alterPostForm();
+
   },
    
    
@@ -40,15 +50,15 @@ var App = {
     return this.currentSubapp;
   },
   
-  alterPostForm(){
-      $("form").submit(function(e){
-         e.preventDefault();
-      });
-  }
+  
 }
 
 
-//
+//alterPostForm(){
+     // $("form").submit(function(e){
+       //  e.preventDefault();
+      //});
+//  }
 //(function(){
 //   window.app = {};
 //   app.collections = {};
