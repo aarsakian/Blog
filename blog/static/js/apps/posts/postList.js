@@ -62,7 +62,7 @@ class PostListItemView extends ModelView {
   }
 
   get className() {
-    return 'col-xs-12 col-sm-6 col-md-3';
+    return 'post'; // for each item asssign class
   }
 
   get events() {
