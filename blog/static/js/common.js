@@ -42,6 +42,7 @@ class ModelView extends Backbone.View {
     // Only when model is available
     if (this.model) {
       data = this.model.toJSON();
+      console.log("DATA"+this.model.toJSON().title);
     }
 
     return data;
