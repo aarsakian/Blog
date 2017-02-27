@@ -10,12 +10,13 @@ class Post extends Backbone.Model {
 
   get defaults() {
     return {
-       title:"",
-            body:"body of post",
-            date:"date of the post",
-            updated:"",
-            tags:"",
-            summary:""
+      title:"",
+      body:"body of post",
+      date:"date of the post",
+      updated:"",
+      tags:"",
+      summary:"",
+      id:""
     };
   }
 }

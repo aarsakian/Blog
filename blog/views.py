@@ -267,9 +267,9 @@ def main():
 
         if posts:
 
-            return jsonify(posts=posts.to_json())
+            return jsonify(posts.to_json())
         else:
-            return jsonify(posts=[])
+            return jsonify([])
 
     if users.is_current_user_admin() and request.method == "POST":  #new entity
         posts = Posts()
