@@ -5,6 +5,8 @@ from google.appengine.ext import testbed
 
 from google.appengine.ext import ndb
 
+from google.appengine.api import memcache
+
 from blog.models import Tags, Posts, Categories, BlogPost
 from blog.utils import find_modified_tags, find_tags_to_be_added, find_tags_to_be_removed
 from . import BlogTestBase
@@ -263,21 +265,11 @@ class TestModels(BlogTestBase):
 
         post_key = self.posts.add("a title", "body text", category_key, new_tag_keys)
 
-        posts = Posts.retrieve_from_memcache("POSTS_CACHE")
-        self.assertEqual(posts[0].key, post_key)
+        id = post_key.id()
+        BlogPost.get(id)  # requested a post added to MEMCACHE
 
-        # edit test
-        post = post_key.get()
-
-        new_test_tags = ["a new tag 1", "a new new tag2"]
-        new_tag_keys = self.tags.add(new_test_tags)
-
-        post.edit("a modified title 2", "a modified body text", datetime.now(), new_tag_keys, category_key)
-
-        self.posts.update()
-        posts = Posts.retrieve_from_memcache("POSTS_CACHE")
-        self.assertEqual(posts[0].title, "a modified title 2")
-        self.assertItemsEqual(posts[0].tags, new_tag_keys)
+        memached_post = memcache.get('{}:posts'.format(id))
+        self.assertEqual(memached_post.key, post_key)
 
     def test_get_by_title(self):
         category_key = self.categories.add("category")
