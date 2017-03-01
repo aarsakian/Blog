@@ -17,4 +17,7 @@ install:
   - "pip install -r requirements.txt"
 
 # command to run tests
-script: nosetests --with-gae  --gae-lib-root=google_appengine  tests/test_*
+script: nosetests --with-coverage --with-gae  --gae-lib-root=google_appengine  tests/test_*
+
+after_success:
+- codecov 8b2d5838-2541-4a62-a897-35c9c9cd8d7e
