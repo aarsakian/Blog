@@ -12,10 +12,9 @@ before_script:
 - SDK_URL=https://storage.googleapis.com/appengine-sdks/featured/google_appengine_$SDK_VERSION.zip
 - wget $SDK_URL -nv
 - unzip -q google_appengine_$SDK_VERSION.zip
-- python google_appengine/dev_appserver.py  --skip_sdk_update_check True  . &
 # command to install dependencies 
 install:
   - "pip install -r requirements.txt"
 
 # command to run tests
-script: nosetests --with-gae  --gae-lib-root=google_appengine/ tests/test_views.py
+script: nosetests --with-gae  --gae-lib-root=google_appengine  tests/test_*
