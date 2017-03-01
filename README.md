@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/aarsakian/blog.svg?branch=master)](https://travis-ci.org/aarsakian/blog)
+[![Build Status](https://travis-ci.org/aarsakian/blog.svg?branch=major_rewrite_following_TDD_principles)](https://travis-ci.org/aarsakian/blog)
 
 MyBlog
 ======
