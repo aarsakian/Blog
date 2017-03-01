@@ -9,7 +9,9 @@ NoseGAE==0.5.10
 WTForms==2.1
 Werkzeug==0.11.11
 appdirs==1.4.2
+argparse==1.4.0
 click==6.6
+codecov==2.0.5
 colorama==0.3.7
 configparser==3.5.0
 cov-core==1.15.0
@@ -27,6 +29,7 @@ pyflakes==1.2.3
 pyparsing==2.1.10
 python-termstyle==0.1.10
 rednose==1.2.1
+requests==2.13.0
 selenium==2.53.6
 six==1.10.0
 visitor==0.1.3
