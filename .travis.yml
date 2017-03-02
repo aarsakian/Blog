@@ -8,16 +8,17 @@ env:
   - API_CHECK=https://appengine.google.com/api/updatecheck
 before_script:
 # Idea from https://blog.bekt.net/p/gae-sdk/ retrieve GAE SDK
-- SDK_VERSION=$(curl -s $API_CHECK | awk -F '\"' '/release/ {print $2}')
-- SDK_URL=https://storage.googleapis.com/appengine-sdks/featured/google_appengine_$SDK_VERSION.zip
-- wget $SDK_URL -nv
-- unzip -q google_appengine_$SDK_VERSION.zip
+ - SDK_VERSION=$(curl -s $API_CHECK | awk -F '\"' '/release/ {print $2}')
+ - SDK_URL=https://storage.googleapis.com/appengine-sdks/featured/google_appengine_$SDK_VERSION.zip
+ - wget $SDK_URL -nv
+ - unzip -q google_appengine_$SDK_VERSION.zip
 # command to install dependencies 
 install:
-  - "pip install -r requirements.txt"
+ - "pip install -r requirements.txt"
 
 # command to run tests
-script: nosetests --with-coverage --with-gae  --gae-lib-root=google_appengine  tests/test_*
+script:
+ - nosetests --with-coverage --with-gae  --gae-lib-root=google_appengine  tests/test_*
 
 after_success:
  - codecov
