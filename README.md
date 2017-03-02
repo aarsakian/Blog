@@ -1,4 +1,7 @@
 [![Build Status](https://travis-ci.org/aarsakian/blog.svg?branch=major_rewrite_following_TDD_principles)](https://travis-ci.org/aarsakian/blog)
+[![Code Coverage](https://img.shields.io/codecov/c/github/aarsakian/blog/major_rewrite_following_TDD_principles.svg)](https://codecov.io/github/aarsakian/blog?branch=major_rewrite_following_TDD_principles)
+
+
 ![codecov.io](https://codecov.io/github/aarsakian/blog/branch.svg?branch=major_rewrite_following_TDD_principles)
 MyBlog
 ======
