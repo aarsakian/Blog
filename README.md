@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/aarsakian/blog.svg?branch=master)](https://travis-ci.org/aarsakian/blog)
-
+![codecov.io](https://codecov.io/github/aarsakian/blog/branch.svg?branch=major_rewrite_following_TDD_principles)
 MyBlog
 ======
 
