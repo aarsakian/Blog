@@ -10,7 +10,7 @@ class PostsApp {
       App.trigger('app:posts:started');
       new PostCollection().fetch({
          success: (collection) => {
-            console.log(collection);
+            console.log("FetchING"+collection);
             this.showPosts(collection);
             App.trigger('loading:stop');
          },

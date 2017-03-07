@@ -82,7 +82,6 @@ class PostListItemView extends ModelView {
 
   viewContact() {
     var postId = this.model.get('id');
-    console.log("PSOT"+postID);
     App.router.navigate(`edit/${postId}`, true);
   }
 }
@@ -105,7 +104,8 @@ class PostList {
     var actionBar = new PostListActionBar();
     var postList = new PostListView({collection: posts});
 
-    var postForm = new PostForm({model: new Post()});
+    var postForm = new PostForm({model: new Post(),
+                                collection:posts});
 
     // Show the views
     this.region.show(layout);
@@ -177,12 +177,12 @@ class PostForm extends ModelView {
     this.model.set('summary',this.getInput('#new-post-summary'));
     this.model.set('tags',this.getInput('#new-post-tags').split(','));
     this.model.set('category',this.getInput('#new-post-category'));
+    var collection = this.collection;
     this.model.save(null, {
       success(model, response, options) {
         // Redirect user to contact list after save
-     //   App.notifySuccess('Contact saved');
-        console.log(App.router);
-        App.router.navigate('edit', true);
+     //   App.notifySuccess('Post saved');
+        collection.fetch();
      
       },
       error() {
@@ -190,6 +190,7 @@ class PostForm extends ModelView {
      //   App.notifyError('Something goes wrong');
       }
     });
+   
     this.trigger('form:save', this.model);
     this.clearForm();
   }

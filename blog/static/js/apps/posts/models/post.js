@@ -16,7 +16,6 @@ class Post extends Backbone.Model {
       updated:"",
       tags:"",
       summary:"",
-      id:""
     };
   }
 }
