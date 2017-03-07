@@ -7,18 +7,24 @@ class PostsRouter extends Backbone.Router {
   constructor(options) {
 	super(options);
 	this.routes = {
-    "edit": "startApp",
-	  "tags": "displayPosts",
-	  "edit/:key": "router"
+    'edit': 'startApp',
+	  'tags': 'displayPosts',
+	  'edit/:key': 'editPost'
 	};
     this._bindRoutes();
   }
   
+	editPost(postId) {
+		var app = App.startSubApplication(PostsApp);
+		app.showPostEditor(postId);
+	}
+	
   startApp(){
-		console.log("NEW APP");
     var app = App.startSubApplication(PostsApp);
 		app.showPostsList();
   }
+	
+	
 }
 //(function(){      
 //	  app.routes.Main= Backbone.Router.extend({
