@@ -15,6 +15,7 @@ class PostsRouter extends Backbone.Router {
   }
   
   startApp(){
+		console.log("NEW APP");
     var app = App.startSubApplication(PostsApp);
 		app.showPostsList();
   }
