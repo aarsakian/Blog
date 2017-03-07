@@ -68,7 +68,8 @@ class PostListItemView extends ModelView {
   get events() {
     return {
       'click #delete': 'deletePost',
-      'click #view': 'viewPost'
+      'click #view': 'viewPost',
+      'click .postTitle h3': 'editTitle'
     };
   }
 
@@ -84,6 +85,12 @@ class PostListItemView extends ModelView {
     var postId = this.model.get('id');
     App.router.navigate(`edit/${postId}`, true);
   }
+  
+  editTitle() {
+    this.trigger('edit:title', this.model);
+    
+  }
+
 }
 
 
@@ -103,17 +110,21 @@ class PostList {
     var layout = new PostListLayout();
     var actionBar = new PostListActionBar();
     var postList = new PostListView({collection: posts});
+    
+    var titleForm = new TitleForm();
 
     var postForm = new PostForm({model: new Post(),
                                 collection:posts});
-
+  
     // Show the views
     this.region.show(layout);
     layout.getRegion('actions').show(actionBar);
     layout.getRegion('list').show(postList);
     layout.getRegion('postform').show(postForm);
+    
 
     this.listenTo(postList, 'post:contact:delete', this.deletePost);
+    this.listenTo(postList, 'item:edit:title', this.editTitlePost);
     this.listenTo(postForm, 'form:save', this.savePost);
     this.listenTo(postForm, 'form:cancel', this.cancel);
     
@@ -121,6 +132,11 @@ class PostList {
   
   addPost(view, post) {
     
+    
+  }
+  
+  editTitlePost(view, post) {
+    var title = post.get('title');
     
   }
   
@@ -210,5 +226,20 @@ class PostForm extends ModelView {
 
   cancel() {
     this.trigger('form:cancel');
+  }
+}
+
+
+class TitleForm extends ModelView {
+  constructor(options) {
+    super(options);
+    this.template = '#post-title-input-field';
+  }
+  
+  get events() {
+    return {
+      'click #submit': 'saveTitle',
+      'click #cancel': 'cancel'
+    };
   }
 }

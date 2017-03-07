@@ -29,6 +29,28 @@ class PostsApp {
       postList.showList(posts);
    }
    
+   showPostEditor(postId) {
+      App.trigger('loading:start');
+      App.trigger('app:contacts:started');
+
+      new Post({id: postId}).fetch({
+         success: (model) => {
+        this.showEditor(model);
+        App.trigger('loading:stop');
+      },
+      fail: (collection, response) => {
+        App.trigger('loading:stop');
+        App.trigger('server:error', response);
+      }
+    });
+  }
+  
+   showEditor(post) { 
+      var postditor = this.startController(PostEditor);
+      postEditor.showEditor(post);
+   }
+
+   
    startController(Controller) {
     if (this.currentController &&
         this.currentController instanceof Controller) {
