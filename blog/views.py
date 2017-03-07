@@ -260,7 +260,7 @@ def catposts(catname,id=None):
         
 @app.route('/api/posts',methods=['POST','GET'])
 def main():
-    3
+    
     if request.method=='GET':  #all entitites
         posts = Posts()
 
