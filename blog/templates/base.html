@@ -79,6 +79,12 @@
 			<div class="post-form-container"></div>
 			
     </script>
+	
+	<script id="post-form-layout" type="text/x-handlebars-template"> 
+		<div id="preview-container" class="col-xs-12 col-sm-4 col-md-3"></div>
+		<div class="post-form-container"></div>
+      
+    </script>
     
     
 		<script id="tags-template" type="text/x-handlebars-template">
@@ -108,7 +114,7 @@
 					<h3 <!--{{'{{'}}#if user_admin{{'}}'}} class="title editable admin">
 					   
 						{{'{{'}}/if{{'}}'}}-->
-						{{'{{'}}title{{'}}'}}
+						<a href="edit/{{'{{'}}id{{'}}'}}"> {{'{{'}}title{{'}}'}}</a>
 					</h3>
 				<!-- {{'{{'}}#if user_admin{{'}}'}} -->
 	  
@@ -219,7 +225,9 @@
 		<script src="{{url_for('static', filename='js/views/categoryview.js')}}"></script>
 		<script src="{{url_for('static', filename='js/views/postview.js')}}"></script>
 		<script src="{{url_for('static', filename='js/views/aboutview.js')}}"></script>-->
-    <script src="{{url_for('static', filename='js/apps/posts/postList.js')}}"></script>
+		<script src="{{url_for('static', filename='js/apps/posts/postEditor.js')}}"></script>
+		<script src="{{url_for('static', filename='js/apps/posts/postList.js')}}"></script>
+		
 		<script src="{{url_for('static', filename='js/apps/posts/collections/postscollection.js')}}"></script>
 		<!--<script src="{{url_for('static', filename='js/collections/tagscollection.js')}}"></script>
 		<script src="{{url_for('static', filename='js/collections/categoriescollection.js')}}"></script>-->
