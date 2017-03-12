@@ -32,13 +32,14 @@ class PostsApp {
    showPostEditor(postId) {
       App.trigger('loading:start');
       App.trigger('app:contacts:started');
-
+      
       new Post({id: postId}).fetch({
-         success: (model) => {
-        this.showEditor(model);
-        App.trigger('loading:stop');
+         success: (model) => {     
+            this.showEditor(model);
+            App.trigger('loading:stop');
       },
       fail: (collection, response) => {
+         console.log(postID);
         App.trigger('loading:stop');
         App.trigger('server:error', response);
       }
@@ -46,7 +47,7 @@ class PostsApp {
   }
   
    showEditor(post) { 
-      var postditor = this.startController(PostEditor);
+      var postEditor = this.startController(PostEditor);
       postEditor.showEditor(post);
    }
 

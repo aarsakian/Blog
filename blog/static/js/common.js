@@ -14,6 +14,7 @@ class ModelView extends Backbone.View {
       renderedHtml = this.template(data);
     } else if (_.isString(this.template)) {
       var compiledTemplate = this.compileTemplate();
+      console.log("DA"+data);
       renderedHtml = compiledTemplate(data);
     }
 
