@@ -169,6 +169,7 @@ class PostForm extends ModelView {
   constructor(options) {
     super(options);
     this.template = '#post-form';
+
   }
 
   get className() {

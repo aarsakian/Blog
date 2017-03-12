@@ -16,6 +16,7 @@ class PostsRouter extends Backbone.Router {
   
 	editPost(postId) {
 		var app = App.startSubApplication(PostsApp);
+		
 		app.showPostEditor(postId);
 	}
 	
