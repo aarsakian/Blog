@@ -263,18 +263,18 @@ class TestViews(BlogTestBase):
 
         tag_names = self.tags.get_names()
 
-        data = [{u"title": asked_post.title, u"body": asked_post.body, u"category":
+        data = {u"title": asked_post.title, u"body": asked_post.body, u"category":
             asked_post.category.get().category,
                  u"catid": str(category_key.id()).decode('utf8'), u"id": str(asked_post.key.id()).decode('utf8'), \
                  u"tags": post_tag_names,
                  u"date": asked_post.timestamp.strftime('%a, %d %b %Y %H:%M:%S GMT').decode('utf8')
                     , u"updated":
                      asked_post.updated.strftime('%a, %d %b %Y %H:%M:%S GMT').decode('utf8'),
-                 }]
+                 }
 
         response = self.client.get(url_for("get_post", id=post_key.id()))
 
-        self.assertDictEqual({u"msg": u"OK", u"posts": data}, response.json)
+        self.assertDictEqual(data, response.json)
 
     def test_add_post(self):
 
