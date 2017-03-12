@@ -96,6 +96,7 @@
 {% block new_post %}
  {%if user_status%}
 <script id="post-form" type="text/x-handlebars-template">
+
 	<form class="form form-horizontal" method="post" role="form">
 		{{ form.hidden_tag()}}
 	    {{ wtf.form_errors(form, hiddens="only") }}

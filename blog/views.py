@@ -300,9 +300,9 @@ def main():
         return jsonify(msg="OK", id=str(post_id), tags=editing_tags) ##Needs check
 
 
-@app.route('/posts/<id>', methods=['GET'])
+@app.route('/api/posts/<id>', methods=['GET'])
 def get_post(id):
-    data = []
+
 
     asked_post = BlogPost.get(id)
 
@@ -310,13 +310,12 @@ def get_post(id):
 
     post_tag_names = asked_post.get_tag_names()
 
-    data.append(
-             {"title": asked_post.title, "body": asked_post.body, "category":
+    requested_post =  {"title": asked_post.title, "body": asked_post.body, "category":
                  asked_post.category.get().category,
               "catid":  category_id, "id": str(asked_post.key.id()), \
-              "tags": post_tag_names, "date": asked_post.timestamp,"updated":asked_post.updated})
+              "tags": post_tag_names, "date": asked_post.timestamp,"updated":asked_post.updated}
 
-    return jsonify(msg="OK", posts=data)  # dangerous
+    return jsonify(requested_post)  # dangerous
 
 
 @app.route('/posts/<id>', methods=['PUT'])
