@@ -88,7 +88,8 @@
     
     
 		<script id="tags-template" type="text/x-handlebars-template">
-			   <a class="button taggy" href="/tags#!{{'{{'}}tag{{'}}'}}">{{'{{'}}tag{{'}}'}}</a>
+			
+			 <a class="button taggy" href="/tags#!{{'{{'}}tag{{'}}'}}">{{'{{'}}tag{{'}}'}}</a>
 		</script>
 		
 		<script id="collection-template" type="text/x-handlebars-template">
@@ -167,15 +168,15 @@
 					{{'{{'}}/each{{'}}'}}
 					</div>
 				{{'{{'}}/unless{{'}}'}}
-				{{'{{'}}#if user_admin{{'}}'}}
-					<input  class="post_tag" class="editmode" name="title" placeholder="">
+				
+
 					<div class="btn-group">
-						<button class="edit-title btn"><i class="icon-edit"></i>Edit</button>
+						<button class="edit btn"><i class="icon-edit"></i>Edit</button>
 						<button class="save btn"><i class="icon-save"></i>Save</button>
 						<button class="destroy btn"><i class="icon-remove"></i>Delete</button>
 						<button class="edit-tags btn"><i class="icon-tag"></i>Edit Tags</button>
 					</div>
-				{{'{{'}}/if{{'}}'}}
+			
 						
 			</div><!--closes links-->
 				
