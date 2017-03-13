@@ -45,20 +45,20 @@ class PostEditor {
     layout.getRegion('postform').show(postForm);
   //  layout.getRegion('preview').show(contactPreview);
 
-    this.listenTo(postForm, 'form:save', this.saveContact);
+    this.listenTo(postForm, 'form:save', this.savePost);
     this.listenTo(postForm, 'form:cancel', this.cancel);
   }
 
-  saveContact(contact) {
-    contact.save(null, {
+  savePost(post) {
+    post.save(null, {
       success() {
         // Redirect user to contact list after save
-        App.notifySuccess('Contact saved');
-        App.router.navigate('contacts', true);
+       // App.notifySuccess('Contact saved');
+        App.router.navigate(`edit/${post.id}`, true);
       },
       error() {
         // Show error message if something goes wrong
-        App.notifyError('Something goes wrong');
+    //    App.notifyError('Something goes wrong');
       }
     });
   }
