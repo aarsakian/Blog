@@ -1,6 +1,8 @@
 import unittest
 import json
 import logging
+
+from datetime import datetime
 from flask_testing import TestCase
 from flask import url_for, render_template
 from blog import app
@@ -278,14 +280,18 @@ class TestViews(BlogTestBase):
 
     def test_add_post(self):
 
-        existing_tags = [u"a new tag", u"a new new tag"]
+        existing_tags = [u"a new new tag", u"a new tag"]
 
-        json_data = {'category': 'category', 'tags': existing_tags, "summary": "this is a summary",
-                     'title': 'a title', 'body': 'body text'}
+        json_data = {u'category': u'category', u'tags': existing_tags, u"summary": u"this is a summary",
+                     u'title': u'a title',u'body': u'body text', u'timestamp': datetime.now().
+                strftime('%a, %d %b %Y %H:%M:%S GMT').decode('utf8'),
+                     u'updated': datetime.now().
+                strftime('%a, %d %b %Y %H:%M:%S GMT').decode('utf8')}
+
         response = self.client.post(url_for('main'), content_type='application/json',
                                    data=json.dumps(json_data))
-
-        self.assertDictEqual({u"msg": u"OK", u"id": u"4", u"tags": existing_tags}, response.json)
+        json_data[u"id"] = 4
+        self.assertDictEqual(json_data, response.json)
 
 
     def test_edit_post(self):
@@ -311,16 +317,16 @@ class TestViews(BlogTestBase):
         tag_names = [u"a new tag", u"a new new tag", u"tag to added"]
         post_tag_names = [u"a new tag", u"tag to added"]
 
-        data = [{u"title": updating_post.title, u"body": updating_post.body, u"category":
+        data = {u"title": updating_post.title, u"body": updating_post.body, u"category":
             updating_post.category.get().category,
                  u"catid": str(category_key.id()).decode('utf8'), u"id": str(updating_post.key.id()).decode('utf8'), \
                  u"tags": post_tag_names,
                  u"date": updating_post.timestamp.strftime('%a, %d %b %Y %H:%M:%S GMT').decode('utf8')
                     , u"updated":
                      updating_post.updated.strftime('%a, %d %b %Y %H:%M:%S GMT').decode('utf8'),
-                 }]
+                 }
 
-        self.assertDictEqual({u"msg": u"OK", u"posts": data}, response.json)
+        self.assertDictEqual(data, response.json)
 
     def test_about_page(self):
 

@@ -346,3 +346,15 @@ class TestModels(BlogTestBase):
         post = BlogPost.get(post_key.id())
 
         self.assertEqual("category", post.get_category())
+
+    def test_get_tagnames(self):
+        category_key = self.categories.add("category")
+        test_tags = ["a new tag", "a new new tag"]
+        new_tag_keys = self.tags.add(test_tags)
+        post_key = self.posts.add("a title", "body text", category_key, new_tag_keys)
+
+        post = BlogPost.get(post_key.id())
+
+        tag_names = post.get_tag_names()
+
+        self.assertItemsEqual(test_tags, tag_names)
