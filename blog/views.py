@@ -296,8 +296,8 @@ def main():
                             category_key=category_key,
                             tags_ids=tag_keys,
                             summary=raw_summary).id()
-
-        return jsonify(msg="OK", id=str(post_id), tags=editing_tags) ##Needs check
+        post = BlogPost.get(post_id)
+        return jsonify(post.to_json()) #  Needs check
 
 
 @app.route('/api/posts/<id>', methods=['GET'])
@@ -318,7 +318,7 @@ def get_post(id):
     return jsonify(requested_post)  # dangerous
 
 
-@app.route('/posts/<id>', methods=['PUT'])
+@app.route('/api/posts/<id>', methods=['PUT'])
 def edit_post(id):
     data = []
 
@@ -353,16 +353,15 @@ def edit_post(id):
 
         post_tag_names = updating_post.get_tag_names()
 
-        data.append(
-             {"title": updating_post.title, "body": updating_post.body, "category":
+        modified_post = {"title": updating_post.title, "body": updating_post.body, "category":
                  updating_post.category.get().category,
               "catid": str(categories.get_key(raw_category).id()).decode('utf8'), "id": str(updating_post.key.id()), \
-              "tags": post_tag_names , "date": updating_post.timestamp ,"updated": updating_post.updated})
+              "tags": post_tag_names , "date": updating_post.timestamp ,"updated": updating_post.updated}
 
-        return jsonify(msg="OK", posts=data)  # dangerous
+        return jsonify(modified_post)  # dangerous
 
 
-@app.route('/posts/<id>', methods=['DELETE'])
+@app.route('/api/posts/<id>', methods=['DELETE'])
 def delete_post(id):
 
     if users.is_current_user_admin():
