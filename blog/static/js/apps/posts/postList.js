@@ -67,9 +67,9 @@ class PostListItemView extends ModelView {
 
   get events() {
     return {
-      'click #delete': 'deletePost',
+      'click .destroy': 'deletePost',
       'click #view': 'viewPost',
-      'click .postTitle h3': 'editTitle'
+      'click .edit': 'editPost'
     };
   }
 
@@ -77,18 +77,21 @@ class PostListItemView extends ModelView {
     this.listenTo(options.model, 'change', this.render);
   }
 
-  deleteContact() {
-    this.trigger('contact:delete', this.model);
+  deletePost() {
+    this.trigger('delete', this.model);
   }
 
-  viewContact() {
+  viewPost() {
     var postId = this.model.get('id');
     App.router.navigate(`edit/${postId}`, true);
   }
   
   editTitle() {
-    this.trigger('edit:title', this.model);
-    
+     this.trigger('edit:title', this.model);  
+  }
+  
+  editPost() {
+    this.trigger('edit', this.model);  
   }
 
 }
@@ -123,8 +126,9 @@ class PostList {
     layout.getRegion('postform').show(postForm);
     
 
-    this.listenTo(postList, 'post:contact:delete', this.deletePost);
+    this.listenTo(postList, 'item:delete', this.deletePost);
     this.listenTo(postList, 'item:edit:title', this.editTitlePost);
+    this.listenTo(postList, 'item:edit', this.editPost);
     this.listenTo(postForm, 'form:save', this.savePost);
     this.listenTo(postForm, 'form:cancel', this.cancel);
     
@@ -140,20 +144,24 @@ class PostList {
     
   }
   
+  editPost(view, post) {
+    App.router.navigate(`edit/${post.id}`, true);
+  }
   
-  deletePost(view, contact) {
-    App.askConfirmation('The contact will be deleted', (isConfirm) => {
-      if (isConfirm) {
-        contact.destroy({
+  
+  deletePost(view, post) {
+   // App.askConfirmation('The contact will be deleted', (isConfirm) => {
+    //  if (isConfirm) {
+        post.destroy({
           success() {
-            App.notifySuccess('Contact was deleted');
+           // App.notifySuccess('Contact was deleted');
           },
           error() {
-            App.notifyError('Ooops... Something went wrong');
+          //  App.notifyError('Ooops... Something went wrong');
           }
         });
-      }
-    });
+      //}
+    //});
   }
 
   // Close any active view and remove event listeners
@@ -195,22 +203,25 @@ class PostForm extends ModelView {
     this.model.set('tags',this.getInput('#new-post-tags').split(','));
     this.model.set('category',this.getInput('#new-post-category'));
     var collection = this.collection;
+    var posts = {};
     this.model.save(null, {
       success(model, response, options) {
         // Redirect user to contact list after save
      //   App.notifySuccess('Post saved');
-        collection.fetch();
-     
+        var view = new PostListItemView(model);
+        $(".post-list").append(view.render().el);
+    
       },
       error() {
         // Show error message if something goes wrong
      //   App.notifyError('Something goes wrong');
       }
     });
-   
+
     this.trigger('form:save', this.model);
     this.clearForm();
   }
+  
   clearForm() {
     this.clearInput("#new-post-body");
     this.clearInput('#new-post-tags');

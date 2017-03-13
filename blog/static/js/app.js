@@ -1,12 +1,13 @@
 var DefaultRouter = Backbone.Router.extend({
   routes: {
-  
+     '': 'defaultRoute'
   },
 
   // Redirect to contacts app by default
   defaultRoute() {
     this.navigate('edit', true);
   }
+
 });
 
 
@@ -36,17 +37,20 @@ var App = {
   // current running subapplication and start the asked one
   startSubApplication(SubApplication) {
     // Do not run the same subapplication twice
+   
     if (this.currentSubapp && this.currentSubapp instanceof SubApplication) {
       return this.currentSubapp;
     }
 
     // Destroy any previous subapplication if we can
     if (this.currentSubapp && this.currentSubapp.destroy) {
+      console.log("DESTROYing");
       this.currentSubapp.destroy();
     }
 
     // Run subapplication
     this.currentSubapp = new SubApplication({region: App.mainRegion});
+     console.log(SubApplication+" "+this.currentSubapp instanceof SubApplication);
     return this.currentSubapp;
   },
   
