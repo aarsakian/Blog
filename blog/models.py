@@ -191,7 +191,7 @@ class Tags(BlogList, JsonMixin):
     def __contains__(self, raw_tag):
         if self._tags:
             for tag in self._tags:
-                if tag == raw_tag:
+                if tag.tag == raw_tag:
                     return True
         return False
 
@@ -217,7 +217,6 @@ class Tags(BlogList, JsonMixin):
     def add(self, new_tags):
         new_tags_keys = [Tag(tag=new_tag).put() for new_tag in new_tags]
         self._tags.extend([tag_key.get() for tag_key in new_tags_keys])
-
         return new_tags_keys
 
     def delete(self, tags_for_deletion):
