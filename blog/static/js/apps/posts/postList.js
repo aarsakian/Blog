@@ -173,6 +173,8 @@ class PostList {
 }
 
 
+
+
 class PostForm extends ModelView {
   constructor(options) {
     super(options);
@@ -208,9 +210,9 @@ class PostForm extends ModelView {
       success(model, response, options) {
         // Redirect user to contact list after save
      //   App.notifySuccess('Post saved');
-        var view = new PostListItemView(model);
-        $(".post-list").append(view.render().el);
-    
+        collection.add(model);
+        collection.trigger('add', model);
+      
       },
       error() {
         // Show error message if something goes wrong
@@ -240,7 +242,6 @@ class PostForm extends ModelView {
     this.trigger('form:cancel');
   }
 }
-
 
 class TitleForm extends ModelView {
   constructor(options) {

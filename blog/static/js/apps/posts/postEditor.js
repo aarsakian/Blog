@@ -24,6 +24,44 @@ class PostPreview extends ModelView {
 }
 
 
+
+class EditPostForm extends PostForm {
+  constructor(options) {
+    super(options);
+    
+
+  }
+
+  
+  savePost(event) {
+    event.preventDefault();
+    this.model.set('body',this.getInput('#new-post-body'));
+    this.model.set('title',this.getInput('#new-post-title'));
+    this.model.set('summary',this.getInput('#new-post-summary'));
+    this.model.set('tags',this.getInput('#new-post-tags').split(','));
+    this.model.set('category',this.getInput('#new-post-category'));
+    var collection = this.collection;
+    var posts = {};
+    this.model.save(null, {
+      success(model, response, options) {
+        // Redirect user to contact list after save
+     //   App.notifySuccess('Post saved');
+     
+       
+      },
+      error() {
+        // Show error message if something goes wrong
+     //   App.notifyError('Something goes wrong');
+      }
+    });
+
+    this.trigger('form:save', this.model);
+//    this.clearForm();
+  }
+  
+ 
+}
+
 class PostEditor {
   constructor(options) {
     this.region = options.region;
@@ -37,7 +75,7 @@ class PostEditor {
     // Create the views
     var layout = new ContactFormLayout({model: contact});
 
-    var postForm = new PostForm({model: contact});
+    var postForm = new EditPostForm({model: contact});
  //   var contactPreview = new PostPreview({model: contact});
 
     // Render the views
@@ -54,7 +92,7 @@ class PostEditor {
       success() {
         // Redirect user to contact list after save
        // App.notifySuccess('Contact saved');
-        App.router.navigate(`edit/${post.id}`, true);
+          App.router.navigate(`edit`, true);
       },
       error() {
         // Show error message if something goes wrong
