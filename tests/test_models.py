@@ -358,3 +358,28 @@ class TestModels(BlogTestBase):
         tag_names = post.get_tag_names()
 
         self.assertItemsEqual(test_tags, tag_names)
+
+    def test_posts_contains_a_post(self):
+        category_key = self.categories.add("category")
+        test_tags = ["a new tag", "a new new tag"]
+        new_tag_keys = self.tags.add(test_tags)
+        post_key = self.posts.add("a title", "body text", category_key, new_tag_keys)
+
+        self.assertTrue(post_key in self.posts)
+
+        self.assertFalse("no key" in self.posts)
+
+    def test_tags_contains_a_tag(self):
+        test_tags = ["a new tag", "a new new tag"]
+        self.tags.add(test_tags)
+
+        self.assertTrue(test_tags[0] in self.tags)
+
+        self.assertFalse("dfsd" in self.tags)
+
+    def test_categories_contains_a_category(self):
+        self.categories.add("category")
+
+        self.assertTrue("category" in self.categories)
+
+        self.assertFalse("" in self.categories)
