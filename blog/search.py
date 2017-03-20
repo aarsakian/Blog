@@ -37,7 +37,7 @@ def create_document(doc_id, title, body, summary, category, timestamp):
                 search.TextField(name='body', value=body),
                 search.TextField(name='summary', value=summary),
                 search.TextField(name='category', value=category),
-                search.DateField(name='date', value=timestamp)])
+                search.DateField(name='timestamp', value=timestamp)])
     
 
 def add_document_to_index(document):
@@ -49,6 +49,7 @@ def add_document_to_index(document):
 
 
 def query_search_index(query_string):
+    logging.info(query_string)
     try:
         query = search.Query(query_string=query_string, options=query_options)
 
@@ -60,6 +61,20 @@ def query_search_index(query_string):
         logging.error("Search Failed")
         raise search.Error
 
+
+def jsonify_search_results(results):
+    """transforms results to a json format with post
+    attributes to be digested by the front end views"""
+    data = []
+    for scored_document in results:
+        data.append({"id": scored_document.doc_id,
+                    scored_document.fields[0].name: scored_document.fields[0].value,\
+                    scored_document.fields[1].name: scored_document.fields[1].value,\
+                    scored_document.fields[2].name: scored_document.fields[2].value,\
+                    scored_document.fields[3].name: scored_document.fields[3].value,\
+                    scored_document.fields[4].name: scored_document.fields[4].value})
+
+    return data
 
 def delete_all_in_index():
     index = search.Index(name=_INDEX_NAME)
