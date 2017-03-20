@@ -349,7 +349,7 @@ class TestViews(BlogTestBase):
             site_updated = find_update_of_site(self.posts[len(self.posts) - 1])
         else:
             site_updated = 'NA'
-            posts_json = []
+
         rendered_template = render_template('about.html',user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated,\
                            daysleft=remaining_days,dayspassed=passed_days,Post=requested_post,
@@ -357,3 +357,27 @@ class TestViews(BlogTestBase):
 
         self.assertEqualHTML(rendered_template.decode('utf8'), response.data.decode('utf8'))
 
+    def test_search_results(self):
+
+        category_key = self.categories.add("category")
+
+        existing_tags = ["a new tag", "a new new tag"]
+
+        existing_tag_keys = self.tags.add(existing_tags)
+
+        self.posts.add("about", "body text", category_key, existing_tag_keys, "this is a summary")
+
+        passed_days, remaining_days = calculate_work_date_stats()
+
+        site_updated = find_update_of_site(self.posts[len(self.posts) - 1])
+
+        rendered_template = render_template("index.html",  user_status=users.is_current_user_admin(),
+                                            siteupdated=site_updated, \
+                                            daysleft=remaining_days, dayspassed=passed_days,
+                                            tags=self.tags, categories=self.categories,
+                                            posts=self.posts.to_json(),
+                                            codeversion=CODEVERSION)
+
+        response = self.client.get(url_for('searchresults', q="body"))
+
+        self.assertEqualHTML(rendered_template.decode('utf8'), response.data.decode('utf8'))

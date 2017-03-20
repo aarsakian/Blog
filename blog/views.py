@@ -6,7 +6,7 @@ from flask import render_template,request,jsonify,redirect,url_for, Markup
 from google.appengine.api import memcache,search
 from models import BlogPost,Tag,Category
 
-from search import query_options,_INDEX_NAME, query_search_index
+from search import query_search_index, jsonify_search_results
 try:
     from simplejson import loads,dumps
 except ImportError:
@@ -130,22 +130,18 @@ def tags(posts_json, tags, categories, siteupdated, passed_days,
 
 @app.route('/searchresults',methods=['GET'])
 @boilercode
-def searchresults(posts,tags,categories,action,siteupdated,daysleft,tz,dayspassed,data=None):
-    query=request.args.get('q')
-    logging.info(query)
-    index = search.Index(name=_INDEX_NAME)
+def searchresults(posts_json, tags, categories, siteupdated, passed_days,
+          remaining_days):
+    query_string = request.args.get('q')
+    results = query_search_index(query_string)
 
-    posts=[]
-    results=index.search(query)
-    logging.info([query,results])
     if results:
-        for scored_document in results:
-            posts.append(scored_document.doc_id.get())
-    else:posts=[]
-       
-    return render_template('index.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
-                           daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,tags=tags,categories=categories,\
-                           posts=posts,posts_tags_names=action.posts_tags_dict,codeversion=CODEVERSION)
+        jsonified_results = jsonify_search_results(results)
+
+    return render_template('index.html', user_status=users.is_current_user_admin(), siteupdated=siteupdated, \
+                           daysleft=remaining_days, dayspassed=passed_days, tags=tags, categories=categories,
+                           posts=jsonified_results,
+                           codeversion=CODEVERSION)
 
 
 @app.route('/built with',methods=['GET'])
@@ -612,15 +608,9 @@ def searchsite():
 
     query_string = request.args.get('query', '')
     try:
-        data = []
+
         results = query_search_index(query_string)
-        for scored_document in results:
-            data.append({scored_document.fields[0].name:scored_document.fields[0].value,\
-                         scored_document.fields[1].name:scored_document.fields[1].value,\
-                         scored_document.fields[2].name:scored_document.fields[2].value,\
-                         scored_document.fields[3].name:scored_document.fields[3].value,\
-                         "year":scored_document.fields[4].value.year,\
-                         "month":scored_document.fields[4].value.month})
+        data = jsonify_search_results(results)
     except Exception:
         data = "something went wrong while searching"
 
