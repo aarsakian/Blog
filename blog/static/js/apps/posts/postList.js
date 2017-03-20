@@ -11,29 +11,99 @@ class PostListLayout extends Layout {
     };
   }
 
-  
 }
 
-class PostListActionBar extends ModelView {
+class TagListLayout extends Layout {
   constructor(options) {
     super(options);
-    this.template = '#tags-template';
+    this.template = '#tag-list-layout';
+    this.regions = {
+      list: '.tag-list-container',
+    };
+  }
+}
+
+
+class TagListView extends CollectionView {
+  constructor(options) {
+    super(options);
+    this.modelView = TagListItemView;
   }
 
   get className() {
-    return 'options-bar col-xs-12';
+    return 'tag-list';
+  }
+  
+  get events() {
+
+    return {
+    }
+  }
+  
+}
+
+class TagListItemView extends ModelView {
+  constructor(options) {
+    super(options);
+    this.template = '#tag-list-item';
+  }
+
+  get className() {
+    return 'tag'; // for each item asssign class
   }
 
   get events() {
     return {
-      'click button': 'createContact'
+      'click .destroy': 'deletePost',
+      'click #view': 'viewPost',
+      'click .edit': 'editPost'
     };
   }
 
-  createContact() {
-    App.router.navigate('contacts/new', true);
+  initialize(options) {
+    this.listenTo(options.model, 'change', this.render);
   }
+
+  deletePost() {
+    this.trigger('delete', this.model);
+  }
+
+  viewPost() {
+    var tagId = this.model.get('id');
+    App.router.navigate(`edit/tag/${tagId}`, true);
+  }
+  
+  editTitle() {
+     this.trigger('edit:title', this.model);  
+  }
+  
+  editPost() {
+    this.trigger('edit', this.model);  
+  }
+
 }
+
+
+//class PostListActionBar extends ModelView {
+//  constructor(options) {
+//    super(options);
+//    this.template = '#actions-template';
+//  }
+//
+//  get className() {
+//    return 'options-bar col-xs-12';
+//  }
+//
+//  get events() {
+//    return {
+//      'click button': 'createContact'
+//    };
+//  }
+//
+//  createContact() {
+//    App.router.navigate('contacts/new', true);
+//  }
+//}
 
 
 class PostListView extends CollectionView {
@@ -75,6 +145,9 @@ class PostListItemView extends ModelView {
 
   initialize(options) {
     this.listenTo(options.model, 'change', this.render);
+           
+  //  var tagList = new TagListView({collection: options.model.tags});
+ 
   }
 
   deletePost() {
@@ -111,8 +184,9 @@ class PostList {
   showList(posts) {
     // Create the views
     var layout = new PostListLayout();
-    var actionBar = new PostListActionBar();
-    var postList = new PostListView({collection: posts});
+    
+    //var actionBar = new PostListActionBar();
+ 
     
     var titleForm = new TitleForm();
 
@@ -121,11 +195,16 @@ class PostList {
   
     // Show the views
     this.region.show(layout);
-    layout.getRegion('actions').show(actionBar);
+    
+ 
+  //  layout.getRegion('actions').show(actionBar);
+    var postList = new PostListView({collection:
+                                    posts});
+    
     layout.getRegion('list').show(postList);
     layout.getRegion('postform').show(postForm);
     
-
+    
     this.listenTo(postList, 'item:delete', this.deletePost);
     this.listenTo(postList, 'item:edit:title', this.editTitlePost);
     this.listenTo(postList, 'item:edit', this.editPost);
@@ -206,13 +285,13 @@ class PostForm extends ModelView {
     this.model.set('category',this.getInput('#new-post-category'));
     var collection = this.collection;
     var posts = {};
+    console.log(this.model.cid);
     this.model.save(null, {
       success(model, response, options) {
         // Redirect user to contact list after save
      //   App.notifySuccess('Post saved');
-        collection.add(model);
         collection.trigger('add', model);
-      
+        
       },
       error() {
         // Show error message if something goes wrong
@@ -222,6 +301,8 @@ class PostForm extends ModelView {
 
     this.trigger('form:save', this.model);
     this.clearForm();
+    //clear the model
+    this.model = new Post();
   }
   
   clearForm() {
