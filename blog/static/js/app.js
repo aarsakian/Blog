@@ -44,7 +44,6 @@ var App = {
 
     // Destroy any previous subapplication if we can
     if (this.currentSubapp && this.currentSubapp.destroy) {
-      console.log("DESTROYing");
       this.currentSubapp.destroy();
     }
 
