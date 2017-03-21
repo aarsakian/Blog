@@ -7,10 +7,7 @@ from google.appengine.api import memcache,search
 from models import BlogPost,Tag,Category
 
 from search import query_search_index, jsonify_search_results
-try:
-    from simplejson import loads,dumps
-except ImportError:
-    from json import loads,dumps
+
 from google.appengine.api import users
 from werkzeug.contrib.atom import AtomFeed
 from urlparse import urljoin
@@ -261,10 +258,9 @@ def main():
         posts = Posts()
 
         if posts:
-
             return jsonify(posts.to_json())
         else:
-            return jsonify([])
+            return jsonify({})
 
     if users.is_current_user_admin() and request.method == "POST":  #new entity
         posts = Posts()
