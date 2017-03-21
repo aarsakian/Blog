@@ -2,6 +2,7 @@ import unittest
 import json
 import logging
 
+from freezegun import freeze_time
 from datetime import datetime
 from flask_testing import TestCase
 from flask import url_for, render_template
@@ -281,7 +282,8 @@ class TestViews(BlogTestBase):
     def test_add_post(self):
 
         existing_tags = [u"a new new tag", u"a new tag"]
-
+        freezer = freeze_time("2017-03-20 17:48:18")
+        freezer.start()
         json_data = {u'category': u'category', u'tags': existing_tags, u"summary": u"this is a summary",
                      u'title': u'a title',u'body': u'body text', u'timestamp': datetime.now().
                 strftime('%a, %d %b %Y %H:%M:%S GMT').decode('utf8'),
@@ -292,7 +294,15 @@ class TestViews(BlogTestBase):
                                    data=json.dumps(json_data))
         json_data[u"id"] = 4
         self.assertDictEqual(json_data, response.json)
+        freezer.stop()
 
+    def test_no_post(self):
+
+        json_data = {}
+
+        response = self.client.get(url_for('main'))
+
+        self.assertDictEqual(json_data, response.json)
 
     def test_edit_post(self):
 
