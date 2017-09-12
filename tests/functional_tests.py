@@ -51,67 +51,74 @@ class NewVisitorTest(unittest.TestCase):  #
         # a text field to write down a list of tags
         new_post_tags_field = self.browser.find_element_by_id("new-post-tags")
 
+        summary_field = self.browser.find_element_by_id("new-post-summary")
+
         new_post_title_field.send_keys('my ultimate blog post')
-        new_post_body_textfield.send_keys('introducing TDD requires descipline which is not given')
+        new_post_body_textfield.clear()
+
+        new_post_body_textfield.send_keys('introducing TDD requires discipline which is not given')
 
         new_post_category_field.send_keys('cat1')
 
         new_post_tags_field.send_keys("tag1, tag2")
+
+        summary_field.send_keys("a little summary")
         # There is a submit button to post the article
         self.browser.find_element_by_id("submit").click()
-
-        # I hit submit button and the page updates again, showing my new article
         post_key = ""
 
         try:
-            wait = WebDriverWait(self.browser, 90)
+            wait = WebDriverWait(self.browser, 60)
 
-            title_element = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "title"))).text
-            body_element = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".article p"))).text
+            title_element = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".postTitle h3 a"))).text
+            body_element = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".article"))).text
+
             tags = wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, "tag")))
-            post_id = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "postid")))
-            print "TITLE", title_element, tags[0].text, post_id
+            post_key = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '[data_element="data-id"]'))).text
+
 
         finally:
+
             self.assertEqual(u"my ultimate blog post", title_element)
-            self.assertEqual(u"introducing TDD requires descipline which is not given", body_element)
+            self.assertEqual(u"introducing TDD requires discipline which is not given", body_element)
             [self.assertIn(tag.text, "tag1, tag2") for tag in tags]
-            self.assertNotEqual("", post_id.get_attribute('data-id'))
+            self.assertNotEqual(post_key, "")
 
-    def test_can_view_all_posts_in_landing_page(self):
-        #this is the landing page
-        self.can_login()
-        self.browser.implicitly_wait(1)
-        self.browser.get('http://127.0.0.1:9082/')
 
-    def test_can_add_a_tag_to_a_post(self):
-        # an article has been submitted and I want to add a new tag
-        # locate the tags
-
-        self.can_login()
-        post_field_tags = self.browser.find_elements_by_class_name("tag")
-        try:
-            wait = WebDriverWait(self.browser, 90)
-
-            tags = []
-
-            for tag in post_field_tags:
-                tags.append(tag.text)
-                print len(post_field_tags), tag.text
-            tags.append("tag3")
-            self.browser.find_elements_by_class_name("edit-tags")[0].click()
-        #    self.browser.execute_script("window.addEventListener('"
-        #                            "load', function(){"
-        #                            "document.getElementsByClassName('edit-tags')[0].click();}, false);");
-
-            print (",".join(tags))
-
-            self.browser.find_element_by_id("post_tag").send_keys(",".join(tags))
-          #  after_saved_tags = wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, "tag")))
-
-        finally:
-            pass
-           # [self.assertIn(tag.text, tags) for tag in after_saved_tags]
+    # def test_can_view_all_posts_in_landing_page(self):
+    #     #this is the landing page
+    #     self.can_login()
+    #     self.browser.implicitly_wait(1)
+    #     self.browser.get('http://127.0.0.1:9082/')
+    #
+    # def test_can_add_a_tag_to_a_post(self):
+    #     # an article has been submitted and I want to add a new tag
+    #     # locate the tags
+    #
+    #     self.can_login()
+    #     post_field_tags = self.browser.find_elements_by_class_name("tag")
+    #     try:
+    #         wait = WebDriverWait(self.browser, 90)
+    #
+    #         tags = []
+    #
+    #         for tag in post_field_tags:
+    #             tags.append(tag.text)
+    #             print len(post_field_tags), tag.text
+    #         tags.append("tag3")
+    #         self.browser.find_elements_by_class_name("edit-tags")[0].click()
+    #     #    self.browser.execute_script("window.addEventListener('"
+    #     #                            "load', function(){"
+    #     #                            "document.getElementsByClassName('edit-tags')[0].click();}, false);");
+    #
+    #         print (",".join(tags))
+    #
+    #         self.browser.find_element_by_id("post_tag").send_keys(",".join(tags))
+    #       #  after_saved_tags = wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, "tag")))
+    #
+    #     finally:
+    #         pass
+    #        # [self.assertIn(tag.text, tags) for tag in after_saved_tags]
 
 
 if __name__ == '__main__':  #
