@@ -162,8 +162,8 @@ class Posts(BlogList, JsonMixin):
     def delete(self, post_key):
         [self._posts.pop(post_idx) for post_idx, post
          in enumerate(self._posts) if post.key == post_key]
-        post.key.delete()
-        delete_document(post.id)
+        post_key.delete()
+        delete_document(post_key.id())
 
     def get_by_title(self, title):
         for post in self._posts:
@@ -264,9 +264,7 @@ class Categories(BlogList):
         return [category.key for category in self._categories
                 if category.category == raw_category][0]
 
-    def delete(self, category_for_deletion):
-        for cat_idx, category in enumerate(self._categories):
-            if category.category == category_for_deletion:
-                category.key.delete()
-                self._categories.pop(cat_idx)
-                self.delete(category_for_deletion)
+    def delete(self, category_key):
+        [self._categories.pop(cat_idx) for cat_idx, category
+         in enumerate(self._categories) if category.key == category_key]
+        category_key.delete()

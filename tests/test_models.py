@@ -64,8 +64,8 @@ class TestModels(BlogTestBase):
         self.assertEqual("category", category_key.get().category)
 
     def test_delete_a_category(self):
-        self.categories.add("category")
-        self.categories.delete("category")
+        category_key = self.categories.add("category")
+        self.categories.delete(category_key)
         self.assertItemsEqual([], self.categories)
 
     def test_get_key_of_a_category(self):
