@@ -359,6 +359,8 @@ def delete_post(id):
 
         tags = Tags()
 
+        categories = Categories()
+
         updating_post = BlogPost.get(int(id))
 
         remaining_tags = posts.get_other_tags(int(id))
@@ -366,6 +368,8 @@ def delete_post(id):
         post_tags = updating_post.get_tag_names()
 
         non_used_tags = find_modified_tags(post_tags, remaining_tags)
+
+        categories.delete(updating_post.category)
 
         posts.delete(updating_post.key)
         tags.delete(non_used_tags)
