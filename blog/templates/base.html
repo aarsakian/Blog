@@ -199,6 +199,8 @@
 		<script src="{{url_for('static', filename='js/libs/showdown.js')}}"></script>
 		
 		<script type="text/javascript">
+				if (document.location.hostname == "arsakian.com") {
+
 
 			var _gaq = _gaq || [];
 			_gaq.push(['_setAccount', 'UA-38392254-1']);
@@ -209,6 +211,7 @@
 			  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
 			  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 			})();
+			}else { _gaq = {push: function(arg) {console.log("ga:", arg)}}}
 
 		</script>
 		
@@ -221,7 +224,7 @@
 		<script src="{{url_for('static', filename='js/libs/handlebars-v4.0.5.js')}}"></script>
 		<script src="{{url_for('static', filename='js/common.js')}}"></script>
 		<!--<script src="{{url_for('static', filename='js/models/user.js')}}"></script>-->
-		
+
 		<script src="{{url_for('static', filename='js/apps/posts/models/post.js')}}"></script>
 		<!--<script src="{{url_for('static', filename='js/models/tag.js')}}"></script>
 		<script src="{{url_for('static', filename='js/models/category.js')}}"></script>
@@ -240,7 +243,7 @@
 		<script src="{{url_for('static', filename='js/apps/posts/app.js')}}"></script>
 		<script src="{{url_for('static', filename='js/routes.js')}}"></script>
 		<script src="{{url_for('static', filename='js/apps/posts/postEditor.js')}}"></script>
-	
+
 		<script type="text/javascript">App.start();</script>
 	{%endif%}
 	</body>
