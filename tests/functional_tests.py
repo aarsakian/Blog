@@ -61,19 +61,13 @@ class NewVisitorTest(unittest.TestCase):  #
 
         tags = self.browser.find_elements_by_class_name("tag")
         post_key = self.browser.find_element_by_css_selector("[data-id]").text
-       # print (title_element, body_element, tags)
+        print (title_element, body_element, tags)
         self.assertEqual(u"introducing TDD requires discipline which is not given", body_element)
         [self.assertIn(tag.text, "tag1, tag2") for tag in tags]
         self.assertEqual(u"my ultimate blog post", title_element)
         self.assertNotEqual(post_key, "")
 
-    def test_can_create_a_post_and_retrieve_it_later(self):  #
-        #  after login I am directed to the main page
-        self.can_login()
-        self.browser.get('http://127.0.0.1:9082/edit')
-
-        # I notice the page title and header mention my name and title of my blog
-        self.assertIn('Armen Arsakian personal blog', self.browser.title)
+    def create_a_post(self):
         # A text field for the title
         new_post_title_field = self.browser.find_element_by_id("new-post-title")
         # A text box for the body of the post
@@ -98,6 +92,15 @@ class NewVisitorTest(unittest.TestCase):  #
         # There is a submit button to post the article
         self.browser.find_element_by_id("submit").click()
 
+    def test_can_create_a_post_and_retrieve_it_later(self):  #
+        #  after login I am directed to the main page
+        self.can_login()
+        self.browser.get('http://127.0.0.1:9082/edit')
+
+        # I notice the page title and header mention my name and title of my blog
+        self.assertIn('Armen Arsakian personal blog', self.browser.title)
+
+        self.create_a_post()
         self.wait_to_find_a_post()
 
 
