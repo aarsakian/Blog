@@ -567,7 +567,7 @@ def edit_a_post_view(postkey=None):
 
     passed_days, remaining_days = calculate_work_date_stats()
     siteupdated=""
-    
+
     return render_template('posts.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
                            daysleft=remaining_days,dayspassed=passed_days,
                            codeversion=CODEVERSION, form=form)
