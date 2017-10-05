@@ -39,8 +39,8 @@ def login():
     """
     user = users.get_current_user()
     if not user:
-        return redirect(users.create_login_url('/'))
-    elif users.is_current_user_admin():
+        return redirect(users.create_login_url('/edit'))
+    elif users.is_current_user_admin(): # already logged
         return redirect(url_for('index'))
 
 
@@ -58,8 +58,6 @@ def logout():
 @app.route('/<entity>/user',methods=['GET'])
 @app.route('/user',methods=['GET'])
 def findUser(entity=None):
-    logging.info( users.is_current_user_admin())
- 
     return jsonify(user_status=users.is_current_user_admin())
 
     
@@ -569,6 +567,7 @@ def edit_a_post_view(postkey=None):
 
     passed_days, remaining_days = calculate_work_date_stats()
     siteupdated=""
+    
     return render_template('posts.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
                            daysleft=remaining_days,dayspassed=passed_days,
                            codeversion=CODEVERSION, form=form)
