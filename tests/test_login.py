@@ -25,7 +25,6 @@ class TestLogin(BlogTestBase):
 
     def testLogin(self):
         rv = self.loginUser()
-        self.loginUserGAE(is_admin=True)
 
         self.assertEqualHTML(self.client.get(url_for('index')).data.decode('utf-8'), rv.data.decode('utf-8'))
 
