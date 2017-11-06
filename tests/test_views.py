@@ -14,6 +14,7 @@ from google.appengine.ext import ndb
 from blog.forms import PostForm
 from blog.models import Tags, Posts, Categories, BlogPost
 from blog.utils import find_modified_tags
+from blog.search import query_search_index, jsonify_search_results
 
 from . import BlogTestBase
 
@@ -391,3 +392,21 @@ class TestViews(BlogTestBase):
         response = self.client.get(url_for('searchresults', q="body"))
 
         self.assertEqualHTML(rendered_template.decode('utf8'), response.data.decode('utf8'))
+
+    def test_search_query(self):
+
+        category_key = self.categories.add("category")
+        existing_tags = ["a new tag", "a new new tag"]
+        existing_tag_keys = self.tags.add(existing_tags)
+
+        self.posts.add("about", "body text", category_key, existing_tag_keys, "this is a summary")
+
+        query_string = "body"
+        results = query_search_index(query_string)
+        data = jsonify_search_results(results)
+
+        response = self.client.get(url_for('search', q="body"), content_type='application/json',
+                                   data=json.dumps(json_data))
+        print (response)
+
+        return self.assertDictEqual({"data":data}, response.data)
