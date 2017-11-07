@@ -80,5 +80,5 @@ class TestModels(BlogTestBase):
 
         posts_id = find_posts_from_index(results)
 
-        self.assertItemsEqual(posts_id, [self.document_id])
+        self.assertItemsEqual(posts_id, [int(self.document_id)])
         freezer.stop()
