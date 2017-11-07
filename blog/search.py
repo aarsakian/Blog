@@ -26,18 +26,19 @@ def delete_document(document_id):
     doc_index.delete(str(document_id))
 
 
-def add_document_in_search_index(doc_id, title, body, summary, category, timestamp):
-    document = create_document(doc_id, title, body, summary, category, timestamp)
+def add_document_in_search_index(doc_id, title, body, summary, category, timestamp, tags):
+    document = create_document(doc_id, title, body, summary, category, timestamp, tags)
     add_document_to_index(document)
 
 
-def create_document(doc_id, title, body, summary, category, timestamp):
+def create_document(doc_id, title, body, summary, category, timestamp, tags):
     return search.Document(doc_id=str(doc_id),
         fields=[search.TextField(name='title', value=title),
                 search.TextField(name='body', value=body),
                 search.TextField(name='summary', value=summary),
                 search.TextField(name='category', value=category),
-                search.DateField(name='timestamp', value=timestamp)])
+                search.DateField(name='timestamp', value=timestamp)]
+                + [search.TextField(name='tag',value=tag) for tag in tags])
     
 
 def add_document_to_index(document):
@@ -62,19 +63,12 @@ def query_search_index(query_string):
         raise search.Error
 
 
-def jsonify_search_results(results):
+def find_posts_from_index(results):
     """transforms results to a json format with post
     attributes to be digested by the front end views"""
-    data = []
-    for scored_document in results:
-        data.append({u"id": scored_document.doc_id,
-                    scored_document.fields[0].name: scored_document.fields[0].value,\
-                    scored_document.fields[1].name: scored_document.fields[1].value,\
-                    scored_document.fields[2].name: scored_document.fields[2].value,\
-                    scored_document.fields[3].name: scored_document.fields[3].value,\
-                    scored_document.fields[4].name: scored_document.fields[4].value})
 
-    return data
+    return [ int(scored_document.doc_id) for scored_document in results]
+
 
 def delete_all_in_index():
     index = search.Index(name=_INDEX_NAME)
