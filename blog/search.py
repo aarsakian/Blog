@@ -67,7 +67,7 @@ def jsonify_search_results(results):
     attributes to be digested by the front end views"""
     data = []
     for scored_document in results:
-        data.append({"id": scored_document.doc_id,
+        data.append({u"id": scored_document.doc_id,
                     scored_document.fields[0].name: scored_document.fields[0].value,\
                     scored_document.fields[1].name: scored_document.fields[1].value,\
                     scored_document.fields[2].name: scored_document.fields[2].value,\
