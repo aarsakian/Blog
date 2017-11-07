@@ -2,7 +2,7 @@ import logging
 from google.appengine.ext import ndb
 from google.appengine.api import memcache
 
-from search import add_document_in_search_index, delete_document
+from search import add_document_in_search_index, delete_document, find_posts_from_index
 
 
 POSTS_INDEX = "posts_idx"
@@ -63,7 +63,7 @@ class BlogPost(ndb.Model):
         self.put()
         add_document_in_search_index(self.id, self.title, self.body,
                                      self.summary, self.get_category(),
-                                     self.timestamp)
+                                     self.timestamp, self.get_tag_names())
 
     def get_tag_names(self):
         return [tag_key.get().tag for tag_key in self.tags
@@ -144,7 +144,7 @@ class Posts(BlogList, JsonMixin):
         self._posts.append(post)
         add_document_in_search_index(post.id, post.title, post.body,
                                      post.summary, post.get_category(),
-                                     post.timestamp)
+                                     post.timestamp, post.get_tag_names())
 
         return post_key
 
@@ -177,7 +177,13 @@ class Posts(BlogList, JsonMixin):
             raise LookupError
 
     def filter_by_tag(self, tag):
-        return [post for post in self._posts if tag in post.get_tag_names()]
+        [self._posts.pop(post_idx) for post_idx, post in enumerate(self._posts)
+                if tag not in post.get_tag_names()]
+
+    def filter_matched(self, posts_ids):
+        [self._posts.pop(post_idx) for post_idx, post in enumerate(self._posts)
+         if post.id not in posts_ids]
+
 
 
 class Tags(BlogList, JsonMixin):

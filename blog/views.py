@@ -6,7 +6,7 @@ from flask import render_template,request,jsonify,redirect,url_for, Markup
 from google.appengine.api import memcache,search
 from models import BlogPost,Tag,Category
 
-from search import query_search_index, jsonify_search_results
+from search import query_search_index, find_posts_from_index
 
 from google.appengine.api import users
 from werkzeug.contrib.atom import AtomFeed
@@ -93,14 +93,13 @@ def boilercode(func):
        # recentposts=posts[:3]
 
         if posts:
-            posts_json = posts.to_json()
             site_updated = find_update_of_site(posts[len(posts)-1])
         else:
             site_updated = 'NA'
-            posts_json = []
+
         passed_days, remaining_days = calculate_work_date_stats()
 
-        return func(posts_json, tags, categories, site_updated, passed_days,
+        return func(posts, tags, categories, site_updated, passed_days,
                     remaining_days, *args, **kwargs)
     return wrapper_func
 
@@ -111,13 +110,13 @@ def boilercode(func):
 @app.route('/categories',methods=['GET'])
 @app.route('/tags',methods=['GET'])
 @boilercode
-def tags(posts_json, tags, categories, siteupdated, passed_days,
+def tags(posts, tags, categories, siteupdated, passed_days,
                     remaining_days, postkey=None):
     form = PostForm()
 
     return render_template('posts.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
                            daysleft=remaining_days,dayspassed=passed_days,tags=tags,categories=categories,
-                           posts=posts_json,
+                           posts=posts.to_json(),
                            codeversion=CODEVERSION, form=form)
 
 
@@ -125,27 +124,27 @@ def tags(posts_json, tags, categories, siteupdated, passed_days,
 
 @app.route('/searchresults',methods=['GET'])
 @boilercode
-def searchresults(posts_json, tags, categories, siteupdated, passed_days,
+def searchresults(posts, tags, categories, siteupdated, passed_days,
           remaining_days):
     query_string = request.args.get('q')
     results = query_search_index(query_string)
-
+    form = PostForm()
     if results:
-        jsonified_results = jsonify_search_results(results)
+        posts_ids = find_posts_from_index(results)
+        posts.filter_matched(posts_ids)
 
-    return render_template('index.html', user_status=users.is_current_user_admin(), siteupdated=siteupdated, \
-                           daysleft=remaining_days, dayspassed=passed_days, tags=tags, categories=categories,
-                           posts=jsonified_results,
-                           codeversion=CODEVERSION)
+    return render_template('posts.html', user_status=users.is_current_user_admin(), siteupdated=siteupdated, \
+                           daysleft=remaining_days, dayspassed=passed_days,
+                           posts=posts.to_json(),
+                           codeversion=CODEVERSION, form=form)
 
 
 @app.route('/built with',methods=['GET'])
 @app.route('/about',methods=['GET'])
 @boilercode
-def aboutpage(posts_json, tags, categories, siteupdated, passed_days,
+def aboutpage(posts, tags, categories, siteupdated, passed_days,
                     remaining_days, postkey=None):
-    
-    posts = Posts()
+
     requested_post = posts.get_by_title("about")
 
     if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))    
@@ -156,23 +155,37 @@ def aboutpage(posts_json, tags, categories, siteupdated, passed_days,
 
 
 @app.route('/', methods=['GET'])
+@app.route('/posts/tag/<tag>')
+@app.route('/posts/category/<category>')
 @boilercode
-def index(posts_json, tags, categories, siteupdated, passed_days,
-          remaining_days):
+def index(posts, tags, categories, siteupdated, passed_days,
+          remaining_days, **kwargs):
     """
     general url routing for template usage
     """
 
+    if request.args.get('q'):
+        return redirect(url_for('searchresults', q=request.args.get('q')))
 
-    if request.args.get('q'): return redirect(url_for('searchresults', q=request.args.get('q')))
-    return render_template('index.html', user_status=users.is_current_user_admin(), siteupdated=siteupdated, \
+    if "tag" in kwargs.keys():
+        tag = kwargs["tag"]
+        posts.filter_by_tag(tag)
+
+    if "category" in kwargs.keys():
+        category = kwargs["category"]
+        posts.filter_by_category(category)
+
+    form = PostForm()
+
+    return render_template('posts.html', user_status=users.is_current_user_admin(), siteupdated=siteupdated, \
                            daysleft=remaining_days, dayspassed=passed_days, tags=tags, categories=categories,
-                           posts=posts_json,
-                           codeversion=CODEVERSION)
+                           posts=posts.to_json(),
+                           codeversion=CODEVERSION,
+                           form=form)
 
 @app.route('/archives',methods=['GET'])
 @boilercode
-def archives(posts_json, tags, categories, site_updated, passed_days,
+def archives(posts, tags, categories, site_updated, passed_days,
                     remaining_days):
     """general url routing for template usage"""
 
@@ -182,28 +195,14 @@ def archives(posts_json, tags, categories, site_updated, passed_days,
 
     return render_template('posts.html',user_status=users.is_current_user_admin(),siteupdated=site_updated,\
                            daysleft=remaining_days,dayspassed=passed_days,tags=tags,categories=categories,
-                           posts=posts_json,
+                           posts=posts.to_json(),
                            codeversion=CODEVERSION, form=form)
 
 
 
         
 
-@app.route('/tags/<tag>',methods=['GET'])
-#@app.route('/tags/<tag>/<id>',methods=['DELETE','PUT']) SHOULD GO TO JSON
-@boilercode
-def get_all_posts_with_requested_tag(posts_json, tags, categories, siteupdated, passed_days,
-                    remaining_days,tag):
-    if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
-    posts = Posts ()
-    posts.filter_by_tag(tag)
-    form = PostForm()
 
-
-    return render_template('posts.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
-                           daysleft=remaining_days,dayspassed=passed_days,tags=tags,categories=categories,
-                           posts=posts.to_json(),
-                           codeversion=CODEVERSION, form=form)
 
 
 

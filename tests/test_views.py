@@ -14,7 +14,7 @@ from google.appengine.ext import ndb
 from blog.forms import PostForm
 from blog.models import Tags, Posts, Categories, BlogPost
 from blog.utils import find_modified_tags
-from blog.search import query_search_index, jsonify_search_results
+from blog.search import query_search_index, find_posts_from_index
 
 from . import BlogTestBase
 
@@ -49,11 +49,12 @@ class TestViews(BlogTestBase):
         self.tags = Tags()
         self.categories = Categories()
         self.posts = Posts()
+        self.form = PostForm()
 
     def test_edit_url_resolves_to_edit_page_view(self):
 
         passed_days, remaining_days = calculate_work_date_stats()
-        form = PostForm()
+
 
         response = self.client.get((url_for('tags')))
         if self.posts:
@@ -68,7 +69,7 @@ class TestViews(BlogTestBase):
                                             daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
                                             categories=self.categories,
                                             posts=posts_json,
-                                            codeversion=CODEVERSION, form=form)
+                                            codeversion=CODEVERSION, form=self.form)
 
         self.assertEqualHTML(rendered_template, response.data.decode('utf-8'))
 
@@ -80,7 +81,6 @@ class TestViews(BlogTestBase):
         self.posts.add("a title", "body text", category_key, new_tag_keys, "this is a summary")
 
         passed_days, remaining_days = calculate_work_date_stats()
-        form = PostForm()
 
         response = self.client.get((url_for('tags')))
         if self.posts:
@@ -95,14 +95,14 @@ class TestViews(BlogTestBase):
                                             daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
                                             categories=self.categories,
                                             posts=posts_json,
-                                            codeversion=CODEVERSION, form=form)
+                                            codeversion=CODEVERSION, form=self.form)
 
         self.assertEqualHTML(rendered_template, response.data.decode('utf-8'))
 
     def test_archives_url_resolves_to_archive_page(self):
 
         passed_days, remaining_days = calculate_work_date_stats()
-        form = PostForm()
+        
 
         response = self.client.get((url_for('archives')))
         if self.posts:
@@ -118,7 +118,7 @@ class TestViews(BlogTestBase):
                                             daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
                                             categories=self.categories,
                                             posts=posts_json,
-                                            codeversion=CODEVERSION, form=form, posts_tags_names=post_tag_names)
+                                            codeversion=CODEVERSION, form=self.form, posts_tags_names=post_tag_names)
 
         self.assertEqualHTML(rendered_template, response.data.decode('utf-8'))
 
@@ -130,7 +130,7 @@ class TestViews(BlogTestBase):
         self.posts.add("a title", "body text", category_key, new_tag_keys, "this is a summary")
 
         passed_days, remaining_days = calculate_work_date_stats()
-        form = PostForm()
+        
 
         response = self.client.get((url_for('archives')))
         if self.posts:
@@ -146,7 +146,7 @@ class TestViews(BlogTestBase):
                                             daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
                                             categories=self.categories,
                                             posts=posts_json,
-                                            codeversion=CODEVERSION, form=form, posts_tags_names=post_tag_names)
+                                            codeversion=CODEVERSION, form=self.form, posts_tags_names=post_tag_names)
 
         self.assertEqualHTML(rendered_template, response.data.decode('utf-8'))
 
@@ -156,11 +156,12 @@ class TestViews(BlogTestBase):
 
         response = self.client.get((url_for('index')))  # create a request object
 
-        rendered_template = render_template("index.html", user_status=users.is_current_user_admin(), siteupdated='NA', \
+        rendered_template = render_template("posts.html", user_status=users.is_current_user_admin(), siteupdated='NA', \
                                             daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
                                             categories=self.categories,
                                             posts=self.posts.to_json(),
-                                            codeversion=CODEVERSION)
+                                            codeversion=CODEVERSION,
+                                            form=self.form)
         self.assertEqualHTML(rendered_template, response.data.decode('utf-8'))
 
     def test_index_page_with_content_is_ok(self):
@@ -181,12 +182,12 @@ class TestViews(BlogTestBase):
             site_updated = 'NA'
             posts_json = []
 
-        rendered_template = render_template("index.html", user_status=users.is_current_user_admin(),
+        rendered_template = render_template("posts.html", user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated,
                                             daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
                                             categories=self.categories,
                                             posts=self.posts.to_json(),
-                                            codeversion=CODEVERSION)
+                                            codeversion=CODEVERSION, form=self.form)
         self.assertEqualHTML(rendered_template.decode('utf-8'), response.data.decode('utf-8'))
 
     def test_selected_post_page_returns_correct_html(self):
@@ -231,11 +232,11 @@ class TestViews(BlogTestBase):
 
         response = self.client.get((url_for('index')))  # create a request object
 
-        rendered_template = render_template("index.html", user_status=users.is_current_user_admin(), siteupdated='NA', \
+        rendered_template = render_template("posts.html", user_status=users.is_current_user_admin(), siteupdated='NA', \
                                             daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
                                             categories=self.categories,
                                             posts=self.posts.to_json(),
-                                            codeversion=CODEVERSION)
+                                            codeversion=CODEVERSION, form=self.form)
         self.assertEqualHTML(rendered_template, response.data.decode('utf-8'))
 
     def test_delete_post(self):
@@ -368,7 +369,7 @@ class TestViews(BlogTestBase):
 
         self.assertEqualHTML(rendered_template.decode('utf8'), response.data.decode('utf8'))
 
-    def test_search_results(self):
+    def test_searchresults(self):
 
         category_key = self.categories.add("category")
 
@@ -382,16 +383,15 @@ class TestViews(BlogTestBase):
 
         site_updated = find_update_of_site(self.posts[len(self.posts) - 1])
 
-        rendered_template = render_template("index.html",  user_status=users.is_current_user_admin(),
+        rendered_template = render_template("posts.html",  user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated, \
                                             daysleft=remaining_days, dayspassed=passed_days,
-                                            tags=self.tags, categories=self.categories,
                                             posts=self.posts.to_json(),
-                                            codeversion=CODEVERSION)
+                                            codeversion=CODEVERSION, form=self.form)
 
         response = self.client.get(url_for('searchresults', q="body"))
 
-        self.assertEqualHTML(rendered_template.decode('utf8'), response.data.decode('utf8'))
+        self.assertEqualHTML( response.data.decode('utf8'),rendered_template.decode('utf8'))
 
     def test_search_query(self):
 
@@ -403,9 +403,37 @@ class TestViews(BlogTestBase):
 
         query_string = "body"
         results = query_search_index(query_string)
-        data = jsonify_search_results(results)
-        data[0]["timestamp"] = data[0]["timestamp"].strftime('%a, %d %b %Y %H:%M:%S GMT').decode('utf8')
+        posts_ids = find_posts_from_index(results)
+        self.posts.filter_matched(posts_ids)
 
-        response = self.client.get(url_for('searchsite', query="body"),  content_type='application/json')
+        response = self.client.get(url_for('searchsite', query="body"))
+        print (self.posts.to_json(), response.json)
+        return self.assertDictEqual({u'data':self.posts.to_json()}, response.json)
 
-        return self.assertDictEqual({u"data":data}, response.json)
+    def test_view_filtered_posts_by_tag(self):
+
+        category_key = self.categories.add("category")
+        existing_tags = ["a new tag", "a new new tag"]
+        existing_tag_keys = self.tags.add(existing_tags)
+
+        self.posts.add("about", "body text", category_key, existing_tag_keys)
+
+        second_tags = ["a new second tag", "a new new second tag"]
+        second_tag_keys = self.tags.add(second_tags)
+
+        self.posts.add("about second post", "body secod text", category_key, second_tag_keys)
+
+        self.posts.filter_by_tag('a new tag')
+
+        passed_days, remaining_days = calculate_work_date_stats()
+        site_updated = find_update_of_site(self.posts[len(self.posts) - 1])
+        rendered_template = render_template("posts.html",  user_status=users.is_current_user_admin(),
+                                            siteupdated=site_updated, \
+                                            daysleft=remaining_days, dayspassed=passed_days,
+                                            tags=self.tags, categories=self.categories,
+                                            posts=self.posts.to_json(),
+                                            codeversion=CODEVERSION, form=self.form)
+
+        response = self.client.get(path='/posts/tag/a new tag')
+
+        return self.assertEqualHTML(rendered_template.decode('utf8'), response.data.decode('utf8'))
