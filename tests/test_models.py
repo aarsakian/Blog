@@ -9,6 +9,7 @@ from google.appengine.api import memcache
 
 from blog.models import Tags, Posts, Categories, BlogPost
 from blog.utils import find_modified_tags, find_tags_to_be_added, find_tags_to_be_removed
+
 from . import BlogTestBase
 
 class TestModels(BlogTestBase):
@@ -332,10 +333,15 @@ class TestModels(BlogTestBase):
     def test_filter_posts_by_a_tag(self):
         category_key = self.categories.add("category")
         test_tags = ["a new tag", "a new new tag"]
+        new_test_tags = ["a second tag", "a new second tag"]
         new_tag_keys = self.tags.add(test_tags)
-        self.posts.add("a title", "body text", category_key, new_tag_keys)
-        filtered_posts = self.posts.filter_by_tag("a new tag")
-        self.assertItemsEqual(self.posts.posts, filtered_posts)
+        new_test_tag_keys = self.tags.add(new_test_tags)
+        post_key = self.posts.add("a title", "body text", category_key, new_tag_keys)
+        self.posts.add("a title", "a second body text", category_key, new_test_tag_keys )
+
+        self.posts.filter_by_tag("a new tag")
+
+        self.assertItemsEqual(self.posts, [post_key.get()])
 
     def test_get_category(self):
         category_key = self.categories.add("category")
@@ -383,3 +389,13 @@ class TestModels(BlogTestBase):
         self.assertTrue("category" in self.categories)
 
         self.assertFalse("" in self.categories)
+
+    def test_filter_matched(self):
+        category_key = self.categories.add("category")
+        test_tags = ["a new tag", "a new new tag"]
+        new_tag_keys = self.tags.add(test_tags)
+        post_key = self.posts.add("a title", "body text", category_key, new_tag_keys)
+        self.posts.add("a title", "body sec2 text", category_key, new_tag_keys)
+
+        self.posts.filter_matched([post_key.id()])
+        self.assertItemsEqual(self.posts, [post_key.get()])
