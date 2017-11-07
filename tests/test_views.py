@@ -404,9 +404,8 @@ class TestViews(BlogTestBase):
         query_string = "body"
         results = query_search_index(query_string)
         data = jsonify_search_results(results)
+        data[0]["timestamp"] = data[0]["timestamp"].strftime('%a, %d %b %Y %H:%M:%S GMT').decode('utf8')
 
-        response = self.client.get(url_for('search', q="body"), content_type='application/json',
-                                   data=json.dumps(json_data))
-        print (response)
+        response = self.client.get(url_for('searchsite', query="body"),  content_type='application/json')
 
-        return self.assertDictEqual({"data":data}, response.data)
+        return self.assertDictEqual({u"data":data}, response.json)

@@ -75,7 +75,7 @@ class TestModels(BlogTestBase):
 
         jsonified_results = jsonify_search_results(results)
 
-        correct_jsonified_results = {'id': self.document_id, u'title': u'a title', u'body': u'body test',u'summary':
+        correct_jsonified_results = {u'id': self.document_id, u'title': u'a title', u'body': u'body test',u'summary':
                                      u'a summary', u'category': u'a category', u'timestamp': datetime.now()}
 
         self.assertDictEqual(correct_jsonified_results, jsonified_results[0])
