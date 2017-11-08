@@ -15,3 +15,6 @@ def find_modified_tags(candidate_tags, remaining_tags):
         x = set(remaining_tags) & candidate_tags
     return list(candidate_tags - (set(remaining_tags) & candidate_tags))
 
+
+def datetimeformat(value, format='%H:%M / %A-%B-%Y'):
+    return value.strftime(format)
