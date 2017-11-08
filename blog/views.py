@@ -19,7 +19,7 @@ from jinja2.environment import Environment
 from random import randint
 from itertools import chain
 from forms import PostForm
-from utils import find_modified_tags, find_tags_to_be_removed, find_tags_to_be_added
+from utils import find_modified_tags, find_tags_to_be_removed, find_tags_to_be_added, datetimeformat
 
 KEY="posts"
 TAG="tags"
@@ -63,8 +63,7 @@ def findUser(entity=None):
     
     
 
-def datetimeformat(value, format='%H:%M / %A-%B-%Y'):
-    return value.strftime(format)
+
 
 environment = Environment()
 app.jinja_env.filters['datetimeformat'] = datetimeformat
@@ -608,8 +607,12 @@ def searchsite():
     try:
 
         results = query_search_index(query_string)
-        data = jsonify_search_results(results)
-    except Exception:
+        posts_ids = find_posts_from_index(results)
+        posts = Posts()
+        posts.filter_matched(posts_ids)
+        data = posts.to_json()
+    except Exception as e:
+        print "ERR",e
         data = "something went wrong while searching"
 
     return jsonify(data=data)
