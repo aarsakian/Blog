@@ -33,10 +33,10 @@
 
 					<div class="post col-md-9">
 			    		<div  class="classic">
+							{% set timestamp = Post.timestamp.split('-') %}
 
-
-							<h3 class="editable"><a href="{{Post.category.category}}/{{Post.timestamp|datetimeformat('%Y')}}
-				/{{Post.timestamp|datetimeformat('%m')}}/{{Post.title|trim}}">{{Post.title}}</a></h3>
+							<h3 class="editable"><a href="{{Post.category}}/{{timestamp[-2]}}
+				/{{timestamp[-1]}}/{{Post.title|trim}}">{{Post.title}}</a></h3>
 
 						</div><!--closes post-->
 					</div>
@@ -56,7 +56,7 @@
 							{%endif%}
 
 						</div><!--closes links-->
-					<div class="row" id="date">Created: {{Post.timestamp|datetimeformat('%d %B %Y')}} </div>
+					<div class="row" id="date">Created: {{Post.timestamp}} </div>
 
 		    		</div>
 				</div>
