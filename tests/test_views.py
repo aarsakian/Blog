@@ -407,7 +407,7 @@ class TestViews(BlogTestBase):
         self.posts.filter_matched(posts_ids)
 
         response = self.client.get(url_for('searchsite', query="body"))
-        print (self.posts.to_json(), response.json)
+        print (self.posts.to_json(),"--------vv-v-", response.json)
         return self.assertDictEqual({u'data':self.posts.to_json()}, response.json)
 
     def test_view_filtered_posts_by_tag(self):
