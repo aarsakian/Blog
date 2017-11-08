@@ -13,7 +13,7 @@ from google.appengine.api import users
 from google.appengine.ext import ndb
 from blog.forms import PostForm
 from blog.models import Tags, Posts, Categories, BlogPost
-from blog.utils import find_modified_tags
+from blog.utils import find_modified_tags, datetimeformat
 from blog.search import query_search_index, find_posts_from_index
 
 from . import BlogTestBase
@@ -287,10 +287,10 @@ class TestViews(BlogTestBase):
         freezer = freeze_time("2017-03-20 17:48:18")
         freezer.start()
         json_data = {u'category': u'category', u'tags': existing_tags, u"summary": u"this is a summary",
-                     u'title': u'a title',u'body': u'body text', u'timestamp': datetime.now().
-                strftime('%a, %d %b %Y %H:%M:%S GMT').decode('utf8'),
-                     u'updated': datetime.now().
-                strftime('%a, %d %b %Y %H:%M:%S GMT').decode('utf8')}
+                     u'title': u'a title',u'body': u'body text', u'timestamp': datetimeformat(datetime.now())
+                ,
+                     u'updated': datetimeformat(datetime.now())
+             }
 
         response = self.client.post(url_for('main'), content_type='application/json',
                                    data=json.dumps(json_data))

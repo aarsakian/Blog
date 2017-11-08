@@ -8,7 +8,7 @@ from google.appengine.ext import ndb
 from google.appengine.api import memcache
 
 from blog.models import Tags, Posts, Categories, BlogPost
-from blog.utils import find_modified_tags, find_tags_to_be_added, find_tags_to_be_removed
+from blog.utils import find_modified_tags, find_tags_to_be_added, find_tags_to_be_removed, datetimeformat
 
 from . import BlogTestBase
 
@@ -242,20 +242,20 @@ class TestModels(BlogTestBase):
         post_key1 = self.posts.add("a title", "body text", category_key1, new_tag_keys, "a summary")
         post_key2 = self.posts.add("a new title", "new body text", category_key2, new_tag_keys, "a summary  2")
 
-        json_result = [{'body':  post_key1.get().body, 'category': post_key1.get().category.get().category
-                           , 'updated':
-                        post_key1.get().updated, 'tags':
+        json_result = [{u'body':  post_key1.get().body, u'category': post_key1.get().category.get().category
+                           , u'updated':
+                        datetimeformat(post_key1.get().updated), 'tags':
                         [(post_key1.get().tags[0].get()).tag,  (post_key1.get().tags[1].get()).tag],
-                        'timestamp':  post_key1.get().timestamp,
-                        'title':  post_key1.get().title, 'id': post_key1.get().key.id(),
-                        'summary':post_key1.get().summary},
-                        {'body':  post_key2.get().body, 'category': post_key2.get().category.get().category
-                            , 'updated':
-                        post_key2.get().updated, 'tags':
+                        u'timestamp':  datetimeformat(post_key1.get().timestamp),
+                        u'title':  post_key1.get().title, 'id': post_key1.get().key.id(),
+                        u'summary':post_key1.get().summary},
+                        {u'body':  post_key2.get().body, u'category': post_key2.get().category.get().category
+                            , u'updated':
+                        datetimeformat(post_key2.get().updated), u'tags':
                         [(post_key2.get().tags[0].get()).tag,  (post_key2.get().tags[1].get()).tag],
-                        'timestamp':  post_key2.get().timestamp,
-                        'title':  post_key2.get().title, 'id': post_key2.get().key.id(),
-                         'summary':post_key2.get().summary}]
+                        u'timestamp':  datetimeformat(post_key2.get().timestamp),
+                        u'title':  post_key2.get().title, u'id': post_key2.get().key.id(),
+                        u'summary':post_key2.get().summary}]
         self.assertEqual(json_result, self.posts.to_json())
 
     def test_retrieve_from_memcache(self):
