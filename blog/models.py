@@ -2,8 +2,9 @@ import logging
 from google.appengine.ext import ndb
 from google.appengine.api import memcache
 
-from search import add_document_in_search_index, delete_document, find_posts_from_index
+from utils import datetimeformat
 
+from search import add_document_in_search_index, delete_document, find_posts_from_index
 
 POSTS_INDEX = "posts_idx"
 
@@ -49,10 +50,16 @@ class BlogPost(ndb.Model):
     def to_json(self):
         """creates json based structure"""
         post_dict = self.to_dict()
-        post_dict["id"] = self.key.id()
-        post_dict["tags"] = self.get_tag_names()
-        post_dict["category"] = self.category.get().category
-        return post_dict
+        jsoned_data = {}
+        jsoned_data[u"title"] = post_dict["title"]
+        jsoned_data[u"body"] = post_dict["body"]
+        jsoned_data[u"summary"] = post_dict["summary"]
+        jsoned_data[u"id"] = int(self.key.id())
+        jsoned_data[u"tags"] = self.get_tag_names()
+        jsoned_data[u"category"] = self.category.get().category
+        jsoned_data[u"updated"] = datetimeformat(post_dict["updated"])
+        jsoned_data[u"timestamp"] = datetimeformat(post_dict["timestamp"])
+        return jsoned_data
 
     def edit(self, title, body, updated, tags, category):
         self.title = title
