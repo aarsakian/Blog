@@ -340,6 +340,29 @@ class TestViews(BlogTestBase):
 
         self.assertDictEqual(data, response.json)
 
+    def test_edit_a_post_view(self):
+
+        category_key = self.categories.add("category")
+
+        existing_tags = ["a new tag", "a new new tag"]
+
+        existing_tag_keys = self.tags.add(existing_tags)
+
+        post_key = self.posts.add("a title", "body text", category_key, existing_tag_keys, "this is a summary")
+
+        response = self.client.get(url_for('edit_a_post_view', postkey=post_key))
+
+        site_updated = find_update_of_site(self.posts[len(self.posts) - 1])
+        passed_days, remaining_days = calculate_work_date_stats()
+
+        rendered_template = render_template('posts.html', user_status=users.is_current_user_admin(),
+                                            siteupdated=site_updated, \
+                                            daysleft=remaining_days, dayspassed=passed_days,
+                                            posts=self.posts.to_json(),
+                                            codeversion=CODEVERSION, form=self.form)
+
+        self.assertEqualHTML(rendered_template.decode('utf8'), response.data.decode('utf8'))
+
     def test_about_page(self):
 
         category_key = self.categories.add("category")
@@ -407,7 +430,7 @@ class TestViews(BlogTestBase):
         self.posts.filter_matched(posts_ids)
 
         response = self.client.get(url_for('searchsite', query="body"))
-        print (self.posts.to_json(),"--------vv-v-", response.json)
+
         return self.assertDictEqual({u'data':self.posts.to_json()}, response.json)
 
     def test_view_filtered_posts_by_tag(self):

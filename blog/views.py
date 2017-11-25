@@ -565,13 +565,14 @@ def view_a_post(category, year, month, title):
 @app.route('/edit',methods=['GET'])
 @app.route('/edit/<postkey>',methods=['GET'])
 def edit_a_post_view(postkey=None):
+
     form = PostForm()
-
+    posts = Posts()
     passed_days, remaining_days = calculate_work_date_stats()
-    siteupdated=""
+    site_updated = find_update_of_site(posts[len(posts) - 1])
 
-    return render_template('posts.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
-                           daysleft=remaining_days,dayspassed=passed_days,
+    return render_template('posts.html',user_status=users.is_current_user_admin(),siteupdated=site_updated,\
+                           daysleft=remaining_days,dayspassed=passed_days, posts=posts.to_json(),
                            codeversion=CODEVERSION, form=form)
 
 
