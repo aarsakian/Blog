@@ -27,7 +27,7 @@ CATEGORY="categories"
 CODEVERSION=":v0.7"
 
 headerdict={"machine_learning":"Gaussian Graphical Models","programming":"Programming","about":"About Me"}
-months=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+
 
 
 @app.route('/login', methods=['GET'])
@@ -79,10 +79,6 @@ def calculate_work_date_stats():
     return passed_days, remaining_days
 
 
-def find_update_of_site(last_post):
-    return str(last_post.updated.day)+" "+months[last_post.updated.month]+" "\
-                       +str(last_post.updated.year)
-
 
 def boilercode(func):
     """accepts function as argument enhance with new vars"""
@@ -91,14 +87,10 @@ def boilercode(func):
         posts, tags, categories = fetch_everything_from_db()
        # recentposts=posts[:3]
 
-        if posts:
-            site_updated = find_update_of_site(posts[len(posts)-1])
-        else:
-            site_updated = 'NA'
 
         passed_days, remaining_days = calculate_work_date_stats()
 
-        return func(posts, tags, categories, site_updated, passed_days,
+        return func(posts, tags, categories, passed_days,
                     remaining_days, *args, **kwargs)
     return wrapper_func
 
@@ -109,11 +101,11 @@ def boilercode(func):
 @app.route('/categories',methods=['GET'])
 @app.route('/tags',methods=['GET'])
 @boilercode
-def tags(posts, tags, categories, siteupdated, passed_days,
+def tags(posts, tags, categories, passed_days,
                     remaining_days, postkey=None):
     form = PostForm()
-
-    return render_template('posts.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
+    site_updated = posts.site_last_updated()
+    return render_template('posts.html',user_status=users.is_current_user_admin(),siteupdated=site_updated,\
                            daysleft=remaining_days,dayspassed=passed_days,tags=tags,categories=categories,
                            posts=posts.to_json(),
                            codeversion=CODEVERSION, form=form)
@@ -123,7 +115,7 @@ def tags(posts, tags, categories, siteupdated, passed_days,
 
 @app.route('/searchresults',methods=['GET'])
 @boilercode
-def searchresults(posts, tags, categories, siteupdated, passed_days,
+def searchresults(posts, tags, categories,  passed_days,
           remaining_days):
     query_string = request.args.get('q')
     results = query_search_index(query_string)
@@ -132,7 +124,9 @@ def searchresults(posts, tags, categories, siteupdated, passed_days,
         posts_ids = find_posts_from_index(results)
         posts.filter_matched(posts_ids)
 
-    return render_template('posts.html', user_status=users.is_current_user_admin(), siteupdated=siteupdated, \
+    site_updated = posts.site_last_updated()
+
+    return render_template('posts.html', user_status=users.is_current_user_admin(), siteupdated=site_updated, \
                            daysleft=remaining_days, dayspassed=passed_days,
                            posts=posts.to_json(),
                            codeversion=CODEVERSION, form=form)
@@ -141,14 +135,14 @@ def searchresults(posts, tags, categories, siteupdated, passed_days,
 @app.route('/built with',methods=['GET'])
 @app.route('/about',methods=['GET'])
 @boilercode
-def aboutpage(posts, tags, categories, siteupdated, passed_days,
+def aboutpage(posts, tags, categories, passed_days,
                     remaining_days, postkey=None):
 
     requested_post = posts.get_by_title("about")
 
-    if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))    
-
-    return render_template('about.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
+    if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
+    site_updated = posts.site_last_updated()
+    return render_template('about.html',user_status=users.is_current_user_admin(),siteupdated=site_updated,\
                            daysleft=remaining_days,dayspassed=passed_days,Post=requested_post,
                            codeversion=CODEVERSION)
 
@@ -157,7 +151,7 @@ def aboutpage(posts, tags, categories, siteupdated, passed_days,
 @app.route('/posts/tag/<tag>')
 @app.route('/posts/category/<category>')
 @boilercode
-def index(posts, tags, categories, siteupdated, passed_days,
+def index(posts, tags, categories, passed_days,
           remaining_days, **kwargs):
     """
     general url routing for template usage
@@ -175,8 +169,9 @@ def index(posts, tags, categories, siteupdated, passed_days,
         posts.filter_by_category(category)
 
     form = PostForm()
+    site_updated = posts.site_last_updated()
 
-    return render_template('posts.html', user_status=users.is_current_user_admin(), siteupdated=siteupdated, \
+    return render_template('posts.html', user_status=users.is_current_user_admin(), siteupdated=site_updated, \
                            daysleft=remaining_days, dayspassed=passed_days, tags=tags, categories=categories,
                            posts=posts.to_json(),
                            codeversion=CODEVERSION,
@@ -184,14 +179,14 @@ def index(posts, tags, categories, siteupdated, passed_days,
 
 @app.route('/archives',methods=['GET'])
 @boilercode
-def archives(posts, tags, categories, site_updated, passed_days,
+def archives(posts, tags, categories, passed_days,
                     remaining_days):
     """general url routing for template usage"""
 
     if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
 
     form = PostForm()
-
+    site_updated = posts.site_last_updated()
     return render_template('posts.html',user_status=users.is_current_user_admin(),siteupdated=site_updated,\
                            daysleft=remaining_days,dayspassed=passed_days,tags=tags,categories=categories,
                            posts=posts.to_json(),
@@ -525,22 +520,8 @@ def view_a_post(category, year, month, title):
     passed_days, remaining_days = calculate_work_date_stats()
 
     posts = Posts()
-    tags = Tags()
-    if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
 
-    # if title:
-    #
-    #     current_post = posts.get_by_title(title)
-    #
-    # else:
-    #
-    #     try:
-    #         Post=posts[randint(0,action.nofposts-1)]
-    #     except ValueError:
-    #
-    #         return render_template('singlepost.html',user_status=users.is_current_user_admin(),siteupdated=siteupdated,\
-    #                        daysleft=daysleft,finaldate=tz,dayspassed=dayspassed.days,RelatedPosts=None,\
-    #                        Post=None,codeversion=CODEVERSION)
+    if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
 
     current_post = posts.get_by_title(title)
 
@@ -557,8 +538,9 @@ def view_a_post(category, year, month, title):
                     related_posts.append(post)
 
     category = post.category.get().category
+    site_updated = posts.site_last_updated()
 
-    return render_template('singlepost.html', user_status=users.is_current_user_admin(), siteupdated='NA', \
+    return render_template('singlepost.html', user_status=users.is_current_user_admin(), siteupdated=site_updated, \
                                         daysleft=remaining_days, dayspassed=passed_days, RelatedPosts=related_posts, \
                                         Post=current_post, posttagnames=post_tag_names, category=category)
 
@@ -569,10 +551,9 @@ def edit_a_post_view(postkey=None):
     form = PostForm()
     posts = Posts()
     passed_days, remaining_days = calculate_work_date_stats()
-    site_updated = find_update_of_site(posts[len(posts) - 1])
-
+    site_updated = posts.site_last_updated()
     return render_template('posts.html',user_status=users.is_current_user_admin(),siteupdated=site_updated,\
-                           daysleft=remaining_days,dayspassed=passed_days, posts=posts.to_json(),
+                           daysleft=remaining_days,dayspassed=passed_days,
                            codeversion=CODEVERSION, form=form)
 
 
