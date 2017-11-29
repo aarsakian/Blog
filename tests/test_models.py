@@ -7,6 +7,8 @@ from google.appengine.ext import ndb
 
 from google.appengine.api import memcache
 
+from freezegun import freeze_time
+
 from blog.models import Tags, Posts, Categories, BlogPost
 from blog.utils import find_modified_tags, find_tags_to_be_added, find_tags_to_be_removed, datetimeformat
 
@@ -399,3 +401,18 @@ class TestModels(BlogTestBase):
 
         self.posts.filter_matched([post_key.id()])
         self.assertItemsEqual(self.posts, [post_key.get()])
+
+    def test_site_last_updated(self):
+        freezer = freeze_time("2017-11-29 17:48:18")
+        freezer.start()
+        category_key = self.categories.add("category")
+        test_tags = ["a new tag", "a new new tag"]
+        new_tag_keys = self.tags.add(test_tags)
+        self.posts.add("a title", "body text", category_key, new_tag_keys)
+        self.posts.add("a title", "body sec2 text", category_key, new_tag_keys)
+
+        last_updated = self.posts.site_last_updated()
+        self.assertEqual("Wednesday 29 November 2017", last_updated)
+        freezer.stop()
+
+

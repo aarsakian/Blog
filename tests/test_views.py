@@ -7,7 +7,7 @@ from datetime import datetime
 from flask_testing import TestCase
 from flask import url_for, render_template
 from blog import app
-from blog.views import CODEVERSION, fetch_everything_from_db, calculate_work_date_stats, find_update_of_site
+from blog.views import CODEVERSION, fetch_everything_from_db, calculate_work_date_stats
 from google.appengine.ext import testbed
 from google.appengine.api import users
 from google.appengine.ext import ndb
@@ -57,13 +57,9 @@ class TestViews(BlogTestBase):
 
 
         response = self.client.get((url_for('tags')))
-        if self.posts:
-            posts_json = self.posts.to_json()
-            site_updated = find_update_of_site(self.posts[len(self.posts) - 1])
-        else:
-            site_updated = 'NA'
-            posts_json = []
 
+        site_updated = self.posts.site_last_updated()
+        posts_json = self.posts.to_json()
         rendered_template = render_template('posts.html', user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated, \
                                             daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
@@ -83,13 +79,9 @@ class TestViews(BlogTestBase):
         passed_days, remaining_days = calculate_work_date_stats()
 
         response = self.client.get((url_for('tags')))
-        if self.posts:
-            posts_json = self.posts.to_json()
-            site_updated = find_update_of_site(self.posts[len(self.posts) - 1])
-        else:
-            site_updated = 'NA'
-            posts_json = []
 
+        site_updated = self.posts.site_last_updated()
+        posts_json = self.posts.to_json()
         rendered_template = render_template('posts.html', user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated, \
                                             daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
@@ -105,14 +97,11 @@ class TestViews(BlogTestBase):
         
 
         response = self.client.get((url_for('archives')))
-        if self.posts:
-            posts_json = self.posts.to_json()
-            site_updated = find_update_of_site(self.posts[len(self.posts) - 1])
-        else:
-            site_updated = 'NA'
-            posts_json = []
+
         post_tag_names = self.tags.to_json()
 
+        site_updated = self.posts.site_last_updated()
+        posts_json = self.posts.to_json()
         rendered_template = render_template('posts.html', user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated, \
                                             daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
@@ -133,14 +122,11 @@ class TestViews(BlogTestBase):
         
 
         response = self.client.get((url_for('archives')))
-        if self.posts:
-            posts_json = self.posts.to_json()
-            site_updated = find_update_of_site(self.posts[len(self.posts) - 1])
-        else:
-            site_updated = 'NA'
-            posts_json = []
+
         post_tag_names = self.tags.to_json()
 
+        site_updated = self.posts.site_last_updated()
+        posts_json = self.posts.to_json()
         rendered_template = render_template('posts.html', user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated, \
                                             daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
@@ -155,8 +141,9 @@ class TestViews(BlogTestBase):
         passed_days, remaining_days = calculate_work_date_stats()
 
         response = self.client.get((url_for('index')))  # create a request object
-
-        rendered_template = render_template("posts.html", user_status=users.is_current_user_admin(), siteupdated='NA', \
+        site_updated = self.posts.site_last_updated()
+        rendered_template = render_template("posts.html", user_status=users.is_current_user_admin(),
+                                            siteupdated=site_updated, \
                                             daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
                                             categories=self.categories,
                                             posts=self.posts.to_json(),
@@ -175,12 +162,7 @@ class TestViews(BlogTestBase):
 
         response = self.client.get((url_for('index')))  # create a request object
 
-        if self.posts:
-            posts_json = self.posts.to_json()
-            site_updated = find_update_of_site(self.posts[len(self.posts) - 1])
-        else:
-            site_updated = 'NA'
-            posts_json = []
+        site_updated = self.posts.site_last_updated()
 
         rendered_template = render_template("posts.html", user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated,
@@ -218,9 +200,9 @@ class TestViews(BlogTestBase):
                         related_posts.append(post)
 
         category = post.category.get().category
-
+        site_updated = self.posts.site_last_updated()
         rendered_template = render_template('singlepost.html', user_status=users.is_current_user_admin(),
-                                            siteupdated='NA', \
+                                            siteupdated=site_updated, \
                                             daysleft=remaining_days, dayspassed=passed_days, RelatedPosts=related_posts, \
                                             Post=current_post, posttagnames=post_tag_names, category=category)
 
@@ -231,8 +213,9 @@ class TestViews(BlogTestBase):
         passed_days, remaining_days = calculate_work_date_stats()
 
         response = self.client.get((url_for('index')))  # create a request object
-
-        rendered_template = render_template("posts.html", user_status=users.is_current_user_admin(), siteupdated='NA', \
+        site_updated = self.posts.site_last_updated()
+        rendered_template = render_template("posts.html", user_status=users.is_current_user_admin(),
+                                            siteupdated=site_updated, \
                                             daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
                                             categories=self.categories,
                                             posts=self.posts.to_json(),
@@ -352,13 +335,12 @@ class TestViews(BlogTestBase):
 
         response = self.client.get(url_for('edit_a_post_view', postkey=post_key))
 
-        site_updated = find_update_of_site(self.posts[len(self.posts) - 1])
+        site_updated = self.posts.site_last_updated()
         passed_days, remaining_days = calculate_work_date_stats()
 
         rendered_template = render_template('posts.html', user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated, \
                                             daysleft=remaining_days, dayspassed=passed_days,
-                                            posts=self.posts.to_json(),
                                             codeversion=CODEVERSION, form=self.form)
 
         self.assertEqualHTML(rendered_template.decode('utf8'), response.data.decode('utf8'))
@@ -379,11 +361,7 @@ class TestViews(BlogTestBase):
 
         passed_days, remaining_days = calculate_work_date_stats()
 
-        if self.posts:
-            posts_json = self.posts.to_json()
-            site_updated = find_update_of_site(self.posts[len(self.posts) - 1])
-        else:
-            site_updated = 'NA'
+        site_updated = self.posts.site_last_updated()
 
         rendered_template = render_template('about.html',user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated,\
@@ -404,7 +382,7 @@ class TestViews(BlogTestBase):
 
         passed_days, remaining_days = calculate_work_date_stats()
 
-        site_updated = find_update_of_site(self.posts[len(self.posts) - 1])
+        site_updated = self.posts.site_last_updated()
 
         rendered_template = render_template("posts.html",  user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated, \
@@ -449,7 +427,7 @@ class TestViews(BlogTestBase):
         self.posts.filter_by_tag('a new tag')
 
         passed_days, remaining_days = calculate_work_date_stats()
-        site_updated = find_update_of_site(self.posts[len(self.posts) - 1])
+        site_updated = self.posts.site_last_updated()
         rendered_template = render_template("posts.html",  user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated, \
                                             daysleft=remaining_days, dayspassed=passed_days,
