@@ -191,6 +191,10 @@ class Posts(BlogList, JsonMixin):
         [self._posts.pop(post_idx) for post_idx, post in enumerate(self._posts)
          if post.id not in posts_ids]
 
+    def site_last_updated(self):
+        if self.posts:
+            last_post = self._posts[-1]
+            return last_post.updated.strftime('%A %d %B %Y')
 
 
 class Tags(BlogList, JsonMixin):
