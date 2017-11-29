@@ -18,12 +18,12 @@
     <div class="page-header">
 	 <h2 class="editable">{{Post.title}}</h2>
 	 <div class="row" id="socialinks">
-	      <div class="col-md-6">
-	        <div class="col-md-4" id="date">Created: {{Post.timestamp|datetimeformat('%d-%m-%Y')}}	 </div>
-	        <div class="col-md-4" id="updated"> Updated: {{ Post.updated|datetimeformat('%d-%m-%Y')}}    </div>
+	      <div class="col-md-10">
+	        <div class="col-md-5" id="date">Created: {{Post.timestamp|datetimeformat(('%A %d %B %Y'))}}	 </div>
+	        <div class="col-md-5" id="updated"> Updated: {{ Post.updated|datetimeformat(('%A %d %B %Y'))}}    </div>
                            
 	     </div>
-	     <div class="col-md-3">
+	     <div class="col-md-1">
 			     
 					<div class="col-md-2 offset3"><a href="https://twitter.com/share" class="twitter-share-button"
 					   data-url="http://aarsakian.appspot.com" data-text="{{Post.title}}"
