@@ -5,110 +5,110 @@
 
 {% block header %}
 
-   {{ super() }}
-          {%if tags%}
-             {%for tag in tags%}
-			          <meta name="keywords"  	content={{tag}}>
-		     {% endfor %}
-          {%endif%}
+{{ super() }}
+{%if tags%}
+{%for tag in tags%}
+<meta name="keywords" content={{tag}}>
+{% endfor %}
+{%endif%}
 {% endblock %}
 
 {% block content%}
 
-    <div class="page-header clear">
-	<div class="page-header-inner">
-	    <h2>Archives</h2>
+<div class="page-header clear">
+    <div class="page-header-inner">
+        <h2>Archives</h2>
 
-        </div>
-	    
     </div>
 
-	<div id="posts" id="bdinner">
-		{%if posts %}
-	    	{%for Post in posts%}
+</div>
 
-				<div class="row list post_key" data-id="{{Post.id}}">
+<div id="posts" id="bdinner">
+    {%if posts %}
+    {%for Post in posts%}
+
+    <div class="row list post_key" data-id="{{Post.id}}">
 
 
+        <div class="post col-md-9">
+            <div class="classic">
+                {% set timestamp = Post.timestamp.split('-') %}
 
-					<div class="post col-md-9">
-			    		<div  class="classic">
-							{% set timestamp = Post.timestamp.split('-') %}
-
-							<h3 class="editable"><a href="{{Post.category}}/{{timestamp[-2]}}
+                <h3 class="editable"><a href="{{Post.category}}/{{timestamp[-2]}}
 				/{{timestamp[-1]}}/{{Post.title|trim}}">{{Post.title}}</a></h3>
 
-						</div><!--closes post-->
-					</div>
-		    		<div class="col-md-3 post" id="right">
-		 <!--Sidebar content-->
-						<div class="links row"  style="font-size: 22px;">
-							{%if user_status%}
-								<a class="btn edit" href="/edit/{{Post.id}}">Edit</a>
-							{%endif%}
-							{%if Post.tags%}
-				    			<a class="tags" href="/tags"><i class="icon-tags"></i></a>
-
-								{%for tag in Post.tags%}
-					    			<a class="tag" href="/tags/{{tag}}">{{tag}}</a>
-								{%endfor%}
-
-							{%endif%}
-
-						</div><!--closes links-->
-					<div class="row" id="date">Created: {{Post.timestamp}} </div>
-
-		    		</div>
-				</div>
-			{% endfor %}
-		{%endif%}
-	</div>
-    <div id="newpost" class="clear">
-            <!--holdes a form for new post--> 
-    </div>
-    {%if user_status and posts%}
-        <div class="links">   
-            <a class="btn edit" href="/edit">Edit</a>
-                          
+            </div><!--closes post-->
         </div>
+        <div class="col-md-3 post" id="right">
+            <!--Sidebar content-->
+            <div class="links row" style="font-size: 22px;">
+                {%if user_status%}
+                <a class="btn edit" href="/edit/{{Post.id}}">Edit</a>
+                {%endif%}
+                {%if Post.tags%}
+                <a class="tags" href="/tags"><i class="icon-tags"></i></a>
+
+                {%for tag in Post.tags%}
+                <a class="tag" href="/tags/{{tag}}">{{tag}}</a>
+                {%endfor%}
+
+                {%endif%}
+
+            </div><!--closes links-->
+            <div class="row" id="date">Created: {{Post.timestamp}}</div>
+
+        </div>
+    </div>
+    {% endfor %}
     {%endif%}
- 
-    
+</div>
+<div id="newpost" class="clear">
+    <!--holdes a form for new post-->
+</div>
+{%if user_status and posts%}
+<div class="links">
+    <a class="btn edit" href="/edit">Edit</a>
+
+</div>
+{%endif%}
+
+
 {% endblock %}
 
 {% block footer%}
 <div id="ftinner">
     <div class="col-md-6">
-        <p> Armen Arsakian updated at <span class="siteupdate">{{siteupdated}}</span><span class="contactinfo">Contact: contact at arsakian.com</span></p>
+        <p> Armen Arsakian updated at <span class="siteupdate">{{siteupdated}}</span><span class="contactinfo">Contact: contact at arsakian.com</span>
+        </p>
     </div>
 
     <div class="col-md-3 col-md-offset-3">
-    <span class="countdown">  {{daysleft}} . {{dayspassed}}</span>
+        <span class="countdown">  {{daysleft}} . {{dayspassed}}</span>
 
         <span class="version"><a href="/built with...">{{codeversion}}</a></span>
     </div>
 </div>
-  
+
 {% endblock %}
 
 {% import "bootstrap/wtf.html" as wtf %}
 
 {% block new_post %}
- {%if user_status%}
+{%if user_status%}
 <script id="post-form" type="text/x-handlebars-template">
 
-	<form class="form form-horizontal" method="post" role="form">
-		{{ form.hidden_tag()}}
-	    {{ wtf.form_errors(form, hiddens="only") }}
-	    {{ wtf.form_field(form.title, id="new-post-title",placeholder="Enter your title here")}}
-		{{ wtf.form_field(form.summary, id="new-post-summary",placeholder="Enter your summary here")}}
-		{{ wtf.form_field(form.body, id="new-post-body", type="text")}}
-		{{ wtf.form_field(form.category, id="new-post-category",
-			placeholder="Enter your category or use existing one")}}
-		{{ wtf.form_field(form.tags,id="new-post-tags",
-			placeholder="Enter your tags here,use comma between")}}
-		{{ wtf.form_field(form.submit, type="submit", class="submit button")}}
-	</form>
+    <form class="form form-horizontal" method="post" role="form">
+        {{ form.hidden_tag()}}
+        {{ wtf.form_errors(form, hiddens="only") }}
+        {{ wtf.form_field(form.title, id="new-post-title",placeholder="Enter your title here")}}
+        {{ wtf.form_field(form.summary, id="new-post-summary",placeholder="Enter your summary here")}}
+        {{ wtf.form_field(form.body, id="new-post-body", type="text")}}
+        {{ wtf.form_field(form.category, id="new-post-category",
+        placeholder="Enter your category or use existing one")}}
+        {{ wtf.form_field(form.tags,id="new-post-tags",
+        placeholder="Enter your tags here,use comma between")}}
+        {{ wtf.form_field(form.submit, type="submit", class="submit button")}}
+    </form>
 </script>
 {%endif%}
 {% endblock %}
