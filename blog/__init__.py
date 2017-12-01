@@ -1,24 +1,17 @@
 from flask import Flask
-from settings import Config
+import settings
 from flask_bootstrap import Bootstrap
-from flask_wtf.csrf import  CsrfProtect
+
 
 bootstrap = Bootstrap()
 
+app = Flask('blog')
+app.config.from_object('blog.settings')
 
-csrf = CsrfProtect()
+bootstrap.init_app(app)
 
-
-def create_app():
-   app = Flask(__name__)
-   app.config.from_object(Config)
-   bootstrap.init_app(app)
-   csrf.init_app(app)
-
-   return app
-
-
-app = create_app()
+if app.config['DEBUG']:
+   app.debug=True  
 
 
 import views
