@@ -234,7 +234,7 @@ class TestViews(BlogTestBase):
         response = self.client.get(url_for('view_a_post', category="category", year=current_post.timestamp.year,
                                            month=current_post.timestamp.month, title="a title"))
 
-        related_posts = self.posts.get_related_posts(current_post)
+        related_posts = self.posts.get_related_posts(current_post.id)
 
 
         category = current_post.category.get().category

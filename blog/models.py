@@ -196,9 +196,9 @@ class Posts(BlogList, JsonMixin):
             last_post = self._posts[-1]
             return last_post.updated.strftime('%A %d %B %Y')
 
-    def get_related_posts(self, current_post_key):
+    def get_related_posts(self, current_post_id):
         related_posts = []
-        current_post = BlogPost.get(current_post_key.id)
+        current_post = BlogPost.get(current_post_id)
         for post in self.posts:
             if post.id != current_post.id:
                 for tag in post.tags:

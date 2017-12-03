@@ -427,6 +427,6 @@ class TestModels(BlogTestBase):
         rel_post = BlogPost.get(rel_post_key.id())
 
 
-        related_posts = self.posts.get_related_posts(current_post)
+        related_posts = self.posts.get_related_posts(current_post.id())
 
         self.assertListEqual([rel_post], related_posts)
