@@ -415,4 +415,18 @@ class TestModels(BlogTestBase):
         self.assertEqual("Wednesday 29 November 2017", last_updated)
         freezer.stop()
 
+    def test_get_related_posts(self):
+        category_key = self.categories.add("category")
+        test_tags = ["a new tag", "a new new tag"]
+        new_tag_keys = self.tags.add(test_tags)
+        current_post = self.posts.add("a title", "body text", category_key, new_tag_keys)
 
+        rel_test_tags = ["a new tag", "a different tag"]
+        rel_tag_keys = self.tags.add(rel_test_tags )
+        rel_post_key = self.posts.add("a different title", "body sec2 text", category_key, rel_tag_keys)
+        rel_post = BlogPost.get(rel_post_key.id())
+
+
+        related_posts = self.posts.get_related_posts(current_post)
+
+        self.assertListEqual([rel_post], related_posts)
