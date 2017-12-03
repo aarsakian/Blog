@@ -527,18 +527,11 @@ def view_a_post(category, year, month, title):
 
     post_tag_names = current_post.get_tag_names()
 
-    other_posts_tags = posts.get_other_tags(current_post.key.id())
+    related_posts = posts.get_related_posts(current_post)
 
-    related_posts = []
-
-    for post in posts:
-        if post.key != current_post.key:
-            for tag in post.tags:
-                if tag in other_posts_tags:
-                    related_posts.append(post)
-
-    category = post.category.get().category
+    category = current_post.category.get().category
     site_updated = posts.site_last_updated()
+    print related_posts[0].category
 
     return render_template('singlepost.html', user_status=users.is_current_user_admin(), siteupdated=site_updated, \
                                         daysleft=remaining_days, dayspassed=passed_days, RelatedPosts=related_posts, \
