@@ -208,6 +208,44 @@ class TestViews(BlogTestBase):
 
         self.assertEqual(rendered_template.encode("utf-8"), response.data)
 
+    def test_select_post_with_related_posts_returns_correct_html(self):
+        passed_days, remaining_days = calculate_work_date_stats()
+
+        category_key = self.categories.add("category")
+        test_tags = ["a new tag", "a new new tag"]
+        new_tag_keys = self.tags.add(test_tags)
+        self.posts.add("a title", "body text", category_key, new_tag_keys, "this is a summary")
+
+        test_tags_related = ["a new tag", "a different tag"]
+        new_rel_tag_keys = self.tags.add(test_tags_related)
+        self.posts.add("a better title", "body without text",
+                       category_key, new_rel_tag_keys, "this is new a summary")
+
+        current_post = self.posts.get_by_title("a title")
+        post_tag_names = current_post.get_tag_names()
+
+
+
+
+        other_posts_tags = self.posts.get_other_tags(current_post.key.id())
+
+        related_posts = []
+
+        response = self.client.get(url_for('view_a_post', category="category", year=current_post.timestamp.year,
+                                           month=current_post.timestamp.month, title="a title"))
+
+        related_posts = self.posts.get_related_posts(current_post)
+
+
+        category = current_post.category.get().category
+        site_updated = self.posts.site_last_updated()
+        rendered_template = render_template('singlepost.html', user_status=users.is_current_user_admin(),
+                                            siteupdated=site_updated, \
+                                            daysleft=remaining_days, dayspassed=passed_days, RelatedPosts=related_posts, \
+                                            Post=current_post, posttagnames=post_tag_names, category=category)
+
+        self.assertEqual(rendered_template.encode("utf-8"), response.data)
+
     def test_tag_pag_returns_correct_html(self):
 
         passed_days, remaining_days = calculate_work_date_stats()
