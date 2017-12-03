@@ -148,14 +148,15 @@ def aboutpage(posts, tags, categories, passed_days,
 
 
 @app.route('/', methods=['GET'])
-@app.route('/posts/tag/<tag>')
-@app.route('/posts/category/<category>')
+@app.route('/tags/<tag>')
+@app.route('/categories/<category>')
 @boilercode
 def index(posts, tags, categories, passed_days,
           remaining_days, **kwargs):
     """
     general url routing for template usage
     """
+    site_updated = posts.site_last_updated()
 
     if request.args.get('q'):
         return redirect(url_for('searchresults', q=request.args.get('q')))
@@ -169,7 +170,6 @@ def index(posts, tags, categories, passed_days,
         posts.filter_by_category(category)
 
     form = PostForm()
-    site_updated = posts.site_last_updated()
 
     return render_template('posts.html', user_status=users.is_current_user_admin(), siteupdated=site_updated, \
                            daysleft=remaining_days, dayspassed=passed_days, tags=tags, categories=categories,
