@@ -18,7 +18,7 @@ install:
 
 # command to run tests
 script:
- - nosetests --with-coverage --with-gae  --gae-lib-root=google_appengine  tests/test_*
+ - nosetests --with-coverage --with-gae  --gae-lib-root=google_appengine   --cover-package=blog   tests/test_*
 
 after_success:
  - codecov
