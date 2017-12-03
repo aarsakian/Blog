@@ -281,6 +281,25 @@ class TestViews(BlogTestBase):
         self.assertDictEqual(json_data, response.json)
         freezer.stop()
 
+    def test_api_posts(self):
+        existing_tags = [u"a new new tag", u"a new tag"]
+        freezer = freeze_time("2017-03-20 17:48:18")
+        freezer.start()
+        json_data = {u'category': u'category', u'tags': existing_tags, u"summary": u"this is a summary",
+                     u'title': u'a title', u'body': u'body text', u'timestamp': datetimeformat(datetime.now())
+            ,
+                     u'updated': datetimeformat(datetime.now())
+                     }
+
+        self.client.post(url_for('main'), content_type='application/json',
+                         data=json.dumps(json_data))
+
+        response = self.client.get(url_for('main'))
+
+        json_data[u"id"] = 4
+        self.assertDictEqual(json_data, response.json[0])
+        freezer.stop()
+
     def test_no_post(self):
 
         json_data = {}
@@ -435,6 +454,6 @@ class TestViews(BlogTestBase):
                                             posts=self.posts.to_json(),
                                             codeversion=CODEVERSION, form=self.form)
 
-        response = self.client.get(path='/posts/tag/a new tag')
+        response = self.client.get(path='/tags/a new tag')
 
         return self.assertEqualHTML(rendered_template.decode('utf8'), response.data.decode('utf8'))
