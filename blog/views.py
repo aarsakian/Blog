@@ -98,17 +98,15 @@ def boilercode(func):
 
 
 
-@app.route('/categories',methods=['GET'])
 @app.route('/tags',methods=['GET'])
 @boilercode
-def tags(posts, tags, categories, passed_days,
-                    remaining_days, postkey=None):
-    form = PostForm()
+def view_all_tags(posts, tags, categories,  passed_days,
+          remaining_days):
+
     site_updated = posts.site_last_updated()
-    return render_template('posts.html',user_status=users.is_current_user_admin(),siteupdated=site_updated,\
-                           daysleft=remaining_days,dayspassed=passed_days,tags=tags,categories=categories,
-                           posts=posts.to_json(),
-                           codeversion=CODEVERSION, form=form)
+    return render_template('tags.html',user_status=users.is_current_user_admin(),siteupdated=site_updated,\
+                           daysleft=remaining_days,dayspassed=passed_days,tags=tags.to_json(),
+                           codeversion=CODEVERSION)
 
 
    
@@ -303,7 +301,6 @@ def get_post(id):
 
 @app.route('/api/posts/<id>', methods=['PUT'])
 def edit_post(id):
-    data = []
 
     if users.is_current_user_admin():
         posts = Posts()

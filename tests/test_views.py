@@ -56,38 +56,13 @@ class TestViews(BlogTestBase):
         passed_days, remaining_days = calculate_work_date_stats()
 
 
-        response = self.client.get((url_for('tags')))
+        response = self.client.get((url_for('view_all_tags')))
 
         site_updated = self.posts.site_last_updated()
-        posts_json = self.posts.to_json()
-        rendered_template = render_template('posts.html', user_status=users.is_current_user_admin(),
-                                            siteupdated=site_updated, \
-                                            daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
-                                            categories=self.categories,
-                                            posts=posts_json,
-                                            codeversion=CODEVERSION, form=self.form)
 
-        self.assertEqualHTML(rendered_template, response.data.decode('utf-8'))
-
-    def test_edit_url_with_contents_is_ok(self):
-
-        category_key = self.categories.add("category")
-        test_tags = ["a new tag", "a new new tag"]
-        new_tag_keys = self.tags.add(test_tags)
-        self.posts.add("a title", "body text", category_key, new_tag_keys, "this is a summary")
-
-        passed_days, remaining_days = calculate_work_date_stats()
-
-        response = self.client.get((url_for('tags')))
-
-        site_updated = self.posts.site_last_updated()
-        posts_json = self.posts.to_json()
-        rendered_template = render_template('posts.html', user_status=users.is_current_user_admin(),
-                                            siteupdated=site_updated, \
-                                            daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
-                                            categories=self.categories,
-                                            posts=posts_json,
-                                            codeversion=CODEVERSION, form=self.form)
+        rendered_template = render_template('tags.html', user_status=users.is_current_user_admin(),siteupdated=site_updated,\
+                           daysleft=remaining_days,dayspassed=passed_days,tags=self.tags.to_json(),
+                           codeversion=CODEVERSION)
 
         self.assertEqualHTML(rendered_template, response.data.decode('utf-8'))
 
