@@ -200,48 +200,48 @@ def archives(posts, tags, categories, passed_days,
 
 
 
-@app.route('/categories/<catname>/<id>',methods=['DELETE','PUT'])
-@app.route('/categories/<catname>',methods=['GET','POST'])
-def catposts(catname,id=None):
-
-
-
-    if request.method=="GET":
-
-        return  jsonify(msg="OK",posts=data,type="category")
-        
-    if users.is_current_user_admin() and request.method=="POST":#new entity
-        title=request.json['title']
-        body=request.json['body']
-        date=request.json['date']
-        category=request.json['category']
-        if isinstance(request.json['tags'],list):
-            tagspost=request.json['tags']
-
-        apost=APost(title,body,date,category,tagspost)
-        (id,tags)=apost.submitApost()
-        return jsonify(msg="OK",id=id.id(),tags=tags)
-        
-    if users.is_current_user_admin() and request.method=="DELETE":
-     
-        apost=APost(id=id)
-        apost.delete()
-        return jsonify(msg="OK")
-    
-    elif users.is_current_user_admin() and request.method=="PUT":
-        title=request.json['title']
-        body=request.json['body']
-        date=request.json['date']
-        category=request.json['category']
-        posttags=request.json['tags']
-        apost=APost(title,body,date,category,posttags,id)
-        (data,returnedTags)=apost.update()
-       
-            
-       
-        return jsonify(msg="OK",tags=returnedTags,posts=data)
-        
-        
+# @app.route('/categories/<catname>/<id>',methods=['DELETE','PUT'])
+# @app.route('/categories/<catname>',methods=['GET','POST'])
+# def catposts(catname,id=None):
+#
+#
+#
+#     if request.method=="GET":
+#
+#         return  jsonify(msg="OK",posts=data,type="category")
+#
+#     if users.is_current_user_admin() and request.method=="POST":#new entity
+#         title=request.json['title']
+#         body=request.json['body']
+#         date=request.json['date']
+#         category=request.json['category']
+#         if isinstance(request.json['tags'],list):
+#             tagspost=request.json['tags']
+#
+#         apost=APost(title,body,date,category,tagspost)
+#         (id,tags)=apost.submitApost()
+#         return jsonify(msg="OK",id=id.id(),tags=tags)
+#
+#     if users.is_current_user_admin() and request.method=="DELETE":
+#
+#         apost=APost(id=id)
+#         apost.delete()
+#         return jsonify(msg="OK")
+#
+#     elif users.is_current_user_admin() and request.method=="PUT":
+#         title=request.json['title']
+#         body=request.json['body']
+#         date=request.json['date']
+#         category=request.json['category']
+#         posttags=request.json['tags']
+#         apost=APost(title,body,date,category,posttags,id)
+#         (data,returnedTags)=apost.update()
+#
+#
+#
+#         return jsonify(msg="OK",tags=returnedTags,posts=data)
+#
+#
 @app.route('/api/posts',methods=['POST','GET'])
 def main():
 
