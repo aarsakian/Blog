@@ -31,16 +31,19 @@ class BlogPost(ndb.Model):
     category = ndb.KeyProperty(kind=Category)
     summary = ndb.TextProperty()
 
+    @staticmethod
+    def add_to_memcache(post):
+        added = memcache.add(
+            '{}:posts'.format(id), post, 100)
+        if not added:
+            logging.error('Memcache set failed for entity {}'.format(id))
+
     @classmethod
     def get(cls, id):
         post = memcache.get('{}:posts'.format(id))
         if not post:
             post = cls.get_by_id(int(id))
-            added = memcache.add(
-                '{}:posts'.format(id), post, 100)
-            if not added:
-                logging.error('Memcache set failed for entity {}'.format(id))
-
+            BlogPost.add_to_memcache(post)
         return post
 
     @property
@@ -84,11 +87,6 @@ class BlogPost(ndb.Model):
 
 
 class BlogList(list):
-
-    @staticmethod
-    def retrieve_from_memcache(cache_name):
-        entities = memcache.get(cache_name)
-        return list(entities) if entities else []
 
     @classmethod
     def get_attr(cls):
@@ -149,6 +147,7 @@ class Posts(BlogList, JsonMixin):
                             summary=summary).put()
         post = post_key.get()
         self._posts.append(post)
+        BlogPost.add_to_memcache(post)
         add_document_in_search_index(post.id, post.title, post.body,
                                      post.summary, post.get_category(),
                                      post.timestamp, post.get_tag_names())
