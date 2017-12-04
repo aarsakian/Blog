@@ -269,10 +269,10 @@ class TestModels(BlogTestBase):
         post_key = self.posts.add("a title", "body text", category_key, new_tag_keys)
 
         id = post_key.id()
-        BlogPost.get(id)  # requested a post added to MEMCACHE
 
-        memached_post = memcache.get('{}:posts'.format(id))
-        self.assertEqual(memached_post.key, post_key)
+        memcached_post = BlogPost.get(id)  # requested a post added to MEMCACHE
+
+        self.assertEqual(memcached_post.key, post_key)
 
     def test_get_by_title(self):
         category_key = self.categories.add("category")
