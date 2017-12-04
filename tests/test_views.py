@@ -495,3 +495,18 @@ class TestViews(BlogTestBase):
         response = self.client.get(path='/tags/a new tag')
 
         return self.assertEqualHTML(rendered_template.decode('utf8'), response.data.decode('utf8'))
+
+    def test_404_not_found_page(self):
+        response = self.client.get(path='/a path not existing')
+        rendered_template = render_template('404.html')
+
+        return self.assertEqualHTML(rendered_template.decode('utf8'), response.data.decode('utf8'))
+
+    def test_user(self):
+        response = self.client.get(path='/user')
+        return self.assertDictEqual({'user_status':users.is_current_user_admin()},response.json)
+
+    def test_redirect_on_search(self):
+        response = self.client.get((url_for('index', q="test redirect on search")))  # cre
+
+        return self.assertStatus(response, 302)
