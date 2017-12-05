@@ -460,44 +460,44 @@ def delete_post(id):
 
     
 
-@app.route('/posts/categories', methods=['GET','POST'])#new entity
-def action(id=None):
-    if 'posts' not in globals():
-        global posts
-        
-    posts=memcache.get(KEY)
-    tags=memcache.get(TAG)
-    categories=memcache.get(CATEGORY)
-        
-    if not posts:
-      
-        posts = BlogPost.all().order("-timestamp").fetch(20)
-        memcache.add(KEY,posts)
-
-    if not tags:
-        tags = Tag.all().fetch(20)
-        memcache.add(TAG,tags)
-    if not categories:
-        categories= Category.all().fetch(20)
-        memcache.add(CATEGORY,categories)
-    data=[]
-    
-
-#   
-    if request.method=='GET':
-      
-       # posts = BlogPost.all()
-       # posts.order("-timestamp")
-
-    
-           # if category=="categories":
-                Categories=[] 
-                [Categories.append([categoryobj.category,categoryobj.key.id()]) for categoryobj in categories]
-                Categories=map(lambda category:{"category":category[0],"catid":category[1]} ,Categories)
-                logging.info(Categories)
-      
-  
-                return jsonify(msg="OK",categories=Categories,header="Categories",type="categories")
+# @app.route('/posts/categories', methods=['GET','POST'])#new entity
+# def action(id=None):
+#     if 'posts' not in globals():
+#         global posts
+#
+#     posts=memcache.get(KEY)
+#     tags=memcache.get(TAG)
+#     categories=memcache.get(CATEGORY)
+#
+#     if not posts:
+#
+#         posts = BlogPost.all().order("-timestamp").fetch(20)
+#         memcache.add(KEY,posts)
+#
+#     if not tags:
+#         tags = Tag.all().fetch(20)
+#         memcache.add(TAG,tags)
+#     if not categories:
+#         categories= Category.all().fetch(20)
+#         memcache.add(CATEGORY,categories)
+#     data=[]
+#
+#
+# #
+#     if request.method=='GET':
+#
+#        # posts = BlogPost.all()
+#        # posts.order("-timestamp")
+#
+#
+#            # if category=="categories":
+#                 Categories=[]
+#                 [Categories.append([categoryobj.category,categoryobj.key.id()]) for categoryobj in categories]
+#                 Categories=map(lambda category:{"category":category[0],"catid":category[1]} ,Categories)
+#                 logging.info(Categories)
+#
+#
+#                 return jsonify(msg="OK",categories=Categories,header="Categories",type="categories")
 
 
 #@app.route('/random',methods=['GET'])
