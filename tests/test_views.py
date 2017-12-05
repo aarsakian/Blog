@@ -199,9 +199,6 @@ class TestViews(BlogTestBase):
         current_post = self.posts.get_by_title("a title")
         post_tag_names = current_post.get_tag_names()
 
-
-
-
         other_posts_tags = self.posts.get_other_tags(current_post.key.id())
 
         related_posts = []
