@@ -19,7 +19,7 @@ from jinja2.environment import Environment
 from random import randint
 from itertools import chain
 from forms import PostForm
-from utils import find_modified_tags, find_tags_to_be_removed, find_tags_to_be_added, datetimeformat
+from utils import datetimeformat
 
 KEY="posts"
 TAG="tags"
@@ -109,7 +109,19 @@ def view_all_tags(posts, tags, categories,  passed_days,
                            codeversion=CODEVERSION)
 
 
-   
+
+@app.route('/categories',methods=['GET'])
+@boilercode
+def view_all_categories(posts, tags, categories,  passed_days,
+          remaining_days):
+
+    site_updated = posts.site_last_updated()
+    return render_template('categories.html',user_status=users.is_current_user_admin(),siteupdated=site_updated,\
+                           daysleft=remaining_days,dayspassed=passed_days,categories=categories.to_json(),
+                           codeversion=CODEVERSION)
+
+
+
 
 @app.route('/searchresults',methods=['GET'])
 @boilercode
@@ -261,16 +273,8 @@ def main():
         editing_tags = raw_post["tags"]
         raw_summary = raw_post["summary"]
 
-        existing_tags = posts.get_tags()
-        new_tags_to_added = find_modified_tags(editing_tags, existing_tags)
-
-
-        tag_keys = tags.add(new_tags_to_added)
-
-        if raw_category not in categories:
-            category_key = categories.add(raw_category)
-        else:
-            category_key = categories.get_key(raw_category)
+        tag_keys = tags.update(editing_tags)
+        category_key = categories.update(raw_category)
 
         post_id = posts.add(raw_title=raw_post["title"],
                             raw_body=raw_post["body"],
@@ -303,39 +307,29 @@ def get_post(id):
 def edit_post(id):
 
     if users.is_current_user_admin():
-        posts = Posts()
+
         tags = Tags()
+
         categories = Categories()
 
         updating_post = BlogPost.get(int(id))
 
         title = request.json['title']
         body = request.json['body']
-
         raw_category = request.json['category']
         editing_tags = request.json['tags']
 
-        remaining_tags = posts.get_other_tags(int(id))
+        tags_keys = tags.update(editing_tags, updating_post)
 
-        old_post_tags = updating_post.get_tag_names()
+        categories.update(raw_category, updating_post.category)
 
-        non_modified_tags = set(editing_tags) & set(old_post_tags )
-
-        tags_to_be_removed = find_tags_to_be_removed(old_post_tags, non_modified_tags, remaining_tags)
-        tags_to_be_added = find_tags_to_be_added(editing_tags, non_modified_tags, remaining_tags)
-
-        tags.add(tags_to_be_added)
-        tags.delete(tags_to_be_removed)
-
-        tags_keys = tags.get_keys(editing_tags)
-
-        updating_post.edit(title, body, datetime.now(), tags_keys, categories.get_key(raw_category))
+        updating_post.edit(title, body, datetime.now(), tags_keys, updating_post.category)
 
         post_tag_names = updating_post.get_tag_names()
 
         modified_post = {"title": updating_post.title, "body": updating_post.body, "category":
                  updating_post.category.get().category,
-              "catid": str(categories.get_key(raw_category).id()).decode('utf8'), "id": str(updating_post.key.id()), \
+              "catid": str(updating_post.category.id()), "id": str(updating_post.key.id()), \
               "tags": post_tag_names , "date": updating_post.timestamp ,"updated": updating_post.updated}
 
         return jsonify(modified_post)  # dangerous
@@ -353,16 +347,11 @@ def delete_post(id):
 
         updating_post = BlogPost.get(int(id))
 
-        remaining_tags = posts.get_other_tags(int(id))
-
-        post_tags = updating_post.get_tag_names()
-
-        non_used_tags = find_modified_tags(post_tags, remaining_tags)
-
         categories.delete(updating_post.category)
 
         posts.delete(updating_post.key)
-        tags.delete(non_used_tags)
+
+        tags.update(updating_post.get_tag_names())
 
     return jsonify(msg="OK")
 
