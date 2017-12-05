@@ -5,6 +5,7 @@ from google.appengine.api import memcache
 from utils import datetimeformat
 
 from search import add_document_in_search_index, delete_document, find_posts_from_index
+from utils import find_modified_tags, find_tags_to_be_removed, find_tags_to_be_added
 
 POSTS_INDEX = "posts_idx"
 
@@ -21,6 +22,26 @@ class Tag(ndb.Model):
 class Category(ndb.Model):
     category = ndb.StringProperty()
 
+
+    def to_json(self):
+        cat_dict = self.to_dict()
+        cat_dict["id"] = str(self.key.id())
+        return cat_dict
+
+    @staticmethod
+    def add_to_memcache(category):
+        added = memcache.add(
+            '{}:posts'.format(id), category, 100)
+        if not added:
+            logging.error('Memcache set failed for entity {}'.format(id))
+
+    @classmethod
+    def get(cls, id):
+        category = memcache.get('{}:categories'.format(id))
+        if not category:
+            category = cls.get_by_id(int(id))
+            Category.add_to_memcache(category)
+        return category
 
 class BlogPost(ndb.Model):
     title = ndb.StringProperty()
@@ -256,11 +277,30 @@ class Tags(BlogList, JsonMixin):
     def get_keys(self, tags):
         return [tag.key for tag in self._tags if tag.tag in tags]
 
-    def get_names(self, keys=[]):
+    def get_names(self):
         return [tag.tag for tag in self._tags]
 
+    def update(self, editing_tags, updating_post=None):
+        posts = Posts()
+        if updating_post:
+            remaining_tags = posts.get_other_tags(int(updating_post.id))
+        else:
+            remaining_tags = posts.get_tags()
 
-class Categories(BlogList):
+        old_post_tags = updating_post.get_tag_names()
+
+        non_modified_tags = set(editing_tags) & set(old_post_tags)
+
+        tags_to_be_removed = find_tags_to_be_removed(old_post_tags, non_modified_tags, remaining_tags)
+        tags_to_be_added = find_tags_to_be_added(editing_tags, non_modified_tags, remaining_tags)
+
+        tags.add(tags_to_be_added)
+        tags.delete(tags_to_be_removed)
+
+        return tags.get_keys(editing_tags)
+
+
+class Categories(BlogList, JsonMixin):
 
     def __init__(self):
         self._categories = list(Category.query())
@@ -274,6 +314,10 @@ class Categories(BlogList):
 
     def __iter__(self):
         return (category.category for category in self._categories)
+
+    @property
+    def categories(self):
+        return self._categories
 
     def add(self, raw_category):
         category_key = Category(category=raw_category).put()
@@ -295,3 +339,16 @@ class Categories(BlogList):
         [self._categories.pop(cat_idx) for cat_idx, category
          in enumerate(self._categories) if category.key == category_key]
         category_key.delete()
+
+    def update(self, raw_category, category_key=None):
+
+        if category_key:
+            category = Category.get(category_key.id())
+            category.category = raw_category
+        else:
+            category_key = self.add(raw_category)
+
+        return category_key
+
+    def get(self, category_key):
+        return  Category.get(category_key.id())

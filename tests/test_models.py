@@ -433,7 +433,13 @@ class TestModels(BlogTestBase):
     def test_update_category(self):
         category_key = self.categories.add("category")
 
-        category = self.categories.update(category_key, "a modified category")
+        self.categories.update("a modified category", category_key)
+        category = self.categories.get(category_key)
 
+        self.assertEqual("a modified category", category.category)
+
+    def test_update_category_without_key(self):
+        category_key = self.categories.update("a modified category")
+        category = self.categories.get(category_key)
 
         self.assertEqual("a modified category", category.category)
