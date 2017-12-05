@@ -426,7 +426,14 @@ class TestModels(BlogTestBase):
         rel_post_key = self.posts.add("a different title", "body sec2 text", category_key, rel_tag_keys)
         rel_post = BlogPost.get(rel_post_key.id())
 
-
         related_posts = self.posts.get_related_posts(current_post.id())
 
         self.assertListEqual([rel_post], related_posts)
+
+    def test_update_category(self):
+        category_key = self.categories.add("category")
+
+        category = self.categories.update(category_key, "a modified category")
+
+
+        self.assertEqual("a modified category", category.category)
