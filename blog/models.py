@@ -284,20 +284,20 @@ class Tags(BlogList, JsonMixin):
         posts = Posts()
         if updating_post:
             remaining_tags = posts.get_other_tags(int(updating_post.id))
+            old_post_tags = updating_post.get_tag_names()
         else:
             remaining_tags = posts.get_tags()
-
-        old_post_tags = updating_post.get_tag_names()
+            old_post_tags = []
 
         non_modified_tags = set(editing_tags) & set(old_post_tags)
 
         tags_to_be_removed = find_tags_to_be_removed(old_post_tags, non_modified_tags, remaining_tags)
         tags_to_be_added = find_tags_to_be_added(editing_tags, non_modified_tags, remaining_tags)
 
-        tags.add(tags_to_be_added)
-        tags.delete(tags_to_be_removed)
+        self.add(tags_to_be_added)
+        self.delete(tags_to_be_removed)
 
-        return tags.get_keys(editing_tags)
+        return self.get_keys(editing_tags)
 
 
 class Categories(BlogList, JsonMixin):

@@ -443,3 +443,33 @@ class TestModels(BlogTestBase):
         category = self.categories.get(category_key)
 
         self.assertEqual("a modified category", category.category)
+
+    def test_update_tags_without_post(self):
+        test_tags = ["a new tag", "a new new tag"]
+        tag_keys = self.tags.add(test_tags)
+
+        category_key = self.categories.add("category")
+        self.posts.add("a title", "body text", category_key, tag_keys)
+
+        test_new_tags = ["a new different tag", "a new new tag"]
+        self.tags.update(test_new_tags)
+        tag_names = self.tags.get_names()
+
+        self.assertListEqual(tag_names, [u"a new tag",  u"a new new tag", u"a new different tag"])
+
+    def test_update_tags(self):
+        """
+        replacing a new tag with a new different tag
+        :return:
+        """
+        test_tags = ["a new tag", "a new new tag"]
+        tag_keys = self.tags.add(test_tags)
+
+        category_key = self.categories.add("category")
+        post_key = self.posts.add("a title", "body text", category_key, tag_keys)
+
+        test_new_tags = ["a new different tag", "a new new tag"]
+        self.tags.update(test_new_tags, BlogPost.get(post_key.id()))
+        tag_names = self.tags.get_names()
+
+        self.assertListEqual(tag_names, [ u"a new new tag", u"a new different tag"])
