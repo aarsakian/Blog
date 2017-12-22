@@ -8,9 +8,11 @@ from google.appengine.ext import ndb
 from google.appengine.api import memcache
 
 from freezegun import freeze_time
+from werkzeug.contrib.atom import AtomFeed
 
 from blog.models import Tags, Posts, Categories, BlogPost
-from blog.utils import find_modified_tags, find_tags_to_be_added, find_tags_to_be_removed, datetimeformat
+from blog.utils import find_modified_tags, find_tags_to_be_added, find_tags_to_be_removed, datetimeformat, \
+    make_external
 
 from . import BlogTestBase
 
@@ -473,3 +475,34 @@ class TestModels(BlogTestBase):
         tag_names = self.tags.get_names()
 
         self.assertListEqual(tag_names, [ u"a new new tag", u"a new different tag"])
+
+    def test_add_to_feed(self):
+        test_tags = ["a new tag", "a new new tag"]
+        tag_keys = self.tags.add(test_tags)
+
+        category_key = self.categories.add("category")
+        self.posts.add("a title", "body text", category_key, tag_keys)
+
+        feed_org = AtomFeed('Recent Articles',
+                        feed_url='http://localhost/recent.atom', url="")
+
+        feed_model = AtomFeed('Recent Articles',
+                            feed_url='http://localhost/recent.atom', url="")
+
+        for post in self.posts:
+            catname = post.get_category()
+            url = "/".join([catname,
+                            post.timestamp.strftime('%B'),
+                            post.timestamp.strftime('%Y')])
+            feed_org.add(post.title, post.body,
+                     content_type='html',
+                     author='Armen Arsakian',
+                     url=make_external("http://localhost/recent.atom", url),
+                     updated=post.updated,
+                     published=post.timestamp)
+
+
+
+        feed = self.posts.add_to_feed(feed_model, "http://localhost/recent.atom")
+
+        self.assertEqual(feed_org.to_string(), feed.to_string())

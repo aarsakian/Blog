@@ -5,7 +5,7 @@ from google.appengine.api import memcache
 from utils import datetimeformat
 
 from search import add_document_in_search_index, delete_document, find_posts_from_index
-from utils import find_modified_tags, find_tags_to_be_removed, find_tags_to_be_added
+from utils import find_modified_tags, find_tags_to_be_removed, find_tags_to_be_added, make_external
 
 POSTS_INDEX = "posts_idx"
 
@@ -42,6 +42,7 @@ class Category(ndb.Model):
             category = cls.get_by_id(int(id))
             Category.add_to_memcache(category)
         return category
+
 
 class BlogPost(ndb.Model):
     title = ndb.StringProperty()
@@ -226,6 +227,21 @@ class Posts(BlogList, JsonMixin):
                         related_posts.append(post)
                         break
         return related_posts
+
+    def add_to_feed(self, feed, base_url):
+        for post in self._posts:
+            catname = post.get_category()
+            url = "/".join([catname,
+                        post.timestamp.strftime('%B'),
+                        post.timestamp.strftime('%Y')])
+            feed.add(post.title, post.body,
+                 content_type='html',
+                 author='Armen Arsakian',
+                 url=make_external(base_url, url),
+                 updated=post.updated,
+                 published=post.timestamp)
+
+        return feed
 
 
 class Tags(BlogList, JsonMixin):
