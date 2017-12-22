@@ -16,7 +16,7 @@ from math import ceil
 from functools import wraps
 from re import compile
 from jinja2.environment import Environment
-from random import randint
+
 from itertools import chain
 from forms import PostForm
 from utils import datetimeformat
@@ -197,7 +197,7 @@ def archives(posts, tags, categories, passed_days,
 
     form = PostForm()
     site_updated = posts.site_last_updated()
-    return render_template('posts.html',user_status=users.is_current_user_admin(),siteupdated=site_updated,\
+    return render_template('archives.html',user_status=users.is_current_user_admin(),siteupdated=site_updated,\
                            daysleft=remaining_days,dayspassed=passed_days,tags=tags,categories=categories,
                            posts=posts.to_json(),
                            codeversion=CODEVERSION, form=form)
@@ -500,7 +500,6 @@ def delete_post(id):
 #                 return jsonify(msg="OK",categories=Categories,header="Categories",type="categories")
 
 
-#@app.route('/random',methods=['GET'])
 @app.route('/<category>/<year>/<month>/<title>', methods=['GET'])
 def view_a_post(category, year, month, title):
     passed_days, remaining_days = calculate_work_date_stats()

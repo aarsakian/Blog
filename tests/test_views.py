@@ -77,7 +77,7 @@ class TestViews(BlogTestBase):
 
         site_updated = self.posts.site_last_updated()
         posts_json = self.posts.to_json()
-        rendered_template = render_template('posts.html', user_status=users.is_current_user_admin(),
+        rendered_template = render_template('archives.html', user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated, \
                                             daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
                                             categories=self.categories,
@@ -102,7 +102,7 @@ class TestViews(BlogTestBase):
 
         site_updated = self.posts.site_last_updated()
         posts_json = self.posts.to_json()
-        rendered_template = render_template('posts.html', user_status=users.is_current_user_admin(),
+        rendered_template = render_template('archives.html', user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated, \
                                             daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
                                             categories=self.categories,
