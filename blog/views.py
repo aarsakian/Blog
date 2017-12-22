@@ -10,7 +10,7 @@ from search import query_search_index, find_posts_from_index
 
 from google.appengine.api import users
 from werkzeug.contrib.atom import AtomFeed
-from urlparse import urljoin
+
 from datetime import datetime, timedelta, date
 from math import ceil
 from functools import wraps
@@ -535,27 +535,15 @@ def edit_a_post_view(postkey=None):
 
 
 
-def make_external(url):
-    return urljoin(request.url_root, url)
 
 
 @app.route('/recent.atom')
 def recent_feed():
     feed = AtomFeed('Recent Articles',
                     feed_url=request.url, url=request.url_root)
-    #articles = BlogPost.all()
-    pattern=compile("About")
-    articles=memcache.get(KEY)
-    articles.order("-timestamp")
-    categories=memcache.get(CATEGORY)
-    for article in articles:
-        catname=[catobj.category for catobj in categories if catobj.key==article.category.key][0]
-        feed.add(article.title, unicode(article.body),
-                 content_type='html',
-                 author='Armen',
-                 url=make_external("#!/"+str(catname)+str(article.key.id())),
-                 updated=article.updated,
-                 published=article.timestamp)
+    posts = Posts()
+    feed = posts.add_to_feed(feed, request.url)
+
     return feed.get_response()
 
 

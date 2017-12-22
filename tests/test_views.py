@@ -4,8 +4,9 @@ import logging
 
 from freezegun import freeze_time
 from datetime import datetime
+from werkzeug.contrib.atom import AtomFeed
 from flask_testing import TestCase
-from flask import url_for, render_template
+from flask import url_for, render_template, request
 from blog import app
 from blog.views import CODEVERSION, fetch_everything_from_db, calculate_work_date_stats
 from google.appengine.ext import testbed
@@ -13,7 +14,7 @@ from google.appengine.api import users
 from google.appengine.ext import ndb
 from blog.forms import PostForm
 from blog.models import Tags, Posts, Categories, BlogPost
-from blog.utils import find_modified_tags, datetimeformat
+from blog.utils import find_modified_tags, datetimeformat, make_external
 from blog.search import query_search_index, find_posts_from_index
 
 from . import BlogTestBase
@@ -482,3 +483,19 @@ class TestViews(BlogTestBase):
         response = self.client.get((url_for('index', q="test redirect on search")))  # cre
 
         return self.assertStatus(response, 302)
+
+    def test_feed(self):
+        category_key = self.categories.add("category")
+        existing_tags = ["a new tag", "a new new tag"]
+        existing_tag_keys = self.tags.add(existing_tags)
+
+        self.posts.add("about", "body text", category_key, existing_tag_keys)
+
+        response = self.client.get(path='/recent.atom')
+
+        feed = AtomFeed('Recent Articles',
+                        feed_url='http://localhost/recent.atom', url=request.url_root)
+
+        feed = self.posts.add_to_feed(feed, request.url)
+
+        return self.assertEqual(feed.to_string(), response.data.decode('utf8'))
