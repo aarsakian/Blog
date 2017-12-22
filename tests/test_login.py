@@ -20,7 +20,6 @@ class TestLogin(BlogTestBase):
         return self.client.get('/login', follow_redirects=True)
 
     def logoutUser(self):
-        self.loginUserGAE(is_admin=True)
         return self.client.get('/logout')
 
     def testLogin(self):
@@ -28,7 +27,13 @@ class TestLogin(BlogTestBase):
 
         self.assertEqualHTML(self.client.get(url_for('index')).data.decode('utf-8'), rv.data.decode('utf-8'))
 
-    def testLogout(self):
+    def testLogout_withLoggedInUser(self):
+        self.loginUser()
         rv = self.logoutUser()
         self.assertEqualHTML(redirect(users.create_logout_url('http://localhost/logout')).data.decode('utf-8'),
+                             rv.data.decode('utf-8'))
+
+    def testLogout(self):
+        rv = self.logoutUser()
+        self.assertEqualHTML(redirect(url_for('index')).data.decode('utf-8'),
                              rv.data.decode('utf-8'))
