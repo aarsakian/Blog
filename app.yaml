@@ -28,3 +28,6 @@ handlers:
   script: blog.app
   login: admin
   secure: always
+
+env_variables:
+  SECRET_KEY: '245gdfh67(*^%^&*#'
