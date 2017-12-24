@@ -1,9 +1,9 @@
 
-[![Build Status](https://travis-ci.org/aarsakian/blog.svg?branch=major_rewrite_following_TDD_principles)](https://travis-ci.org/aarsakian/blog)
-[![Code Coverage](https://img.shields.io/codecov/c/github/aarsakian/blog/major_rewrite_following_TDD_principles.svg)](https://codecov.io/github/aarsakian/blog?branch=major_rewrite_following_TDD_principles)
+[![Build Status](https://travis-ci.org/aarsakian/blog.svg?branch=master)](https://travis-ci.org/aarsakian/blog)
+[![Code Coverage](https://img.shields.io/codecov/c/github/aarsakian/blog/master.svg)](https://codecov.io/github/aarsakian/blog?branch=master)
 [![Dependency Status](https://dependencyci.com/github/aarsakian/blog/badge)](https://dependencyci.com/github/aarsakian/blog)
 
-![codecov.io](https://codecov.io/github/aarsakian/blog/branch.svg?branch=major_rewrite_following_TDD_principles)
+![codecov.io](https://codecov.io/github/aarsakian/blog/branch.svg?branch=master)
 
 MyBlog
 ======
