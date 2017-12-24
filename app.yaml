@@ -1,10 +1,9 @@
-application: aarsakian 
-version: 4
 runtime: python27
-api_version: 1
-threadsafe: true #added for python 2.7
+api_version: 2
+threadsafe: true 
 default_expiration: "10m"
 
+# [START handlers]
 handlers:
 - url: /favicon.ico
   static_files: blog/static/images/favicon.ico
@@ -28,6 +27,9 @@ handlers:
   script: blog.app
   login: admin
   secure: always
+# [END handlers]
 
+# [START libraries]
 env_variables:
   SECRET_KEY: '245gdfh67(*^%^&*#'
+# [END libraries]
