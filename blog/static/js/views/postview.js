@@ -7,7 +7,6 @@
         className: "post clear" ,//view is a post
         template :Handlebars.compile($("#entry-template").html()),
         initialize: function(){
-	   console.log('model change');
             this.model.on('change', this.render, this);//rerender event, callback, [context]
             this.model.on('destroy', this.remove, this);
 	    
@@ -28,12 +27,13 @@
         "click  h3.editable.admin":         "editTitle",
         "click  .save":          "close",
         "keypress .post textarea"  :   "updateHeight",
-        "keypress #post-title "  :    "updateOnEnter",
-        "keypress #post_tag"  :    "updateOnEnter",
+        "keypress .post-title "  :    "updateOnEnter",
+        "keypress .post-summary "  :    "updateOnEnter",
+        "keypress .post_tag"  :    "updateOnEnter",
         "click .destroy" : "clear",
         "click .backlink a" : 'resetCollection',
         "click .edit-tags":"editTags",
-	"click .edit-title":"editTitle",
+	    "click .edit-title":"editTitle",
 
        },
     
@@ -55,40 +55,25 @@
 	    }
             this.title=this.model.toJSON().title;
             this.id=this.model.toJSON().id;
-            this.tags=[]
+            this.summary = this.model.toJSON().summary;
             this.tags=this.model.toJSON().tags;
-	    this.category=this.model.toJSON().category;
-            var tagsnames=[];
-            console.log(typeof this.tags);
-            if (typeof this.tags[0]==="object")
-               {
-               this.tags.forEach(function(tag){//example of a closure
-                 tagsnames.push(tag.tag);               
-               });
-               this.tagsnames=tagsnames;
-	       console.log(tagsnames);
-	    //   this.tags=tagsnames;
-               }
-            else//categories and tags return Array
-               {
-               var tagsArray=[]
-            
-               this.tagsnames=this.tags;
-               }
+            this.category=this.model.toJSON().category;
+     
+            console.log(this.model.toJSON())
+     
         
-        
-           
-
 	     
 	    if ((app.Posts.category) || (app.Posts.tag))//tag or category collection
 		{  //app.Posts.url='posts/'+this.id;
-                    context = {title: this.title,body:this.body,key:this.id,user_admin:window.App.user.toJSON().user_status.user_status,
+                    context = {title: this.title,body:this.body,summary:this.summary,
+                    key:this.id,user_admin:window.App.user.toJSON().user_status.user_status,
                  tags: this.tags,date:this.model.toJSON().date,updated:this.model.toJSON().updated,
                  onepostmode:editmode,catid:this.model.toJSON().catid,category:this.category,  body100:  body100}
                 }
-                else{
-                           
-                    context = {title: this.title,body:this.body,key:this.id,user_admin:window.App.user.toJSON().user_status.user_status,
+       else{
+               
+                    context = {title: this.title,body:this.body,summary:this.summary,
+                    key:this.id,user_admin:window.App.user.toJSON().user_status.user_status,
                  tags:this.tags,date:this.model.toJSON().date,updated:this.model.toJSON().updated,
                  onepostmode:editmode,catid:this.model.toJSON().catid,category:this.model.toJSON().category,  body100:  body100}
             
@@ -96,8 +81,8 @@
 	    
        
             var $el=$(this.el);//for DOM hooking}
-        
             $el.html(this.template(context));
+          
             $el.find('.save').addClass('hide');
             
            
@@ -133,10 +118,10 @@
             $(this.el).removeClass('view');
             $(this.el).find('.save').removeClass('hide');
             $(this.el).find('.article').addClass('hide');
-	    height=$(this.el).find('.article').height()+20;
+            height=$(this.el).find('.article').height()+20;
             $body=$(this.el).find('textarea').height(height);
             $body.addClass('edit');
-	    console.log(toMarkdown(this.body));
+            console.log(toMarkdown(this.body));
             $body.val(toMarkdown(this.body));
 	    
 	   
@@ -144,35 +129,36 @@
            
         },
         editTitle:function(){
-              editevent=true;
+            editevent=true;
             $(this.el).removeClass('view');
             $(this.el).find('.save').removeClass('hide');
-	    $(this.el).find('h3').addClass('hide');//hide textarea and h3
-            $(this.el).find('textarea').addClass('hide');
-            $title=$(this.el).find('#post-title');
+	        $(this.el).find('h3').addClass('hide');//hide textarea and h3
+          
+            $title=$(this.el).find('.post-title');
             $title.addClass('edit');
             $title.val(this.title);
+            console.log("tite"+$title)
         },
         
           editTags:function(){
             $(this.el).removeClass('view');
             $(this.el).find('.tag').addClass('hide');//hide tag
          
-            $tags=$(this.el).find('#post_tag');
+            $tags=$(this.el).find('.post_tag');
             $tags.addClass('edit');
-            $tags.val(this.tagsnames);
+            $tags.val(this.tags);
         },
         
         close: function() {
-		var tags=[];
+	
                 $.getScript("//platform.twitter.com/widgets.js");
                 if ($(this.el).find('h3').hasClass('hide')) {//closing title field
-                   title=$(this.el).find('#post-title').val();
-		   }
+                   title=$(this.el).find('.post-title').val();
+                }
                 else{
 			//console.log($(this.el).find('.title').text());
                    title=$(this.el).find('.title').text().replace(/!^\s+|\s+|!\s+$/g, " ");
-		}
+                }
                 if ($(this.el).find('.article').hasClass('hide')){
                     bodyMarkup=$(this.el).find('textarea').val();
 		  //  this.tags=tags=$(this.el).find('.tag').text().split(',');
@@ -184,20 +170,18 @@
                     bodyMarkup=$(this.el).find('.article').text();
 		
                 if ($(this.el).find('.tag').hasClass('hide')){
-                    tags=$(this.el).find('#post_tag').val().split(',');
-                     console.log(tags);
-                  }
-                else if ((!$(this.el).find('.links').has('a').length) && ($(this.el).find('#post_tag').hasClass('edit'))){//first tag
-                     tags=$(this.el).find('#post_tag').val().split(',');
-		}
-                else{
-			 tags=this.tagsnames;
-		     
-		}
+                    this.tags=$(this.el).find('.post_tag').val().split(',');
+                    
+                }
+                else if ((!$(this.el).find('.links').has('a').length) && ($(this.el).find('.post_tag').hasClass('edit'))){//first tag
+                    this.tags=$(this.el).find('.post_tag').val().split(',');
+                }
+              
+                
 		     // console.log(!$(this.el).find('.links').has('a').length);
-               //console.log($(this.el).find('#post_tag').hasClass('edit'));
-		console.log(bodyMarkup);
-                id=$(this.el).children().attr("id");
+               //console.log($(this.el).find('.post_tag').hasClass('edit'));
+		
+                id=this.model.id
             
                 if (!id){
                     id=$(".post").filter(function(index) {
@@ -207,7 +191,7 @@
                 
 
                 
-                this.model.save({body: bodyMarkup,title:title,id:id,tags:tags});//a change event is fired
+                this.model.save({body: bodyMarkup,title:title,id:id,tags:this.tags});//a change event is fired
                 //this.remove();//this removes the view from the DOM
                 this.unbind();//removing all view events 
          

@@ -9,7 +9,7 @@ h3{font-size:1.1em;}
 ul li{display:inline;list-style-type:none;}
 
 /*Structure*/
-#bd,#hd,#ft{
+#bd,#hd,#ft, #ld{
    width:900px;
   
 }
@@ -66,7 +66,7 @@ input,textarea{font-size:0.8em;}
 
 /*posts*/
 .classic{margin-bottom:35px;}
-.post .destroy,.post .edit-tags{display:none;}
+
 .post:hover .destroy,.post:hover .edit-tags{display:inline;}
 #posts h2{line-height: 10px;   color: #706b62;}
 .post a,.post h3{color:#706b62;padding:4px;text-align:left;}/*662823*/

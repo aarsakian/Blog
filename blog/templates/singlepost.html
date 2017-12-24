@@ -1,104 +1,105 @@
 {% extends "base.html" %}
 
 {% block title %}
-    Armen Arsakian personal blog
+Armen Arsakian personal blog
 {% endblock %}
 
 
 {% block header %}
 
-   {{ super() }}
-             {%for tag in posttagnames%}
-			          <meta name="keywords"  	content={{tag}}>
-		     {% endfor %}
+{{ super() }}
+{%for tag in posttagnames%}
+<meta name="keywords" content={{tag}}>
+{% endfor %}
 {% endblock %}
 
 {% block content%}
- {%if Post %}
-    <div class="page-header">
-	 <h2 class="editable">{{Post.title}}</h2>
-	 <div class="row" id="socialinks">
-	      <div class="col-md-6">
-	        <div class="col-md-4" id="date">Created: {{Post.timestamp|datetimeformat('%d-%m-%Y')}}	 </div>
-	        <div class="col-md-4" id="updated"> Updated: {{ Post.updated|datetimeformat('%d-%m-%Y')}}    </div>
-                           
-	     </div>
-	     <div class="col-md-3">
-			     
-					<div class="col-md-2 offset3"><a href="https://twitter.com/share" class="twitter-share-button"
-					   data-url="http://aarsakian.appspot.com" data-text="{{Post.title}}"
-					   data-via="Aarsakian's blog" data-lang="en" hashtags="{{Post.category}}/{{Post.title}}">
-					   Tweet</a>
-					</div>
-					<div class="offset1 span1">
-					      <span class="gplus"><g:plusone size="medium"  align="right"></g:plusone></span>
-					</div>
-	       </div>
-	 </div>
+{%if Post %}
+<div class="page-header">
+    <h2 class="editable">{{Post.title}}</h2>
+    <div class="row" id="socialinks">
+        <div class="col-md-10">
+            <div class="col-md-5" id="date">Created: {{Post.timestamp|datetimeformat(('%A %d %B %Y'))}}</div>
+            <div class="col-md-5" id="updated"> Updated: {{ Post.updated|datetimeformat(('%A %d %B %Y'))}}</div>
+
+        </div>
+        <div class="col-md-1">
+
+            <div class="col-md-2 offset3"><a href="https://twitter.com/share" class="twitter-share-button"
+                                             data-url="http://aarsakian.appspot.com" data-text="{{Post.title}}"
+                                             data-via="Aarsakian's blog" data-lang="en"
+                                             hashtags="{{category}}/{{Post.title}}">
+                Tweet</a>
+            </div>
+            <div class="offset1 span1">
+                <span class="gplus"><g:plusone size="medium" align="right"></g:plusone></span>
+            </div>
+        </div>
     </div>
- 
-           
-    <div id="row">
-		 <div class="col-md-9" id="bdinner">
-                     <div class="post">
-			 
-			    <div  id="{{Post.key}}" class="classic">
-                            <!--<div class="postTitle">
-                         
-	              
-                            </div>-->
-			
-			   
-                          
-                        
-		         <div  class="article clear">
-		              {{Post.body}}
-		      
-                        </div><!--closes article-->
-              
-                    </div><!--closes post-->
-                </div>
-       
-           		
-    </div>      
-      
-	 <div class="col-md-3">
-	
-		 {%for Post in RelatedPosts%}
-		
-		<div class="row post">
-              
-              
-		    <h3 class="editable"><a href="/{{Post.category.category}}/{{Post.timestamp|datetimeformat('%Y')}}/{{Post.timestamp|datetimeformat('%B')}}/
-		           {{Post.title|trim|lower}}">{{Post.title}}</a></h3>
-		    <div class="row" id="date">Created: {{Post.timestamp|datetimeformat('%d %B %Y')}}	 </div>
-		    <div class="row" id="updated"> Updated: {{ Post.updated|datetimeformat('%d %B %Y')}}    </div>
-		</div>
-	   {% endfor %}
-	
+</div>
+
+
+<div id="row">
+    <div class="col-md-9" id="bdinner">
+        <div class="post">
+
+            <div data-id="{{Post.id}}" class="classic">
+                <!--<div class="postTitle">
+
+
+                </div>-->
+
+
+                <div class="article clear">
+                    {{Post.body}}
+
+                </div><!--closes article-->
+
+            </div><!--closes post-->
         </div>
-    
-    
-    
-     {%if user_status%}
-	 
-        <div class="links row">   
-            <a class="btn edit" href="/edit/{{Post.key().id()}}">Edit</a>
-                          
+
+
+    </div>
+
+    <div class="col-md-3">
+
+        {%for relPost in RelatedPosts%}
+
+        <div class="row post">
+
+
+            <h3 class="editable">
+                <a href="/{{relPost.get_category()}}/{{relPost.timestamp|datetimeformat('%Y')}}/{{relPost.timestamp|datetimeformat('%B')}}/{{relPost.title|trim}}">{{relPost.title}}</a></h3>
+            <div class="row" id="date">Created: {{relPost.timestamp|datetimeformat('%d %B %Y')}}</div>
+            <div class="row" id="updated"> Updated: {{relPost.updated|datetimeformat('%d %B %Y')}}</div>
         </div>
-	
+        {{relPost.category.category}}
+        {% endfor %}
+
+
+    </div>
+
+
+    {%if user_status%}
+
+    <div class="links row">
+        <a class="btn edit" href="/edit/{{Post.key.id()}}">Edit</a>
+
+    </div>
+
     {%endif%}
 </div>
-       {%endif%}
- 
+{%endif%}
+
 {% endblock %}
 
 {% block footer%}
-    <div class="col-md-10">
-        <p> Armen Arsakian updated at <span class="siteupdate">{{siteupdated}}</span><span class="countdown">  {{daysleft}} . {{dayspassed}}</span></p>
-    </div>
-    <div class="col-md-1 offset1">
-        <span class="version"><a href="/built with...">{{codeversion}}</a></span>
-    </div>
-  
+<div class="col-md-10">
+    <p> Armen Arsakian updated at <span class="siteupdate">{{siteupdated}}</span><span class="countdown">  {{daysleft}} . {{dayspassed}}</span>
+    </p>
+</div>
+<div class="col-md-1 offset1">
+    <span class="version"><a href="/built with...">{{codeversion}}</a></span>
+</div>
+
 {% endblock %}

@@ -1,15 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}
-    Armen Arsakian personal blog
-{% endblock %}
+{% block title %}Armen Arsakian personal blog{% endblock %}
 
 {% block header %}
 
    {{ super() }}
         {%if tags%}
              {%for tag in tags%}
-			          <meta name="keywords"  	content={{tag.tag}}>
+			          <meta name="keywords"  	content={{tag}}>
 		     {% endfor %}
         {%endif%}
 {% endblock %}
@@ -27,8 +25,8 @@
     </div>
 	<div id="posts" id="bdinner">
 	    {%for post in posts%}
-		<div  id="{{post.key()}}" class="classic">
-		   <h2><a href="/{{post.category.category}}/{{post.timestamp|datetimeformat('%Y')}}
+		<div  data-id="{{post.id}}" class="classic">
+		   <h2><a href="/{{post.category}}/{{post.timestamp|datetimeformat('%Y')}}
 				/{{post.timestamp|datetimeformat('%m')}}/{{post.title|trim}}">
                {{post.title}}</a></h2>
 		    <div class="row">
