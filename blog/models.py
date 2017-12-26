@@ -195,7 +195,7 @@ class Posts(BlogList, JsonMixin):
 
     def get_by_title(self, title):
         for post in self._posts:
-            if post.title.lower() == title:
+            if post.title.lower() == title or post.title == title:
                 post_f = post
                 break
         try:
