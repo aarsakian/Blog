@@ -566,7 +566,11 @@ def searchsite():
 
 @app.errorhandler(InvalidUsage)
 @app.errorhandler(404)
-def page_not_found(e):
+def page_not_found(error):
+    if isinstance(error, InvalidUsage):
+        response = jsonify(error.to_dict())
+        response.status_code = error.status_code
+
     return render_template('404.html')
 
 @app.errorhandler(500)
