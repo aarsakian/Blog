@@ -3,7 +3,7 @@ from blog import app
 from models import Posts, Tags, Categories
 from flask import render_template,request,jsonify,redirect,url_for, Markup
 
-from google.appengine.api import memcache,search
+from errors import InvalidUsage
 from models import BlogPost,Tag,Category
 
 from search import query_search_index, find_posts_from_index
@@ -11,13 +11,13 @@ from search import query_search_index, find_posts_from_index
 from google.appengine.api import users
 from werkzeug.contrib.atom import AtomFeed
 
-from datetime import datetime, timedelta, date
+from datetime import datetime, date
 from math import ceil
 from functools import wraps
-from re import compile
+
 from jinja2.environment import Environment
 
-from itertools import chain
+
 from forms import PostForm
 from utils import datetimeformat
 
@@ -564,7 +564,7 @@ def searchsite():
 
     return jsonify(data=data)
 
-
+@app.errorhandler(InvalidUsage)
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html')
