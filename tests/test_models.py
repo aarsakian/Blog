@@ -347,6 +347,20 @@ class TestModels(BlogTestBase):
 
         self.assertItemsEqual(self.posts, [post_key.get()])
 
+
+    def test_filter_posts_by_category(self):
+        category_key = self.categories.add("a category")
+        test_tags = ["a new tag", "a new new tag"]
+        new_test_tags = ["a second tag", "a new second tag"]
+        new_tag_keys = self.tags.add(test_tags)
+        new_test_tag_keys = self.tags.add(new_test_tags)
+        post_key_1 = self.posts.add("a title", "body text", category_key, new_tag_keys)
+        post_key_2 = self.posts.add("a title", "a second body text", category_key, new_test_tag_keys )
+
+        self.posts.filter_by_category("a category")
+
+        self.assertItemsEqual(self.posts, [post_key_1.get(), post_key_2.get()])
+
     def test_get_category(self):
         category_key = self.categories.add("category")
         test_tags = ["a new tag", "a new new tag"]
