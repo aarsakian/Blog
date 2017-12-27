@@ -9,6 +9,7 @@ class BlogTestBase(TestCase):
 
     def create_app(self):
         app.config['WTF_CSRF_ENABLED'] = False
+        app.config['TESTING'] = True
 
         return app
 
