@@ -13,6 +13,7 @@ from werkzeug.contrib.atom import AtomFeed
 from blog.models import Tags, Posts, Categories, BlogPost
 from blog.utils import find_modified_tags, find_tags_to_be_added, find_tags_to_be_removed, datetimeformat, \
     make_external
+from blog.errors import InvalidUsage
 
 from . import BlogTestBase
 
@@ -294,7 +295,7 @@ class TestModels(BlogTestBase):
 
         self.posts.add("a title", "body text", category_key, new_tag_keys)
         # test exception
-        with self.assertRaises(LookupError):
+        with self.assertRaises(InvalidUsage):
             self.posts.get_by_title("a non existent title")
 
     def test_get_names_from_tags(self):
