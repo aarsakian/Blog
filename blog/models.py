@@ -4,6 +4,8 @@ from google.appengine.api import memcache
 
 from utils import datetimeformat
 
+from errors import InvalidUsage
+
 from search import add_document_in_search_index, delete_document, find_posts_from_index
 from utils import find_modified_tags, find_tags_to_be_removed, find_tags_to_be_added, make_external
 
@@ -202,11 +204,15 @@ class Posts(BlogList, JsonMixin):
             return post_f
         except:
             logging.error("Post Not Found")
-            raise LookupError
+            raise InvalidUsage('This post is not found', status_code=404)
 
     def filter_by_tag(self, tag):
         [self._posts.pop(post_idx) for post_idx, post in enumerate(self._posts)
                 if tag not in post.get_tag_names()]
+
+    def filter_by_category(self, category):
+        [self._posts.pop(post_idx) for post_idx, post in enumerate(self._posts)
+         if category not in post.get_category()]
 
     def filter_matched(self, posts_ids):
         [self._posts.pop(post_idx) for post_idx, post in enumerate(self._posts)
