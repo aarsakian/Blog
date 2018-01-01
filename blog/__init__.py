@@ -1,7 +1,15 @@
+# appengine_config.py
+from google.appengine.ext import vendor
+
+# Add any libraries install in the "lib" folder.
+vendor.add('lib')
+
 from flask import Flask
 from settings import Config
 from flask_bootstrap import Bootstrap
 from flask_wtf.csrf import  CsrfProtect
+
+
 
 bootstrap = Bootstrap()
 
