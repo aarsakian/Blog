@@ -1,24 +1,20 @@
 language: python
 python:
-  - "2.7"
-
-
+- '2.7'
 env:
   global:
   - API_CHECK=https://appengine.google.com/api/updatecheck
 before_script:
-# Idea from https://blog.bekt.net/p/gae-sdk/ retrieve GAE SDK
- - SDK_VERSION=$(curl -s $API_CHECK | awk -F '\"' '/release/ {print $2}')
- - SDK_URL=https://storage.googleapis.com/appengine-sdks/featured/google_appengine_$SDK_VERSION.zip
- - wget $SDK_URL -nv
- - unzip -q google_appengine_$SDK_VERSION.zip
-# command to install dependencies 
+- SDK_VERSION=$(curl -s $API_CHECK | awk -F '\"' '/release/ {print $2}')
+- SDK_URL=https://storage.googleapis.com/appengine-sdks/featured/google_appengine_$SDK_VERSION.zip
+- wget $SDK_URL -nv
+- unzip -q google_appengine_$SDK_VERSION.zip
 install:
- - "pip install -r requirements.txt"
-
-# command to run tests
+- pip install -r requirements.txt
 script:
- - nosetests --with-coverage --with-gae  --gae-lib-root=google_appengine   --cover-package=blog   tests/test_*
-
+- nosetests --with-coverage --with-gae  --gae-lib-root=google_appengine   --cover-package=blog   tests/test_*
 after_success:
- - codecov
+- codecov
+before_install:
+- openssl aes-256-cbc -K $encrypted_ec4638b67c22_key -iv $encrypted_ec4638b67c22_iv
+  -in credentials.tar.gz.enc -out credentials.tar.gz -d
