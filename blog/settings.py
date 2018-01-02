@@ -20,5 +20,6 @@ class Settings(ndb.Model):
         'its value in that record\'s value field.') % (name, name))
     return retval.value
 
+
 class Config:
     SECRET_KEY = Settings.get('FLASK_SECRET_KEY')
