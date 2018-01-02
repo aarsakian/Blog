@@ -1,0 +1,31 @@
+application: aarsakian 
+version: 4
+runtime: python27
+api_version: 1
+threadsafe: true #added for python 2.7
+default_expiration: "10m"
+
+handlers:
+- url: /favicon.ico
+  static_files: blog/static/images/favicon.ico
+  upload: blog/static/images/favicon.ico
+  secure: always
+
+- url: /robots.txt
+  static_files: blog/static/robots.txt
+  upload: blog/static/robots.txt
+  secure: always
+
+- url: /static
+  static_dir: blog/static
+  http_headers:
+    Cache-Control: no-cache, must-revalidate 
+  secure: always
+- url: .*
+  script: blog.app
+  secure: always
+- url: /edit
+  script: blog.app
+  login: admin
+  secure: always
+
