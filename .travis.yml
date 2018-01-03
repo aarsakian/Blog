@@ -17,8 +17,12 @@ before_script:
 - wget $SDK_URL -nv
 - unzip -q google_appengine_$SDK_VERSION.zip
 
+before_install:
+- mkdir -p lib
+
 install:
 # install dependencies
+
 - pip install -r requirements.txt lib/
 
   
