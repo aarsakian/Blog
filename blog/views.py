@@ -1,5 +1,5 @@
 import logging, json
-from blog import app
+from start import app
 from models import Posts, Tags, Categories
 from flask import render_template,request,jsonify,redirect,url_for, Markup
 
@@ -11,15 +11,13 @@ from search import query_search_index, find_posts_from_index
 from google.appengine.api import users
 from werkzeug.contrib.atom import AtomFeed
 
-from datetime import datetime, date
-from math import ceil
 from functools import wraps
 
 from jinja2.environment import Environment
 
 
 from forms import PostForm
-from utils import datetimeformat
+from utils import datetimeformat, calculate_work_date_stats
 
 KEY="posts"
 TAG="tags"
@@ -28,6 +26,8 @@ CODEVERSION=":v0.7"
 
 headerdict={"machine_learning":"Gaussian Graphical Models","programming":"Programming","about":"About Me"}
 
+def fetch_everything_from_db():
+    return Posts(), Tags(), Categories()
 
 
 @app.route('/login', methods=['GET'])
@@ -69,14 +69,7 @@ environment = Environment()
 app.jinja_env.filters['datetimeformat'] = datetimeformat
 
 
-def fetch_everything_from_db():
-    return Posts(), Tags(), Categories()
 
-
-def calculate_work_date_stats():
-    passed_days = (date.today()-date(2012, 3, 2)).days
-    remaining_days = int(ceil(2.0/3.0*8*365))-passed_days
-    return passed_days, remaining_days
 
 
 

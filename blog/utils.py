@@ -1,4 +1,6 @@
 from urlparse import urljoin
+from datetime import datetime, date
+from math import ceil
 
 
 def find_tags_to_be_removed(old_post_tags, non_modified_tags, remaining_tags):
@@ -21,5 +23,12 @@ def find_modified_tags(candidate_tags, remaining_tags):
 def datetimeformat(value, format='%H:%M / %A-%B-%Y'):
     return value.strftime(format)
 
+
 def make_external(base_url, url):
     return urljoin(base_url, url)
+
+
+def calculate_work_date_stats():
+    passed_days = (date.today()-date(2012, 3, 2)).days
+    remaining_days = int(ceil(2.0/3.0*8*365))-passed_days
+    return passed_days, remaining_days

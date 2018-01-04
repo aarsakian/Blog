@@ -1,7 +1,7 @@
 from google.appengine.api import search, memcache
 from google.appengine.ext import db
 import logging
-from blog import app
+
 from flask import request, jsonify
 from datetime import datetime, timedelta, date
 
