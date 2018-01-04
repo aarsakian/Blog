@@ -8,14 +8,19 @@ from werkzeug.contrib.atom import AtomFeed
 from flask_testing import TestCase
 from flask import url_for, render_template, request
 
-from blog.views import CODEVERSION, fetch_everything_from_db, calculate_work_date_stats
 from google.appengine.ext import testbed
 from google.appengine.api import users
 from google.appengine.ext import ndb
 from blog.forms import PostForm
 from blog.models import Tags, Posts, Categories, BlogPost
-from blog.utils import find_modified_tags, datetimeformat, make_external
+from blog.utils import find_modified_tags, datetimeformat, make_external,  calculate_work_date_stats
 from blog.search import query_search_index, find_posts_from_index
+
+
+CODEVERSION = ':v0.7'
+
+
+
 
 from . import BlogTestBase
 
@@ -130,7 +135,7 @@ class TestViews(BlogTestBase):
 
         passed_days, remaining_days = calculate_work_date_stats()
 
-        response = self.client.get((url_for('index')))  # create a request object
+        response = self.client.get('/')  # create a request object
         site_updated = self.posts.site_last_updated()
         rendered_template = render_template("posts.html", user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated, \

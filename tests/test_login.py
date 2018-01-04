@@ -4,9 +4,20 @@ from . import BlogTestBase
 from flask import url_for, redirect
 
 from google.appengine.api import users
+from google.appengine.ext import testbed
 
 
 class TestLogin(BlogTestBase):
+
+    def setUp(self):
+        self.testbed = testbed.Testbed()
+        # Then activate the testbed, which prepares the service stubs for use.
+        self.testbed.activate()
+        # Next, declare which service stubs you want to use.
+        # Next, declare which service stubs you want to use.
+        self.testbed.init_datastore_v3_stub()
+
+        self.testbed.init_user_stub(enable=True)
 
     def loginUserGAE(self, email='user@example.com', id='123', is_admin=False):
         self.testbed.setup_env(

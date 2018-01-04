@@ -3,14 +3,14 @@ import logging
 from google.appengine.ext import testbed
 from blog import create_app as app_init
 from flask_testing import TestCase
-
+from blog.start import app
 
 
 class BlogTestBase(TestCase):
     maxDiff = None
 
     def create_app(self):
-        app = app_init('testing')
+
         return app
 
     def tearDown(self):

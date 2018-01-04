@@ -22,6 +22,8 @@ class TestModels(BlogTestBase):
         self.testbed.activate()
         # Next, declare which service stubs you want to use.
 
+        self.testbed.init_datastore_v3_stub()
+
         self.testbed.init_search_stub(enable=True)
         # Clear ndb's in-context cache between tests.
         # This prevents data from leaking between tests.
