@@ -9,17 +9,12 @@ bootstrap = Bootstrap()
 
 
 def create_app(config_name):
-   app = Flask(__name__)
-   app.config.from_object(config[config_name])
-   bootstrap.init_app(app)
+    app = Flask(__name__, root_path='blog')
+    app.config.from_object(config[config_name])
+    bootstrap.init_app(app)
 
-   return app
+    return app
 
-
-app = create_app('production')
-
-
-import views
 
 
 

@@ -22,10 +22,10 @@ handlers:
     Cache-Control: no-cache, must-revalidate 
   secure: always
 - url: .*
-  script: blog.app
+  script: blog.start.app
   secure: always
 - url: /edit
-  script: blog.app
+  script: blog.start.app
   login: admin
   secure: always
 
