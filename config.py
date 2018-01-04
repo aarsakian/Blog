@@ -16,7 +16,8 @@ class TestingConfig(Config):
 
 
 class ProductionConfig(Config):
-  SECRET_KEY = Settings.get('FLASK_SECRET_KEY')
+  #SECRET_KEY = Settings.get('FLASK_SECRET_KEY')
+  SECRET_KEY = 'adasd'
 
 
 

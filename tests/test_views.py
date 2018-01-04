@@ -7,7 +7,7 @@ from datetime import datetime
 from werkzeug.contrib.atom import AtomFeed
 from flask_testing import TestCase
 from flask import url_for, render_template, request
-from blog import app
+
 from blog.views import CODEVERSION, fetch_everything_from_db, calculate_work_date_stats
 from google.appengine.ext import testbed
 from google.appengine.api import users
