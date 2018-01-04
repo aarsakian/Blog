@@ -1,30 +1,17 @@
 import logging
 
-from google.appengine.ext import testbed, ndb
-from blog import app
+from google.appengine.ext import testbed
+from blog import create_app as app_init
 from flask_testing import TestCase
+
+
 
 class BlogTestBase(TestCase):
     maxDiff = None
 
     def create_app(self):
-        app.config['WTF_CSRF_ENABLED'] = False
-        app.config['TESTING'] = True
-
+        app = app_init('testing')
         return app
-
-    def setUp(self):
-        self.testbed = testbed.Testbed()
-
-        self.testbed.activate()
-
-        self.testbed.init_datastore_v3_stub()
-
-        self.testbed.init_memcache_stub()
-
-        self.testbed.init_user_stub(enable=True)
-
-        ndb.get_context().clear_cache()
 
     def tearDown(self):
         self.testbed.deactivate()
