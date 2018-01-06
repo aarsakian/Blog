@@ -1,5 +1,5 @@
 import logging, json
-from blog.start import app
+from blog import app
 from models import Posts, Tags, Categories
 from flask import render_template,request,jsonify,redirect,url_for, Markup
 
