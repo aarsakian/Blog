@@ -7,7 +7,7 @@ import os
 
 bootstrap = Bootstrap()
 
-app = Flask(__name__, root_path='blog')
+app = Flask(__name__, root_path='blog',  instance_relative_config=True)
 bootstrap.init_app(app)
 
 if os.getenv('FLASK_CONF') == 'TEST':
