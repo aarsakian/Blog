@@ -29,7 +29,7 @@ before_install:
 install:
 # install dependencies
 - pip install -r requirements.txt -t lib/
-
+- pin install -r test_requirements.txt
   
 script:
 #RUN THE TESTS
