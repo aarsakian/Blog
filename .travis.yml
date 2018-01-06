@@ -10,8 +10,7 @@ cache:
   - "$HOME/google_app_engine/"
 
 env:
-- API_CHECK=https://appengine.google.com/api/updatecheck
-- FLASK_CONF=TEST 
+- API_CHECK=https://appengine.google.com/api/updatecheck FLASK_CONF=TEST 
 
 before_script:
 # Idea from https://blog.bekt.net/p/gae-sdk/ retrieve GAE SDK
@@ -34,6 +33,6 @@ install:
   
 script:
 #RUN THE TESTS
-- nosetests --with-coverage --with-gae  --gae-lib-root=google_appengine   --cover-package=blog   tests/test_*
+- nosetests --with-coverage --with-gae  --gae-lib-root=google_appengine   --cover-package=blog   tests/test_* -q
 after_success:
 - codecov
