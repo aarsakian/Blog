@@ -11,6 +11,7 @@ cache:
 
 env:
 - API_CHECK=https://appengine.google.com/api/updatecheck
+- FLASK_CONF=TEST 
 
 before_script:
 # Idea from https://blog.bekt.net/p/gae-sdk/ retrieve GAE SDK
