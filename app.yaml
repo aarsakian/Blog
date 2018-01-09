@@ -1,7 +1,7 @@
 runtime: python27
 api_version: 1
 threadsafe: true #added for python 2.7
-default_expiration: "10m"
+default_expiration: "1d"
 
 handlers:
 - url: /favicon.ico
@@ -26,4 +26,14 @@ handlers:
   script: blog.app
   login: admin
   secure: always
-
+skip_files:
+ - ^(.*/)?#.*#$
+ - ^(.*/)?.*~$
+ - ^(.*/)?.*\.py[co]$
+ - ^(.*/)?.*/RCS/.*$
+ - ^(.*/)?\..*$
+ - google_appengine_*
+ - virtualEnv*
+ - tests*
+ - cover*
+ - scripts
