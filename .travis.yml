@@ -22,7 +22,6 @@ install:
 - pip install -r requirements.txt -t lib/
 - pip install -r test_requirements.txt
 script:
-- nosetests --with-coverage --with-gae  --gae-lib-root=google_appengine   --cover-package=blog   tests/test_*
-  -q
+- nosetests --with-coverage --with-gae  --gae-lib-root=google_appengine   --cover-package=blog   tests/test_*  -q
 after_success:
 - codecov
