@@ -26,9 +26,13 @@ install:
 - pip install -r test_requirements.txt
 script:
 - nosetests --with-coverage --with-gae  --gae-lib-root=google_appengine   --cover-package=blog   tests/test_*  -q
-# Deploy to GAE
-- gcloud app deploy app.yaml --quiet
 # Run and end to end test
 - python tests/e2e_test.py
 after_success:
 - codecov
+deploy:
+  provider: gae
+  skip_cleanup: true
+  keyfile: client-secret.json
+  project: aarsakian
+  on: production
