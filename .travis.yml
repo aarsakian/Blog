@@ -33,4 +33,4 @@ deploy:
   skip_cleanup: true
   keyfile: client-secret.json
   project: aarsakian
-  on: production
+  on: master
