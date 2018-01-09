@@ -5,8 +5,12 @@ virtualenv:
 python:
 - '2.7'
 cache:
+  - 
   directories:
   - "$HOME/google_app_engine/"
+  - "$HOME/.cache/pip"
+before_cache:
+  - rm -f $HOME/.cache/pip/log/debug.log
 env:
 - API_CHECK=https://appengine.google.com/api/updatecheck FLASK_CONF=TEST
 before_script:
