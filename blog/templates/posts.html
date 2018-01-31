@@ -80,18 +80,7 @@
 {% endblock %}
 
 {% block footer%}
-<div id="ftinner">
-    <div class="col-md-6">
-        <p> Armen Arsakian updated at <span class="siteupdate">{{siteupdated}}</span><span class="contactinfo">Contact: contact at arsakian.com</span>
-        </p>
-    </div>
-
-    <div class="col-md-3 col-md-offset-3">
-        <span class="countdown">  {{daysleft}} . {{dayspassed}}</span>
-
-        <span class="version"><a href="/built with...">{{codeversion}}</a></span>
-    </div>
-</div>
+    {% include 'footer.html' %}
 
 {% endblock %}
 
