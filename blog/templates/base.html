@@ -1,251 +1,257 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<title>{% block title %}title{% endblock %}</title>
+<head>
+    <title>{% block title %}title{% endblock %}</title>
 
-		{% block header %}
-			 <meta name="description" content="A blog about programming, computer forensics">
-			 <meta name="author" content="Armen Arsakian">
-		{% endblock %}
+    {% block header %}
+    <meta name="description" content="A blog about programming, computer forensics">
+    <meta name="author" content="Armen Arsakian">
+    {% endblock %}
 
-		<!-- Bootstrap -->
-		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-		<link href="/static/css/style.css" rel="stylesheet" media="screen">
-		<link href="{{ url_for('recent_feed') }}" rel="alternate" title="Recent Changes"  type="application/atom+xml">
-		<link href='//fonts.googleapis.com/css?family=Merriweather:400' rel='stylesheet' type='text/css'>
-	</head>
-	<body>
-		<div class="container col-lg-2 col-lg-offset-2">
-			<div class="row" id="searchfield">
-				<div class="col-mg-2 col-md-offset-9">
-          
-					<form class="navbar-search pull-left" id="searchform">				
-            <input type="text" name="q" autocomplete="off"  data-provide="typeahead" class="typeahead" placeholder="Search">	
-					</form>
-				</div>
-			</div>
-			<div class="row" id="hd">
-				<div class="col-md-8" id="hdinner">	   
-					<ul class="nav nav-pills">
-						<li><a href="/">HOME</a></li>
-						<li><a href="/archives">ARCHIVES</a></li>
-						<li><a href="/about">ABOUT</a></li>
-					</ul>
-				</div>
-				<div class="col-md-4" id="images">
-          
-					<div style="font-size: 24px;"> <!-- my social links-->
-						<div class="col-md-1 col-md-offset-3">
-							<a href="https://www.linkedin.com/in/arsakian"><i class="fa fa-linkedin" aria-hidden="true"></i></a>
-						</div>   					 
-						<div class="col-md-1 col-md-offset-1">
-							<a href="https://twitter.com/aarsakian"><i class="fa fa-twitter" aria-hidden="true"></i></a>
-						</div>
-						<div class="col-md-1 col-md-offset-1">
-							<a href="https://github.com/aarsakian"><i class="fa fa-github" aria-hidden="true"></i></a>
-						</div>
-						<div class="col-md-1 col-md-offset-1">
-							<a href="/recent.atom"><i class="fa fa-rss" aria-hidden="true"></i></a>
-						</div>
-					</div>
-		
-				</div>
-			</div>
+    <!-- Bootstrap -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet"
+          integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link href="/static/css/style.css" rel="stylesheet" media="screen">
+    <link href="{{ url_for('recent_feed') }}" rel="alternate" title="Recent Changes" type="application/atom+xml">
+    <link href='//fonts.googleapis.com/css?family=Merriweather:400' rel='stylesheet' type='text/css'>
+</head>
+<body>
+<div class="container col-lg-2 col-lg-offset-2">
+    <div class="row" id="searchfield">
+        <div class="col-mg-2 col-md-offset-9">
 
-			<div class="row" id="bd">
-				{% block content %}<!-- main content area -->{% endblock %}
-			</div>
-			<div class="row" id="ld">
-				{%if user_status%}
-					<div id="newpost" class="clear">
-						{% block new_post%}{% endblock %}
-					</div>
-				{%endif%}
-			</div>
-	
-			<div class="row" id="ft">
-				{% block footer %}<!-- main content area -->{% endblock %}
-			</div>
-		</div>
-		
-		
-		
-	{%if user_status%}
-    <script id="post-list-layout" type="text/x-handlebars-template"> 
-			<div class="list-container"></div>
-			<div class="actions-bar-container"></div>
-			<div class="post-form-container"></div>
-			
-    </script>
-	
-	<script id="post-form-layout" type="text/x-handlebars-template"> 
-		<div id="preview-container" class="col-xs-12 col-sm-4 col-md-3"></div>
-		<div class="post-form-container"></div>
-      
-    </script>
-    
-	<script id="tag-list-layout" type="text/x-handlebars-template">
-			<div class="tag-list-container"></div>
-	</script>
-    
-		<script id="tag-list-template" type="text/x-handlebars-template">
-			
-			 <a class="button taggy" href="/tags#!{{'{{'}}tag{{'}}'}}">{{'{{'}}tag{{'}}'}}</a>
-		</script>
-		
-		<script id="collection-template" type="text/x-handlebars-template">
-			 <h1> {{'{{'}}#unless type{{'}}'}}
-				{{'{{'}}title{{'}}'}}
-				 {{'{{'}}/unless{{'}}'}}
-				  {{'{{'}}#if type{{'}}'}}<!--if type not undefined -->
-				  {{'{{'}}title{{'}}'}}
-				{{'{{'}}/if{{'}}'}}
+            <form class="navbar-search pull-left" id="searchform">
+                <input type="text" name="q" autocomplete="off" data-provide="typeahead" class="typeahead"
+                       placeholder="Search">
+            </form>
+        </div>
+    </div>
+    <div class="row" id="hd">
+        <div class="col-md-8" id="hdinner">
+            <ul class="nav nav-pills">
+                <li><a href="/">HOME</a></li>
+                <li><a href="/archives">ARCHIVES</a></li>
+                <li><a href="/about">ABOUT</a></li>
+            </ul>
+        </div>
+        <div class="col-md-4" id="images">
 
-				  
-			 </h1>
-		</script>
-		
-		<script id="categories-template" type="text/x-handlebars-template">
-			   <a class="button taggy" href="/categories#!{{'{{'}}category{{'}}'}}">{{'{{'}}category{{'}}'}}</a>
-			
-		</script>
-		<!-- post area-->
-		<script id="post-list-item" type="text/x-handlebars-template">
-			<div  data-id={{'{{'}}id{{'}}'}} class="postKey">
-				<div class="postTitle">
-					<h3> <!--{{'{{'}}#if user_admin{{'}}'}} class=--><!--"title editable admin">-->
+            <div style="font-size: 24px;"> <!-- my social links-->
+                <div class="col-md-1 col-md-offset-3">
+                    <a href="https://www.linkedin.com/in/arsakian"><i class="fa fa-linkedin" aria-hidden="true"></i></a>
+                </div>
+                <div class="col-md-1 col-md-offset-1">
+                    <a href="https://twitter.com/aarsakian"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+                </div>
+                <div class="col-md-1 col-md-offset-1">
+                    <a href="https://github.com/aarsakian"><i class="fa fa-github" aria-hidden="true"></i></a>
+                </div>
+                <div class="col-md-1 col-md-offset-1">
+                    <a href="/recent.atom"><i class="fa fa-rss" aria-hidden="true"></i></a>
+                </div>
+            </div>
 
-						{{'{{'}}/if{{'}}'}}-->
-						<a href="edit/{{'{{'}}id{{'}}'}}"> {{'{{'}}title{{'}}'}}</a>
-					</h3>
-				<!-- {{'{{'}}#if user_admin{{'}}'}} -->
-	  
-					
-						<input   class="post-title editmode" name="title" placeholder="">
-				<!--	{{'{{'}}/if{{'}}'}} -->
-				</div>
-				
+        </div>
+    </div>
 
-				<div  {{'{{'}}#if user_admin{{'}}'}}
-						
-						class="editable admin article clear"
-					{{'{{'}}/if{{'}}'}}
-						class="viewable admin article clear"
-			
-					{{'{{'}}#unless user_admin{{'}}'}}
-					
-						class="article clear"
-					{{'{{'}}/unless{{'}}'}}>
-		
-					{{'{{{'}}body{{'}}}'}}
-		 
-					{{'{{'}}#if body100{{'}}'}}
-						<span class="morelink"> <a href="/{{'{{'}}    category  {{'}}'}}/{{'{{'}}title{{'}}'}}">Read More</a></span>
-					{{'{{'}}/if{{'}}'}}
-				</div>
-					
-	
-				{{'{{'}}#if user_admin{{'}}'}}
-					<textarea class="clear editmode" type="text">{{ '{{' }}post{{ '}}' }}</textarea>
-				 {{'{{'}}/if{{'}}'}}
-		   
-				
-			  </div>
-		 <!--      <span class="backlink"><a href="/{{'{{'}}    category  {{'}}'}}">
-					<img src="{{url_for('static', filename='images/arrow_left_16x16.png')}}" alt="Back"/>
-				 <img src="{{url_for('static', filename='images/arrow_left_16x16.png')}}" alt="Back"/>
-					 <img src="{{url_for('static', filename='images/arrow_left_16x16.png')}}" alt="Back"/></a></span>-->
-			
-		
-				  
-				 
-			 
-			<div class="links">
-				{{'{{'}}#unless type{{'}}'}}
-					<div class="btn-group">
-					{{'{{'}}#each tags{{'}}'}}
+    <div class="row" id="bd">
+        {% block content %}<!-- main content area -->{% endblock %}
+    </div>
+    <div class="row" id="ld">
+        {%if user_status%}
+        <div id="newpost" class="clear">
+            {% block new_post%}{% endblock %}
+        </div>
+        {%endif%}
+    </div>
 
-						<a class="btn tag" href="/tags/{{'{{'}}this{{'}}'}}">{{'{{'}}this{{'}}'}}</a>
-					{{'{{'}}/each{{'}}'}}
-					</div>
-				{{'{{'}}/unless{{'}}'}}
-				
+    <div class="row" id="ft">
+        {% block footer %}<!-- main content area -->{% endblock %}
+    </div>
+</div>
 
-					<div class="btn-group">
-						<button class="edit btn"><i class="icon-edit"></i>Edit</button>
-						<button class="save btn"><i class="icon-save"></i>Save</button>
-						<button class="destroy btn"><i class="icon-remove"></i>Delete</button>
-						<button class="edit-tags btn"><i class="icon-tag"></i>Edit Tags</button>
-					</div>
-			
-						
-			</div><!--closes links-->
-				
-			 </div>
-  </script>
 
-		
-	{%endif%}	
+{%if user_status%}
+<script id="post-list-layout" type="text/x-handlebars-template">
+    <div class="list-container"></div>
+    <div class="actions-bar-container"></div>
+    <div class="post-form-container"></div>
+
+</script>
+
+<script id="post-form-layout" type="text/x-handlebars-template">
+    <div id="preview-container" class="col-xs-12 col-sm-4 col-md-3"></div>
+    <div class="post-form-container"></div>
+
+</script>
+
+<script id="tag-list-layout" type="text/x-handlebars-template">
+    <div class="tag-list-container"></div>
+</script>
+
+<script id="tag-list-template" type="text/x-handlebars-template">
+
+    <a class="button taggy" href="/tags#!{{'{{'}}tag{{'}}'}}">{{'{{'}}tag{{'}}'}}</a>
+</script>
+
+<script id="collection-template" type="text/x-handlebars-template">
+    <h1> {{'{{'}}#unless type{{'}}'}}
+        {{'{{'}}title{{'}}'}}
+        {{'{{'}}/unless{{'}}'}}
+        {{'{{'}}#if type{{'}}'}}<!--if type not undefined -->
+        {{'{{'}}title{{'}}'}}
+        {{'{{'}}/if{{'}}'}}
+
+
+    </h1>
+</script>
+
+<script id="categories-template" type="text/x-handlebars-template">
+    <a class="button taggy" href="/categories#!{{'{{'}}category{{'}}'}}">{{'{{'}}category{{'}}'}}</a>
+
+</script>
+<!-- post area-->
+<script id="post-list-item" type="text/x-handlebars-template">
+    <div data-id={{'{{'}}id{{'}}'}} class="postKey">
+        <div class="postTitle">
+            <h3> <!--{{'{{'}}#if user_admin{{'}}'}} class=--><!--"title editable admin">-->
+
+                {{'{{'}}/if{{'}}'}}-->
+                <a href="edit/{{'{{'}}id{{'}}'}}"> {{'{{'}}title{{'}}'}}</a>
+            </h3>
+            <!-- {{'{{'}}#if user_admin{{'}}'}} -->
+
+
+            <input class="post-title editmode" name="title" placeholder="">
+            <!--	{{'{{'}}/if{{'}}'}} -->
+        </div>
+
+
+        <div {{
+        '{{'}}#if user_admin{{'}}'}}
+
+        class="editable admin article clear"
+        {{'{{'}}/if{{'}}'}}
+        class="viewable admin article clear"
+
+        {{'{{'}}#unless user_admin{{'}}'}}
+
+        class="article clear"
+        {{'{{'}}/unless{{'}}'}}>
+
+        {{'{{{'}}body{{'}}}'}}
+
+        {{'{{'}}#if body100{{'}}'}}
+        <span class="morelink"> <a href="/{{'{{'}}    category  {{'}}'}}/{{'{{'}}title{{'}}'}}">Read More</a></span>
+        {{'{{'}}/if{{'}}'}}
+    </div>
+
+
+    {{'{{'}}#if user_admin{{'}}'}}
+    <textarea class="clear editmode" type="text">{{ '{{' }}post{{ '}}' }}</textarea>
+    {{'{{'}}/if{{'}}'}}
+
+
+    </div>
+    <!--      <span class="backlink"><a href="/{{'{{'}}    category  {{'}}'}}">
+               <img src="{{url_for('static', filename='images/arrow_left_16x16.png')}}" alt="Back"/>
+            <img src="{{url_for('static', filename='images/arrow_left_16x16.png')}}" alt="Back"/>
+                <img src="{{url_for('static', filename='images/arrow_left_16x16.png')}}" alt="Back"/></a></span>-->
+
+
+    <div class="links">
+        {{'{{'}}#unless type{{'}}'}}
+        <div class="btn-group">
+            {{'{{'}}#each tags{{'}}'}}
+
+            <a class="btn tag" href="/tags/{{'{{'}}this{{'}}'}}">{{'{{'}}this{{'}}'}}</a>
+            {{'{{'}}/each{{'}}'}}
+        </div>
+        {{'{{'}}/unless{{'}}'}}
+
+
+        <div class="btn-group">
+            <button class="edit btn"><i class="icon-edit"></i>Edit</button>
+            <button class="save btn"><i class="icon-save"></i>Save</button>
+            <button class="destroy btn"><i class="icon-remove"></i>Delete</button>
+            <button class="edit-tags btn"><i class="icon-tag"></i>Edit Tags</button>
+        </div>
+
+
+    </div><!--closes links-->
+
+    </div>
+</script>
+
+
+{%endif%}
 <script
-			  src="https://code.jquery.com/jquery-3.2.1.min.js"
-			  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
-			  crossorigin="anonymous"></script>
+        src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+        crossorigin="anonymous"></script>
 
 
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.1/bootstrap3-typeahead.min.js"></script>
-		<script src="{{url_for('static', filename='js/general.js')}}"></script>
-		<script src="{{url_for('static', filename='js/libs/showdown.js')}}"></script>
-		
-		<script type="text/javascript">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.1/bootstrap3-typeahead.min.js"></script>
+<script src="{{url_for('static', filename='js/general.js')}}"></script>
+<script src="{{url_for('static', filename='js/libs/showdown.js')}}"></script>
+
+<script type="text/javascript">
 				if (document.location.hostname == "arsakian.com") {
 
 
-			var _gaq = _gaq || [];
-			_gaq.push(['_setAccount', 'UA-38392254-1']);
-			_gaq.push(['_trackPageview']);
-			  
-			(function() {
-			  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-			  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-			  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-			})();
-			}else { _gaq = {push: function(arg) {console.log("ga:", arg)}}}
 
-		</script>
-		
-	{%if user_status%}
-		<script src="{{url_for('static', filename='js/libs/to-markdown.js')}}"></script>
-		<script src="{{url_for('static', filename='js/libs/underscore/underscore-min.js')}}"></script>
-		<script src="{{url_for('static', filename='js/libs/backbone/backbone-min.js')}}"></script>
-		<script src="{{url_for('static', filename='js/libs/backbone.pagedcollection.js')}}"></script>
-		<script src="{{url_for('static', filename='js/app.js')}}"></script>
-		<script src="{{url_for('static', filename='js/libs/handlebars-v4.0.5.js')}}"></script>
-		<script src="{{url_for('static', filename='js/common.js')}}"></script>
-		<!--<script src="{{url_for('static', filename='js/models/user.js')}}"></script>-->
+    <!-- Google Analytics -->
 
-		<script src="{{url_for('static', filename='js/apps/posts/models/post.js')}}"></script>
-		<!--<script src="{{url_for('static', filename='js/models/tag.js')}}"></script>
-		<script src="{{url_for('static', filename='js/models/category.js')}}"></script>
-		<script src="{{url_for('static', filename='js/models/Item.js')}}"></script>
-		<script src="{{url_for('static', filename='js/views/tagview.js')}}"></script>
-		<script src="{{url_for('static', filename='js/views/categoryview.js')}}"></script>
-		<script src="{{url_for('static', filename='js/views/postview.js')}}"></script>
-		<script src="{{url_for('static', filename='js/views/aboutview.js')}}"></script>-->
-		
-		<script src="{{url_for('static', filename='js/apps/posts/postList.js')}}"></script>
-		
-		<script src="{{url_for('static', filename='js/apps/posts/collections/postscollection.js')}}"></script>
-		<!--<script src="{{url_for('static', filename='js/collections/tagscollection.js')}}"></script>
-		<script src="{{url_for('static', filename='js/collections/categoriescollection.js')}}"></script>-->
-		
-		<script src="{{url_for('static', filename='js/apps/posts/app.js')}}"></script>
-		<script src="{{url_for('static', filename='js/routes.js')}}"></script>
-		<script src="{{url_for('static', filename='js/apps/posts/postEditor.js')}}"></script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-		<script type="text/javascript">App.start();</script>
-	{%endif%}
-	</body>
-	
+    ga('create', 'UA-38392254-1', 'auto');
+    ga('send', 'pageview');
+
+
+</script>
+<!-- End Google Analytics -->
+
+
+{%if user_status%}
+<script src="{{url_for('static', filename='js/libs/to-markdown.js')}}"></script>
+<script src="{{url_for('static', filename='js/libs/underscore/underscore-min.js')}}"></script>
+<script src="{{url_for('static', filename='js/libs/backbone/backbone-min.js')}}"></script>
+<script src="{{url_for('static', filename='js/libs/backbone.pagedcollection.js')}}"></script>
+<script src="{{url_for('static', filename='js/app.js')}}"></script>
+<script src="{{url_for('static', filename='js/libs/handlebars-v4.0.5.js')}}"></script>
+<script src="{{url_for('static', filename='js/common.js')}}"></script>
+<!--<script src="{{url_for('static', filename='js/models/user.js')}}"></script>-->
+
+<script src="{{url_for('static', filename='js/apps/posts/models/post.js')}}"></script>
+<!--<script src="{{url_for('static', filename='js/models/tag.js')}}"></script>
+<script src="{{url_for('static', filename='js/models/category.js')}}"></script>
+<script src="{{url_for('static', filename='js/models/Item.js')}}"></script>
+<script src="{{url_for('static', filename='js/views/tagview.js')}}"></script>
+<script src="{{url_for('static', filename='js/views/categoryview.js')}}"></script>
+<script src="{{url_for('static', filename='js/views/postview.js')}}"></script>
+<script src="{{url_for('static', filename='js/views/aboutview.js')}}"></script>-->
+
+<script src="{{url_for('static', filename='js/apps/posts/postList.js')}}"></script>
+
+<script src="{{url_for('static', filename='js/apps/posts/collections/postscollection.js')}}"></script>
+<!--<script src="{{url_for('static', filename='js/collections/tagscollection.js')}}"></script>
+<script src="{{url_for('static', filename='js/collections/categoriescollection.js')}}"></script>-->
+
+<script src="{{url_for('static', filename='js/apps/posts/app.js')}}"></script>
+<script src="{{url_for('static', filename='js/routes.js')}}"></script>
+<script src="{{url_for('static', filename='js/apps/posts/postEditor.js')}}"></script>
+
+<script type="text/javascript">App.start();</script>
+{%endif%}
+</body>
+
 </html>
