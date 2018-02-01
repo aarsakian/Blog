@@ -555,3 +555,14 @@ class TestViews(BlogTestBase):
         feed = self.posts.add_to_feed(feed, request.url)
 
         return self.assertEqual(feed.to_string(), response.data.decode('utf8'))
+
+    def test_rebuild_index(self):
+        category_key = self.categories.add("category")
+        existing_tags = ["a new tag", "a new new tag"]
+        existing_tag_keys = self.tags.add(existing_tags)
+
+        self.posts.add("about", "body text", category_key, existing_tag_keys)
+
+        response = self.client.get(path='/rebuild_index')
+
+        return self.assertStatus(response, 302)

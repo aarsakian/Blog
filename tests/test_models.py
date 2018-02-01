@@ -15,6 +15,8 @@ from blog.utils import find_modified_tags, find_tags_to_be_added, find_tags_to_b
     make_external
 from blog.errors import InvalidUsage
 
+from blog.search import query_search_index, find_posts_from_index
+
 from . import BlogTestBase
 
 class TestModels(BlogTestBase):
@@ -490,6 +492,20 @@ class TestModels(BlogTestBase):
         tag_names = self.tags.get_names()
 
         self.assertListEqual(tag_names, [ u"a new new tag", u"a new different tag"])
+
+    def test_rebuild_index(self):
+        test_tags = ["a new tag", "a new new tag"]
+        tag_keys = self.tags.add(test_tags)
+
+        category_key = self.categories.add("category")
+        post_key = self.posts.add("a title", "body text", category_key, tag_keys)
+
+        self.posts.rebuild_index()
+
+        results = query_search_index("body")
+        posts_ids = find_posts_from_index(results)
+
+        self.assertEqual(post_key.id(), posts_ids[0])
 
     def test_add_to_feed(self):
         test_tags = ["a new tag", "a new new tag"]
