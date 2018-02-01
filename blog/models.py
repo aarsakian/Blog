@@ -249,6 +249,12 @@ class Posts(BlogList, JsonMixin):
 
         return feed
 
+    def rebuild_index(self):
+        for post in self._posts:
+            add_document_in_search_index(post.id, post.title, post.body,
+                                         post.summary, post.get_category(),
+                                         post.timestamp, post.get_tag_names())
+
 
 class Tags(BlogList, JsonMixin):
 

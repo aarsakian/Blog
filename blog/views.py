@@ -6,7 +6,7 @@ from flask import render_template,request,jsonify,redirect,url_for, Markup
 from errors import InvalidUsage
 from models import BlogPost,Tag,Category
 
-from search import query_search_index, find_posts_from_index
+from search import query_search_index, find_posts_from_index, delete_all_in_index
 
 from google.appengine.api import users
 from werkzeug.contrib.atom import AtomFeed
@@ -354,6 +354,16 @@ def recent_feed():
     return feed.get_response()
 
 
+@app.route('/rebuild_index', methods=['GET'])
+def rebuild_index():
+    if users.is_current_user_admin():
+        delete_all_in_index()
+        posts = Posts()
+        posts.rebuild_index()
+        return redirect(url_for('index'))
+
+
+
 @app.route('/search',methods=['GET'])
 def searchsite():
 
@@ -371,6 +381,7 @@ def searchsite():
 
     return jsonify(data=data)
 
+
 @app.errorhandler(InvalidUsage)
 @app.errorhandler(404)
 def page_not_found(error):
@@ -379,6 +390,7 @@ def page_not_found(error):
         response.status_code = error.status_code
 
     return render_template('404.html')
+
 
 @app.errorhandler(500)
 def internal_server_error(e):
