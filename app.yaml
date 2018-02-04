@@ -1,7 +1,7 @@
 runtime: python27
 api_version: 1
 threadsafe: true #added for python 2.7
-default_expiration: "1d"
+default_expiration: "10m"
 
 handlers:
 - url: /favicon.ico
@@ -17,7 +17,7 @@ handlers:
 - url: /static
   static_dir: blog/static
   http_headers:
-    Cache-Control: no-cache, must-revalidate 
+    Cache-Control:  must-revalidate 
   secure: always
 - url: .*
   script: blog.app
