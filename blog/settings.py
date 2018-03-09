@@ -5,6 +5,7 @@ class Config(object):
   # Set secret keys for CSRF protection
   SECRET_KEY = CSRF_SECRET_KEY
   CSRF_SESSION_KEY = SESSION_KEY
+
   SITEMAP_INCLUDE_RULES_WITHOUT_PARAMS = True
   SITEMAP_URL_SCHEME = 'https'
   SITEMAP_IGNORE_ENDPOINTS = EXCLUDED_URLS
@@ -22,6 +23,7 @@ class Development(Config):
   CSRF_ENABLED = True
 
 
+
 class Testing(Config):
   TESTING = True
   DEBUG = True
@@ -31,3 +33,4 @@ class Testing(Config):
 class Production(Config):
   DEBUG = False
   CSRF_ENABLED = True
+  SERVER_NAME = 'arsakian.com'
