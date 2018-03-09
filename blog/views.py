@@ -376,7 +376,7 @@ def searchsite():
         posts.filter_matched(posts_ids)
         data = posts.to_json()
     except Exception as e:
-        print "ERR",e
+        logging.error("error while searching {}".format(e))
         data = "something went wrong while searching"
 
     return jsonify(data=data)
