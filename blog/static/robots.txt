@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /login
+Disallow: /logout
+Sitemap: https://www.arsakian.com/sitemap.xml
