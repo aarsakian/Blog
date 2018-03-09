@@ -1,10 +1,15 @@
-from secret_keys import CSRF_SECRET_KEY, SESSION_KEY
+from secret_keys import CSRF_SECRET_KEY, SESSION_KEY, EXCLUDED_URLS
 
 
 class Config(object):
   # Set secret keys for CSRF protection
   SECRET_KEY = CSRF_SECRET_KEY
   CSRF_SESSION_KEY = SESSION_KEY
+  SITEMAP_INCLUDE_RULES_WITHOUT_PARAMS = True
+  SITEMAP_URL_SCHEME = 'https'
+  SITEMAP_IGNORE_ENDPOINTS = EXCLUDED_URLS
+  SITEMAP_URL_METHOD = 'https'
+
   # Flask-Cache settings
   #CACHE_TYPE = 'gaememcached'
 
