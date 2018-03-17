@@ -2,7 +2,8 @@
 
 class PostListLayout extends Layout {
   constructor(options) {
-    super(options);
+    super({tagName:"div", className:"row col-12"});
+
     this.template = '#post-list-layout';
     this.regions = {
       actions: '.actions-bar-container',
