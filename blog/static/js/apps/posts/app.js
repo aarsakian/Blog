@@ -6,11 +6,12 @@ class PostsApp {
    }
 
    showPostsList() {
+
       App.trigger('loading:start');
       App.trigger('app:posts:started');
       new PostCollection().fetch({
          success: (collection) => {
-       
+
             this.showPosts(collection);
             App.trigger('loading:stop');
          },
@@ -39,7 +40,7 @@ class PostsApp {
             App.trigger('loading:stop');
       },
       fail: (collection, response) => {
-         console.log(postID);
+
         App.trigger('loading:stop');
         App.trigger('server:error', response);
       }
