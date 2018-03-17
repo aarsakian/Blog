@@ -237,3 +237,5 @@ class Layout extends ModelView {
     });
   }
 }
+
+_.extend(App, Backbone.Events);
