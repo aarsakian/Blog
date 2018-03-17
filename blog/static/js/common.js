@@ -1,8 +1,11 @@
 'use strict';
 
 class ModelView extends Backbone.View {
+
   render() {
     // Get JSON representation of the model
+
+
     var data = this.serializeData();
     var renderedHtml;
 
@@ -189,6 +192,7 @@ class Region {
 }
 
 class Layout extends ModelView {
+
   render() {
     // Clean up any rendered DOM
     this.closeRegions();
