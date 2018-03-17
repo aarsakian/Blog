@@ -30,7 +30,7 @@
         </div>
     </div>
 
-    <div class="row col-10 mt-3" id="hd">
+    <div class="row col-11 mt-3" id="hd">
         <nav class="navbar navbar-expand-sm navbar-light">
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -71,10 +71,11 @@
 
     </div>
 
-    <div class="row col-10" id="bd"> TEST
-        {% block content %}<!-- main content area --> {% endblock %}
+    <div class="row col-11" id="bd">
+        TEST itass{% block content %}<!-- main content area --> {% endblock %}
     </div>
-    <div class="row col-10" id="ld">
+    <div class="row col-11" id="ld">
+        TEST itass new
         {%if user_status%}
         <div id="newpost" class="clear">
             {% block new_post%}{% endblock %}
@@ -90,9 +91,9 @@
 
 {%if user_status%}
 <script id="post-list-layout" type="text/x-handlebars-template">
-    <div class="list-container"></div>
-    <div class="actions-bar-container"></div>
-    <div class="post-form-container"></div>
+    <div class="list-container col-12"></div>
+    <div class="actions-bar-container col-10"></div>
+    <div class="post-form-container col-12"></div>
 
 </script>
 
@@ -204,8 +205,9 @@
 {%endif%}
 
 
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+<script
+        src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
         crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
         integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
@@ -237,6 +239,7 @@ if (document.location.hostname == "arsakian.com") {
 
 }
 
+
 </script>
 
 <!-- End Google Analytics -->
@@ -245,10 +248,10 @@ if (document.location.hostname == "arsakian.com") {
 {%if user_status%}
 <script src="{{url_for('static', filename='js/libs/to-markdown.js')}}"></script>
 <script src="{{url_for('static', filename='js/libs/underscore/underscore-min.js')}}"></script>
-<script src="{{url_for('static', filename='js/libs/backbone/backbone-min.js')}}"></script>
+<script src="{{url_for('static', filename='js/libs/backbone/backbone.js')}}"></script>
 <script src="{{url_for('static', filename='js/libs/backbone.pagedcollection.js')}}"></script>
 <script src="{{url_for('static', filename='js/app.js')}}"></script>
-<script src="{{url_for('static', filename='js/libs/handlebars-v4.0.5.js')}}"></script>
+<script src="{{url_for('static', filename='js/libs/handlebars-v4.0.11.js')}}"></script>
 <script src="{{url_for('static', filename='js/common.js')}}"></script>
 <!--<script src="{{url_for('static', filename='js/models/user.js')}}"></script>-->
 
