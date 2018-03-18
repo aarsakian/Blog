@@ -2,7 +2,7 @@
 
 class ContactFormLayout extends Layout {
   constructor(options) {
-    super(options);
+    super({tagName:"div",className:"col"});
     this.template = '#post-form-layout';
     this.regions = {
       preview: '#preview-container',
@@ -79,6 +79,7 @@ class PostEditor {
  //   var contactPreview = new PostPreview({model: contact});
 
     // Render the views
+    layout.$el.addClass("row col-12");
     this.region.show(layout);
     layout.getRegion('postform').show(postForm);
   //  layout.getRegion('preview').show(contactPreview);
