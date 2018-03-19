@@ -14,7 +14,7 @@ env:
 - API_CHECK=https://appengine.google.com/api/updatecheck
 before_script:
 - SDK_VERSION=$(curl -s $API_CHECK | awk -F '\"' '/release/ {print $2}')
-- if [ -z "$SDK_VERSION" ]; then
+- if [ -z "${SDK_VERSION}" ]; then
     SDK_VERSION = "1.9.67"
   fi
 - echo "using SDK $SDK_VERSION"
