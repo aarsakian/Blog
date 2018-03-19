@@ -15,8 +15,9 @@ env:
 before_script:
 - SDK_VERSION=$(curl -s $API_CHECK | awk -F '\"' '/release/ {print $2}')
 - if [ -z "$SDK_VERSION" ]; then
-- SDK_VERSION = "1.9.67"
-- fi
+    SDK_VERSION = "1.9.67"
+  fi
+- echo "using SDK $SDK_VERSION"
 - SDK_URL=https://storage.googleapis.com/appengine-sdks/featured/google_appengine_$SDK_VERSION.zip
 - wget $SDK_URL -nv
 - unzip -q google_appengine_$SDK_VERSION.zip
