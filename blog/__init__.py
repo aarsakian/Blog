@@ -18,11 +18,10 @@ sitemap.init_app(app)
 
 
 
-if os.getenv('FLASK_CONF') == 'TEST':
-    app.config.from_object('blog.settings.Testing')
-
-else:
+if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine/'):
     app.config.from_object('blog.settings.Production')
+else:
+    app.config.from_object('blog.settings.Testing')
 
 
 import views
