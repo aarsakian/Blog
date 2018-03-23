@@ -1,0 +1,21 @@
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block new_post %}
+{%if user_status%}
+<script id="post-form" type="text/x-handlebars-template">
+
+     <form class="form form-horizontal row col-12" method="post"  role="form">
+        {{ form.hidden_tag()}}
+        {{ wtf.form_errors(form, hiddens="only") }}
+        {{ wtf.form_field(form.title, id="new-post-title",placeholder="Enter your title here")}}
+        {{ wtf.form_field(form.summary, id="new-post-summary",placeholder="Enter your summary here")}}
+        {{ wtf.form_field(form.body, id="new-post-body", type="text")}}
+        {{ wtf.form_field(form.category, id="new-post-category",
+        placeholder="Enter your category or use existing one")}}
+        {{ wtf.form_field(form.tags,id="new-post-tags",
+        placeholder="Enter your tags here,use comma between")}}
+        {{ wtf.form_field(form.submit, type="submit", class="submit button")}}
+    </form>
+</script>
+{%endif%}
+{% endblock %}
