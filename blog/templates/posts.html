@@ -14,7 +14,7 @@
 {% endblock %}
 
 {% block content%}
-<div class="page-header clear col-12 my-5">
+<div class="page-header clear col-12 my-md-5 my-sm-2 my-xs-1">
     <div class="page-header-inner">
         <h2>Recent posts</h2>
 
@@ -29,7 +29,7 @@
     <div class="row col-12 my-2 mx-0 list post_key" data-id="{{Post.id}}">
 
 
-        <div class="post col-10">
+        <div class="post col-md-9 col-sm-12">
             <div class="classic">
                 {% set timestamp = Post.timestamp.split('-') %}
 
@@ -42,7 +42,7 @@
 
             </div><!--closes post-->
         </div>
-        <div class="col-2 post text-right">
+        <div class="col-md-3 post text-right row-xs col-xs-12">
 
             <!--Sidebar content-->
             <div class="links" style="font-size: 22px;">
@@ -81,29 +81,15 @@
 
 {% endblock %}
 
+
+{% block new_post %}
+  {% include 'new_post.html' %}
+{% endblock %}
+
+
 {% block footer%}
 {% include 'footer.html' %}
 
 {% endblock %}
 
-{% import "bootstrap/wtf.html" as wtf %}
 
-{% block new_post %}
-{%if user_status%}
-<script id="post-form" type="text/x-handlebars-template">
-
-    <form class="form form-horizontal row col-12" method="post"  role="form">
-        {{ form.hidden_tag()}}
-        {{ wtf.form_errors(form, hiddens="only") }}
-        {{ wtf.form_field(form.title, id="new-post-title",placeholder="Enter your title here")}}
-        {{ wtf.form_field(form.summary, id="new-post-summary",placeholder="Enter your summary here")}}
-        {{ wtf.form_field(form.body, id="new-post-body", type="text")}}
-        {{ wtf.form_field(form.category, id="new-post-category",
-        placeholder="Enter your category or use existing one")}}
-        {{ wtf.form_field(form.tags,id="new-post-tags",
-        placeholder="Enter your tags here,use comma between")}}
-        {{ wtf.form_field(form.submit, type="submit", class="submit button")}}
-    </form>
-</script>
-{%endif%}
-{% endblock %}
