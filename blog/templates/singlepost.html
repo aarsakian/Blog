@@ -15,51 +15,47 @@ Armen Arsakian personal blog
 
 {% block content%}
 {%if Post %}
-<div class="page-header">
+<div class="page-header row col-12 my-md-4 mx-0 py-1">
     <h2 class="editable">{{Post.title}}</h2>
-    <div class="row" id="socialinks">
-        <div class="col-md-10">
-            <div class="col-md-5" id="date">Created: {{Post.timestamp|datetimeformat(('%A %d %B %Y'))}}</div>
-            <div class="col-md-5" id="updated"> Updated: {{ Post.updated|datetimeformat(('%A %d %B %Y'))}}</div>
+</div>
 
-        </div>
-        <div class="col-md-1">
+<div class="col-md-12 row my-md-2">
+    <div class="date col-5 text-left my-1">Created: {{Post.timestamp}}</div>
+    <div class="date col-5 text-left  my-1"> Updated: {{Post.updated}}</div>
 
-            <div class="col-md-2 offset3"><a href="https://twitter.com/share" class="twitter-share-button"
-                                             data-url="http://aarsakian.appspot.com" data-text="{{Post.title}}"
-                                             data-via="Aarsakian's blog" data-lang="en"
-                                             hashtags="{{category}}/{{Post.title}}">
-                Tweet</a>
-            </div>
-            <div class="offset1 span1">
-                <span class="gplus"><g:plusone size="medium" align="right"></g:plusone></span>
-            </div>
-        </div>
+</div>
+<div class="row" id="socialinks">
+
+    <div class="col-md-1">
+
+        <!--<div class="col-md-2 offset3"><a href="https://twitter.com/share" class="twitter-share-button"
+                                         data-url="http://aarsakian.appspot.com" data-text="{{Post.title}}"
+                                         data-via="Aarsakian's blog" data-lang="en"
+                                         hashtags="{{category}}/{{Post.title}}">
+            Tweet</a>
+
+        <div class="offset1 span1">
+            <span class="gplus"><g:plusone size="medium" align="right"></g:plusone></span>
+        </div>-->
     </div>
 </div>
 
 
-<div id="row">
-    <div class="col-md-9" id="bdinner">
-        <div class="post">
+<div id="row col-12">
 
-            <div data-id="{{Post.id}}" class="classic">
-                <!--<div class="postTitle">
+    <div class="post col-md-9">
 
-
-                </div>-->
+        <div data-id="{{Post.id}}" class="article classic">
+            {{Post.body}}
+            <!--<div class="postTitle">
 
 
-                <div class="article clear">
-                    {{Post.body}}
-
-                </div><!--closes article-->
-
-            </div><!--closes post-->
-        </div>
+            </div>-->
 
 
+        </div><!--closes post-->
     </div>
+
 
     <div class="col-md-3">
 
@@ -69,9 +65,10 @@ Armen Arsakian personal blog
 
 
             <h3 class="editable">
-                <a href="/{{relPost.get_category()}}/{{relPost.timestamp|datetimeformat('%Y')}}/{{relPost.timestamp|datetimeformat('%B')}}/{{relPost.title|trim}}">{{relPost.title}}</a></h3>
-            <div class="row" id="date">Created: {{relPost.timestamp|datetimeformat('%d %B %Y')}}</div>
-            <div class="row" id="updated"> Updated: {{relPost.updated|datetimeformat('%d %B %Y')}}</div>
+                <a href="/{{relPost.get_category()}}/{{relPost.timestamp|datetimeformat('%Y')}}/{{relPost.timestamp|datetimeformat('%B')}}/{{relPost.title|trim}}">{{relPost.title}}</a>
+            </h3>
+            <div class="row" id="date">Created: {{relPost.timestamp}}</div>
+            <div class="row" id="updated"> Updated: {{relPost.updated}}</div>
         </div>
         {{relPost.category.category}}
         {% endfor %}
@@ -83,7 +80,7 @@ Armen Arsakian personal blog
     {%if user_status%}
 
     <div class="links row">
-        <a class="btn edit" href="/edit/{{Post.key.id()}}">Edit</a>
+        <a class="btn edit" href="/edit/{{Post.id}}">Edit</a>
 
     </div>
 
