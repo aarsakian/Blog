@@ -326,7 +326,7 @@ def view_a_post(category, year, month, title):
 
     return render_template('singlepost.html', user_status=users.is_current_user_admin(), siteupdated=site_updated, \
                                         daysleft=remaining_days, dayspassed=passed_days, RelatedPosts=related_posts, \
-                                        Post=current_post, posttagnames=post_tag_names, category=category)
+                                        Post=current_post.to_json(), posttagnames=post_tag_names, category=category)
 
 @app.route('/edit',methods=['GET'])
 @app.route('/edit/<postkey>',methods=['GET'])
