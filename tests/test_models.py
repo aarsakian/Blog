@@ -246,23 +246,25 @@ class TestModels(BlogTestBase):
         test_tags = ["a new tag", "a new new tag"]
         new_tag_keys = self.tags.add(test_tags)
 
-        post_key1 = self.posts.add("a title", "body text", category_key1, new_tag_keys, "a summary")
         post_key2 = self.posts.add("a new title", "new body text", category_key2, new_tag_keys, "a summary  2")
+        post_key1 = self.posts.add("a title", "body text", category_key1, new_tag_keys, "a summary")
 
         json_result = [{u'body':  post_key1.get().body, u'category': post_key1.get().category.get().category
                            , u'updated':
                         datetimeformat(post_key1.get().updated), 'tags':
                         [(post_key1.get().tags[0].get()).tag,  (post_key1.get().tags[1].get()).tag],
                         u'timestamp':  datetimeformat(post_key1.get().timestamp),
-                        u'title':  post_key1.get().title, 'id': post_key1.get().key.id(),
+                        u'title':  post_key1.get().title, u'id': str(post_key1.get().key.id()),
                         u'summary':post_key1.get().summary},
                         {u'body':  post_key2.get().body, u'category': post_key2.get().category.get().category
                             , u'updated':
                         datetimeformat(post_key2.get().updated), u'tags':
                         [(post_key2.get().tags[0].get()).tag,  (post_key2.get().tags[1].get()).tag],
                         u'timestamp':  datetimeformat(post_key2.get().timestamp),
-                        u'title':  post_key2.get().title, u'id': post_key2.get().key.id(),
+                        u'title':  post_key2.get().title, u'id': str(post_key2.get().key.id()),
                         u'summary':post_key2.get().summary}]
+        print "J",json_result
+        print "TO JSON", self.posts.to_json()
         self.assertEqual(json_result, self.posts.to_json())
 
     def test_retrieve_from_memcache(self):
@@ -345,9 +347,9 @@ class TestModels(BlogTestBase):
         new_test_tag_keys = self.tags.add(new_test_tags)
         post_key = self.posts.add("a title", "body text", category_key, new_tag_keys)
         self.posts.add("a title", "a second body text", category_key, new_test_tag_keys )
-
+        print self.posts
         self.posts.filter_by_tag("a new tag")
-
+        print self.posts, post_key.get()
         self.assertItemsEqual(self.posts, [post_key.get()])
 
 
@@ -417,7 +419,7 @@ class TestModels(BlogTestBase):
         new_tag_keys = self.tags.add(test_tags)
         post_key = self.posts.add("a title", "body text", category_key, new_tag_keys)
         self.posts.add("a title", "body sec2 text", category_key, new_tag_keys)
-
+        print self.posts
         self.posts.filter_matched([post_key.id()])
         self.assertItemsEqual(self.posts, [post_key.get()])
 

@@ -81,7 +81,7 @@ class BlogPost(ndb.Model):
         jsoned_data[u"title"] = post_dict["title"]
         jsoned_data[u"body"] = post_dict["body"]
         jsoned_data[u"summary"] = post_dict["summary"]
-        jsoned_data[u"id"] = int(self.key.id())
+        jsoned_data[u"id"] = str(self.key.id())
         jsoned_data[u"tags"] = self.get_tag_names()
         jsoned_data[u"category"] = self.category.get().category
         jsoned_data[u"updated"] = datetimeformat(post_dict["updated"])
@@ -131,24 +131,24 @@ class Posts(BlogList, JsonMixin):
     """
 
     def __init__(self):
-        self._posts = list(BlogPost.query().order(-BlogPost.timestamp))
+        self._posts = BlogPost.query().order(-BlogPost.timestamp)
 
     @property
     def posts(self):
-        return self._posts
+        return list(self._posts)
 
     def __len__(self):
-        return len(self._posts)
+        return len(self.posts)
 
     def __iter__(self):
-        return (post for post in self._posts)
+        return (post for post in self.posts)
 
     def __getitem__(self, post_idx):
-        return self._posts[post_idx]
+        return self.posts[post_idx]
 
     def __contains__(self, post_key):
         if self._posts:
-            for post in self._posts:
+            for post in self.posts:
                 if post.key == post_key:
                     return True
         return False
@@ -170,7 +170,7 @@ class Posts(BlogList, JsonMixin):
                             tags=tags_ids,
                             summary=summary).put()
         post = post_key.get()
-        self._posts.append(post)
+        self.posts.append(post)
         BlogPost.add_to_memcache(post)
         add_document_in_search_index(post.id, post.title, post.body,
                                      post.summary, post.get_category(),
@@ -180,23 +180,23 @@ class Posts(BlogList, JsonMixin):
 
     def get_tags(self):
         tags = []
-        [tags.extend(post.get_tag_names()) for post in self._posts]
+        [tags.extend(post.get_tag_names()) for post in self.posts]
         return tags
 
     def get_other_tags(self, post_id):
         other_tags = []
         [other_tags.extend(post.get_tag_names())
-         for post in self._posts if post.key.id() != post_id]
+         for post in self.posts if post.key.id() != post_id]
         return other_tags
 
     def delete(self, post_key):
-        [self._posts.pop(post_idx) for post_idx, post
-         in enumerate(self._posts) if post.key == post_key]
+        [self.posts.pop(post_idx) for post_idx, post
+         in enumerate(self.posts) if post.key == post_key]
         post_key.delete()
         delete_document(post_key.id())
 
     def get_by_title(self, title):
-        for post in self._posts:
+        for post in self.posts:
             if post.title.lower() == title or post.title == title:
                 post_f = post
                 break
@@ -207,20 +207,20 @@ class Posts(BlogList, JsonMixin):
             raise InvalidUsage('This post is not found', status_code=404)
 
     def filter_by_tag(self, tag):
-        [self._posts.pop(post_idx) for post_idx, post in enumerate(self._posts)
+        [self.posts.pop(post_idx) for post_idx, post in enumerate(self.posts)
                 if tag not in post.get_tag_names()]
 
     def filter_by_category(self, category):
-        [self._posts.pop(post_idx) for post_idx, post in enumerate(self._posts)
+        [self.posts.pop(post_idx) for post_idx, post in enumerate(self.posts)
          if category not in post.get_category()]
 
     def filter_matched(self, posts_ids):
-        [self._posts.pop(post_idx) for post_idx, post in enumerate(self._posts)
+        [self.posts.pop(post_idx) for post_idx, post in enumerate(self.posts)
          if post.id not in posts_ids]
 
     def site_last_updated(self):
         if self.posts:
-            last_post = self._posts[-1]
+            last_post = list(self._posts.order(-BlogPost.updated))[-1]
             return last_post.updated.strftime('%A %d %B %Y')
 
     def get_related_posts(self, current_post_id):
@@ -235,7 +235,7 @@ class Posts(BlogList, JsonMixin):
         return related_posts
 
     def add_to_feed(self, feed, base_url):
-        for post in self._posts:
+        for post in self.posts:
             catname = post.get_category()
             url = "/".join([catname,
                         post.timestamp.strftime('%B'),
@@ -250,7 +250,7 @@ class Posts(BlogList, JsonMixin):
         return feed
 
     def rebuild_index(self):
-        for post in self._posts:
+        for post in self.posts:
             add_document_in_search_index(post.id, post.title, post.body,
                                          post.summary, post.get_category(),
                                          post.timestamp, post.get_tag_names())

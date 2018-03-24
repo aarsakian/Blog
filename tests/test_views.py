@@ -307,7 +307,7 @@ class TestViews(BlogTestBase):
 
         response = self.client.post(url_for('main'), content_type='application/json',
                                    data=json.dumps(json_data))
-        json_data[u"id"] = 4
+        json_data[u"id"] = u'4'
         self.assertDictEqual(json_data, response.json)
         freezer.stop()
 
@@ -326,7 +326,7 @@ class TestViews(BlogTestBase):
 
         response = self.client.get(url_for('main'))
 
-        json_data[u"id"] = 4
+        json_data[u"id"] = u'4'
         self.assertDictEqual(json_data, response.json[0])
         freezer.stop()
 
