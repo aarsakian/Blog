@@ -14,7 +14,7 @@
           integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <link href="/static/css/style.css" rel="stylesheet" media="screen">
+    <link href="/static/css/style.min.css" rel="stylesheet" media="screen">
     <link href="{{ url_for('recent_feed') }}" rel="alternate" title="Recent Changes" type="application/atom+xml">
     <link href='//fonts.googleapis.com/css?family=Merriweather:400' rel='stylesheet' type='text/css'>
 </head>
@@ -219,8 +219,8 @@
         crossorigin="anonymous"></script>
 <script type="text/javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.1/bootstrap3-typeahead.min.js"></script>
-<script src="{{url_for('static', filename='js/general.js')}}"></script>
-<script src="{{url_for('static', filename='js/libs/showdown.js')}}"></script>
+<script src="{{url_for('static', filename='js/markdown.min.js')}}"></script>
+
 
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-38392254-1"></script>
 

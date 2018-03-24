@@ -11,9 +11,6 @@ class Config(object):
   SITEMAP_IGNORE_ENDPOINTS = EXCLUDED_URLS
   SITEMAP_URL_METHOD = 'https'
 
-  # Flask-Cache settings
-  #CACHE_TYPE = 'gaememcached'
-
 
 class Development(Config):
   DEBUG = True
@@ -23,11 +20,11 @@ class Development(Config):
   CSRF_ENABLED = True
 
 
-
 class Testing(Config):
   TESTING = True
   DEBUG = True
   CSRF_ENABLED = True
+  ASSETS_DEBUG = True
 
 
 class Production(Config):
