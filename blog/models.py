@@ -220,7 +220,7 @@ class Posts(BlogList, JsonMixin):
 
     def site_last_updated(self):
         if self.posts:
-            last_post = list(self._posts.order(-BlogPost.updated))[-1]
+            last_post = list(BlogPost.query().order(-BlogPost.updated))[-1]
             return last_post.updated.strftime('%A %d %B %Y')
 
     def get_related_posts(self, current_post_id):
