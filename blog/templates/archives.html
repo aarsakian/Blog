@@ -33,7 +33,8 @@
 
         <div class="post col-10">
             <div class="classic">
-                {% set timestamp = Post.timestamp.split('-') %}
+
+                {% set timestamp = Post.timestamp.split(' ') %}
 
                 <h3 class="editable"><a href="{{Post.category}}/{{timestamp[-2]}}
 				/{{timestamp[-1]}}/{{Post.title|trim}}">{{Post.title}}</a></h3>
