@@ -6,7 +6,7 @@ from freezegun import freeze_time
 from datetime import datetime
 from werkzeug.contrib.atom import AtomFeed
 from flask_testing import TestCase
-from flask import url_for, render_template, request
+from flask import url_for, render_template, request, flash
 
 from google.appengine.ext import testbed
 from google.appengine.api import users
@@ -137,6 +137,7 @@ class TestViews(BlogTestBase):
 
         response = self.client.get('/')  # create a request object
         site_updated = self.posts.site_last_updated()
+        flash('This website uses Google Analytics to help analyse how users use the site.')
         rendered_template = render_template("posts.html", user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated, \
                                             daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
@@ -158,7 +159,7 @@ class TestViews(BlogTestBase):
         response = self.client.get((url_for('index')))  # create a request object
 
         site_updated = self.posts.site_last_updated()
-
+        flash('This website uses Google Analytics to help analyse how users use the site.')
         rendered_template = render_template("posts.html", user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated,
                                             daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
@@ -196,6 +197,7 @@ class TestViews(BlogTestBase):
 
         category = post.category.get().category
         site_updated = self.posts.site_last_updated()
+
         rendered_template = render_template('singlepost.html', user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated, \
                                             daysleft=remaining_days, dayspassed=passed_days, RelatedPosts=related_posts, \
@@ -244,6 +246,8 @@ class TestViews(BlogTestBase):
 
         response = self.client.get((url_for('index')))  # create a request object
         site_updated = self.posts.site_last_updated()
+        flash('This website uses Google Analytics to help analyse how users use the site.')
+
         rendered_template = render_template("posts.html", user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated, \
                                             daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
