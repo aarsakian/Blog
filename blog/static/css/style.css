@@ -132,3 +132,7 @@ border:1px solid #662823;
     flex: 0 0 100%;
     max-width: 100%;
 }
+
+.messages{font-size:0.7em;
+background-color:#f0f0f0;
+color:#505050;}

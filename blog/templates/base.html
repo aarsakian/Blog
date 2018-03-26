@@ -20,6 +20,21 @@
 </head>
 <body>
 <div class="container-fluid w-100 px-5 row-12">
+     {% with messages = get_flashed_messages() %}
+        {% if messages %}
+
+        {% for message in messages %}
+        <div class="alert alert-info alert-dismissible fade show p-2 messages" role="alert">
+            <button type="button" class="close p-1" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <strong>{{ message }}</strong>
+        </div>
+
+        {% endfor %}
+
+        {% endif %}
+        {% endwith %}
     <div class="row col-12" id="searchfield">
         <div class="row ml-auto col-sm-8 col-xs-4">
 
