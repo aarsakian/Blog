@@ -19,11 +19,11 @@
     <link href='//fonts.googleapis.com/css?family=Merriweather:400' rel='stylesheet' type='text/css'>
 </head>
 <body>
-<div class="container row-11 offset-md-1">
-    <div class="row col-11" id="searchfield">
-        <div class="row offset-8">
+<div class="container-fluid w-100 px-5 row-12">
+    <div class="row col-12" id="searchfield">
+        <div class="row ml-auto col-sm-8 col-xs-4">
 
-            <form class="navbar-search pull-left" id="searchform">
+            <form class="navbar-search col-sm-8 col-xs-4 ml-auto" id="searchform">
                 <input type="text" name="q" autocomplete="off" data-provide="typeahead" class="form-control typeahead"
                        placeholder="Search">
             </form>
@@ -31,53 +31,49 @@
     </div>
 
 
-        <nav id="hd" class="row col-11 mt-md-3 mb-md-2 mb-xs-1 navbar navbar-expand-md navbar-light">
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav mr-auto">
-                    <li class="nav-item active mr-md-2">
-                        <a class="nav-link" href="/">HOME</a>
-                    </li>
-                    <li class="nav-item mr-md-2">
-                        <a class="nav-link" href="/archives">ARCHIVES</a>
-                    </li>
-                    <li class="nav-item mr-md-2">
-                        <a class="nav-link" href="/about">ABOUT</a>
-                    </li>
-                </ul>
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item icon">
-                        <a class="nav-link" href="https://www.linkedin.com/in/arsakian"><i class="fa fa-linkedin"
-                                                                                           aria-hidden="true"></i></a>
-                    </li>
-                    <li class="nav-item icon">
-                        <a class="nav-link" href="https://twitter.com/aarsakian"><i class="fa fa-twitter"
-                                                                                    aria-hidden="true"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item icon">
-                        <a class="nav-link" href="https://github.com/aarsakian"><i class="fa fa-github"
-                                                                                   aria-hidden="true"></i></a>
-                    </li>
-                    <li class="nav-item icon ">
-                        <a class="nav-link" href="/recent.atom"><i class="fa fa-rss" aria-hidden="true"></i></a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
+    <nav id="hd" class="row col-12 mt-md-3 mb-md-2 mb-xs-1 navbar navbar-expand-md navbar-light">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active mr-md-2">
+                    <a class="nav-link" href="/">HOME</a>
+                </li>
+                <li class="nav-item mr-md-2">
+                    <a class="nav-link" href="/archives">ARCHIVES</a>
+                </li>
+                <li class="nav-item mr-md-2">
+                    <a class="nav-link" href="/about">ABOUT</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item icon">
+                    <a class="nav-link" href="https://www.linkedin.com/in/arsakian"><i class="fa fa-linkedin"
+                                                                                       aria-hidden="true"></i></a>
+                </li>
+                <li class="nav-item icon">
+                    <a class="nav-link" href="https://twitter.com/aarsakian"><i class="fa fa-twitter"
+                                                                                aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li class="nav-item icon">
+                    <a class="nav-link" href="https://github.com/aarsakian"><i class="fa fa-github"
+                                                                               aria-hidden="true"></i></a>
+                </li>
+                <li class="nav-item icon ">
+                    <a class="nav-link" href="/recent.atom"><i class="fa fa-rss" aria-hidden="true"></i></a>
+                </li>
+            </ul>
+        </div>
+    </nav>
 
 
-
-
-
-
-    <div class="row col-11" id="bd">
+    <div class="row col-12" id="bd">
         {% block content %}<!-- main content area --> {% endblock %}
     </div>
-    <div class="row col-11" id="ld">
+    <div class="row col-12" id="ld">
         {%if user_status%}
         <div id="newpost" class="clear">
             {% block new_post%}{% endblock %}
@@ -85,7 +81,7 @@
         {%endif%}
     </div>
 
-    <div class="row col-11" id="ft">
+    <div class="row col-12" id="ft">
         {% block footer %}<!-- main content area --> {% endblock %}
     </div>
 </div>
@@ -240,6 +236,7 @@ if (document.location.hostname == "arsakian.com") {
 
 
 }
+
 
 
 </script>
