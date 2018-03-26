@@ -1,7 +1,7 @@
 import logging, json
 from blog import app
 from models import Posts, Tags, Categories
-from flask import render_template,request,jsonify,redirect,url_for, Markup
+from flask import render_template,request,jsonify,redirect,url_for, Markup, flash
 
 from errors import InvalidUsage
 from models import BlogPost,Tag,Category
@@ -169,10 +169,12 @@ def index(posts, tags, categories, passed_days,
         tag = kwargs["tag"]
         posts.filter_by_tag(tag)
 
-    if "category" in kwargs.keys():
+    elif "category" in kwargs.keys():
         category = kwargs["category"]
         posts.filter_by_category(category)
 
+    else:
+        flash('This website uses Google Analytics to help analyse how users use the site.')
     form = PostForm()
 
     return render_template('posts.html', user_status=users.is_current_user_admin(), siteupdated=site_updated, \
