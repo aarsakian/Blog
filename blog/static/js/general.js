@@ -7,7 +7,7 @@ $(function(){
       
       var actify=function (url){
     
-         $('.nav-pills li').each(function(){
+         $('.nav-item li').each(function(){
 	    $(this).removeClass('active');
             var link=$(this).children().first()[0].pathname;
            
@@ -59,6 +59,6 @@ $(function(){
      } 
   
   });
-   
-   
+
+
 })
