@@ -97,6 +97,7 @@ class TestViews(BlogTestBase):
 
         site_updated = self.posts.site_last_updated()
         posts_json = self.posts.to_json()
+        flash('This website uses Google Analytics to help analyse how users use the site.')
         rendered_template = render_template('archives.html', user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated, \
                                             daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
@@ -122,6 +123,7 @@ class TestViews(BlogTestBase):
 
         site_updated = self.posts.site_last_updated()
         posts_json = self.posts.to_json()
+        flash('This website uses Google Analytics to help analyse how users use the site.')
         rendered_template = render_template('archives.html', user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated, \
                                             daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
@@ -197,6 +199,7 @@ class TestViews(BlogTestBase):
 
         category = post.category.get().category
         site_updated = self.posts.site_last_updated()
+        flash('This website uses Google Analytics to help analyse how users use the site.')
 
         rendered_template = render_template('singlepost.html', user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated, \
@@ -233,6 +236,7 @@ class TestViews(BlogTestBase):
 
         category = current_post.category.get().category
         site_updated = self.posts.site_last_updated()
+        flash('This website uses Google Analytics to help analyse how users use the site.')
         rendered_template = render_template('singlepost.html', user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated, \
                                             daysleft=remaining_days, dayspassed=passed_days, RelatedPosts=related_posts, \

@@ -146,6 +146,7 @@ def aboutpage(posts, tags, categories, passed_days,
 
     if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
     site_updated = posts.site_last_updated()
+
     return render_template('about.html',user_status=users.is_current_user_admin(),siteupdated=site_updated,\
                            daysleft=remaining_days,dayspassed=passed_days,Post=requested_post,
                            codeversion=CODEVERSION)
@@ -193,6 +194,7 @@ def archives(posts, tags, categories, passed_days,
 
     form = PostForm()
     site_updated = posts.site_last_updated()
+    flash('This website uses Google Analytics to help analyse how users use the site.')
     return render_template('archives.html',user_status=users.is_current_user_admin(),siteupdated=site_updated,\
                            daysleft=remaining_days,dayspassed=passed_days,tags=tags,categories=categories,
                            posts=posts.to_json(),
@@ -325,7 +327,7 @@ def view_a_post(category, year, month, title):
 
     category = current_post.category.get().category
     site_updated = posts.site_last_updated()
-
+    flash('This website uses Google Analytics to help analyse how users use the site.')
     return render_template('singlepost.html', user_status=users.is_current_user_admin(), siteupdated=site_updated, \
                                         daysleft=remaining_days, dayspassed=passed_days, RelatedPosts=related_posts, \
                                         Post=current_post.to_json(), posttagnames=post_tag_names, category=category)
