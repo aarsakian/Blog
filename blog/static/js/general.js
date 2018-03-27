@@ -4,25 +4,25 @@ $(function(){
       $('.article').each(function(){
           $(this).html(converter.makeHtml($(this).text()));
       });
-      
+
       var actify=function (url){
-    
-         $('.nav-item li').each(function(){
+
+         $('.nav-item').each(function(){
 	    $(this).removeClass('active');
             var link=$(this).children().first()[0].pathname;
-           
+
             if (url===link){
                 $(this).addClass('active');}
-               
+
             });
          }
-            
-   
-    
-    
+
+
+
+
    var  url=location.pathname;
    actify(url);
-   
+
    
     (function() {
         var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
