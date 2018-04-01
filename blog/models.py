@@ -12,6 +12,11 @@ from utils import find_modified_tags, find_tags_to_be_removed, find_tags_to_be_a
 POSTS_INDEX = "posts_idx"
 
 
+class Answer(ndb.Model):
+    p_answer = ndb.TextProperty()
+    is_correct = ndb.BooleanProperty(default=False)
+
+
 class Tag(ndb.Model):
     tag = ndb.StringProperty()
 
@@ -54,6 +59,7 @@ class BlogPost(ndb.Model):
     tags = ndb.KeyProperty(repeated=True)  # one to many relation
     category = ndb.KeyProperty(kind=Category)
     summary = ndb.TextProperty()
+    answers = ndb.StructuredProperty(Answer, repeated=True)
 
     @staticmethod
     def add_to_memcache(post):
@@ -153,7 +159,7 @@ class Posts(BlogList, JsonMixin):
                     return True
         return False
 
-    def add(self, raw_title, raw_body, category_key, tags_ids, summary=None):
+    def add(self, raw_title, raw_body, category_key, tags_ids, summary=None, answers=None):
         """
             adds a post to the list of current posts
             and updates search index
@@ -162,13 +168,16 @@ class Posts(BlogList, JsonMixin):
         :param category_key:
         :param tags_ids:
         :param summary:
+        :param answers:
         :return: key of the added post
         """
         post_key = BlogPost(title=raw_title,
                             body=raw_body,
                             category=category_key,
                             tags=tags_ids,
-                            summary=summary).put()
+                            summary=summary,
+                            answers=answers).put()
+
         post = post_key.get()
         self.posts.append(post)
         BlogPost.add_to_memcache(post)
