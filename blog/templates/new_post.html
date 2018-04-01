@@ -14,6 +14,8 @@
         placeholder="Enter your category or use existing one")}}
         {{ wtf.form_field(form.tags,id="new-post-tags",
         placeholder="Enter your tags here,use comma between")}}
+        {{ wtf.form_field(form.radio_field, id="new-radio-field",
+           placeholder="Radio field")}}
         {{ wtf.form_field(form.submit, type="submit", class="submit button")}}
     </form>
 </script>
