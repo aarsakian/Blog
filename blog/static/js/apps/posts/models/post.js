@@ -2,7 +2,10 @@
 
 App.Models = App.Models || {};
 
-var Answer =  {p_answer:"", is_correct:false}
+var Answer =  Backbone.Model.extend({
+  p_answer: "",
+  is_correct: false
+});
 
 class Post extends Backbone.Model {
   constructor(options) {
@@ -18,7 +21,7 @@ class Post extends Backbone.Model {
       updated:"",
       tags:"",
       summary:"",
-      answers:[Answer]
+      answers:[]
     };
   }
 }
