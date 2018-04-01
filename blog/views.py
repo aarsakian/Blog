@@ -223,6 +223,7 @@ def main():
         editing_tags = raw_post["tags"]
         raw_summary = raw_post["summary"]
 
+
         tag_keys = tags.update(editing_tags)
         category_key = categories.update(raw_category)
 
@@ -230,7 +231,8 @@ def main():
                             raw_body=raw_post["body"],
                             category_key=category_key,
                             tags_ids=tag_keys,
-                            summary=raw_summary).id()
+                            summary=raw_summary,
+                            answers=raw_post["answers"]).id()
         post = BlogPost.get(post_id)
         return jsonify(post.to_json()) #  Needs check
 
