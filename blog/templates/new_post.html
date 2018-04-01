@@ -13,9 +13,14 @@
         {{ wtf.form_field(form.category, id="new-post-category",
         placeholder="Enter your category or use existing one")}}
         {{ wtf.form_field(form.tags,id="new-post-tags",
-        placeholder="Enter your tags here,use comma between")}}
-        {{ wtf.form_field(form.radio_field, id="new-radio-field",
-           placeholder="Radio field")}}
+         placeholder="Enter your tags here,use comma between")}}
+         {% for l in form.answers %}
+            {{ wtf.form_field(l.form.p_answer, class="new-post-answer col-10",
+           placeholder="Answer") }}
+            {{ wtf.form_field(l.form.is_correct, label="", value="", checked='',
+         class="new-post-answer-is-correct col-2") }}
+        {% endfor %}
+
         {{ wtf.form_field(form.submit, type="submit", class="submit button")}}
     </form>
 </script>
