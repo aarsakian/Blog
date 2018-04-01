@@ -1,22 +1,12 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, SubmitField, RadioField, FieldList, FormField
+from wtforms import StringField, TextAreaField, SubmitField, BooleanField, FieldList, FormField, Field
 from wtforms.validators import DataRequired
 
 import logging
 
-class AnswersField(RadioField):
-    def _value(self):
-        if self.data:
-            logging.info("VAAL {}".format(self.data))
-            return u', '.join(self.data)
-        else:
-
-            return u''
-
-
-class IMForm(FlaskForm):
-    protocol = RadioField(choices=[('aim', 'AIM'), ('msn', 'MSN')], default="{{radio_field}}")
-
+class AnswerField(FlaskForm):
+    p_answer = StringField("", default="{{answer}}")
+    is_correct = BooleanField(default="{{is_correct}}")
 
 
 
@@ -26,6 +16,6 @@ class PostForm(FlaskForm):
     summary = StringField("", default="{{summary}}")
     tags = StringField("", default="{{tags}}")
     category = StringField("", validators=[DataRequired()], default="{{category}}")
-    radio_field = FieldList(FormField(IMForm))
+    answers = FieldList(FormField(AnswerField), min_entries=4)
     submit = SubmitField('Save')
 
