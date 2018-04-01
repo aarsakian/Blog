@@ -2,6 +2,8 @@
 
 App.Models = App.Models || {};
 
+var Answer =  {p_answer:"", is_correct:false}
+
 class Post extends Backbone.Model {
   constructor(options) {
     super(options);
@@ -16,6 +18,7 @@ class Post extends Backbone.Model {
       updated:"",
       tags:"",
       summary:"",
+      answers:[Answer]
     };
   }
 }
@@ -25,18 +28,18 @@ App.Models.Post = Post;
 
 //(function (models,collection){
 //  app.models.Post=Backbone.Model.extend({
-//        defaults:{ 
+//        defaults:{
 //            title:"",
 //            body:"body of post",
 //            date:"date of the post",
 //            updated:"",
 //            tags:"",
 //            summary:""
-//          
+//
 //        },
 //
 //        initialize: function() {
-//	      
+//
 //			if (!this.get("title")) {
 //				this.set({"title": this.defaults.title});
 //			}
@@ -44,7 +47,7 @@ App.Models.Post = Post;
 //        url:function(){
 //                    console.log(this.id);
 //            if ((this.id=="") || (typeof this.id=="undefined")) {
-//               
+//
 //                return app.Posts.url;
 //            }
 //            else {//collection ==a model
@@ -54,11 +57,11 @@ App.Models.Post = Post;
 //                    return  app.Posts.url;
 //		else
 //		    return  app.Posts.url+"/"+this.id;
-//	
+//
 //            }
-//            
+//
 //        }
-//        
+//
 //    });
-//  
+//
 //})(app.models);

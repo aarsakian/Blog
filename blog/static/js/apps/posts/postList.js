@@ -284,9 +284,11 @@ class PostForm extends ModelView {
     this.model.set('summary',this.getInput('#new-post-summary'));
     this.model.set('tags',this.getInput('#new-post-tags').split(','));
     this.model.set('category',this.getInput('#new-post-category'));
+    this.model.set('answers',this.getInputs('.new-post-answer'));
+    this.model.set('areCorrect',this.getInputs('.new-post-answer-is-correct '));
     var collection = this.collection;
     var posts = {};
-    console.log(this.model.cid);
+    console.log("ANSS"+this.model.answers);
     this.model.save(null, {
       success(model, response, options) {
         // Redirect user to contact list after save
@@ -312,12 +314,27 @@ class PostForm extends ModelView {
     this.clearInput("#new-post-title");
     this.clearInput("#new-post-category");
     this.clearInput("#new-post-summary");
+    this.clearInputs(".new-post-answer");
   }
   getInput(selector) {
     return this.$el.find(selector).val();
   }
+   getInputs(selector) {
+    var vals = [];
+    this.$el.find(selector).each(function(index) {
+        vals.push($(this).val())
+    });
+    return vals;
+  }
+
   clearInput(selector) {
     this.$el.find(selector).val('');
+  }
+
+  clearInputs(selector) {
+     this.$el.find(selector).each(function(index) {
+       $(this).val('');
+    });
   }
 
   cancel() {
