@@ -7,7 +7,7 @@ var Answer =  Backbone.Model.extend({
   is_correct: false
 });
 
-class Post extends Backbone.Model {
+class Post extends Backbone.NestedModel {
   constructor(options) {
     super(options);
     this.urlRoot = '/api/posts';
@@ -22,6 +22,7 @@ class Post extends Backbone.Model {
       tags:"",
       summary:"",
       answers:[]
+
     };
   }
 }

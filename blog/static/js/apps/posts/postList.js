@@ -284,11 +284,19 @@ class PostForm extends ModelView {
     this.model.set('summary',this.getInput('#new-post-summary'));
     this.model.set('tags',this.getInput('#new-post-tags').split(','));
     this.model.set('category',this.getInput('#new-post-category'));
-    this.model.set('answers',this.getInputs('.new-post-answer'));
-    this.model.set('areCorrect',this.getInputs('.new-post-answer-is-correct '));
+
+    var answers_a = this.getInputs('.new-post-answer');
+    var areCorrect = this.getInputsCheckbox('.form-check-input');//.new-post-answer-is-correct
+
+    var answers = [];
+    answers.push( _.map(answers_a, function (answer, idx){
+        return {'p_answer': answer, 'is_correct':areCorrect[idx]}
+    }));
+
     var collection = this.collection;
     var posts = {};
-    console.log("ANSS"+this.model.answers);
+    this.model.set('answers', answers);
+
     this.model.save(null, {
       success(model, response, options) {
         // Redirect user to contact list after save
@@ -319,10 +327,18 @@ class PostForm extends ModelView {
   getInput(selector) {
     return this.$el.find(selector).val();
   }
-   getInputs(selector) {
+  getInputs(selector) {
     var vals = [];
     this.$el.find(selector).each(function(index) {
         vals.push($(this).val())
+    });
+    return vals;
+  }
+
+  getInputsCheckbox(selector) {
+    var vals = [];
+    this.$el.find(selector).each(function(index) {
+        vals.push($(this).is(':checked'));
     });
     return vals;
   }

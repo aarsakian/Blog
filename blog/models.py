@@ -171,12 +171,19 @@ class Posts(BlogList, JsonMixin):
         :param answers:
         :return: key of the added post
         """
+
+        if answers:
+            processed_answers = [Answer(p_answer=answer['p_answer'],
+                                        is_correct=answer['is_correct']) for answer in answers[0]]
+        else:
+            processed_answers = []
+
         post_key = BlogPost(title=raw_title,
                             body=raw_body,
                             category=category_key,
                             tags=tags_ids,
                             summary=summary,
-                            answers=answers).put()
+                            answers=processed_answers).put()
 
         post = post_key.get()
         self.posts.append(post)
