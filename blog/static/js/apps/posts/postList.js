@@ -288,10 +288,9 @@ class PostForm extends ModelView {
     var answers_a = this.getInputs('.new-post-answer');
     var areCorrect = this.getInputsCheckbox('.form-check-input');//.new-post-answer-is-correct
 
-    var answers = [];
-    answers.push( _.map(answers_a, function (answer, idx){
+    var answers = _.map(answers_a, function (answer, idx){
         return {'p_answer': answer, 'is_correct':areCorrect[idx]}
-    }));
+    });
 
     var collection = this.collection;
     var posts = {};
