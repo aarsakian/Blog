@@ -255,14 +255,18 @@ class TestModels(BlogTestBase):
                         [(post_key1.get().tags[0].get()).tag,  (post_key1.get().tags[1].get()).tag],
                         u'timestamp':  datetimeformat(post_key1.get().timestamp),
                         u'title':  post_key1.get().title, u'id': str(post_key1.get().key.id()),
-                        u'summary':post_key1.get().summary},
+                        u'summary':post_key1.get().summary,
+                        u'answers':post_key1.get().answers
+                        },
                         {u'body':  post_key2.get().body, u'category': post_key2.get().category.get().category
                             , u'updated':
                         datetimeformat(post_key2.get().updated), u'tags':
                         [(post_key2.get().tags[0].get()).tag,  (post_key2.get().tags[1].get()).tag],
                         u'timestamp':  datetimeformat(post_key2.get().timestamp),
                         u'title':  post_key2.get().title, u'id': str(post_key2.get().key.id()),
-                        u'summary':post_key2.get().summary}]
+                        u'summary':post_key2.get().summary,
+                        u'answers': post_key2.get().answers
+                         }]
 
         self.assertEqual(json_result, self.posts.to_json())
 

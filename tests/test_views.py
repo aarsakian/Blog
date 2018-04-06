@@ -305,13 +305,13 @@ class TestViews(BlogTestBase):
     def test_add_post(self):
 
         existing_tags = [u"a new new tag", u"a new tag"]
-        freezer = freeze_time("2017-03-20 17:48:18")
+        freezer = freeze_time(u"2017-03-20 17:48:18")
         freezer.start()
         json_data = {u'category': u'category', u'tags': existing_tags, u"summary": u"this is a summary",
-                     u'title': u'a title',u'body': u'body text', u'timestamp': datetimeformat(datetime.now())
-                ,
-                     u'updated': datetimeformat(datetime.now())
-             }
+                     u'title': u'a title',u'body': u'body text', u'timestamp': datetimeformat(datetime.now()).decode("utf-8"),
+                     u'updated': datetimeformat(datetime.now()).decode("utf-8"), "answers" :
+                         [{u'p_answer':'a potential answer', u'is_correct':True}]}
+
 
         response = self.client.post(url_for('main'), content_type='application/json',
                                    data=json.dumps(json_data))
@@ -321,19 +321,22 @@ class TestViews(BlogTestBase):
 
     def test_api_posts(self):
         existing_tags = [u"a new new tag", u"a new tag"]
-        freezer = freeze_time("2017-03-20 17:48:18")
+        freezer = freeze_time(u"2017-03-20 17:48:18")
         freezer.start()
         json_data = {u'category': u'category', u'tags': existing_tags, u"summary": u"this is a summary",
                      u'title': u'a title', u'body': u'body text', u'timestamp': datetimeformat(datetime.now())
-            ,
-                     u'updated': datetimeformat(datetime.now())
+                .decode("utf-8"),
+                     u'updated': datetimeformat(datetime.now()).decode("utf-8"),
+                     "answers":
+                         [{u'p_answer': 'a potential answer', u'is_correct': True}]
                      }
+
 
         self.client.post(url_for('main'), content_type='application/json',
                          data=json.dumps(json_data))
 
         response = self.client.get(url_for('main'))
-
+        print ("RE,",response.json, "VS",json_data)
         json_data[u"id"] = u'4'
         self.assertDictEqual(json_data, response.json[0])
         freezer.stop()
