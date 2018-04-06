@@ -92,6 +92,7 @@ class BlogPost(ndb.Model):
         jsoned_data[u"category"] = self.category.get().category
         jsoned_data[u"updated"] = datetimeformat(post_dict["updated"])
         jsoned_data[u"timestamp"] = datetimeformat(post_dict["timestamp"])
+        jsoned_data[u"answers"] = post_dict["answers"]
         return jsoned_data
 
     def edit(self, title, body, updated, tags, category):
@@ -174,7 +175,7 @@ class Posts(BlogList, JsonMixin):
 
         if answers:
             processed_answers = [Answer(p_answer=answer['p_answer'],
-                                        is_correct=answer['is_correct']) for answer in answers[0]]
+                                        is_correct=answer['is_correct']) for answer in answers]
         else:
             processed_answers = []
 
