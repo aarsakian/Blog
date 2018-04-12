@@ -336,7 +336,7 @@ class TestViews(BlogTestBase):
                          data=json.dumps(json_data))
 
         response = self.client.get(url_for('main'))
-        print ("RE,",response.json, "VS",json_data)
+
         json_data[u"id"] = u'4'
         self.assertDictEqual(json_data, response.json[0])
         freezer.stop()
@@ -499,34 +499,34 @@ class TestViews(BlogTestBase):
 
         return self.assertEqualHTML(rendered_template.decode('utf8'), response.data.decode('utf8'))
 
-    # def test_view_filtered_posts_by_category(self):
-    #
-    #     category_key = self.categories.add("a category")
-    #     existing_tags = ["a new tag", "a new new tag"]
-    #     existing_tag_keys = self.tags.add(existing_tags)
-    #
-    #     self.posts.add("about", "body text", category_key, existing_tag_keys)
-    #
-    #     second_tags = ["a new second tag", "a new new second tag"]
-    #     second_tag_keys = self.tags.add(second_tags)
-    #
-    #     self.posts.add("about second post", "body secod text", category_key, second_tag_keys)
-    #
-    #     self.posts.filter_by_category('a category')
-    #
-    #     passed_days, remaining_days = calculate_work_date_stats()
-    #     site_updated = self.posts.site_last_updated()
-    #
-    #     rendered_template = render_template("posts.html", user_status=users.is_current_user_admin(),
-    #                                         siteupdated=site_updated, \
-    #                                         daysleft=remaining_days, dayspassed=passed_days,
-    #                                         tags=self.tags, categories=self.categories,
-    #                                         posts=self.posts.to_json(),
-    #                                         codeversion=CODEVERSION, form=self.form)
-    #
-    #     response = self.client.get(path='/categories/a category')
-    #
-    #     return self.assertEqualHTML(rendered_template.decode('utf8'), response.data.decode('utf8'))
+    def test_view_filtered_posts_by_category(self):
+
+         category_key = self.categories.add("a category")
+         existing_tags = ["a new tag", "a new new tag"]
+         existing_tag_keys = self.tags.add(existing_tags)
+
+         self.posts.add("about", "body text", category_key, existing_tag_keys)
+
+         second_tags = ["a new second tag", "a new new second tag"]
+         second_tag_keys = self.tags.add(second_tags)
+
+         self.posts.add("about second post", "body secod text", category_key, second_tag_keys)
+
+         self.posts.filter_by_category('a category')
+
+         passed_days, remaining_days = calculate_work_date_stats()
+         site_updated = self.posts.site_last_updated()
+
+         rendered_template = render_template("posts.html", user_status=users.is_current_user_admin(),
+                                             siteupdated=site_updated, \
+                                             daysleft=remaining_days, dayspassed=passed_days,
+                                             tags=self.tags, categories=self.categories,
+                                             posts=self.posts.to_json(),
+                                             codeversion=CODEVERSION, form=self.form)
+
+         response = self.client.get(path='/categories/a category')
+
+         return self.assertEqualHTML(rendered_template.decode('utf8'), response.data.decode('utf8'))
 
     def test_404_not_found_page(self):
         response = self.client.get(path='/a path not existing')
