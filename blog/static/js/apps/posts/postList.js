@@ -296,8 +296,13 @@ class PostForm extends ModelView {
     var posts = {};
     this.model.set('answers', answers);
 
+    var csrf_token = this.getInput('#csrf_token');
+
     this.model.save(null, {
-      success(model, response, options) {
+       beforeSend: function(xhr) {
+            xhr.setRequestHeader("X-CSRFToken", csrf_token);
+       },
+       success(model, response, options) {
         // Redirect user to contact list after save
      //   App.notifySuccess('Post saved');
         collection.trigger('add', model);
