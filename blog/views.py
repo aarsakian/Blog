@@ -1,8 +1,9 @@
 import logging, json
 from blog import app
 from models import Posts, Tags, Categories
-from flask import render_template,request,jsonify,redirect,url_for, Markup, flash
+from flask import render_template,request,jsonify,redirect,url_for, Markup, flash, session
 
+from flask_wtf.csrf import validate_csrf
 from errors import InvalidUsage
 from models import BlogPost,Tag,Category
 
@@ -213,28 +214,38 @@ def main():
         else:
             return jsonify({})
 
-    if users.is_current_user_admin() and request.method == "POST":  #new entity
-        posts = Posts()
-        categories = Categories()
-        tags = Tags()
+    elif request.method == "POST":
+        from wtforms import ValidationError
 
-        raw_post = request.get_json()
-        raw_category = raw_post["category"]
-        editing_tags = raw_post["tags"]
-        raw_summary = raw_post["summary"]
+        try:
+            logging.info("VALIDATING {}".format(request.headers['X-CSRFToken']))
+            validate_csrf(validate_csrf(request.headers['X-CSRFToken']))
+        except ValidationError as e:
+            logging.info(e.args[0])
 
 
-        tag_keys = tags.update(editing_tags)
-        category_key = categories.update(raw_category)
+        if users.is_current_user_admin() and validate_csrf(request.headers['X-CSRFToken']):  #new entity
+            posts = Posts()
+            categories = Categories()
+            tags = Tags()
 
-        post_id = posts.add(raw_title=raw_post["title"],
+            raw_post = request.get_json()
+            raw_category = raw_post["category"]
+            editing_tags = raw_post["tags"]
+            raw_summary = raw_post["summary"]
+
+
+            tag_keys = tags.update(editing_tags)
+            category_key = categories.update(raw_category)
+
+            post_id = posts.add(raw_title=raw_post["title"],
                             raw_body=raw_post["body"],
                             category_key=category_key,
                             tags_ids=tag_keys,
                             summary=raw_summary,
                             answers=raw_post["answers"]).id()
-        post = BlogPost.get(post_id)
-        return jsonify(post.to_json()) #  Needs check
+            post = BlogPost.get(post_id)
+            return jsonify(post.to_json()) #  Needs check
 
 
 @app.route('/api/posts/<id>', methods=['GET'])
