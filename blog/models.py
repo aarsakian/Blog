@@ -95,12 +95,18 @@ class BlogPost(ndb.Model):
         jsoned_data[u"answers"] = post_dict["answers"]
         return jsoned_data
 
-    def edit(self, title, body, updated, tags, category):
+    def edit(self, title, body, updated, tags, category, answers=None):
         self.title = title
         self.body = body
         self.updated = updated
         self.tags = tags
         self.category = category
+        if answers:
+            self.processed_answers = [Answer(p_answer=answer['p_answer'],
+                                        is_correct=answer['is_correct']) for answer in answers]
+        else:
+            self.processed_answers = []
+
         self.put()
         add_document_in_search_index(self.id, self.title, self.body,
                                      self.summary, self.get_category(),
