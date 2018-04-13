@@ -40,12 +40,28 @@ class EditPostForm extends PostForm {
     this.model.set('summary',this.getInput('#new-post-summary'));
     this.model.set('tags',this.getInput('#new-post-tags').split(','));
     this.model.set('category',this.getInput('#new-post-category'));
+
+    var answers_a = this.getInputs('.new-post-answer');
+    var areCorrect = this.getInputsCheckbox('.form-check-input');//.new-post-answer-is-correct
+
+    var answers = _.map(answers_a, function (answer, idx){
+        return {'p_answer': answer, 'is_correct':areCorrect[idx]}
+    });
+
     var collection = this.collection;
     var posts = {};
+    this.model.set('answers', answers);
+
+    var csrf_token = this.getInput('#csrf_token');
+
     this.model.save(null, {
+      beforeSend: function(xhr, settings) {
+            xhr.setRequestHeader("X-CSRFToken", csrf_token);
+        },
       success(model, response, options) {
         // Redirect user to contact list after save
      //   App.notifySuccess('Post saved');
+         App.router.navigate('edit', true);
      
        
       },
@@ -55,7 +71,7 @@ class EditPostForm extends PostForm {
       }
     });
 
-    this.trigger('form:save', this.model);
+  //  this.trigger('form:save', this.model);
 //    this.clearForm();
   }
   
@@ -71,12 +87,12 @@ class PostEditor {
     _.extend(this, Backbone.Events);
   }
 
-  showEditor(contact) {
+  showEditor(post) {
     // Create the views
-    var layout = new ContactFormLayout({model: contact});
 
-    var postForm = new EditPostForm({model: contact});
- //   var contactPreview = new PostPreview({model: contact});
+    var layout = new ContactFormLayout({model: post});
+
+    var postForm = new EditPostForm({model: post});
 
     // Render the views
     layout.$el.addClass("row col-12");
@@ -88,12 +104,14 @@ class PostEditor {
     this.listenTo(postForm, 'form:cancel', this.cancel);
   }
 
-  savePost(post) {
-    post.save(null, {
+  savePost(postForm) {
+    postForm.save(null, {
+
       success() {
         // Redirect user to contact list after save
        // App.notifySuccess('Contact saved');
-          App.router.navigate(`edit`, true);
+        console.log("Navigating to save");
+
       },
       error() {
         // Show error message if something goes wrong
