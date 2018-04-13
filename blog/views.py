@@ -247,22 +247,14 @@ def get_post(id):
 
     asked_post = BlogPost.get(id)
 
-    category_id = str(asked_post.category.id())
-
-    post_tag_names = asked_post.get_tag_names()
-
-    requested_post =  {"title": asked_post.title, "body": asked_post.body, "category":
-                 asked_post.category.get().category,
-              "catid":  category_id, "id": str(asked_post.key.id()), \
-              "tags": post_tag_names, "date": asked_post.timestamp,"updated":asked_post.updated}
-
-    return jsonify(requested_post)  # dangerous
+    return jsonify(asked_post.to_json())  # dangerous
 
 
 @app.route('/api/posts/<id>', methods=['PUT'])
 def edit_post(id):
 
-    if users.is_current_user_admin():
+    form = PostForm()
+    if users.is_current_user_admin() and form.validate_on_submit():
 
         tags = Tags()
 
@@ -279,16 +271,10 @@ def edit_post(id):
 
         categories.update(raw_category, updating_post.category)
 
-        updating_post.edit(title, body, datetime.now(), tags_keys, updating_post.category)
+        updating_post.edit(title, body, datetime.now(), tags_keys,
+                           updating_post.category,  answers=request.json['answers'])
 
-        post_tag_names = updating_post.get_tag_names()
-
-        modified_post = {"title": updating_post.title, "body": updating_post.body, "category":
-                 updating_post.category.get().category,
-              "catid": str(updating_post.category.id()), "id": str(updating_post.key.id()), \
-              "tags": post_tag_names , "date": updating_post.timestamp ,"updated": updating_post.updated}
-
-        return jsonify(modified_post)  # dangerous
+        return jsonify(updating_post.to_json())  # dangerous
 
 
 @app.route('/api/posts/<id>', methods=['DELETE'])
