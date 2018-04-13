@@ -215,16 +215,9 @@ def main():
             return jsonify({})
 
     elif request.method == "POST":
-        from wtforms import ValidationError
 
-        try:
-            logging.info("VALIDATING {}".format(request.headers['X-CSRFToken']))
-            validate_csrf(validate_csrf(request.headers['X-CSRFToken']))
-        except ValidationError as e:
-            logging.info(e.args[0])
-
-
-        if users.is_current_user_admin() and validate_csrf(request.headers['X-CSRFToken']):  #new entity
+        form = PostForm()
+        if users.is_current_user_admin() and form.validate_on_submit():  #new entity
             posts = Posts()
             categories = Categories()
             tags = Tags()
