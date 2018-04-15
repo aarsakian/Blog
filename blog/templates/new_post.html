@@ -16,7 +16,7 @@
          placeholder="Enter your tags here,use comma between")}}
          <div class="answers col-12 row">
          {% for l in form.answers %}
-            {{ wtf.form_field(l.form.p_answer, class="new-post-answer col-10",
+            {{ wtf.form_field(l.form.p_answer,  class="new-post-answer col-10",
            placeholder="Answer") }}
             {{ wtf.form_field(l.form.is_correct, label="", value="", checked='',
          class="new-post-answer-is-correct col-2") }}
