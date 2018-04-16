@@ -291,21 +291,23 @@ class TestViews(BlogTestBase):
 
         data = {u"title": asked_post.title, u"body": asked_post.body, u"category":
             asked_post.category.get().category,
-                 u"catid": str(category_key.id()).decode('utf8'), u"id": str(asked_post.key.id()).decode('utf8'), \
+                 u"category": category_key.get().category, u"id": str(asked_post.key.id()).decode('utf8'), \
                  u"tags": post_tag_names,
-                 u"date": asked_post.timestamp.strftime('%a, %d %b %Y %H:%M:%S GMT').decode('utf8')
+                 u"summary":asked_post.summary,
+                 u"timestamp": asked_post.timestamp.strftime('%A, %d %B %Y').decode('utf8')
                     , u"updated":
-                     asked_post.updated.strftime('%a, %d %b %Y %H:%M:%S GMT').decode('utf8'),
+                     asked_post.updated.strftime('%A, %d %B %Y').decode('utf8'),
+                u"answers":[]
                  }
 
         response = self.client.get(url_for("get_post", id=post_key.id()))
-
+     
         self.assertDictEqual(data, response.json)
 
     def test_add_post(self):
 
         existing_tags = [u"a new new tag", u"a new tag"]
-        freezer = freeze_time(u"2017-03-20 17:48:18")
+        freezer = freeze_time(u"2017-03-20")
         freezer.start()
         json_data = {u'category': u'category', u'tags': existing_tags, u"summary": u"this is a summary",
                      u'title': u'a title',u'body': u'body text', u'timestamp': datetimeformat(datetime.now()).decode("utf-8"),
@@ -316,6 +318,7 @@ class TestViews(BlogTestBase):
         response = self.client.post(url_for('main'), content_type='application/json',
                                    data=json.dumps(json_data))
         json_data[u"id"] = u'4'
+        print ( json_data)
         self.assertDictEqual(json_data, response.json)
         freezer.stop()
 
