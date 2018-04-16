@@ -11,7 +11,8 @@ class TestForms(BlogTestBase):
         self.testbed = testbed.Testbed()
         # Then activate the testbed, which prepares the service stubs for use.
         self.testbed.activate()
-        # Next, declare which service stubs you want to use.
+        # Next, enable csrf for proper rendering of forms
+        self.app.config['WTF_CSRF_ENABLED'] = True
 
     def test_post_form_names(self):
         form = PostForm()
@@ -24,6 +25,7 @@ class TestForms(BlogTestBase):
 
     def test_hidden_form(self):
         form = PostForm()
+
         out = form.hidden_tag()
         assert(all(x in out for x in ('csrf_token')))
 

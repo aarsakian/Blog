@@ -19,7 +19,7 @@ from blog.search import query_search_index, find_posts_from_index
 
 CODEVERSION = ':v0.7'
 
-
+DATEFORMAT = '%A, %d %B %Y'
 
 
 from . import BlogTestBase
@@ -294,14 +294,14 @@ class TestViews(BlogTestBase):
                  u"category": category_key.get().category, u"id": str(asked_post.key.id()).decode('utf8'), \
                  u"tags": post_tag_names,
                  u"summary":asked_post.summary,
-                 u"timestamp": asked_post.timestamp.strftime('%A, %d %B %Y').decode('utf8')
+                 u"timestamp": asked_post.timestamp.strftime(DATEFORMAT).decode('utf8')
                     , u"updated":
-                     asked_post.updated.strftime('%A, %d %B %Y').decode('utf8'),
+                     asked_post.updated.strftime(DATEFORMAT).decode('utf8'),
                 u"answers":[]
                  }
 
         response = self.client.get(url_for("get_post", id=post_key.id()))
-     
+
         self.assertDictEqual(data, response.json)
 
     def test_add_post(self):
@@ -314,11 +314,10 @@ class TestViews(BlogTestBase):
                      u'updated': datetimeformat(datetime.now()).decode("utf-8"), "answers" :
                          [{u'p_answer':'a potential answer', u'is_correct':True}]}
 
-
         response = self.client.post(url_for('main'), content_type='application/json',
                                    data=json.dumps(json_data))
         json_data[u"id"] = u'4'
-        print ( json_data)
+
         self.assertDictEqual(json_data, response.json)
         freezer.stop()
 
@@ -367,7 +366,9 @@ class TestViews(BlogTestBase):
 
         updating_post = post_key.get()
 
-        json_data = {'category': 'category', 'tags': editing_tags, 'title': 'a title', 'body': 'body text'}
+        json_data = {'category': 'category', 'tags': editing_tags, 'title': 'a title', 'body': 'body text',
+                     'summary': 'this is a summary',
+                     'answers':[]}
 
         response = self.client.put(url_for('edit_post', id=post_key.id()), content_type='application/json',
                                    data=json.dumps(json_data))
@@ -377,11 +378,13 @@ class TestViews(BlogTestBase):
 
         data = {u"title": updating_post.title, u"body": updating_post.body, u"category":
             updating_post.category.get().category,
-                 u"catid": str(category_key.id()).decode('utf8'), u"id": str(updating_post.key.id()).decode('utf8'), \
+                 u"category": category_key.get().category, u"id": str(updating_post.key.id()).decode('utf8'), \
                  u"tags": post_tag_names,
-                 u"date": updating_post.timestamp.strftime('%a, %d %b %Y %H:%M:%S GMT').decode('utf8')
+                'summary': updating_post.summary,
+                 u"timestamp": updating_post.timestamp.strftime(DATEFORMAT).decode('utf8')
                     , u"updated":
-                     updating_post.updated.strftime('%a, %d %b %Y %H:%M:%S GMT').decode('utf8'),
+                     updating_post.updated.strftime(DATEFORMAT).decode('utf8'),
+                 u"answers":updating_post.answers
                  }
 
         self.assertDictEqual(data, response.json)
