@@ -1,9 +1,11 @@
-from blog.forms import PostForm
+from blog.forms import PostForm, AnswerField
 
 from google.appengine.ext import testbed
 from . import BlogTestBase
 
 from blog.models import BlogPost, Answer, Categories, Tags
+
+
 
 class TestForms(BlogTestBase):
 
@@ -13,6 +15,12 @@ class TestForms(BlogTestBase):
         self.testbed.activate()
         # Next, enable csrf for proper rendering of forms
         self.app.config['WTF_CSRF_ENABLED'] = True
+
+        self.testbed.init_datastore_v3_stub()
+        # enable memcache
+        self.testbed.init_memcache_stub()
+        self.categories = Categories()
+        self.tags = Tags()
 
     def test_post_form_names(self):
         form = PostForm()
@@ -29,7 +37,29 @@ class TestForms(BlogTestBase):
         out = form.hidden_tag()
         assert(all(x in out for x in ('csrf_token')))
 
-    def test_with_data(self):
+    def test_with_data_using_obj(self):
+
+        category_key = self.categories.add("category")
+
+        test_tags = ["a new tag", "a new new tag"]
+        new_tag_keys = self.tags.add(test_tags)
+
+        answer = Answer(p_answer="a test answer",
+               is_correct=False)
+
+        post = BlogPost(title="a title", body= "body text", category=category_key, tags=new_tag_keys,
+                        summary="this is a summary", answers=[answer])
+        post.put()
+        form = PostForm(obj = post)
+       # form.answers.append_entry(answer_field)
+        #print (form.answers)
+
+        self.assertEqual(form.title.data, "a title")
+        self.assertEqual(form.body.data, "body text")
+        self.assertEqual(form.answers[0].p_answer.data, "a test answer")
+
+
+    def test_with_data_using_dict(self):
 
         class DummyPostData(dict):
             def getlist(self, key):
@@ -45,9 +75,12 @@ class TestForms(BlogTestBase):
                                   u'answers': [{'is_correct': False, 'p_answer': u'a test answer'}],
                                   u'summary': u'this is a summary', u'id': '4'})
 
-
         form = PostForm(postdict)
+       # form.answers.append_entry(answer_field)
+        #print (form.answers)
+
         self.assertEqual(form.title.data, "a title")
         self.assertEqual(form.body.data, "body text")
         self.assertEqual(form.answers[0].p_answer.data, "a test answer")
+
 
