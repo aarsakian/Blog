@@ -17,13 +17,13 @@ class Development(Config):
   # Flask-DebugToolbar settings
   DEBUG_TB_PROFILER_ENABLED = True
   DEBUG_TB_INTERCEPT_REDIRECTS = False
-  CSRF_ENABLED = True
+  WTF_CSRF_ENABLED = True
 
 
 class Testing(Config):
   TESTING = True
   DEBUG = True
-  CSRF_ENABLED = True
+  WTF_CSRF_ENABLED = False
   ASSETS_DEBUG = True
 
 
