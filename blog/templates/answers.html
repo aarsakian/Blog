@@ -1,0 +1,10 @@
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block answers %}
+    {% for f in answers_field.r_answers%}
+        <div class="answer col-12 row">
+            {{wtf.form_field(f)}}
+        </div>
+    {% endfor %}
+
+{% endblock %}
