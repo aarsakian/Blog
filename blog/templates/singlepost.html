@@ -28,15 +28,7 @@ Armen Arsakian personal blog
 
     <div class="col-md-1">
 
-        <!--<div class="col-md-2 offset3"><a href="https://twitter.com/share" class="twitter-share-button"
-                                         data-url="http://aarsakian.appspot.com" data-text="{{Post.title}}"
-                                         data-via="Aarsakian's blog" data-lang="en"
-                                         hashtags="{{category}}/{{Post.title}}">
-            Tweet</a>
 
-        <div class="offset1 span1">
-            <span class="gplus"><g:plusone size="medium" align="right"></g:plusone></span>
-        </div>-->
     </div>
 </div>
 
@@ -46,6 +38,7 @@ Armen Arsakian personal blog
     <div class="post col-md-9">
 
         <div data-id="{{Post.id}}" class="article classic">
+
             {{Post.body}}
             <!--<div class="postTitle">
 
@@ -54,6 +47,16 @@ Armen Arsakian personal blog
 
 
         </div><!--closes post-->
+        <div id="answers">
+
+            {% block answers %}
+                 {% include 'answers.html' %}
+            {% endblock %}
+
+
+        </div>
+
+
     </div>
 
 
@@ -91,9 +94,6 @@ Armen Arsakian personal blog
 {% endblock %}
 
 
-{% block new_post %}
-  {% include 'new_post.html' %}
-{% endblock %}
 
 
 {% block footer%}
