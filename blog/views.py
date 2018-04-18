@@ -18,7 +18,7 @@ from jinja2.environment import Environment
 
 from datetime import datetime
 
-from forms import PostForm
+from forms import PostForm, AnswerRadioField
 from utils import datetimeformat, calculate_work_date_stats
 
 KEY="posts"
@@ -309,6 +309,8 @@ def view_a_post(category, year, month, title):
 
     posts = Posts()
 
+    answers_field = AnswerRadioField()
+
     if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
 
     current_post = posts.get_by_title(title)
@@ -320,9 +322,14 @@ def view_a_post(category, year, month, title):
     category = current_post.category.get().category
     site_updated = posts.site_last_updated()
     flash('This website uses Google Analytics to help analyse how users use the site.')
+
+
+    answers_field.r_answers.choices = [("t", answer.p_answer) for answer in current_post.answers]
+
     return render_template('singlepost.html', user_status=users.is_current_user_admin(), siteupdated=site_updated, \
                                         daysleft=remaining_days, dayspassed=passed_days, RelatedPosts=related_posts, \
-                                        Post=current_post.to_json(), posttagnames=post_tag_names, category=category)
+                                        Post=current_post.to_json(), posttagnames=post_tag_names, category=category,
+                                        answers_field = answers_field)
 
 @app.route('/edit',methods=['GET'])
 @app.route('/edit/<postkey>',methods=['GET'])
