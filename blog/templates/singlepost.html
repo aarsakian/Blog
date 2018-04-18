@@ -90,13 +90,15 @@ Armen Arsakian personal blog
 
 {% endblock %}
 
+
+{% block new_post %}
+  {% include 'new_post.html' %}
+{% endblock %}
+
+
 {% block footer%}
-<div class="col-md-10">
-    <p> Armen Arsakian updated at <span class="siteupdate">{{siteupdated}}</span><span class="countdown">  {{daysleft}} . {{dayspassed}}</span>
-    </p>
-</div>
-<div class="col-md-1 offset1">
-    <span class="version"><a href="/built with...">{{codeversion}}</a></span>
-</div>
+{% include 'footer.html' %}
 
 {% endblock %}
+
+
