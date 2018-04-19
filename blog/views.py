@@ -184,6 +184,7 @@ def index(posts, tags, categories, passed_days,
                            codeversion=CODEVERSION,
                            form=form)
 
+
 @app.route('/archives',methods=['GET'])
 @boilercode
 def archives(posts, tags, categories, passed_days,
@@ -204,49 +205,52 @@ def archives(posts, tags, categories, passed_days,
 
 @app.route('/api/posts',methods=['POST','GET'])
 def main():
-
-    if request.method=='GET':  #all entitites
-        posts = Posts()
-
-        if posts:
-            return jsonify(posts.to_json())
-        else:
-            return jsonify({})
-
-    elif request.method == "POST":
-
-        form = PostForm()
-        if users.is_current_user_admin() and form.validate_on_submit():  #new entity
+    if users.is_current_user_admin():
+        if request.method=='GET':  #all entitites
             posts = Posts()
-            categories = Categories()
-            tags = Tags()
 
-            raw_post = request.get_json()
-            raw_category = raw_post["category"]
-            editing_tags = raw_post["tags"]
-            raw_summary = raw_post["summary"]
+            if posts:
+                return jsonify(posts.to_json())
 
 
-            tag_keys = tags.update(editing_tags)
-            category_key = categories.update(raw_category)
+        elif request.method == "POST":
 
-            post_id = posts.add(raw_title=raw_post["title"],
+            form = PostForm()
+            if form.validate_on_submit():  #new entity
+                posts = Posts()
+                categories = Categories()
+                tags = Tags()
+
+                raw_post = request.get_json()
+                raw_category = raw_post["category"]
+                editing_tags = raw_post["tags"]
+                raw_summary = raw_post["summary"]
+
+
+                tag_keys = tags.update(editing_tags)
+                category_key = categories.update(raw_category)
+
+                post_id = posts.add(raw_title=raw_post["title"],
                             raw_body=raw_post["body"],
                             category_key=category_key,
                             tags_ids=tag_keys,
                             summary=raw_summary,
                             answers=raw_post["answers"]).id()
-            post = BlogPost.get(post_id)
-            return jsonify(post.to_json()) #  Needs check
+                post = BlogPost.get(post_id)
+                return jsonify(post.to_json()) #  Needs check
+
+    else:
+        return jsonify({})
 
 
 @app.route('/api/posts/<id>', methods=['GET'])
 def get_post(id):
+    if users.is_current_user_admin():
+        asked_post = BlogPost.get(id)
 
-
-    asked_post = BlogPost.get(id)
-
-    return jsonify(asked_post.to_json())  # dangerous
+        return jsonify(asked_post.to_json())  # dangerous
+    else:
+        return jsonify({})
 
 
 @app.route('/api/posts/<id>', methods=['PUT'])
