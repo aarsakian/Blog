@@ -1,40 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>{% block title %}title{% endblock %}</title>
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/google.html" as google %}
+{% import "bootstrap/utils.html" as util %}
 
-    {% block header %}
+
+{% block title %}title{% endblock %}
+
+{% block head %}
+    {{super()}}
+    {% block metas %}
     <meta name="description" content="A blog about programming, computer forensics">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="author" content="Armen Arsakian">
     {% endblock %}
 
-    <!-- Bootstrap -->
-    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet"
-          integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link href="/static/css/style.min.css" rel="stylesheet" media="screen">
     <link href="{{ url_for('recent_feed') }}" rel="alternate" title="Recent Changes" type="application/atom+xml">
     <link href='//fonts.googleapis.com/css?family=Merriweather:400' rel='stylesheet' type='text/css'>
-</head>
-<body>
+{% endblock %}
+
+
+{% block body %}
 <div class="container-fluid w-100 px-5 row-12">
-     {% with messages = get_flashed_messages() %}
-        {% if messages %}
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
 
-        {% for message in messages %}
-        <div class="alert alert-info alert-dismissible fade show p-2 messages" role="alert">
-            <button type="button" class="close p-1" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-            <strong>{{ message }}</strong>
-        </div>
+    {% for message in messages %}
+    <div class="alert alert-info alert-dismissible fade show p-2 messages" role="alert">
+        <button type="button" class="close p-1" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <strong>{{ message }}</strong>
+    </div>
 
-        {% endfor %}
+    {% endfor %}
 
-        {% endif %}
-        {% endwith %}
+    {% endif %}
+    {% endwith %}
     <div class="row col-12" id="searchfield">
         <div class="row ml-auto col-sm-8 col-xs-4">
 
@@ -144,6 +145,7 @@
 <!-- post area-->
 <script id="post-list-item" type="text/x-handlebars-template">
     <div data-id={{'{{'}}id{{'}}'}} class="postKey">
+        {{'{{'}} form.csrf_token {{'}}'}}
         <div class="postTitle">
             <h3> <!--{{'{{'}}#if user_admin{{'}}'}} class=--><!--"title editable admin">-->
 
@@ -217,17 +219,11 @@
 
 {%endif%}
 
-
 <script
         src="https://code.jquery.com/jquery-3.2.1.min.js"
         integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
         crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
-        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-        crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
-        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-        crossorigin="anonymous"></script>
+
 <script type="text/javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.1/bootstrap3-typeahead.min.js"></script>
 <script src="{{url_for('static', filename='js/markdown.min.js')}}"></script>
@@ -235,34 +231,22 @@
 
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-38392254-1"></script>
 
+
+{% block scripts %}
 <script>
 if (document.location.hostname == "arsakian.com") {
-
-<!-- Global site tag (gtag.js) - Google Analytics -->
-
-
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'UA-38392254-1');
-
-
-
-
+  {{super()}}
+  {{google.uanalytics('UA-38392254-1')}}
 }
 
-
-
 </script>
-
-<!-- End Google Analytics -->
+{% endblock %}
 
 
 {%if user_status%}
 <script src="{{url_for('static', filename='js/libs/to-markdown.js')}}"></script>
 <script src="{{url_for('static', filename='js/libs/underscore/underscore-min.js')}}"></script>
-<script src="{{url_for('static', filename='js/libs/backbone/backbone-min.js')}}"></script>
+<script src="{{url_for('static', filename='js/libs/backbone/backbone.js')}}"></script>
 <script src="{{url_for('static', filename='js/libs/backbone/backbone-nested.js')}}"></script>
 <script src="{{url_for('static', filename='js/libs/backbone.pagedcollection.js')}}"></script>
 <script src="{{url_for('static', filename='js/app.js')}}"></script>
@@ -282,6 +266,6 @@ if (document.location.hostname == "arsakian.com") {
 
 <script type="text/javascript">App.start();</script>
 {%endif%}
-</body>
+{% endblock %}
 
-</html>
+
