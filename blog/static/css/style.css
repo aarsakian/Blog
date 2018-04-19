@@ -125,6 +125,7 @@ opacity:0.9;
 border:1px solid #662823;
 }
 
+.post .table-bordered{border:3px solid #404040;}
 
 #bd .form-horizontal  .form-group
 { -webkit-box-flex: 0;
