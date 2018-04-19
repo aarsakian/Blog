@@ -1,10 +1,21 @@
 {% import "bootstrap/wtf.html" as wtf %}
 
 {% block answers %}
-    {% for f in answers_field.r_answers%}
-        <div class="answer col-12 row">
-            {{wtf.form_field(f)}}
-        </div>
-    {% endfor %}
+<form class="form form-horizontal row" method="post" role="form">
+    <div class="answer col-12">
+    {{ answers_field.hidden_tag()}}
+    <table class="table table-hover table-bordered ">
+        <tbody>
+        {% for f in answers_field.r_answers%}
+<tr  class="mb-10"><th>
+            {{wtf.form_field(f, class="col-12")}}
+</th>
+</tr>
+        </tbody>
+        {% endfor %}
+    </table>
+    {{ wtf.form_field(answers_field.submit, type="submit", class="col-2 float-left btn btn-primary submit button")}}
+           </div>
+</form>
 
 {% endblock %}
