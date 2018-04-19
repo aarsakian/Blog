@@ -209,8 +209,8 @@ def main():
         if request.method=='GET':  #all entitites
             posts = Posts()
 
-            if posts:
-                return jsonify(posts.to_json())
+
+            return jsonify(posts.to_json())
 
 
         elif request.method == "POST":
