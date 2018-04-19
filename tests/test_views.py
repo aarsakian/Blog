@@ -11,7 +11,7 @@ from flask import url_for, render_template, request, flash
 from google.appengine.ext import testbed
 from google.appengine.api import users
 from google.appengine.ext import ndb
-from blog.forms import PostForm
+from blog.forms import PostForm, AnswerRadioField
 from blog.models import Tags, Posts, Categories, BlogPost
 from blog.utils import find_modified_tags, datetimeformat, make_external,  calculate_work_date_stats
 from blog.search import query_search_index, find_posts_from_index
@@ -201,10 +201,15 @@ class TestViews(BlogTestBase):
         site_updated = self.posts.site_last_updated()
         flash('This website uses Google Analytics to help analyse how users use the site.')
 
+        answers_field = AnswerRadioField()
+
+        answers_field.r_answers.choices = [("t", answer.p_answer) for answer in current_post.answers]
+
         rendered_template = render_template('singlepost.html', user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated, \
                                             daysleft=remaining_days, dayspassed=passed_days, RelatedPosts=related_posts, \
-                                            Post=current_post.to_json(), posttagnames=post_tag_names, category=category)
+                                            Post=current_post.to_json(), posttagnames=post_tag_names,
+                                            category=category,  answers_field = answers_field)
 
         self.assertEqual(rendered_template.encode("utf-8"), response.data)
 
@@ -237,10 +242,16 @@ class TestViews(BlogTestBase):
         category = current_post.category.get().category
         site_updated = self.posts.site_last_updated()
         flash('This website uses Google Analytics to help analyse how users use the site.')
+
+        answers_field = AnswerRadioField()
+
+        answers_field.r_answers.choices = [("t", answer.p_answer) for answer in current_post.answers]
+
         rendered_template = render_template('singlepost.html', user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated, \
                                             daysleft=remaining_days, dayspassed=passed_days, RelatedPosts=related_posts, \
-                                            Post=current_post.to_json(), posttagnames=post_tag_names, category=category)
+                                            Post=current_post.to_json(), posttagnames=post_tag_names,
+                                            category=category, answers_field=answers_field)
 
         self.assertEqual(rendered_template.encode("utf-8"), response.data)
 
@@ -345,11 +356,9 @@ class TestViews(BlogTestBase):
 
     def test_no_post(self):
 
-        json_data = {}
-
         response = self.client.get(url_for('main'))
 
-        self.assertDictEqual(json_data, response.json)
+        self.assertFalse(response.json)
 
     def test_edit_post(self):
 
