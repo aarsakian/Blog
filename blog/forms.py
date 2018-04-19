@@ -12,6 +12,7 @@ class AnswerField(FlaskForm):
 
 class AnswerRadioField(FlaskForm):
     r_answers = RadioField("")
+    submit = SubmitField('Submit')
 
 class PostForm(FlaskForm):
     title = StringField("", validators=[DataRequired()], default="{{title}}")
