@@ -3,7 +3,6 @@ from blog import app
 from models import Posts, Tags, Categories
 from flask import render_template,request,jsonify,redirect,url_for, Markup, flash, session
 
-from flask_wtf.csrf import validate_csrf
 from errors import InvalidUsage
 from models import BlogPost,Tag,Category
 
