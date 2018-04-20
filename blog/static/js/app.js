@@ -1,11 +1,12 @@
 var DefaultRouter = Backbone.Router.extend({
   routes: {
-     '': 'defaultRoute'
+     '/edit': 'defaultRoute'
   },
 
   // Redirect to contacts app by default
   defaultRoute() {
-    this.navigate('edit', true);
+
+   // this.navigate('edit', true);
   }
 
 });
@@ -19,6 +20,7 @@ var App = {
   start() {
     // Initialize all available routes
     _.each(_.values(this.Routers), function(Router) {
+
       new Router();
     });
 
@@ -27,6 +29,7 @@ var App = {
 
     // Create a global router to enable sub-applications to redirect to
     // other urls
+
     App.router = new DefaultRouter();
     Backbone.history.start({pushState: true});
 
@@ -49,7 +52,7 @@ var App = {
 
     // Run subapplication
     this.currentSubapp = new SubApplication({region: App.mainRegion});
-    // console.log(" ---------"+this.currentSubapp instanceof SubApplication);
+
     return this.currentSubapp;
   },
   
