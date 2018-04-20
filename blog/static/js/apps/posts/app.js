@@ -23,6 +23,10 @@ class PostsApp {
          }
     });
    }
+
+   showAnswers(category, month, year, title) {
+        console.log("SHOWING ANSWer ere"+title);
+   }
    
    showPosts(posts) {
       var postList = this.startController(PostList);
