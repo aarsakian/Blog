@@ -7,9 +7,10 @@ class PostsRouter extends Backbone.Router {
   constructor(options) {
 	super(options);
 	this.routes = {
-    'edit': 'startApp',
+      'edit': 'startApp',
 	  'tags': 'displayPosts',
-	  'edit/:key': 'editPost'
+	  'edit/:key': 'editPost',
+	  ':category/:month/:year/:title' : 'getAnswers'
 	};
     this._bindRoutes();
   }
@@ -19,6 +20,13 @@ class PostsRouter extends Backbone.Router {
 		var app = App.startSubApplication(PostsApp);
 
 		app.showPostEditor(postId);
+	}
+
+
+	getAnswers(category, month, year, title) {
+	    var app = App.startSubApplication(PostsApp);
+
+		app.showAnswers(category, month, year, title);
 	}
 	
   startApp(){
