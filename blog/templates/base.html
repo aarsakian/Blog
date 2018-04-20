@@ -233,17 +233,21 @@
 
 
 {% block scripts %}
-<script>
-if (document.location.hostname == "arsakian.com") {
-  {{super()}}
-  {{google.uanalytics('UA-38392254-1')}}
-}
 
-</script>
+
+
+  {{super()}}
+  {%if request.url_root == "https://arsakian.com" %}
+  {{google.uanalytics('UA-38392254-1')}}
+{% endif %}
+
+
+
+
 {% endblock %}
 
 
-{%if user_status%}
+
 <script src="{{url_for('static', filename='js/libs/to-markdown.js')}}"></script>
 <script src="{{url_for('static', filename='js/libs/underscore/underscore-min.js')}}"></script>
 <script src="{{url_for('static', filename='js/libs/backbone/backbone.js')}}"></script>
@@ -258,14 +262,15 @@ if (document.location.hostname == "arsakian.com") {
 
 <script src="{{url_for('static', filename='js/apps/posts/postList.js')}}"></script>
 
-<script src="{{url_for('static', filename='js/apps/posts/collections/postscollection.js')}}"></script>
 
+<script src="{{url_for('static', filename='js/apps/posts/collections/postscollection.js')}}"></script>
+<script src="{{url_for('static', filename='js/apps/posts/postAnswers.js')}}"></script>
 <script src="{{url_for('static', filename='js/apps/posts/app.js')}}"></script>
 <script src="{{url_for('static', filename='js/routes.js')}}"></script>
 <script src="{{url_for('static', filename='js/apps/posts/postEditor.js')}}"></script>
 
 <script type="text/javascript">App.start();</script>
-{%endif%}
+
 {% endblock %}
 
 
