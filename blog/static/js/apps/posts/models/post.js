@@ -2,10 +2,6 @@
 
 App.Models = App.Models || {};
 
-var Answer =  Backbone.Model.extend({
-  p_answer: "",
-  is_correct: false
-});
 
 class Post extends Backbone.NestedModel {
   constructor(options) {
