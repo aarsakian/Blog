@@ -203,6 +203,13 @@ def archives(posts, tags, categories, passed_days,
 
 
 
+@app.route('/api/answers/<title>', methods=['POST','GET'])
+def answers(title):
+    posts = Posts()
+    current_post = posts.get_by_title(title)
+
+    return jsonify(current_post.to_json()["answers"])
+
 @app.route('/api/posts',methods=['POST','GET'])
 def main():
     if users.is_current_user_admin():
