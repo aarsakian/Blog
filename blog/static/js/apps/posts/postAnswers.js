@@ -1,5 +1,6 @@
 'use strict';
 
+
 class AnswersFormLayout extends Layout {
   constructor(options) {
     super();
@@ -11,6 +12,16 @@ class AnswersFormLayout extends Layout {
 
   get className() {
 
+  }
+
+  initialize(options) {
+     this.render();
+  }
+
+
+  get postId() {
+  console.log("GETING"+this.$el.data('id'));
+     return this.$el.data('id');
   }
 }
 
@@ -28,3 +39,31 @@ class AnswersForm extends ModelView {
     };
   }
 }
+
+
+class Answers {
+  constructor(options) {
+    this.region = options.region;
+
+    // Allow subapplication to listen and trigger events,
+    // useful for subapplication wide events
+    _.extend(this, Backbone.Events);
+
+
+  }
+
+  getPostId() {
+    var answers = new AnswersFormLayout();
+    console.log("SNAS"+Object.keys(answers)+" "+answers.regions[0]);
+
+     this.region.show(answers);
+    return answers.postId;
+  }
+
+  showAnswers(model) {
+     console.log("MODEL"+model);
+  }
+
+}
+
+
