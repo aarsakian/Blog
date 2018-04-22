@@ -24,7 +24,10 @@ class PostsRouter extends Backbone.Router {
 
 
 	getAnswers(category, month, year, title) {
+
+	    App.mainRegion = new Region({el: '#answers-container'});
 	    var app = App.startSubApplication(PostsApp);
+
 
 		app.showAnswers(category, month, year, title);
 	}
