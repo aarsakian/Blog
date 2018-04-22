@@ -25,8 +25,28 @@ class PostsApp {
    }
 
    showAnswers(category, month, year, title) {
-        console.log("SHOWING ANSWer ere"+title);
+
+
+      App.trigger('loading:start');
+      App.trigger('app:posts:started');
+      new AnswersCollection({"title":title}).fetch({
+         success: (collection) => {
+            var answersController = this.startController(Answers);
+            answersController.showAnswers(collection);
+            App.trigger('loading:stop');
+         },
+
+         fail: (collection, response) => {
+            // Show error message if something goes wrong
+            App.trigger('loading:stop');
+            App.trigger('server:error', response);
+         }
+    });
    }
+
+
+
+
    
    showPosts(posts) {
       var postList = this.startController(PostList);
@@ -37,9 +57,9 @@ class PostsApp {
    showPostEditor(postId) {
       App.trigger('loading:start');
       App.trigger('app:contacts:started');
-      
+
       new Post({id: postId}).fetch({
-         success: (model) => {     
+         success: (model) => {
             this.showEditor(model);
             App.trigger('loading:stop');
       },
