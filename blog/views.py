@@ -208,7 +208,7 @@ def answers(title):
     posts = Posts()
     current_post = posts.get_by_title(title)
 
-    return jsonify(current_post.to_json()["answers"])
+    return jsonify(current_post.strip_answers_jsoned())
 
 @app.route('/api/posts',methods=['POST','GET'])
 def main():

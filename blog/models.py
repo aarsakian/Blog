@@ -61,6 +61,9 @@ class BlogPost(ndb.Model):
     summary = ndb.TextProperty()
     answers = ndb.StructuredProperty(Answer, repeated=True)
 
+    def strip_answers_jsoned(self):
+        return [{"p_answer" :answer.p_answer, "is_correct":False} for answer in self.answers]
+
     @staticmethod
     def add_to_memcache(post):
         added = memcache.add(

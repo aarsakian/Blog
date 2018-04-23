@@ -10,7 +10,7 @@ from google.appengine.api import memcache
 from freezegun import freeze_time
 from werkzeug.contrib.atom import AtomFeed
 
-from blog.models import Tags, Posts, Categories, BlogPost
+from blog.models import Tags, Posts, Categories, BlogPost, Answer
 from blog.utils import find_modified_tags, find_tags_to_be_added, find_tags_to_be_removed, datetimeformat, \
     make_external
 from blog.errors import InvalidUsage
@@ -542,3 +542,34 @@ class TestModels(BlogTestBase):
         feed = self.posts.add_to_feed(feed_model, "http://localhost/recent.atom")
 
         self.assertEqual(feed_org.to_string(), feed.to_string())
+
+    def test_stripped_answers(self):
+        test_tags = ["a new tag", "a new new tag"]
+        tag_keys = self.tags.add(test_tags)
+
+        ans1 = Answer(p_answer="ans1",
+               is_correct=True)
+
+        ans2 = Answer(p_answer="ans2",
+                      is_correct=False)
+
+        category_key = self.categories.add("category")
+        summary =  "a summmary"
+        title = "a title"
+        body = "here is a body"
+
+        post_key = BlogPost(title=title,
+                            body=body,
+                            category=category_key,
+                            tags=tag_keys,
+                            summary=summary,
+                            answers=[ans1, ans2]).put()
+
+        post = post_key.get()
+        jsoned_answers = [{"p_answer": "ans1", "is_correct": False},
+         {"p_answer": "ans2", "is_correct": False}]
+
+        self.assertItemsEqual(post.strip_answers_jsoned(), jsoned_answers)
+
+
+
