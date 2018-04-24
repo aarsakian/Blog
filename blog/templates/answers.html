@@ -1,7 +1,15 @@
 {% import "bootstrap/wtf.html" as wtf %}
 
 {% block answers %}
-<div class="answers-container"> </div>
+
+<div id="answers-container"></div>
+
+
+
+<script  id="answers-layout" type="text/x-handlebars-template">
+
+ <div class="answers-layout-container col-12"></div>
+</script>
 
 <script id="post-answers" type="text/x-handlebars-template">
 <form class="form form-horizontal row" method="post" role="form">
@@ -25,5 +33,7 @@
     submit button")}}
 </form>
 </script>
+
+
 
 {% endblock %}
