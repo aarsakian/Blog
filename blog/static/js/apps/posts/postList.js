@@ -129,6 +129,7 @@ class PostListView extends CollectionView {
 class PostListItemView extends ModelView {
   constructor(options) {
     super(options);
+
     this.template = '#post-list-item';
   }
 
@@ -191,10 +192,10 @@ class PostList {
     
     var titleForm = new TitleForm();
 
-    var postForm = new PostForm({model: new Post(),
-                                collection:posts});
+    var postForm = new PostForm({model: new Post()});
   
     // Show the views
+
     this.region.show(layout);
     
  
@@ -274,6 +275,8 @@ class PostForm extends ModelView {
   }
 
   serializeData() {
+    var str = JSON.stringify(this.model.toJSON());
+
     return _.defaults(this.model.toJSON());
   }
 
@@ -299,9 +302,11 @@ class PostForm extends ModelView {
     var csrf_token = this.getInput('#csrf_token');
 
     this.model.save(null, {
-       beforeSend: function(xhr) {
+       beforeSend: function(xhr, settings) {
+
             xhr.setRequestHeader("X-CSRFToken", csrf_token);
-       },
+
+        },
        success(model, response, options) {
         // Redirect user to contact list after save
      //   App.notifySuccess('Post saved');
