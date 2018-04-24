@@ -5,7 +5,7 @@ App.Collections = App.Collections || {};
 class PostCollection extends Backbone.Collection{
 	constructor(options) {
 		super(options);
-		this.url = 'api/posts';
+		this.url = '/api/posts';
 	}
 	
 	
