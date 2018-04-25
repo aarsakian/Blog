@@ -44,6 +44,7 @@ class AnswersView extends ModelView {
   constructor(options) {
     super(options);
     this.template = '#post-answers';
+
   }
 
   get className() {
@@ -52,14 +53,68 @@ class AnswersView extends ModelView {
   
    get events() {
     return {
-      'click #submit': 'submitAnswer'
+      'click #submit': 'submitAnswer',
+      'click .answer-choice': 'enableSubmitButton'
     };
   }
 
   submitAnswer(event) {
      event.preventDefault();
-     console.log("SUBMITTING");
-     this.trigger('edit:title', this.model);
+
+     this.findSaveUserAnswer();
+
+
+  }
+
+  findSaveUserAnswer() {
+    var modelView = this;
+    this.collection.each(function (model, idx){
+                        var id = idx+1;
+                        var checked = modelView.getSelector("#r_answers-"+id).is(':checked');
+                        if (checked) {
+                            model.set("is_correct",  'True');
+                            modelView.saveModel(model);
+
+                        }
+
+                    });
+
+  }
+
+  saveModel(model) {
+    var csrf_token = this.getInput('#csrf_token');
+
+    model.save(null, {
+       beforeSend: function(xhr, settings) {
+
+            xhr.setRequestHeader("X-CSRFToken", csrf_token);
+
+        },
+       success(model, response, options) {
+        // Redirect user to contact list after save
+          App.notifySuccess('answers submitted');
+        collection.trigger('add', model);
+
+      },
+      error() {
+        // Show error message if something goes wrong
+     //   App.notifyError('Something goes wrong');
+      }
+    });
+
+  }
+
+
+  enableSubmitButton(event) {
+       this.getSelector('#submit').removeClass('disabled');
+  }
+
+  getInput(selector) {
+     return this.getSelector(selector).val();
+  }
+
+  getSelector(selector) {
+    return this.$el.find(selector);
   }
   
 }
@@ -78,7 +133,7 @@ class Answers {
     _.extend(this, Backbone.Events);
   }
 
-  showAnswers(posts) {
+  showAnswers(postAnswers) {
     // Create the views
     var layout = new AnswersLayout();
     
@@ -95,7 +150,7 @@ class Answers {
  
   //  layout.getRegion('actions').show(actionBar);
     var answers = new AnswersView({collection:
-                                    posts});
+                                    postAnswers});
     
     layout.getRegion('answers').show(answers);
 
