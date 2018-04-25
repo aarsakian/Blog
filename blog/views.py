@@ -207,8 +207,23 @@ def archives(posts, tags, categories, passed_days,
 def answers(title):
     posts = Posts()
     current_post = posts.get_by_title(title)
+    if request.method == 'GET':  # all entitites
 
-    return jsonify(current_post.strip_answers_jsoned())
+
+        return jsonify(current_post.strip_answers_jsoned())
+    elif request.method == 'POST':
+        answer_form = AnswerRadioField()
+        if answer_form.validate_on_submit():
+
+            raw_post = request.get_json()
+            p_answer = raw_post["p_answer"]
+            post_id = raw_post["id"]
+            is_correct = raw_post["is_correct"]
+
+
+            return jsonify(sucess =current_post.is_answer_correct(p_answer, is_correct))
+        else:
+            return jsonify({})
 
 @app.route('/api/posts',methods=['POST','GET'])
 def main():
