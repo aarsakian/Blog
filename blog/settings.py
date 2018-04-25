@@ -25,6 +25,7 @@ class Testing(Config):
   DEBUG = True
   WTF_CSRF_ENABLED = False
   ASSETS_DEBUG = True
+  PRESERVE_CONTEXT_ON_EXCEPTION = False
 
 
 class Production(Config):
