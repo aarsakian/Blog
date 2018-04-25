@@ -17,6 +17,7 @@ class Answer(ndb.Model):
     is_correct = ndb.BooleanProperty(default=False)
 
 
+
 class Tag(ndb.Model):
     tag = ndb.StringProperty()
 
@@ -126,6 +127,12 @@ class BlogPost(ndb.Model):
 
     def _pre_put_hook(self):
         self.title = self.title.lstrip().rstrip()
+
+    def is_answer_correct(self, p_answer, is_correct):
+        for answer in self.answers:
+            if answer.is_correct == is_correct and answer.p_answer == p_answer:
+                return True
+        return False
 
 
 class BlogList(list):
