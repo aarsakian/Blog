@@ -2,7 +2,7 @@
 
 {% block answers %}
 
-<div id="answers-container"></div>
+<div id="answers-container"> </div>
 
 
 
@@ -13,15 +13,18 @@
 
 <script id="post-answers" type="text/x-handlebars-template">
 <form class="form form-horizontal row" method="post" role="form">
-    <table class="answer table border table-hover col-12">
-        {{ answers_field.hidden_tag()}}
+    {{ answers_field.hidden_tag()}}
+    <table class="answer table border table-hover col-12" data-id="{{Post.id}}">
+
+
   <tbody>
         {% for f in answers_field.r_answers%}
 
 
         <tr class="mb-2">
 
-            <td class="col-md-1 col-sm-4"><input id="r_answers-{{loop.index}}" name="r_answers" value="" type="radio">
+            <td class="col-md-1 col-sm-4"><input id="r_answers-{{loop.index}}" class="answer-choice"
+                                                 name="r_answers"  value="0" type="radio">
             </td>
             <td class="col-md-11 col-sm-8"><label for="r_answers-{{loop.index}}">{{f.label}}</label></td>
         </tr>
@@ -29,7 +32,7 @@
         {% endfor %}
         </tbody>
     </table>
-    {{ wtf.form_field(answers_field.submit, type="submit", class="col-md-2 col-sm-4 .mx-left float-left btn btn-primary
+    {{ wtf.form_field(answers_field.submit, type="submit", class="disabled col-md-2 col-sm-4 .mx-left float-left btn btn-primary
     submit button")}}
 </form>
 </script>
