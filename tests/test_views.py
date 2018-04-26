@@ -7,11 +7,12 @@ from datetime import datetime
 from werkzeug.contrib.atom import AtomFeed
 from flask_testing import TestCase
 from flask import url_for, render_template, request, flash
+from flask_wtf.csrf import generate_csrf
 
 from google.appengine.ext import testbed
 from google.appengine.api import users
 from google.appengine.ext import ndb
-from blog.forms import PostForm, AnswerRadioField
+from blog.forms import PostForm, AnswerRadioForm
 from blog.models import Tags, Posts, Categories, BlogPost
 from blog.utils import find_modified_tags, datetimeformat, make_external,  calculate_work_date_stats
 from blog.search import query_search_index, find_posts_from_index
@@ -56,6 +57,7 @@ class TestViews(BlogTestBase):
         self.categories = Categories()
         self.posts = Posts()
         self.form = PostForm()
+
 
     def test_tags_view(self):
 
@@ -201,15 +203,15 @@ class TestViews(BlogTestBase):
         site_updated = self.posts.site_last_updated()
         flash('This website uses Google Analytics to help analyse how users use the site.')
 
-        answers_field = AnswerRadioField()
+        answers_form = AnswerRadioForm()
 
-        answers_field.r_answers.choices = [("t", answer.p_answer) for answer in current_post.answers]
+        answers_form.r_answers.choices = [("t", answer.p_answer) for answer in current_post.answers]
 
         rendered_template = render_template('singlepost.html', user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated, \
                                             daysleft=remaining_days, dayspassed=passed_days, RelatedPosts=related_posts, \
                                             Post=current_post.to_json(), posttagnames=post_tag_names,
-                                            category=category,  answers_field = answers_field)
+                                            category=category,  answers_field = answers_form)
 
         self.assertEqual(rendered_template.encode("utf-8"), response.data)
 
@@ -243,15 +245,15 @@ class TestViews(BlogTestBase):
         site_updated = self.posts.site_last_updated()
         flash('This website uses Google Analytics to help analyse how users use the site.')
 
-        answers_field = AnswerRadioField()
+        answers_form = AnswerRadioForm()
 
-        answers_field.r_answers.choices = [("t", answer.p_answer) for answer in current_post.answers]
+        answers_form.r_answers.choices = [("t", answer.p_answer) for answer in current_post.answers]
 
         rendered_template = render_template('singlepost.html', user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated, \
                                             daysleft=remaining_days, dayspassed=passed_days, RelatedPosts=related_posts, \
                                             Post=current_post.to_json(), posttagnames=post_tag_names,
-                                            category=category, answers_field=answers_field)
+                                            category=category, answers_field=answers_form)
 
         self.assertEqual(rendered_template.encode("utf-8"), response.data)
 
@@ -345,13 +347,12 @@ class TestViews(BlogTestBase):
                      }
 
 
-        self.client.post(url_for('main'), content_type='application/json',
+        response = self.client.post(url_for('main'), content_type='application/json',
                          data=json.dumps(json_data))
 
-        response = self.client.get(url_for('main'))
-
         json_data[u"id"] = u'4'
-        self.assertDictEqual(json_data, response.json[0])
+
+        self.assertDictEqual(json_data, response.json)
         freezer.stop()
 
     def test_no_post(self):
@@ -601,11 +602,19 @@ class TestViews(BlogTestBase):
                        [{"p_answer":"ans1", "is_correct":True},{"p_answer":"ans2","is_correct":False}])
 
 
-        json_data_f = {"p_answer":"ans1","is_correct":False}
+        json_data_f = {"p_answer":"ans2","is_correct":"False"}
 
+
+
+        response = self.client.post(url_for('answers', title="a title"), content_type='application/json',
+                                    data=json.dumps(json_data_f))#, headers={"csrf_token":csrf_token})
+
+
+        self.assertDictEqual({u"result":False}, response.json)
+
+        json_data_f = {"p_answer": "ans1", "is_correct": "True"}
         response = self.client.post(url_for('answers', title="a title"), content_type='application/json',
                                     data=json.dumps(json_data_f))
 
-        json_data[u"id"] = u'4'
+        self.assertDictEqual({u"result": True}, response.json)
 
-        self.assertDictEqual({"success":False}, response.json)

@@ -17,7 +17,7 @@ from jinja2.environment import Environment
 
 from datetime import datetime
 
-from forms import PostForm, AnswerRadioField
+from forms import PostForm, AnswerRadioForm
 from utils import datetimeformat, calculate_work_date_stats
 
 KEY="posts"
@@ -207,21 +207,24 @@ def archives(posts, tags, categories, passed_days,
 def answers(title):
     posts = Posts()
     current_post = posts.get_by_title(title)
+
     if request.method == 'GET':  # all entitites
 
 
         return jsonify(current_post.strip_answers_jsoned())
     elif request.method == 'POST':
-        answer_form = AnswerRadioField()
-        if answer_form.validate_on_submit():
+        raw_post = request.get_json()
+        p_answer = raw_post["p_answer"]
 
-            raw_post = request.get_json()
-            p_answer = raw_post["p_answer"]
-            post_id = raw_post["id"]
-            is_correct = raw_post["is_correct"]
+        is_correct = raw_post["is_correct"]
 
+        answers_form = AnswerRadioForm()
+        answers_form.r_answers.data = p_answer
+        answers_form.r_answers.choices = [(answer.p_answer, answer.p_answer) for answer in current_post.answers]
 
-            return jsonify(sucess =current_post.is_answer_correct(p_answer, is_correct))
+        if answers_form.validate_on_submit():
+
+            return jsonify(result =current_post.is_answer_correct(p_answer, is_correct))
         else:
             return jsonify({})
 
@@ -334,7 +337,7 @@ def view_a_post(category, year, month, title):
 
     posts = Posts()
 
-    answers_field = AnswerRadioField()
+    answers_form = AnswerRadioForm()
 
     if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
 
@@ -349,12 +352,12 @@ def view_a_post(category, year, month, title):
     flash('This website uses Google Analytics to help analyse how users use the site.')
 
 
-    answers_field.r_answers.choices = [("t", answer.p_answer) for answer in current_post.answers]
+    answers_form.r_answers.choices = [(answer.p_answer, answer.p_answer) for answer in current_post.answers]
 
     return render_template('singlepost.html', user_status=users.is_current_user_admin(), siteupdated=site_updated, \
                                         daysleft=remaining_days, dayspassed=passed_days, RelatedPosts=related_posts, \
                                         Post=current_post.to_json(), posttagnames=post_tag_names, category=category,
-                                        answers_field = answers_field)
+                                        answers_field = answers_form)
 
 @app.route('/edit',methods=['GET'])
 @app.route('/edit/<postkey>',methods=['GET'])

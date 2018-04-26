@@ -130,7 +130,8 @@ class BlogPost(ndb.Model):
 
     def is_answer_correct(self, p_answer, is_correct):
         for answer in self.answers:
-            if answer.is_correct == is_correct and answer.p_answer == p_answer:
+
+            if answer.is_correct == bool(is_correct) and answer.p_answer == p_answer:
                 return True
         return False
 

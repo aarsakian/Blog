@@ -4,14 +4,14 @@ from wtforms.validators import DataRequired
 
 import logging
 
-class AnswerField(FlaskForm):
+class AnswerForm(FlaskForm):
     p_answer = StringField("", default="{{this.p_answer}}", _name="")
     is_correct = BooleanField(default="{{is_correct}}", _name="")
 
 
 
-class AnswerRadioField(FlaskForm):
-    r_answers = RadioField("")
+class AnswerRadioForm(FlaskForm):
+    r_answers = RadioField("", choices= [])
     submit = SubmitField('Submit')
 
 class PostForm(FlaskForm):
@@ -20,6 +20,6 @@ class PostForm(FlaskForm):
     summary = StringField("", default="{{summary}}")
     tags = StringField("", default="{{tags}}")
     category = StringField("", validators=[DataRequired()], default="{{category}}")
-    answers = FieldList(FormField(AnswerField), min_entries=4)
+    answers = FieldList(FormField(AnswerForm), min_entries=4)
     submit = SubmitField('Save')
 
