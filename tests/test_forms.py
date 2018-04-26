@@ -1,4 +1,4 @@
-from blog.forms import PostForm, AnswerField
+from blog.forms import PostForm,  AnswerRadioForm
 
 from google.appengine.ext import testbed
 from . import BlogTestBase
@@ -35,7 +35,10 @@ class TestForms(BlogTestBase):
         form = PostForm()
 
         out = form.hidden_tag()
+        answer_form = AnswerRadioForm()
+        answer_out =  answer_form.hidden_tag()
         assert(all(x in out for x in ('csrf_token')))
+        assert (all(x in answer_out for x in ('csrf_token')))
 
     def test_with_data_using_obj(self):
 
@@ -82,4 +85,13 @@ class TestForms(BlogTestBase):
         self.assertEqual(form.body.data, "body text")
        # self.assertEqual(form.answers[0].p_answer.data, "a test answer")
 
+    def test_answers_radio_form(self):
 
+        answers = [("a correct answer",""), ("a wrong answer","")]
+        form = AnswerRadioForm()
+        form.r_answers.data = "a test answer"
+        self.assertEqual(form.r_answers.data, "a test answer")
+
+
+    def tearDown(self):
+        self.app.config['WTF_CSRF_ENABLED'] = False
