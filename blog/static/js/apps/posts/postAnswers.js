@@ -60,7 +60,7 @@ class AnswersView extends ModelView {
 
   submitAnswer(event) {
      event.preventDefault();
-
+     this.clearColors();
      this.findSaveUserAnswer();
 
 
@@ -73,6 +73,7 @@ class AnswersView extends ModelView {
           var checked = modelView.getSelector("#r_answers-"+id).is(':checked');
           if (checked) {
             model.set("is_correct",  'True');
+            model.set("idx",  idx);
             modelView.saveModel(model);
 
            }
@@ -83,7 +84,7 @@ class AnswersView extends ModelView {
 
   saveModel(model) {
     var csrf_token = this.getInput('#csrf_token');
-
+    var answersView = this;
     model.save(null, {
        beforeSend: function(xhr, settings) {
 
@@ -92,8 +93,9 @@ class AnswersView extends ModelView {
         },
        success(model, response, options) {
         // Redirect user to contact list after save
-          App.notifySuccess('answers submitted');
-        collection.trigger('add', model);
+          //App.notifySuccess('answers submitted');
+
+            answersView.trigger("answer:submitted", response.result, model.get("idx"), answersView);
 
       },
       error() {
@@ -101,6 +103,7 @@ class AnswersView extends ModelView {
      //   App.notifyError('Something goes wrong');
       }
     });
+
 
   }
 
@@ -113,9 +116,28 @@ class AnswersView extends ModelView {
      return this.getSelector(selector).val();
   }
 
+  checkAnswer(result, idx, modelView) {
+       var colorResult = ""
+       if (result) {
+         colorResult = "bg-success";
+
+       } else {
+         colorResult = "bg-danger";
+       }
+
+        modelView.getSelector("tr").eq(idx).addClass(colorResult);
+  }
+
   getSelector(selector) {
     return this.$el.find(selector);
   }
+
+  clearColors() {
+
+    this.getSelector('tr').removeClass("bg-success").removeClass("bg-danger");
+  }
+
+
   
 }
 
@@ -149,18 +171,13 @@ class Answers {
     
  
   //  layout.getRegion('actions').show(actionBar);
-    var answers = new AnswersView({collection:
+    var answersView = new AnswersView({collection:
                                     postAnswers});
     
-    layout.getRegion('answers').show(answers);
+    layout.getRegion('answers').show(answersView);
 
-    
-    
-   // this.listenTo(postList, 'item:delete', this.deletePost);
-    //this.listenTo(postList, 'item:edit:title', this.editTitlePost);
-  //  this.listenTo(postList, 'item:edit', this.editPost);
-    //this.listenTo(postForm, 'form:save', this.savePost);
-    //this.listenTo(postForm, 'form:cancel', this.cancel);
+    this.listenTo(answersView,'answer:submitted', answersView.checkAnswer);
+
     
   }
   
@@ -193,6 +210,10 @@ class Answers {
       //}
     //});
   }
+
+
+
+
 
   // Close any active view and remove event listeners
   // to prevent zombie functions
