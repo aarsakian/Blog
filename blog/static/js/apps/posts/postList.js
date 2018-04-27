@@ -58,6 +58,7 @@ class TagListItemView extends ModelView {
       'click .destroy': 'deletePost',
       'click #view': 'viewPost',
       'click .edit': 'editPost'
+
     };
   }
 
@@ -141,7 +142,8 @@ class PostListItemView extends ModelView {
     return {
       'click .destroy': 'deletePost',
       'click #view': 'viewPost',
-      'click .edit': 'editPost'
+      'click .edit': 'editPost',
+      'click .edit-tags': 'editTags',
     };
   }
 
@@ -167,6 +169,10 @@ class PostListItemView extends ModelView {
   
   editPost() {
     this.trigger('edit', this.model);  
+  }
+
+  editTags() {
+    this.trigger('edit:tags', this.model);
   }
 
 }
@@ -198,34 +204,43 @@ class PostList {
 
     this.region.show(layout);
     
- 
+
   //  layout.getRegion('actions').show(actionBar);
     var postList = new PostListView({collection:
                                     posts});
-    
+
     layout.getRegion('list').show(postList);
     layout.getRegion('postform').show(postForm);
+
+    this.posts = posts;
     
-    
+//Tell an object to listen to a particular event on an other object. b
     this.listenTo(postList, 'item:delete', this.deletePost);
     this.listenTo(postList, 'item:edit:title', this.editTitlePost);
+    this.listenTo(postList, 'item:edit:tags', this.editTags);
     this.listenTo(postList, 'item:edit', this.editPost);
     this.listenTo(postForm, 'form:save', this.savePost);
     this.listenTo(postForm, 'form:cancel', this.cancel);
     
   }
   
-  addPost(view, post) {
-    
-    
+  savePost(post) {
+    this.posts.trigger('add', post);
+
   }
   
   editTitlePost(view, post) {
+    console.log("EDIT TITLE");
     var title = post.get('title');
     
   }
+
+  editTags(view, post) {
+    console.log("EDIT tags"+view+post);
+  }
   
   editPost(view, post) {
+     console.log("EDIT"+post.id);
     App.router.navigate(`edit/${post.id}`, true);
   }
   
@@ -261,6 +276,7 @@ class PostForm extends ModelView {
     super(options);
     this.template = '#post-form';
 
+
   }
 
   get className() {
@@ -295,7 +311,7 @@ class PostForm extends ModelView {
         return {'p_answer': answer, 'is_correct':areCorrect[idx]}
     });
 
-    var collection = this.collection;
+
     var posts = {};
     this.model.set('answers', answers);
 
@@ -310,7 +326,7 @@ class PostForm extends ModelView {
        success(model, response, options) {
         // Redirect user to contact list after save
      //   App.notifySuccess('Post saved');
-        collection.trigger('add', model);
+
         
       },
       error() {
