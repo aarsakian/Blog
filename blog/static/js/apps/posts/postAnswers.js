@@ -69,15 +69,15 @@ class AnswersView extends ModelView {
   findSaveUserAnswer() {
     var modelView = this;
     this.collection.each(function (model, idx){
-                        var id = idx+1;
-                        var checked = modelView.getSelector("#r_answers-"+id).is(':checked');
-                        if (checked) {
-                            model.set("is_correct",  'True');
-                            modelView.saveModel(model);
+          var id = idx+1;
+          var checked = modelView.getSelector("#r_answers-"+id).is(':checked');
+          if (checked) {
+            model.set("is_correct",  'True');
+            modelView.saveModel(model);
 
-                        }
+           }
 
-                    });
+    });
 
   }
 
