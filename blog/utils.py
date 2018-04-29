@@ -1,7 +1,9 @@
 from urlparse import urljoin
 from datetime import datetime, date
 from math import ceil
+from markdown2 import markdown
 
+from bleach import clean, linkify
 
 def find_tags_to_be_removed(old_post_tags, non_modified_tags, remaining_tags):
     tags_candidate_to_be_removed = set(old_post_tags) - set(non_modified_tags)
@@ -22,6 +24,9 @@ def find_modified_tags(candidate_tags, remaining_tags):
 
 def datetimeformat(value, format='%A, %d %B %Y'):
     return value.strftime(format)
+
+def to_markdown(text):
+    return linkify(clean(markdown(text)))
 
 
 def make_external(base_url, url):

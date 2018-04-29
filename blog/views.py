@@ -18,7 +18,7 @@ from jinja2.environment import Environment
 from datetime import datetime
 
 from forms import PostForm, AnswerRadioForm
-from utils import datetimeformat, calculate_work_date_stats
+from utils import datetimeformat, calculate_work_date_stats,  to_markdown
 
 KEY="posts"
 TAG="tags"
@@ -69,6 +69,7 @@ def findUser(entity=None):
 environment = Environment()
 app.jinja_env.filters['datetimeformat'] = datetimeformat
 
+app.jinja_env.filters['markdown'] = to_markdown
 
 
 
