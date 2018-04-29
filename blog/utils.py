@@ -5,11 +5,12 @@ from markdown2 import markdown
 
 from bleach import clean, linkify
 
-ALLOWED_TAGS  = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
+allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
                         'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
-                        'h1', 'h2', 'h3', 'p']
-
-
+                        'h1', 'h2', 'h3', 'p', 'img', 'video', 'div', 'p', 'br', 'span', 'hr', 'src', 'class']
+allowed_attrs = {'*': ['class'],
+                        'a': ['href', 'rel'],
+                        'img': ['src', 'alt']}
 
 def find_tags_to_be_removed(old_post_tags, non_modified_tags, remaining_tags):
     tags_candidate_to_be_removed = set(old_post_tags) - set(non_modified_tags)
@@ -32,8 +33,11 @@ def datetimeformat(value, format='%A, %d %B %Y'):
     return value.strftime(format)
 
 def to_markdown(text):
-    return linkify(clean(markdown(text)))
+    return bleach_it(markdown(text))
 
+
+def bleach_it(text):
+    return linkify(clean(text, tags=allowed_tags, strip=False, attributes=allowed_attrs))
 
 def make_external(base_url, url):
     return urljoin(base_url, url)
