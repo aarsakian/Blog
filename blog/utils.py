@@ -5,6 +5,12 @@ from markdown2 import markdown
 
 from bleach import clean, linkify
 
+ALLOWED_TAGS  = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
+                        'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
+                        'h1', 'h2', 'h3', 'p']
+
+
+
 def find_tags_to_be_removed(old_post_tags, non_modified_tags, remaining_tags):
     tags_candidate_to_be_removed = set(old_post_tags) - set(non_modified_tags)
     return find_modified_tags(tags_candidate_to_be_removed, remaining_tags)
