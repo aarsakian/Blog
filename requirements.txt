@@ -32,3 +32,5 @@ WTForms==2.1
 Flask-Sitemap==0.2.0
 Flask_Assets
 cssmin
+bleach
+markdown2
