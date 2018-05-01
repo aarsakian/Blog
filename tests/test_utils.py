@@ -1,9 +1,9 @@
 
 from blog.utils import find_modified_tags, datetimeformat, make_external,  calculate_work_date_stats, to_markdown
+from google.appengine.ext import testbed
 
 
 
-CODEVERSION = ':v0.7'
 
 DATEFORMAT = '%A, %d %B %Y'
 
@@ -13,6 +13,23 @@ from . import BlogTestBase
 class TestUtils(BlogTestBase):
     maxDiff = None
 
+    def setUp(self):
+        self.testbed = testbed.Testbed()
+        # Then activate the testbed, which prepares the service stubs for use.
+        self.testbed.activate()
+
     def test_to_markdown(self):
         markdown_text = "body of post"
-        self.assertEqual(markdown_text, to_markdown(markdown_text))
+        self.assertEqual(u"<p>{}</p>\n".format(markdown_text), to_markdown(markdown_text))
+
+    def test_for_xss_input(self):
+        xss_input = 'an <script>evil()</script> example'
+
+        self.assertNotEqual(u"{}".format(xss_input), to_markdown(xss_input))
+        self.assertEqual(u"<p>an &lt;script&gt;evil()&lt;/script&gt; example</p>\n",
+                         to_markdown(xss_input))
+
+    def test_text_with_links_renders_to_html(self):
+        text_with_link = "[I'm an inline-style link](https://www.google.com)"
+        self.assertEqual('<p><a href="https://www.google.com" rel="nofollow">'
+                         'I\'m an inline-style link</a></p>\n', to_markdown(text_with_link))

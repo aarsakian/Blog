@@ -33,13 +33,13 @@ Armen Arsakian personal blog
 </div>
 
 
-<div class="col-md-12">
+<div class="col-md-12 row">
 
     <div class="post col-md-10">
 
         <div data-id="{{Post.id}}" class="article classic">
 
-            {{Post.body}}
+            {{Post.body|markdown|safe}}
             <!--<div class="postTitle">
 
 
@@ -63,16 +63,18 @@ Armen Arsakian personal blog
 
     <div class="col-md-2">
 
+
         {%for relPost in RelatedPosts%}
 
-        <div class="row post">
+        <div class="relpost">
 
 
-            <h3 class="editable">
+            <h3 class="editable mb-20">
                 <a href="/{{relPost.get_category()}}/{{relPost.timestamp|datetimeformat('%Y')}}/{{relPost.timestamp|datetimeformat('%B')}}/{{relPost.title|trim}}">{{relPost.title}}</a>
             </h3>
-            <div class="row" id="date">Created: {{relPost.timestamp}}</div>
-            <div class="row" id="updated"> Updated: {{relPost.updated}}</div>
+          <div clas="mt-10">
+              {{relPost.body|markdown|safe|truncate(150)}}
+          </div>
         </div>
         {{relPost.category.category}}
         {% endfor %}
@@ -81,16 +83,18 @@ Armen Arsakian personal blog
     </div>
 
 
-    {%if user_status%}
 
-    <div class="links row">
+</div>
+{%endif%}
+
+ {%if user_status%}
+
+    <div class="links">
         <a class="btn edit" href="/edit/{{Post.id}}">Edit</a>
 
     </div>
 
     {%endif%}
-</div>
-{%endif%}
 
 {% endblock %}
 

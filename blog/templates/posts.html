@@ -37,7 +37,7 @@
 				/{{timestamp[-1]}}/{{Post.title|trim}}">{{Post.title}}</a></h3>
                 <div class="date text-right my-1">Created: {{Post.timestamp}}</div>
                 <div class="article clear">
-                    {{Post.body|truncate(200)}}
+                    {{Post.body|markdown|safe|truncate(250)}}
                 </div><!--closes article-->
 
             </div><!--closes post-->
