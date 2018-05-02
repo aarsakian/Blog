@@ -30,7 +30,7 @@ if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine/'):
     app.jinja_env.globals['DEV'] = False
 else:
     app.config.from_object('blog.settings.Testing')
-    app.jinja_env.globals['DEV'] = False
+    app.jinja_env.globals['DEV'] = True
     bundles = assets.init(app)
 
 
