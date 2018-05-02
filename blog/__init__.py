@@ -27,9 +27,10 @@ csrf.init_app(app)
 
 if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine/'):
     app.config.from_object('blog.settings.Production')
+    app.jinja_env.globals['DEV'] = False
 else:
     app.config.from_object('blog.settings.Testing')
-
+    app.jinja_env.globals['DEV'] = False
     bundles = assets.init(app)
 
 

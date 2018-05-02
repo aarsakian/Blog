@@ -1,5 +1,7 @@
 from os import path
 
+import os
+
 from flask_assets import Bundle, Environment
 from flask import Flask
 
@@ -24,10 +26,9 @@ def init(app=None):
         env.register('css', css)
 
 
-        bundle_js_files(env.load_path)
+        jsfiles = bundle_js_files(env.load_path[0])
 
-        js = Bundle(
-            "js/general.js","js/libs/showdown.js",
+        js = Bundle(jsfiles,
             filters="jsmin", output="js/everything.min.js")
         env.register('js', js)
 
@@ -36,7 +37,13 @@ def init(app=None):
 
 
 def bundle_js_files(location):
-    for
+    jsfiles = []
+    for root, dirs, files in os.walk(location):
+        for fname in files:
+            if path.basename(root) != "notinuse" and fname.endswith(".js"):
+                print (path.basename(root))
+                jsfiles.append(path.join(root, fname))
+    return jsfiles
 
 if __name__ == '__main__':
     bundles = init()

@@ -15,8 +15,12 @@
 
 <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"
       integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+{%if DEV %}
+ <link href="/static/css/style.css" rel="stylesheet" media="screen">
+{% else %}
+ <link href="/static/css/style.min.css" rel="stylesheet" media="screen">
+{% endif %}
 
-    <link href="/static/css/style.min.css" rel="stylesheet" media="screen">
     <link href="{{ url_for('recent_feed') }}" rel="alternate" title="Recent Changes" type="application/atom+xml">
     <link href='//fonts.googleapis.com/css?family=Merriweather:400' rel='stylesheet' type='text/css'>
 {% endblock %}
@@ -224,10 +228,10 @@
 
 {%endif%}
 
-<script
+<!--<script
         src="https://code.jquery.com/jquery-3.2.1.min.js"
         integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
-        crossorigin="anonymous"></script>
+        crossorigin="anonymous"></script>-->
 
 <script type="text/javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.1/bootstrap3-typeahead.min.js"></script>
@@ -251,7 +255,7 @@
 
 {% endblock %}
 
-
+{%if DEV %}
 <script src="{{url_for('static', filename='js/general.js')}}"></script>
 
 <script src="{{url_for('static', filename='js/libs/underscore/underscore-min.js')}}"></script>
@@ -274,6 +278,13 @@
 <script src="{{url_for('static', filename='js/apps/posts/app.js')}}"></script>
 <script src="{{url_for('static', filename='js/routes.js')}}"></script>
 <script src="{{url_for('static', filename='js/apps/posts/postEditor.js')}}"></script>
+{% else %}
+<script src="{{url_for('static', filename='js/everything.min.js')}}"></script>
+
+{% endif %}
+
+
+
 
 <script type="text/javascript">App.start();</script>
 
