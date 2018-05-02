@@ -26,13 +26,33 @@ def init(app=None):
         env.register('css', css)
 
 
-        jsfiles = bundle_js_files(env.load_path[0])
+        #jsfiles = bundle_js_files(env.load_path[0])
+        jsfiles = [path.join(env.load_path[0], 'js/general.js'),
+        path.join(env.load_path[0], 'js/libs/underscore/underscore-min.js'),
+        path.join(env.load_path[0], 'js/libs/backbone/backbone-min.js'),
+        path.join(env.load_path[0], 'js/libs/backbone/backbone-nested.js'),
+        path.join(env.load_path[0], 'js/libs/handlebars/handlebars-v4.0.11.js'),
+        path.join(env.load_path[0], 'js/app.js')]
 
-        js = Bundle(jsfiles,
+        jsfiles2 = [path.join(env.load_path[0], 'js/common.js'),
+
+
+        path.join(env.load_path[0], 'js/apps/posts/models/post.js'),
+        path.join(env.load_path[0], 'js/apps/posts/models/answer.js'),
+        path.join(env.load_path[0], 'js/apps/posts/postList.js'),
+        path.join(env.load_path[0], 'js/apps/posts/collections/answerscollection.js'),
+        path.join(env.load_path[0], 'js/apps/posts/collections/postscollection.js'),
+        path.join(env.load_path[0], 'js/apps/posts/postAnswers.js'),
+        path.join(env.load_path[0], 'js/apps/posts/app.js'),
+        path.join(env.load_path[0], 'js/routes.js'),
+        path.join(env.load_path[0], 'js/apps/posts/postEditor.js')]
+        js1 = Bundle(jsfiles,
             filters="jsmin", output="js/everything.min.js")
-        env.register('js', js)
+        env.register('js', js1)
 
-        bundles = [css, js]
+
+
+        bundles = [css, js1]
         return bundles
 
 
@@ -42,7 +62,7 @@ def bundle_js_files(location):
         for fname in files:
             if path.basename(root) != "notinuse" and\
                 fname != "everything.min.js" and fname.endswith(".js"):
-
+                print (fname)
                 jsfiles.append(path.join(root, fname))
     return jsfiles
 

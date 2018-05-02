@@ -255,15 +255,20 @@
 
 {% endblock %}
 
-{%if DEV %}
+
 <script src="{{url_for('static', filename='js/general.js')}}"></script>
 
 <script src="{{url_for('static', filename='js/libs/underscore/underscore-min.js')}}"></script>
 <script src="{{url_for('static', filename='js/libs/backbone/backbone-min.js')}}"></script>
 <script src="{{url_for('static', filename='js/libs/backbone/backbone-nested.js')}}"></script>
 <!--<script src="{{url_for('static', filename='js/libs/backbone.pagedcollection.js')}}"></script>-->
-<script src="{{url_for('static', filename='js/app.js')}}"></script>
 <script src="{{url_for('static', filename='js/libs/handlebars/handlebars-v4.0.11.js')}}"></script>
+<script src="{{url_for('static', filename='js/app.js')}}"></script>
+
+<!--<script src="{{url_for('static', filename='js/everything.min.js')}}"></script>-->
+
+
+
 <script src="{{url_for('static', filename='js/common.js')}}"></script>
 <!--<script src="{{url_for('static', filename='js/models/user.js')}}"></script>-->
 
@@ -278,10 +283,8 @@
 <script src="{{url_for('static', filename='js/apps/posts/app.js')}}"></script>
 <script src="{{url_for('static', filename='js/routes.js')}}"></script>
 <script src="{{url_for('static', filename='js/apps/posts/postEditor.js')}}"></script>
-{% else %}
-<script src="{{url_for('static', filename='js/everything.min.js')}}"></script>
 
-{% endif %}
+
 
 
 
