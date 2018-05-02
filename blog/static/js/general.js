@@ -1,13 +1,9 @@
 $(function(){
       
-      var  converter = new Showdown.converter();
-      $('.article').each(function(){
-          $(this).html(converter.makeHtml($(this).text()));
-      });
 
-      var actify=function (url){
+     var actify=function (url){
 
-         $('.nav-item').each(function(){
+        $('.nav-item').each(function(){
 	    $(this).removeClass('active');
             var link=$(this).children().first()[0].pathname;
 
@@ -15,21 +11,12 @@ $(function(){
                 $(this).addClass('active');}
 
             });
-         }
-
-
+      }
 
 
    var  url=location.pathname;
    actify(url);
 
-   
-    (function() {
-        var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-        po.src = 'https://apis.google.com/js/plusone.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
-      })();
-  // $.getScript("//platform.twitter.com/widgets.js");
    
     var map = {}
     $('.typeahead').typeahead({
@@ -51,7 +38,7 @@ $(function(){
               process(titlesbodies);
              
         });
-    },
+   },
    afterSelect: function(item){
      var post = map[item];
      if (typeof post !== "undefined") 
