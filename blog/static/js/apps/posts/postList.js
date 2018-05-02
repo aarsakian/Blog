@@ -230,17 +230,15 @@ class PostList {
   }
   
   editTitlePost(view, post) {
-    console.log("EDIT TITLE");
     var title = post.get('title');
     
   }
 
   editTags(view, post) {
-    console.log("EDIT tags"+view+post);
+
   }
   
   editPost(view, post) {
-     console.log("EDIT"+post.id);
     App.router.navigate(`edit/${post.id}`, true);
   }
   

@@ -110,7 +110,7 @@ class PostEditor {
       success() {
         // Redirect user to contact list after save
        // App.notifySuccess('Contact saved');
-        console.log("Navigating to save");
+   //     console.log("Navigating to save");
 
       },
       error() {

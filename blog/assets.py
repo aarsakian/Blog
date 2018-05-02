@@ -24,15 +24,19 @@ def init(app=None):
         env.register('css', css)
 
 
+        bundle_js_files(env.load_path)
 
         js = Bundle(
             "js/general.js","js/libs/showdown.js",
-            filters="jsmin", output="js/markdown.min.js")
+            filters="jsmin", output="js/everything.min.js")
         env.register('js', js)
 
         bundles = [css, js]
         return bundles
 
+
+def bundle_js_files(location):
+    for
 
 if __name__ == '__main__':
     bundles = init()
