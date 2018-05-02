@@ -20,6 +20,7 @@ from datetime import datetime
 from forms import PostForm, AnswerRadioForm
 from utils import datetimeformat, calculate_work_date_stats,  to_markdown
 
+
 KEY="posts"
 TAG="tags"
 CATEGORY="categories"
@@ -61,16 +62,12 @@ def logout():
 def findUser(entity=None):
     return jsonify(user_status=users.is_current_user_admin())
 
-    
-    
 
 
 
-environment = Environment()
 app.jinja_env.filters['datetimeformat'] = datetimeformat
 
 app.jinja_env.filters['markdown'] = to_markdown
-
 
 
 
