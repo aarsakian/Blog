@@ -40,8 +40,9 @@ def bundle_js_files(location):
     jsfiles = []
     for root, dirs, files in os.walk(location):
         for fname in files:
-            if path.basename(root) != "notinuse" and fname.endswith(".js"):
-                print (path.basename(root))
+            if path.basename(root) != "notinuse" and\
+                fname != "everything.min.js" and fname.endswith(".js"):
+
                 jsfiles.append(path.join(root, fname))
     return jsfiles
 
