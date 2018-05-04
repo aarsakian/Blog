@@ -1,5 +1,12 @@
 'use strict';
 
+var _ = require('underscore');
+var Backbone = require('backbone');
+var App = require('../../app');
+var Layout = require('../../common').Layout;
+var ModelView = require('../../common').ModelView;
+
+
 class AnswersLayout extends Layout {
   constructor(options) {
     super({tagName:"div", className:"row col-12"});
@@ -225,3 +232,4 @@ class Answers {
 
 
 
+module.exports = Answers;

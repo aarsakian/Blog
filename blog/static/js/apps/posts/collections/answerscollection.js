@@ -1,6 +1,7 @@
 'use strict';
 
-App.Collections = App.Collections || {};
+var Backbone = require('backbone');
+
 
 class AnswersCollection extends Backbone.Collection{
 	constructor(options) {
@@ -11,3 +12,4 @@ class AnswersCollection extends Backbone.Collection{
 	
 }
 
+module.exports = AnswersCollection;

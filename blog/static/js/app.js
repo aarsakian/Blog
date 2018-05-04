@@ -1,3 +1,12 @@
+'use strict';
+
+var _ = require('./libs/underscore/underscore-min');
+var Backbone = require('./libs/backbone/backbone-min');
+var Region = require('./common').Region;
+
+require('./routes');
+
+
 var DefaultRouter = Backbone.Router.extend({
   routes: {
      '/edit': 'defaultRoute'
@@ -6,10 +15,12 @@ var DefaultRouter = Backbone.Router.extend({
   // Redirect to contacts app by default
   defaultRoute() {
 
-   // this.navigate('edit', true);
+    this.navigate('edit', true);
   }
 
 });
+
+
 
 
 var App = {
@@ -20,7 +31,7 @@ var App = {
   start() {
     // Initialize all available routes
     _.each(_.values(this.Routers), function(Router) {
-
+       
       new Router();
     });
 
@@ -59,4 +70,7 @@ var App = {
   
 }
 
+// for global events
+_.extend(App, Backbone.Events);
 
+module.exports = App;

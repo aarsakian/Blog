@@ -1,5 +1,10 @@
 'use strict';
 
+//var $ = require('jquery');
+var _ = require('underscore');
+var Backbone = require('backbone');
+var Handlebars = require('./libs/handlebars/handlebars-v4.0.11');
+
 class ModelView extends Backbone.View {
 
   render() {
@@ -18,6 +23,7 @@ class ModelView extends Backbone.View {
     } else if (_.isString(this.template)) {
       var compiledTemplate = this.compileTemplate();
       renderedHtml = compiledTemplate(data);
+
     }
 
     this.$el.html(renderedHtml);
@@ -242,4 +248,5 @@ class Layout extends ModelView {
   }
 }
 
-_.extend(App, Backbone.Events);
+
+module.exports = {ModelView, CollectionView, Region, Layout};

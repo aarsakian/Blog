@@ -1,5 +1,14 @@
 'use strict';
 
+var App = require('../../app');
+var PostList = require('./postList');
+var PostCollection = require('./collections/postscollection')
+var AnswersCollection = require('./collections/answerscollection')
+var Post = require('./models/post');
+
+var Answers = require('./postAnswers');
+
+
 class PostsApp {
    constructor(options){
     this.region = options.region;
@@ -71,7 +80,8 @@ class PostsApp {
     });
   }
   
-   showEditor(post) { 
+   showEditor(post) {
+      var PostEditor = require('./postEditor');
       var postEditor = this.startController(PostEditor);
       postEditor.showEditor(post);
    }
@@ -92,3 +102,5 @@ class PostsApp {
   }
 
 }
+
+module.exports = PostsApp;

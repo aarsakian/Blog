@@ -1,5 +1,14 @@
 'use strict';
 
+var _ = require('underscore');
+var Backbone = require('backbone');
+var App = require('../../app');
+var Layout = require('../../common').Layout;
+var ModelView = require('../../common').ModelView;
+var CollectionView = require('../../common').CollectionView;
+
+
+
 class PostListLayout extends Layout {
   constructor(options) {
     super({tagName:"div", className:"row col-12"});
@@ -203,7 +212,7 @@ class PostList {
     // Show the views
 
     this.region.show(layout);
-    
+
 
   //  layout.getRegion('actions').show(actionBar);
     var postList = new PostListView({collection:
@@ -394,3 +403,7 @@ class TitleForm extends ModelView {
     };
   }
 }
+
+
+
+module.exports = PostForm;

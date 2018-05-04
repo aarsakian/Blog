@@ -1,7 +1,8 @@
 'user strict';
 
+var Backbone = require('backbone');
+var PostsApp = require('./apps/posts/app');
 
-App.Routers = App.Routers || {}; //initialize
 
 class PostsRouter extends Backbone.Router {
   constructor(options) {
@@ -16,15 +17,14 @@ class PostsRouter extends Backbone.Router {
   }
   
 	editPost(postId) {
-
-		var app = App.startSubApplication(PostsApp);
+        var app = this.startApp();
 
 		app.showPostEditor(postId);
 	}
 
 
 	getAnswers(category, month, year, title) {
-
+        var app = this.startApp();
 	    App.mainRegion = new Region({el: '#answers-container'});
 	    var app = App.startSubApplication(PostsApp);
 
@@ -34,12 +34,16 @@ class PostsRouter extends Backbone.Router {
 	
   startApp(){
 
-    var app = App.startSubApplication(PostsApp);
-		app.showPostsList();
+     var App = require('./app');
+     var PostsApp = require('./apps/posts/app');
+     var app = App.startSubApplication(PostsApp);
+
+	 app.showPostsList();
+
 
   }
 	
 	
 }
 
-App.Routers.PostsRouter = PostsRouter;
+module.exports = new PostsRouter();

@@ -1,5 +1,14 @@
 'use strict';
 
+
+var _ = require('underscore');
+var Backbone = require('backbone');
+var App = require('../../app');
+var Layout = require('../../common').Layout;
+var ModelView = require('../../common').ModelView;
+var PostForm = require('./postList').PostForm;
+console.log("CV"+PostForm);
+
 class ContactFormLayout extends Layout {
   constructor(options) {
     super({tagName:"div",className:"col"});
@@ -137,3 +146,5 @@ class PostEditor {
     this.stopListening();
   }
 }
+
+module.exports = PostEditor;

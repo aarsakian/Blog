@@ -7,6 +7,9 @@
  * MIT Licensed (LICENSE)
  */
 /*global define, require, module */
+var Backbone = require('./backbone-min');
+var _ = require('../underscore/underscore-min');
+
 (function(root, factory){
   if (typeof exports !== 'undefined') {
       // Define as CommonJS export:

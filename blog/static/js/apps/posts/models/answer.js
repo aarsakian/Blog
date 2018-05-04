@@ -1,6 +1,8 @@
 'use strict';
 
-App.Models = App.Models || {};
+
+var Backbone = require('backbone');
+
 
 var Answer =  Backbone.Model.extend({
   p_answer: "",
@@ -8,5 +10,6 @@ var Answer =  Backbone.Model.extend({
 
 });
 
+module.exports = Answer;
 
-App.Models.Answer = Answer;
+
