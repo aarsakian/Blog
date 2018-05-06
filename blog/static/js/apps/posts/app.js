@@ -1,17 +1,21 @@
 'use strict';
 
+var _ = require('underscore');
+var Backbone = require('backbone');
 var App = require('../../app');
-var PostList = require('./postList');
+var PostList = require('./postList')
+
 var PostCollection = require('./collections/postscollection')
 var AnswersCollection = require('./collections/answerscollection')
 var Post = require('./models/post');
-
+var PostEditor = require('./postEditor');
 var Answers = require('./postAnswers');
 
 
 class PostsApp {
    constructor(options){
     this.region = options.region;
+     _.extend(App, Backbone.Events);
    }
 
    showPostsList() {
@@ -58,6 +62,7 @@ class PostsApp {
 
    
    showPosts(posts) {
+     console.log(PostList+"CONT");
       var postList = this.startController(PostList);
 
       postList.showList(posts);
@@ -79,9 +84,8 @@ class PostsApp {
       }
     });
   }
-  
+
    showEditor(post) {
-      var PostEditor = require('./postEditor');
       var postEditor = this.startController(PostEditor);
       postEditor.showEditor(post);
    }
@@ -96,6 +100,8 @@ class PostsApp {
     if (this.currentController && this.currentController.destroy) {
       this.currentController.destroy();
     }
+
+
 
     this.currentController = new Controller({region: this.region});
     return this.currentController;

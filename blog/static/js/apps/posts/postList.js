@@ -406,4 +406,4 @@ class TitleForm extends ModelView {
 
 
 
-module.exports = PostForm;
+module.exports = {PostForm, PostList};

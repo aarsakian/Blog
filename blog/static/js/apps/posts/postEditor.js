@@ -7,7 +7,7 @@ var App = require('../../app');
 var Layout = require('../../common').Layout;
 var ModelView = require('../../common').ModelView;
 var PostForm = require('./postList').PostForm;
-console.log("CV"+PostForm);
+
 
 class ContactFormLayout extends Layout {
   constructor(options) {

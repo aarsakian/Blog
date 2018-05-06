@@ -27,11 +27,11 @@ var App = {
    Models: {},
    Collections: {},
    Routers: {},
-   
+
   start() {
     // Initialize all available routes
     _.each(_.values(this.Routers), function(Router) {
-       
+
       new Router();
     });
 
@@ -45,8 +45,8 @@ var App = {
     Backbone.history.start({pushState: true});
 
   },
-   
-   
+
+
      // Only a subapplication can be running at once, destroy any
   // current running subapplication and start the asked one
   startSubApplication(SubApplication) {
@@ -66,8 +66,8 @@ var App = {
 
     return this.currentSubapp;
   },
-  
-  
+
+
 }
 
 // for global events
