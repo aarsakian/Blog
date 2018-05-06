@@ -1,7 +1,7 @@
 'use strict';
 
-var _ = require('./libs/underscore/underscore-min');
-var Backbone = require('./libs/backbone/backbone-min');
+var _ = require('underscore');
+var Backbone = require('backbone');
 var Region = require('./common').Region;
 
 require('./routes');
@@ -51,7 +51,7 @@ var App = {
   // current running subapplication and start the asked one
   startSubApplication(SubApplication) {
     // Do not run the same subapplication twice
-   
+
     if (this.currentSubapp && this.currentSubapp instanceof SubApplication) {
       return this.currentSubapp;
     }
