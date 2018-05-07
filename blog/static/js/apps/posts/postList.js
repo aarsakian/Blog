@@ -6,6 +6,7 @@ var App = require('../../app');
 var Layout = require('../../common').Layout;
 var ModelView = require('../../common').ModelView;
 var CollectionView = require('../../common').CollectionView;
+var Post = require('./models/post');
 
 
 

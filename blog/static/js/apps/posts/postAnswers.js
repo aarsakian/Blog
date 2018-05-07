@@ -151,7 +151,6 @@ class AnswersView extends ModelView {
 
 
 
-
 class Answers {
   constructor(options) {
     // Region where the application will be placed
@@ -165,7 +164,7 @@ class Answers {
   showAnswers(postAnswers) {
     // Create the views
     var layout = new AnswersLayout();
-    
+        console.log("TES");
     //var actionBar = new PostListActionBar();
  
     
@@ -176,11 +175,11 @@ class Answers {
 
     this.region.show(layout);
     
- 
+
   //  layout.getRegion('actions').show(actionBar);
     var answersView = new AnswersView({collection:
                                     postAnswers});
-    
+
     layout.getRegion('answers').show(answersView);
 
     this.listenTo(answersView,'answer:submitted', answersView.checkAnswer);

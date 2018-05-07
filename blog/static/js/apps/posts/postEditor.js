@@ -70,7 +70,7 @@ class EditPostForm extends PostForm {
       success(model, response, options) {
         // Redirect user to contact list after save
      //   App.notifySuccess('Post saved');
-         App.router.navigate('edit', true);
+
      
        
       },
@@ -79,6 +79,7 @@ class EditPostForm extends PostForm {
      //   App.notifyError('Something goes wrong');
       }
     });
+       App.router.navigate('edit', true);
 
   //  this.trigger('form:save', this.model);
 //    this.clearForm();

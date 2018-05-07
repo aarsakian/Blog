@@ -3,7 +3,7 @@
 var _ = require('underscore');
 var Backbone = require('backbone');
 var App = require('../../app');
-var PostList = require('./postList')
+var PostList = require('./postList').PostList;
 
 var PostCollection = require('./collections/postscollection')
 var AnswersCollection = require('./collections/answerscollection')
@@ -42,9 +42,12 @@ class PostsApp {
 
       App.trigger('loading:start');
       App.trigger('app:posts:started');
+
       new AnswersCollection({"title":title}).fetch({
          success: (collection) => {
+
             var answersController = this.startController(Answers);
+
             answersController.showAnswers(collection);
             App.trigger('loading:stop');
          },
@@ -62,7 +65,6 @@ class PostsApp {
 
    
    showPosts(posts) {
-     console.log(PostList+"CONT");
       var postList = this.startController(PostList);
 
       postList.showList(posts);
@@ -89,9 +91,8 @@ class PostsApp {
       var postEditor = this.startController(PostEditor);
       postEditor.showEditor(post);
    }
-
    
-   startController(Controller) {
+    startController(Controller) {
     if (this.currentController &&
         this.currentController instanceof Controller) {
       return this.currentController;
@@ -100,8 +101,6 @@ class PostsApp {
     if (this.currentController && this.currentController.destroy) {
       this.currentController.destroy();
     }
-
-
 
     this.currentController = new Controller({region: this.region});
     return this.currentController;
