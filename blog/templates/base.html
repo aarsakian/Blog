@@ -6,23 +6,23 @@
 {% block title %}title{% endblock %}
 
 {% block head %}
-    {{super()}}
-    {% block metas %}
-    <meta name="description" content="A blog about programming, computer forensics">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="author" content="Armen Arsakian">
-    {% endblock %}
+{{super()}}
+{% block metas %}
+<meta name="description" content="A blog about programming, computer forensics">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="author" content="Armen Arsakian">
+{% endblock %}
 
 <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"
       integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
 {%if DEV %}
- <link href="/static/css/style.css" rel="stylesheet" media="screen">
+<link href="/static/css/style.css" rel="stylesheet" media="screen">
 {% else %}
- <link href="/static/css/style.min.css" rel="stylesheet" media="screen">
+<link href="/static/css/style.min.css" rel="stylesheet" media="screen">
 {% endif %}
 
-    <link href="{{ url_for('recent_feed') }}" rel="alternate" title="Recent Changes" type="application/atom+xml">
-    <link href='//fonts.googleapis.com/css?family=Merriweather:400' rel='stylesheet' type='text/css'>
+<link href="{{ url_for('recent_feed') }}" rel="alternate" title="Recent Changes" type="application/atom+xml">
+<link href='//fonts.googleapis.com/css?family=Merriweather:400' rel='stylesheet' type='text/css'>
 {% endblock %}
 
 
@@ -47,9 +47,20 @@
         <div class="row ml-auto col-sm-8 col-xs-4">
 
             <form class="navbar-search col-sm-8 col-xs-4 ml-auto" id="searchform">
-                <input type="text" name="q" autocomplete="off" data-provide="typeahead" class="form-control typeahead"
-                       placeholder="Search">
+                <div class="typeahead__container">
+                    <div class="typeahead__field">
+
+            <span class="typeahead__query">
+                <input class="form-control js-typeahead-country_v1"
+                       name="country_v1[query]" placeholder="Search" autocomplete="off" type="search">
+            </span>
+
+
+                    </div>
+                </div>
             </form>
+
+
         </div>
     </div>
 
@@ -104,12 +115,11 @@
         {%endif%}
     </div>
 
+
     <div class="row col-12" id="ft">
         {% block footer %}<!-- main content area --> {% endblock %}
     </div>
 </div>
-
-
 
 
 {%if user_status%}
@@ -234,22 +244,16 @@
         crossorigin="anonymous"></script>-->
 
 
-
-
-
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-38392254-1"></script>
+<!--<script async src="https://www.googletagmanager.com/gtag/js?id=UA-38392254-1"></script>-->
 
 
 {% block scripts %}
 
 
-
-  {{super()}}
-  {%if request.url_root == "https://arsakian.com" %}
-  {{google.uanalytics('UA-38392254-1')}}
+{{super()}}
+{%if request.url_root == "https://arsakian.com" %}
+{{google.uanalytics('UA-38392254-1')}}
 {% endif %}
-
-
 
 
 {% endblock %}
@@ -257,12 +261,11 @@
 
 <!--<script src="{{url_for('static', filename='js/general.js')}}"></script>-->
 
+<script src="{{url_for('static', filename='js/tmp/general.min.js')}}"></script>
 
-<script src="{{url_for('static', filename='js/blog/static/js/app.min.js')}}"></script>
+<!--<script src="{{url_for('static', filename='js/tmp/app.min.js')}}"></script>-->
 
 
 {% endblock %}
 
 
-<script type="text/javascript" defer="true"
-        src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.1/bootstrap3-typeahead.min.js"></script>
