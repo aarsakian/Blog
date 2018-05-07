@@ -7,18 +7,24 @@ var Region = require('./common').Region;
 require('./routes');
 
 
-var DefaultRouter = Backbone.Router.extend({
-  routes: {
-     '/edit': 'defaultRoute'
-  },
+class DefaultRouter extends Backbone.Router {
+
+    constructor(options) {
+        super(options);
+        this.routes = {
+            '/edit': 'defaultRoute'
+        };
+        this._bindRoutes();
+    }
 
   // Redirect to contacts app by default
   defaultRoute() {
 
-    this.navigate('edit', true);
+  //  this.navigate('edit', true);
   }
 
-});
+}
+
 
 
 
@@ -36,12 +42,13 @@ var App = {
     });
 
     // The common place where sub-applications will be showed
-    App.mainRegion = new Region({el: '#bd'});
+
 
     // Create a global router to enable sub-applications to redirect to
     // other urls
 
     App.router = new DefaultRouter();
+
     Backbone.history.start({pushState: true});
 
   },
@@ -49,7 +56,7 @@ var App = {
 
      // Only a subapplication can be running at once, destroy any
   // current running subapplication and start the asked one
-  startSubApplication(SubApplication) {
+  startSubApplication(SubApplication, region) {
     // Do not run the same subapplication twice
 
     if (this.currentSubapp && this.currentSubapp instanceof SubApplication) {
@@ -62,7 +69,8 @@ var App = {
     }
 
     // Run subapplication
-    this.currentSubapp = new SubApplication({region: App.mainRegion});
+
+    this.currentSubapp = new SubApplication({region: region});
 
     return this.currentSubapp;
   },

@@ -1,14 +1,14 @@
 'user strict';
 
 var Backbone = require('backbone');
-var PostsApp = require('./apps/posts/app');
 
+var Region = require('./common').Region;
 
 class PostsRouter extends Backbone.Router {
   constructor(options) {
 	super(options);
 	this.routes = {
-      'edit': 'startApp',
+      'edit': 'displayPosts',
 	  'tags': 'displayPosts',
 	  'edit/:key': 'editPost',
 	  ':category/:month/:year/:title' : 'getAnswers'
@@ -17,29 +17,37 @@ class PostsRouter extends Backbone.Router {
   }
   
 	editPost(postId) {
-        var app = this.startApp();
-
+         var region  = new Region({el: '#bd'});
+	    var app = this.startApp(region);
 		app.showPostEditor(postId);
 	}
 
 
 	getAnswers(category, month, year, title) {
-        var app = this.startApp();
-	    App.mainRegion = new Region({el: '#answers-container'});
-	    var app = App.startSubApplication(PostsApp);
 
 
-		app.showAnswers(category, month, year, title);
+	    var region = new Region({el: '#answers-container'});
+        var app = this.startApp(region);
+	    app.showAnswers(category, month, year, title);
 	}
-	
-  startApp(){
+
+	displayPosts() {
+	    var region  = new Region({el: '#bd'});
+	    var app = this.startApp(region);
+
+	    app.showPostsList();
+
+	}
+
+  startApp(region){
 
      var App = require('./app');
      var PostsApp = require('./apps/posts/app');
-     var app = App.startSubApplication(PostsApp);
 
-	 app.showPostsList();
+     var app = App.startSubApplication(PostsApp, region);
 
+
+     return app
 
   }
 	

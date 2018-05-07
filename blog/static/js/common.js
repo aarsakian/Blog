@@ -3,7 +3,7 @@
 //var $ = require('jquery');
 var _ = require('underscore');
 var Backbone = require('backbone');
-var Handlebars = require('./libs/handlebars/handlebars-v4.0.11');
+var Handlebars = require('handlebars');
 
 class ModelView extends Backbone.View {
 
@@ -41,6 +41,7 @@ class ModelView extends Backbone.View {
   // like Handlebars or Jade
   compileTemplate() {
     var $el = $(this.template);
+
     return Handlebars.compile($el.html());
   }
 
