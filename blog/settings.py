@@ -10,6 +10,8 @@ class Config(object):
   SITEMAP_URL_SCHEME = 'https'
   SITEMAP_IGNORE_ENDPOINTS = EXCLUDED_URLS
   SITEMAP_URL_METHOD = 'https'
+  BOOTSTRAP_SERVE_LOCAL = False
+  BOOTSTRAP_CDN_FORCE_SSL = True
 
 
 class Development(Config):
