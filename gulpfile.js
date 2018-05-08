@@ -8,7 +8,7 @@ var jstify = require('jstify');
 var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
 var sourcemaps = require('gulp-sourcemaps');
-
+var babelify = require('babelify');
 var resolveDependencies = require('gulp-resolve-dependencies');
 var concat = require('gulp-concat');
 
@@ -25,7 +25,7 @@ gulp.task('browserify-crud', () => {
     entries: 'blog/static/js/main.js',
     debug: true,
 // defining transforms here will avoid crashing your stream
-    transform: [jstify]
+    transform: [babelify, jstify]
     });
 
      bundler = watchify(bundler);
@@ -35,6 +35,9 @@ gulp.task('browserify-crud', () => {
             .on('error', $.util.log)
             .pipe(source('app.min.js'))
       .pipe(buffer())
+      .pipe($.uglify()).on('error', function(e){
+            console.log(e);
+         })
       .pipe(sourcemaps.init({loadMaps: true}))
         // Add transformation tasks to the pipeline here.
         .on('error', $.util.log)
@@ -53,7 +56,7 @@ gulp.task('browserify-general', () => {
     entries: 'blog/static/js/general.js',
     debug: true,
 // defining transforms here will avoid crashing your stream
-    transform: [jstify]
+    transform: [ jstify]
     });
 
      bundler = watchify(bundler);
@@ -62,7 +65,10 @@ gulp.task('browserify-general', () => {
           return bundler.bundle()
             .on('error', $.util.log)
             .pipe(source('general.min.js'))
-      .pipe(buffer())
+      .pipe(buffer()).on('error', function(e){
+            console.log(e);
+         })
+      .pipe($.uglify())
       .pipe(sourcemaps.init({loadMaps: true}))
         // Add transformation tasks to the pipeline here.
         .on('error', $.util.log)
