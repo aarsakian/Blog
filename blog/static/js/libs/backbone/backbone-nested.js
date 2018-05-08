@@ -7,8 +7,8 @@
  * MIT Licensed (LICENSE)
  */
 /*global define, require, module */
-var Backbone = require('./backbone-min');
-var _ = require('../underscore/underscore-min');
+var Backbone = require('backbone');
+var _ = require('underscore');
 
 (function(root, factory){
   if (typeof exports !== 'undefined') {
