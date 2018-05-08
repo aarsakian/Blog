@@ -17,6 +17,7 @@ handlers:
 - url: /static
   static_dir: blog/static
   http_headers:
+    expiration: "10m"
     Cache-Control:  must-revalidate 
   secure: always
 - url: .*
