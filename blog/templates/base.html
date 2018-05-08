@@ -256,8 +256,9 @@
 
 
 {{super()}}
-{%if request.url_root == "https://arsakian.com" %}
-{{google.uanalytics('UA-38392254-1')}}
+{%if request.url_root == "https://arsakian.com/" %}
+
+    {{google.uanalytics('UA-38392254-1')}}
 {% endif %}
 
 
