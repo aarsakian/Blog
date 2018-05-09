@@ -14,12 +14,45 @@ var concat = require('gulp-concat');
 
 var browserSync = require('browser-sync');
 var httpProxy = require('http-proxy');
+var useref = require('gulp-useref');
+var gulpif = require('gulp-if');
+var minifyCss = require('gulp-clean-css');
 
 var reload = browserSync.reload;
 
 
 // Bundle files with browserify
 gulp.task('browserify-crud', () => {
+// set up the browserify instance on a task basis
+    var bundler = browserify({
+    entries: 'blog/static/js/main.js',
+    debug: true,
+// defining transforms here will avoid crashing your stream
+    transform: [jstify]
+    });
+
+     bundler = watchify(bundler);
+
+     var rebundle = function() {
+          return bundler.bundle()
+            .on('error', $.util.log)
+            .pipe(source('app.min.js'))
+      .pipe(buffer())
+      .pipe(sourcemaps.init({loadMaps: true}))
+        // Add transformation tasks to the pipeline here.
+        .on('error', $.util.log)
+      .pipe(sourcemaps.write('./'))
+      .pipe(gulp.dest('./blog/static/js/tmp/'));
+  };
+
+  bundler.on('update', rebundle);
+
+  return rebundle();
+});
+
+
+// Bundle files with browserify
+gulp.task('browserify-crud-prod', () => {
 // set up the browserify instance on a task basis
     var bundler = browserify({
     entries: 'blog/static/js/main.js',
@@ -42,7 +75,7 @@ gulp.task('browserify-crud', () => {
         // Add transformation tasks to the pipeline here.
         .on('error', $.util.log)
       .pipe(sourcemaps.write('./'))
-      .pipe(gulp.dest('./blog/static/js/tmp/'));
+      .pipe(gulp.dest('./blog/static/js/prod/'));
   };
 
   bundler.on('update', rebundle);
@@ -81,7 +114,40 @@ gulp.task('browserify-general', () => {
   return rebundle();
 });
 
-gulp.task('js', function(){
+
+gulp.task('browserify-general-prod', () => {
+// set up the browserify instance on a task basis
+    var bundler = browserify({
+    entries: 'blog/static/js/general.js',
+    debug: true,
+// defining transforms here will avoid crashing your stream
+    transform: [babelify, jstify]
+    });
+
+     bundler = watchify(bundler);
+
+     var rebundle = function() {
+          return bundler.bundle()
+            .on('error', $.util.log)
+            .pipe(source('general.min.js'))
+      .pipe(buffer()).on('error', function(e){
+            console.log(e);
+         })
+      .pipe($.uglify())
+      .pipe(sourcemaps.init({loadMaps: true}))
+        // Add transformation tasks to the pipeline here.
+        .on('error', $.util.log)
+      .pipe(sourcemaps.write('./'))
+      .pipe(gulp.dest('./blog/static/js/prod/'));
+  };
+
+  bundler.on('update', rebundle);
+
+  return rebundle();
+});
+
+
+gulp.task('js-resolve', function(){
   gulp.src(['blog/static/js/blog/static/js/app.min.js'])
     .pipe(resolveDependencies({
       pattern: /\* @requires [\s-]*(.*\.js)/g
@@ -94,10 +160,20 @@ gulp.task('js', function(){
 });
 
 
+gulp.task('html', function() {
+
+
+  return gulp.src('blog/templates/base.html')
+    .pipe(useref())
+    .pipe(gulp.dest('blog/templates/rebase'))
+    .pipe(gulpif('*.css', minifyCss()))
+    .pipe(gulp.dest('blog'));
+});
 
 
 
-gulp.task('serve', ['browserify-crud', 'browserify-general'], () => {
+
+gulp.task('serve-prod', ['browserify-crud-prod', 'browserify-general-prod', 'html'], () => {
   var serverProxy = httpProxy.createProxyServer();
 
   browserSync({
