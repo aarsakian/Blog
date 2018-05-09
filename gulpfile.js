@@ -165,15 +165,20 @@ gulp.task('html', function() {
 
   return gulp.src('blog/templates/base.html')
     .pipe(useref())
-    .pipe(gulp.dest('blog/templates/rebase'))
+    .pipe(gulp.dest('blog/templates/rebase', {ext: '.html'}))
     .pipe(gulpif('*.css', minifyCss()))
-    .pipe(gulp.dest('blog'));
+    .pipe(gulp.dest('blog', {ext: '.css'}));
 });
 
+gulp.task('fonts', function () {
+    return gulp.src([
+        'blog/static/webfonts/*'])
+        .pipe($.flatten())
+        .pipe(gulp.dest('blog/static/fonts'));
+    })
 
 
-
-gulp.task('serve-prod', ['browserify-crud-prod', 'browserify-general-prod', 'html'], () => {
+gulp.task('serve-prod', ['browserify-crud-prod', 'browserify-general-prod', 'html', 'fonts'], () => {
   var serverProxy = httpProxy.createProxyServer();
 
   browserSync({
