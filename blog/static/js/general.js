@@ -36,7 +36,7 @@ $(document).ready(function() {
     source: function (query,process) {
 
           $.get('/search', { query:query}, function (data) {
-            titlesbodies = [];
+            var titlesbodies = [];
             $.each(data.data, function (i, post) {
                titlesbodies.push(post.body);
                titlesbodies.push(post.title);
