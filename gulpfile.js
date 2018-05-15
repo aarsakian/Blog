@@ -5,6 +5,8 @@ var browserify = require('browserify');
 var watchify = require('watchify');
 var jstify = require('jstify');
 
+var htmlmin = require('gulp-htmlmin');
+
 var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
 var sourcemaps = require('gulp-sourcemaps');
@@ -170,15 +172,22 @@ gulp.task('html', function() {
     .pipe(gulp.dest('blog', {ext: '.css'}));
 });
 
-gulp.task('fonts', function () {
+gulp.task('fonts', function () {ba
     return gulp.src([
         'blog/static/webfonts/*'])
         .pipe($.flatten())
         .pipe(gulp.dest('blog/static/fonts'));
-    })
+})
+
+gulp.task('minify-html', function() {
+  return gulp.src('blog/templates/**/*.html')
+    .pipe(htmlmin({collapseWhitespace: true}))
+    .pipe(gulp.dest('blog/templates/production'));
+});
 
 
-gulp.task('serve-prod', ['browserify-crud-prod', 'browserify-general-prod', 'html', 'fonts'], () => {
+gulp.task('serve-prod', ['browserify-crud-prod', 'browserify-general-prod', 'html', 'fonts',
+                        'minify-html'], () => {
   var serverProxy = httpProxy.createProxyServer();
 
   browserSync({
