@@ -172,7 +172,7 @@ gulp.task('html', function() {
     .pipe(gulp.dest('blog', {ext: '.css'}));
 });
 
-gulp.task('fonts', function () {ba
+gulp.task('fonts', function () {
     return gulp.src([
         'blog/static/webfonts/*'])
         .pipe($.flatten())
