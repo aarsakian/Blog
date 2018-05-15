@@ -1,0 +1,4 @@
+{% extends "rebase/base.html" %} {% block title %} Armen Arsakian personal blog {% endblock %} {% block content%}<div class="page-header"><div class="row-fluid" id="about"><div class="span6"><h2 class="editable">{{Post.title}}</h2></div><div class="span3 offset1"><div id="updated">Updated: {{ Post.updated|datetimeformat('%d-%m-%Y')}}</div></div></div></div>{%if Post %}<div id="row-fluid"><div class="span9" id="bdinner"><div class="post"><div id="{{Post.key}}" class="classic"><!--<div class="postTitle">
+                         
+	              
+                            </div>--><div class="article clear">{{Post.body}}</div><!--closes article--></div><!--closes post--></div></div>{%endif%} {%if user_status%}<div class="links"><a class="btn edit" href="/id/{{Post.key}}/edit">Edit</a></div>{%endif%}</div>{% endblock %} {% block footer%} {% include 'footer.html' %} {% endblock %}
