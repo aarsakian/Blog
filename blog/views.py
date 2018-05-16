@@ -220,6 +220,7 @@ def answers(title):
         answers_form.r_answers.data = p_answer
         answers_form.r_answers.choices = [(answer.p_answer, answer.p_answer) for answer in current_post.answers]
 
+
         if answers_form.validate_on_submit():
 
             return jsonify(result =current_post.is_answer_correct(p_answer, is_correct))
@@ -351,7 +352,8 @@ def view_a_post(category, year, month, title):
     flash('This website uses Google Analytics to help analyse how users use the site.')
 
 
-    answers_form.r_answers.choices = [(answer.p_answer, answer.p_answer) for answer in current_post.answers]
+    answers_form.r_answers.choices = [(answer.p_answer, answer.p_answer) for answer in current_post.answers
+                                      if answer.p_answer != u'']
 
     return render_template('singlepost.html', user_status=users.is_current_user_admin(), siteupdated=site_updated, \
                                         daysleft=remaining_days, dayspassed=passed_days, RelatedPosts=related_posts, \

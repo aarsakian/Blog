@@ -9,7 +9,8 @@
 
         <tr class="mb-2">
 
-            <td class="col-md-1 col-sm-4"><input id="r_answers-{{loop.index}}" class="answer-choice"
+            <td class="col-md-1 col-sm-4">
+                <input id="r_answers-{{loop.index}}" class="answer-choice"
                                                  name="r_answers"  value="0" type="radio">
             </td>
             <td class="col-md-11 col-sm-8"><label for="r_answers-{{loop.index}}">{{f.label}}</label></td>
@@ -18,6 +19,8 @@
         {% endfor %}
         </tbody>
     </table>
+    {% if answers_field.r_answers%}
     {{ wtf.form_field(answers_field.submit, type="submit", class="disabled col-md-2 col-sm-4 .mx-left float-left btn btn-primary
     submit button")}}
+    {% endif %}
 </form></script>{% endblock %}
