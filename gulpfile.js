@@ -181,7 +181,11 @@ gulp.task('fonts', function () {
 
 gulp.task('minify-html', function() {
   return gulp.src('blog/templates/**/*.html')
-    .pipe(htmlmin({collapseWhitespace: true}))
+    .pipe(htmlmin({collapseWhitespace: true, removeComments: true,
+    processScripts:["text/x-handlebars.template"],
+    collapseInlineTagWhitespace:true,
+    collapseBooleanAttributes:true,
+    minifyJS:true}))
     .pipe(gulp.dest('blog/templates/production'));
 });
 
