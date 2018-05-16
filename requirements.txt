@@ -33,4 +33,3 @@ Flask-Sitemap==0.2.0
 cssmin
 bleach
 markdown2
-flask-assets
