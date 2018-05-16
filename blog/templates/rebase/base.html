@@ -172,12 +172,13 @@
         {{form.csrf_token}}
         <div class="postTitle">
             <h3>
-                <a href="edit/{{'{{'}}id{{'}}'}}"> {{title}}</a>
+                <a href="edit/{{id}}"> {{title}}</a>
             </h3>
 
 
-
+ {{#if user_admin}}
             <input class="post-title editmode" name="title" placeholder="">
+  {{/if}}
 
         </div>
 
@@ -186,7 +187,7 @@
 
         <div class="editable admin article clear">
         {{/if}}
-
+        <div class="viewable admin article clear">
 
         {{#unless user_admin}}
 
@@ -196,13 +197,13 @@
         {{{body}}}
 
         {{#if body100}}
-        <span class="morelink"> <a href="/{{'{{'}}    category  {{'}}'}}/{{'{{'}}title{{'}}'}}">Read More</a></span>
+        <span class="morelink"> <a href="/{{category}}/{{title}}">Read More</a></span>
         {{/if}}
     </div>
 
 
     {{#if user_admin}}
-    <textarea class="clear editmode" type="text">{{ '{{' }}post{{ '}}' }}</textarea>
+    <textarea class="clear editmode" type="text">{{post}}</textarea>
     {{/if}}
 
 
@@ -214,7 +215,7 @@
         <div class="btn-group">
             {{#each tags}}
 
-            <a class="btn tag" href="/tags/{{'{{'}}this{{'}}'}}">{{'{{'}}this{{'}}'}}</a>
+            <a class="btn tag" href="/tags/{{this}}">{{this}}</a>
             {{/each}}
         </div>
         {{/unless}}
