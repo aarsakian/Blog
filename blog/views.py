@@ -292,13 +292,14 @@ def edit_post(id):
         body = request.json['body']
         raw_category = request.json['category']
         editing_tags = request.json['tags']
+        raw_summary = request.json['summary']
 
         tags_keys = tags.update(editing_tags, updating_post)
 
-        categories.update(raw_category, updating_post.category)
+        category_key = categories.update(raw_category, updating_post.category)
 
         updating_post.edit(title, body, datetime.now(), tags_keys,
-                           updating_post.category,  answers=request.json['answers'])
+                           category_key, raw_summary, answers=request.json['answers'])
 
         return jsonify(updating_post.to_json())  # dangerous
 

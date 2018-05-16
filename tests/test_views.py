@@ -376,8 +376,8 @@ class TestViews(BlogTestBase):
 
         updating_post = post_key.get()
 
-        json_data = {'category': 'category', 'tags': editing_tags, 'title': 'a title', 'body': 'body text',
-                     'summary': 'this is a summary',
+        json_data = {'category': 'a new category', 'tags': editing_tags, 'title': 'a new title', 'body': 'body text',
+                     'summary': 'this is a new summary',
                      'answers':[]}
 
         response = self.client.put(url_for('edit_post', id=post_key.id()), content_type='application/json',
@@ -386,11 +386,10 @@ class TestViews(BlogTestBase):
         tag_names = [u"a new tag", u"a new new tag", u"tag to added"]
         post_tag_names = [u"a new tag", u"tag to added"]
 
-        data = {u"title": updating_post.title, u"body": updating_post.body, u"category":
-            updating_post.category.get().category,
-                 u"category": category_key.get().category, u"id": str(updating_post.key.id()).decode('utf8'), \
+        data = {u"title": 'a new title', u"body": updating_post.body, u"category":
+                 "a new category", u"id": str(updating_post.key.id()).decode('utf8'), \
                  u"tags": post_tag_names,
-                'summary': updating_post.summary,
+                'summary': 'this is a new summary',
                  u"timestamp": updating_post.timestamp.strftime(DATEFORMAT).decode('utf8')
                     , u"updated":
                      updating_post.updated.strftime(DATEFORMAT).decode('utf8'),
