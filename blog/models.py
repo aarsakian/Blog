@@ -101,12 +101,14 @@ class BlogPost(ndb.Model):
 
 
 
-    def edit(self, title, body, updated, tags, category, answers=[]):
+    def edit(self, title, body, updated, tags, category_key, summary, answers=[]):
+
         self.title = title
         self.body = body
         self.updated = updated
         self.tags = tags
-        self.category = category
+        self.category = category_key
+        self.summary = summary
         if answers:
             self.answers = [Answer(p_answer=answer['p_answer'],
                                         is_correct=answer['is_correct']) for answer in answers]
@@ -409,7 +411,9 @@ class Categories(BlogList, JsonMixin):
         if category_key:
             category = Category.get(category_key.id())
             category.category = raw_category
+            category.put()
         else:
+
             category_key = self.add(raw_category)
 
         return category_key
