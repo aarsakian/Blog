@@ -101,7 +101,7 @@ class BlogPost(ndb.Model):
 
 
 
-    def edit(self, title, body, updated, tags, category_key, summary, answers=[]):
+    def edit(self, title, body, updated, tags, category_key, summary=None, answers=[]):
 
         self.title = title
         self.body = body
