@@ -147,81 +147,77 @@
     <a class="button taggy" href="/tags#!{{'{{'}}tag{{'}}'}}">{{'{{'}}tag{{'}}'}}</a>
 </script>
 
+{% raw %}
 <script id="collection-template" type="text/x-handlebars-template">
-    <h1> {{'{{'}}#unless type{{'}}'}}
-        {{'{{'}}title{{'}}'}}
-        {{'{{'}}/unless{{'}}'}}
-        {{'{{'}}#if type{{'}}'}}<!--if type not undefined -->
-        {{'{{'}}title{{'}}'}}
-        {{'{{'}}/if{{'}}'}}
+    <h1> {{#unless type}}
+           {{title}}
+        {{/unless}}
+        {{#if type}}<!--if type not undefined -->
+        {{title}}
+        {{/if}}
 
 
     </h1>
 </script>
+{% endraw %}
 
 <script id="categories-template" type="text/x-handlebars-template">
     <a class="button taggy" href="/categories#!{{'{{'}}category{{'}}'}}">{{'{{'}}category{{'}}'}}</a>
 
 </script>
 <!-- post area-->
+{% raw %}
 <script id="post-list-item" type="text/x-handlebars-template">
     <div data-id={{'{{'}}id{{'}}'}} class="postKey">
-        {{'{{'}} form.csrf_token {{'}}'}}
+        {{form.csrf_token}}
         <div class="postTitle">
-            <h3> <!--{{'{{'}}#if user_admin{{'}}'}} class=--><!--"title editable admin">-->
-
-                {{'{{'}}/if{{'}}'}}-->
-                <a href="edit/{{'{{'}}id{{'}}'}}"> {{'{{'}}title{{'}}'}}</a>
+            <h3>
+                <a href="edit/{{'{{'}}id{{'}}'}}"> {{title}}</a>
             </h3>
-            <!-- {{'{{'}}#if user_admin{{'}}'}} -->
+
 
 
             <input class="post-title editmode" name="title" placeholder="">
-            <!--	{{'{{'}}/if{{'}}'}} -->
+
         </div>
 
 
-        <div {{
-        '{{'}}#if user_admin{{'}}'}}
+         {{#if user_admin}}
 
-        class="editable admin article clear"
-        {{'{{'}}/if{{'}}'}}
-        class="viewable admin article clear"
+        <div class="editable admin article clear">
+        {{/if}}
 
-        {{'{{'}}#unless user_admin{{'}}'}}
 
-        class="article clear"
-        {{'{{'}}/unless{{'}}'}}>
+        {{#unless user_admin}}
 
-        {{'{{{'}}body{{'}}}'}}
+        <div class="article clear">
+        {{/unless}}>
 
-        {{'{{'}}#if body100{{'}}'}}
+        {{{body}}}
+
+        {{#if body100}}
         <span class="morelink"> <a href="/{{'{{'}}    category  {{'}}'}}/{{'{{'}}title{{'}}'}}">Read More</a></span>
-        {{'{{'}}/if{{'}}'}}
+        {{/if}}
     </div>
 
 
-    {{'{{'}}#if user_admin{{'}}'}}
+    {{#if user_admin}}
     <textarea class="clear editmode" type="text">{{ '{{' }}post{{ '}}' }}</textarea>
-    {{'{{'}}/if{{'}}'}}
+    {{/if}}
 
 
     </div>
-    <!--      <span class="backlink"><a href="/{{'{{'}}    category  {{'}}'}}">
-               <img src="{{url_for('static', filename='images/arrow_left_16x16.png')}}" alt="Back"/>
-            <img src="{{url_for('static', filename='images/arrow_left_16x16.png')}}" alt="Back"/>
-                <img src="{{url_for('static', filename='images/arrow_left_16x16.png')}}" alt="Back"/></a></span>-->
 
 
     <div class="links">
-        {{'{{'}}#unless type{{'}}'}}
+        {{#unless type}}
         <div class="btn-group">
-            {{'{{'}}#each tags{{'}}'}}
+            {{#each tags}}
 
             <a class="btn tag" href="/tags/{{'{{'}}this{{'}}'}}">{{'{{'}}this{{'}}'}}</a>
-            {{'{{'}}/each{{'}}'}}
+            {{/each}}
         </div>
-        {{'{{'}}/unless{{'}}'}}
+        {{/unless}}
 
 
         <div class="btn-group">
@@ -233,10 +229,9 @@
 
 
     </div><!--closes links-->
-
     </div>
 </script>
-
+{% endraw %}
 
 {%endif%}
 
@@ -247,7 +242,6 @@
 
 
 <!--<script async src="https://www.googletagmanager.com/gtag/js?id=UA-38392254-1"></script>-->
-
 
 {% block scripts %}
 
@@ -261,7 +255,6 @@
 
 {% endblock %}
 
-
 <!-- build:css /static/css/combined.css -->
 <link href="../static/css/lib/fontawesome-all.min.css" rel="stylesheet">
 <link href="../static/css/style.css" rel="stylesheet" media="screen">
@@ -270,8 +263,6 @@
 <script src="{{url_for('static', filename='js/prod/general.min.js')}}"></script>
 
 <script src="{{url_for('static', filename='js/prod/app.min.js')}}"></script>
-
-
 {% endblock %}
 
 
