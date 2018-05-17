@@ -20,6 +20,6 @@ class PostForm(FlaskForm):
     summary = StringField("", default="{{summary}}")
     tags = StringField("", default="{{tags}}")
     category = StringField("", validators=[DataRequired()], default="{{category}}")
-    answers = FieldList(FormField(AnswerForm), min_entries=0)
+    answers = FieldList(FormField(AnswerForm), min_entries=4)
     submit = SubmitField('Save')
 
