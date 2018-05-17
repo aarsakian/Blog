@@ -164,7 +164,6 @@ class Answers {
   showAnswers(postAnswers) {
     // Create the views
     var layout = new AnswersLayout();
-        console.log("TES");
     //var actionBar = new PostListActionBar();
  
     
@@ -177,12 +176,15 @@ class Answers {
     
 
   //  layout.getRegion('actions').show(actionBar);
-    var answersView = new AnswersView({collection:
+    if (postAnswers.length > 0  ) {
+        var answersView = new AnswersView({collection:
                                     postAnswers});
 
-    layout.getRegion('answers').show(answersView);
+        layout.getRegion('answers').show(answersView);
 
-    this.listenTo(answersView,'answer:submitted', answersView.checkAnswer);
+        this.listenTo(answersView,'answer:submitted', answersView.checkAnswer);
+    }
+
 
     
   }
