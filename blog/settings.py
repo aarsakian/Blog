@@ -35,3 +35,4 @@ class Production(Config):
   CSRF_ENABLED = True
   SERVER_NAME = 'arsakian.com'
   SESSION_COOKIE_SECURE = True
+  REMEMBER_COOKIE_SECURE = True
