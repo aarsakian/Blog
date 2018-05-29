@@ -1,7 +1,7 @@
 import logging, json
 from blog import app
 from models import Posts, Tags, Categories
-from flask import render_template,request,jsonify,redirect,url_for, Markup, flash, session
+from flask import render_template,request,jsonify,redirect,url_for, Markup, flash, session,g, make_response
 
 from errors import InvalidUsage
 from models import BlogPost,Tag,Category
@@ -27,6 +27,20 @@ CATEGORY="categories"
 CODEVERSION=":v0.7"
 
 headerdict={"machine_learning":"Gaussian Graphical Models","programming":"Programming","about":"About Me"}
+
+
+@app.before_request
+def accept_google_analytics():
+    accept_google_analytics = request.cookies.get('ga_accepted')
+    print ("GA",accept_google_analytics)
+    if not accept_google_analytics:
+
+        flash('This website uses Cookies and Google Analytics to help analyse how users use the site.')
+
+@app.after_request
+def after_request(response):
+
+    return response
 
 def fetch_everything_from_db():
     return Posts(), Tags(), Categories()
@@ -56,6 +70,21 @@ def logout():
         return redirect(users.create_logout_url(dest_url=request.url))
     else:
         return redirect(url_for('index'))
+
+
+@app.route('/ga-accept', methods=['POST'])
+def ga_accept():
+    resp = make_response(redirect(url_for('index')))
+    resp.set_cookie('ga_accepted', 'True', max_age=30 * 24 * 60 * 60)
+    return resp
+
+
+
+@app.route('/ga-decline', methods=['POST'])
+def ga_decline():
+    resp = make_response(redirect(url_for('index')))
+    resp.set_cookie('ga_accepted', 'False', max_age=30 * 24 * 60 * 60)
+    return resp
         
 @app.route('/<entity>/user',methods=['GET'])
 @app.route('/user',methods=['GET'])
@@ -172,8 +201,7 @@ def index(posts, tags, categories, passed_days,
         category = kwargs["category"]
         posts.filter_by_category(category)
 
-    else:
-        flash('This website uses Google Analytics to help analyse how users use the site.')
+
     form = PostForm()
 
     return render_template('posts.html', user_status=users.is_current_user_admin(), siteupdated=site_updated, \
@@ -193,7 +221,7 @@ def archives(posts, tags, categories, passed_days,
 
     form = PostForm()
     site_updated = posts.site_last_updated()
-    flash('This website uses Google Analytics to help analyse how users use the site.')
+
     return render_template('archives.html',user_status=users.is_current_user_admin(),siteupdated=site_updated,\
                            daysleft=remaining_days,dayspassed=passed_days,tags=tags,categories=categories,
                            posts=posts.to_json(),
@@ -349,8 +377,6 @@ def view_a_post(category, year, month, title):
 
     category = current_post.category.get().category
     site_updated = posts.site_last_updated()
-    flash('This website uses Google Analytics to help analyse how users use the site.')
-
 
     answers_form.r_answers.choices = [(answer.p_answer, answer.p_answer) for answer in current_post.answers
                                       if answer.p_answer != u'']

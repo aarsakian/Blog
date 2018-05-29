@@ -5,6 +5,7 @@ import logging
 from freezegun import freeze_time
 from datetime import datetime
 from werkzeug.contrib.atom import AtomFeed
+from werkzeug.http import parse_cookie
 from flask_testing import TestCase
 from flask import url_for, render_template, request, flash
 from flask_wtf.csrf import generate_csrf
@@ -16,6 +17,7 @@ from blog.forms import PostForm, AnswerRadioForm
 from blog.models import Tags, Posts, Categories, BlogPost
 from blog.utils import find_modified_tags, datetimeformat, make_external,  calculate_work_date_stats
 from blog.search import query_search_index, find_posts_from_index
+from blog import app
 
 
 CODEVERSION = ':v0.7'
@@ -99,7 +101,7 @@ class TestViews(BlogTestBase):
 
         site_updated = self.posts.site_last_updated()
         posts_json = self.posts.to_json()
-        flash('This website uses Google Analytics to help analyse how users use the site.')
+
         rendered_template = render_template('archives.html', user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated, \
                                             daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
@@ -125,7 +127,7 @@ class TestViews(BlogTestBase):
 
         site_updated = self.posts.site_last_updated()
         posts_json = self.posts.to_json()
-        flash('This website uses Google Analytics to help analyse how users use the site.')
+
         rendered_template = render_template('archives.html', user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated, \
                                             daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
@@ -141,7 +143,7 @@ class TestViews(BlogTestBase):
 
         response = self.client.get('/')  # create a request object
         site_updated = self.posts.site_last_updated()
-        flash('This website uses Google Analytics to help analyse how users use the site.')
+        flash('This website uses Cookies and Google Analytics to help analyse how users use the site.')
         rendered_template = render_template("posts.html", user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated, \
                                             daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
@@ -616,4 +618,15 @@ class TestViews(BlogTestBase):
                                     data=json.dumps(json_data_f))
 
         self.assertDictEqual({u"result": True}, response.json)
+
+    def test_is_cookie_set(self):
+        with app.test_request_context():
+            resp = self.client.post(url_for('ga_accept'), follow_redirects=True)
+
+            cookies = resp.headers.getlist('Set-Cookie')
+            print (request.cookies)
+            c_key, c_value = parse_cookie(cookies[0]).items()[0]
+
+            self.assertEqual(c_value,  'True')
+
 
