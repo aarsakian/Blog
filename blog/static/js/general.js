@@ -22,7 +22,17 @@ $(document).ready(function() {
    var  url=location.pathname;
    actify(url);
 
+  $("#ga-accept").on( "click", function() {
+        $.post('/ga-accept',  function(data){
 
+        });
+  });
+
+   $("#ga-decline").on( "click", function() {
+        $.post('/ga-decline',  function(data){
+
+        });
+  })
 
    
     var map = {}
