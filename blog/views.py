@@ -30,7 +30,7 @@ headerdict={"machine_learning":"Gaussian Graphical Models","programming":"Progra
 
 MSG = 'This website uses Cookies and Google Analytics (GA) to help analyse how users use the site. ' \
       'By declining you opt out from the collection of anonymized data using GA services. ' \
-      'By accepting you agree in the collection of anonymized data, no data is shared with third parties.'
+      'By accepting you agree to the collection of anonymized data, no data is shared with third parties.'
 
 
 @app.before_request
