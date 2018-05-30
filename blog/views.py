@@ -1,5 +1,5 @@
 import logging, json
-from blog import app
+from blog import app, csrf
 from models import Posts, Tags, Categories
 from flask import render_template,request,jsonify,redirect,url_for, Markup, flash, session,g, make_response
 
@@ -21,6 +21,8 @@ from forms import PostForm, AnswerRadioForm
 from utils import datetimeformat, calculate_work_date_stats,  to_markdown
 
 
+
+
 KEY="posts"
 TAG="tags"
 CATEGORY="categories"
@@ -35,6 +37,7 @@ MSG = 'This website uses Cookies and Google Analytics (GA) to help analyse how u
 
 @app.before_request
 def accept_google_analytics():
+    app.jinja_env.globals['ga_accepted'] = False
 
     if request.path not in (url_for('login'), url_for('logout'), url_for('edit_a_post_view')):
         accept_google_analytics = request.cookies.get('ga_accepted')
@@ -80,6 +83,7 @@ def logout():
 
 
 @app.route('/ga-accept', methods=['POST'])
+@csrf.exempt
 def ga_accept():
     resp = make_response(redirect(url_for('index')))
     resp.set_cookie('ga_accepted', 'True', max_age=30 * 24 * 60 * 60)
@@ -88,10 +92,12 @@ def ga_accept():
 
 
 @app.route('/ga-decline', methods=['POST'])
+@csrf.exempt
 def ga_decline():
     resp = make_response(redirect(url_for('index')))
     resp.set_cookie('ga_accepted', 'False', max_age=30 * 24 * 60 * 60)
     return resp
+
         
 @app.route('/<entity>/user',methods=['GET'])
 @app.route('/user',methods=['GET'])
