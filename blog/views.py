@@ -39,9 +39,11 @@ def accept_google_analytics():
     if request.path not in (url_for('login'), url_for('logout'), url_for('edit_a_post_view')):
         accept_google_analytics = request.cookies.get('ga_accepted')
 
-        if not accept_google_analytics or accept_google_analytics == 'False':
-            app.jinja_env.globals['ga_accepted'] = False
+        if not accept_google_analytics:
             flash(MSG)
+        elif accept_google_analytics == 'False':
+            app.jinja_env.globals['ga_accepted'] = False
+
         elif accept_google_analytics == 'True':
             app.jinja_env.globals['ga_accepted'] = True
 
