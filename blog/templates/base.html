@@ -253,11 +253,13 @@
 
 
 {{super()}}
-{%if request.url_root == "https://arsakian.com/" %}
 
-    {{google.uanalytics('UA-38392254-1')}}
-{% endif %}
+  {%if ga_accepted %}
+    {%if request.url_root == "https://arsakian.com/" %}
 
+        {{google.uanalytics('UA-38392254-1')}}
+    {% endif %}
+   {% endif %}
 
 {% endblock %}
 

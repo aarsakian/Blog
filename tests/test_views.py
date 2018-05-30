@@ -18,11 +18,13 @@ from blog.models import Tags, Posts, Categories, BlogPost
 from blog.utils import find_modified_tags, datetimeformat, make_external,  calculate_work_date_stats
 from blog.search import query_search_index, find_posts_from_index
 from blog import app
-
+from blog.views import accept_google_analytics, MSG
+from blog.errors import InvalidUsage
 
 CODEVERSION = ':v0.7'
 
 DATEFORMAT = '%A, %d %B %Y'
+
 
 
 from . import BlogTestBase
@@ -70,6 +72,8 @@ class TestViews(BlogTestBase):
 
         site_updated = self.posts.site_last_updated()
 
+        flash(MSG)
+
         rendered_template = render_template('tags.html', user_status=users.is_current_user_admin(),siteupdated=site_updated,\
                            daysleft=remaining_days,dayspassed=passed_days,tags=self.tags.to_json(),
                            codeversion=CODEVERSION)
@@ -84,6 +88,8 @@ class TestViews(BlogTestBase):
 
         site_updated = self.posts.site_last_updated()
 
+        flash(MSG)
+
         rendered_template = render_template('categories.html', user_status=users.is_current_user_admin(),siteupdated=site_updated,\
                            daysleft=remaining_days,dayspassed=passed_days,tags=self.tags.to_json(),
                            codeversion=CODEVERSION)
@@ -94,7 +100,7 @@ class TestViews(BlogTestBase):
 
         passed_days, remaining_days = calculate_work_date_stats()
         
-
+        flash(MSG)
         response = self.client.get((url_for('archives')))
 
         post_tag_names = self.tags.to_json()
@@ -119,7 +125,8 @@ class TestViews(BlogTestBase):
         self.posts.add("a title", "body text", category_key, new_tag_keys, "this is a summary")
 
         passed_days, remaining_days = calculate_work_date_stats()
-        
+
+        flash(MSG)
 
         response = self.client.get((url_for('archives')))
 
@@ -143,7 +150,7 @@ class TestViews(BlogTestBase):
 
         response = self.client.get('/')  # create a request object
         site_updated = self.posts.site_last_updated()
-        flash('This website uses Cookies and Google Analytics to help analyse how users use the site.')
+        flash(MSG)
         rendered_template = render_template("posts.html", user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated, \
                                             daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
@@ -165,7 +172,7 @@ class TestViews(BlogTestBase):
         response = self.client.get((url_for('index')))  # create a request object
 
         site_updated = self.posts.site_last_updated()
-        flash('This website uses Google Analytics to help analyse how users use the site.')
+        flash(MSG)
         rendered_template = render_template("posts.html", user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated,
                                             daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
@@ -203,7 +210,7 @@ class TestViews(BlogTestBase):
 
         category = post.category.get().category
         site_updated = self.posts.site_last_updated()
-        flash('This website uses Google Analytics to help analyse how users use the site.')
+        flash(MSG)
 
         answers_form = AnswerRadioForm()
 
@@ -235,8 +242,6 @@ class TestViews(BlogTestBase):
 
         other_posts_tags = self.posts.get_other_tags(current_post.key.id())
 
-        related_posts = []
-
         response = self.client.get(url_for('view_a_post', category="category", year=current_post.timestamp.year,
                                            month=current_post.timestamp.month, title="a title"))
 
@@ -245,7 +250,7 @@ class TestViews(BlogTestBase):
 
         category = current_post.category.get().category
         site_updated = self.posts.site_last_updated()
-        flash('This website uses Google Analytics to help analyse how users use the site.')
+        flash(MSG)
 
         answers_form = AnswerRadioForm()
 
@@ -265,7 +270,7 @@ class TestViews(BlogTestBase):
 
         response = self.client.get((url_for('index')))  # create a request object
         site_updated = self.posts.site_last_updated()
-        flash('This website uses Google Analytics to help analyse how users use the site.')
+        flash(MSG)
 
         rendered_template = render_template("posts.html", user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated, \
@@ -412,6 +417,8 @@ class TestViews(BlogTestBase):
 
         response = self.client.get(url_for('edit_a_post_view', postkey=post_key))
 
+        flash(MSG)
+
         site_updated = self.posts.site_last_updated()
         passed_days, remaining_days = calculate_work_date_stats()
 
@@ -440,6 +447,7 @@ class TestViews(BlogTestBase):
 
         site_updated = self.posts.site_last_updated()
 
+        flash(MSG)
         rendered_template = render_template('about.html',user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated,\
                            daysleft=remaining_days,dayspassed=passed_days,Post=requested_post,
@@ -460,6 +468,8 @@ class TestViews(BlogTestBase):
         passed_days, remaining_days = calculate_work_date_stats()
 
         site_updated = self.posts.site_last_updated()
+
+        flash(MSG)
 
         rendered_template = render_template("posts.html",  user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated, \
@@ -503,6 +513,7 @@ class TestViews(BlogTestBase):
 
         self.posts.filter_by_tag('a new tag')
 
+        flash(MSG)
         passed_days, remaining_days = calculate_work_date_stats()
         site_updated = self.posts.site_last_updated()
         rendered_template = render_template("posts.html",  user_status=users.is_current_user_admin(),
@@ -534,6 +545,8 @@ class TestViews(BlogTestBase):
          passed_days, remaining_days = calculate_work_date_stats()
          site_updated = self.posts.site_last_updated()
 
+         flash(MSG)
+
          rendered_template = render_template("posts.html", user_status=users.is_current_user_admin(),
                                              siteupdated=site_updated, \
                                              daysleft=remaining_days, dayspassed=passed_days,
@@ -547,17 +560,10 @@ class TestViews(BlogTestBase):
 
     def test_404_not_found_page(self):
         response = self.client.get(path='/a path not existing')
+        flash(MSG)
         rendered_template = render_template('404.html')
 
         return self.assertEqualHTML(rendered_template.decode('utf8'), response.data.decode('utf8'))
-
-    def test_wrong_url(self):
-        response = self.client.get(path='/category/2017/Jan/a post not existing')
-
-        rendered_template = render_template('404.html')
-
-        self.assertEqual(rendered_template.encode("utf-8"), response.data)
-
 
     def test_user(self):
         response = self.client.get(path='/user')
@@ -620,13 +626,30 @@ class TestViews(BlogTestBase):
         self.assertDictEqual({u"result": True}, response.json)
 
     def test_is_cookie_set(self):
-        with app.test_request_context():
-            resp = self.client.post(url_for('ga_accept'), follow_redirects=True)
+        with app.test_client() as c:
+            c.post(url_for('ga_accept'), follow_redirects=True)
 
-            cookies = resp.headers.getlist('Set-Cookie')
-            print (request.cookies)
-            c_key, c_value = parse_cookie(cookies[0]).items()[0]
+            c_value = request.cookies.get('ga_accepted')
 
             self.assertEqual(c_value,  'True')
+
+    def test_is_cookie_set_false(self):
+        with app.test_client() as c:
+            c.post(url_for('ga_decline'), follow_redirects=True)
+
+            c_value = request.cookies.get('ga_accepted')
+
+            self.assertEqual(c_value, 'False')
+
+    def test_accept_google_analytics(self):
+        with app.test_client() as c:
+            c.post(url_for('ga_accept'), follow_redirects=True)
+            accept_google_analytics()
+            self.assertTrue(app.jinja_env.globals['ga_accepted'])
+
+        with app.test_client() as c:
+            c.post(url_for('ga_decline'), follow_redirects=True)
+            accept_google_analytics()
+            self.assertFalse(app.jinja_env.globals['ga_accepted'])
 
 

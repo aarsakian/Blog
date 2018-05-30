@@ -28,22 +28,27 @@ CODEVERSION=":v0.7"
 
 headerdict={"machine_learning":"Gaussian Graphical Models","programming":"Programming","about":"About Me"}
 
+MSG = 'This website uses Cookies and Google Analytics (GA) to help analyse how users use the site. ' \
+      'By declining you opt out from the collection of anonymized data using GA services. ' \
+      'By accepting you agree in the collection of anonymized data, no data is shared with third parties.'
+
 
 @app.before_request
 def accept_google_analytics():
-    accept_google_analytics = request.cookies.get('ga_accepted')
-    print ("GA",accept_google_analytics)
-    if not accept_google_analytics:
 
-        flash('This website uses Cookies and Google Analytics to help analyse how users use the site.')
+    if request.path not in (url_for('login'), url_for('logout'), url_for('edit_a_post_view')):
+        accept_google_analytics = request.cookies.get('ga_accepted')
 
-@app.after_request
-def after_request(response):
+        if not accept_google_analytics or accept_google_analytics == 'False':
+            app.jinja_env.globals['ga_accepted'] = False
+            flash(MSG)
+        elif accept_google_analytics == 'True':
+            app.jinja_env.globals['ga_accepted'] = True
 
-    return response
 
 def fetch_everything_from_db():
     return Posts(), Tags(), Categories()
+
 
 
 @app.route('/login', methods=['GET'])
