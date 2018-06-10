@@ -180,7 +180,8 @@ gulp.task('fonts', function () {
 })
 
 gulp.task('minify-html', function() {
-  return gulp.src('blog/templates/**/*.html')
+  return gulp.src(['blog/templates/rebase/*.html', 'blog/templates/*.html',
+                  '!blog/templates/production'])
     .pipe(htmlmin({collapseWhitespace: true, removeComments: true,
     processScripts:["text/x-handlebars.template"],
     collapseInlineTagWhitespace:true,
