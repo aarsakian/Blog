@@ -242,6 +242,25 @@ def archives(posts, tags, categories, passed_days,
 
 
 
+@app.route('/questions/<category>', methods=['GET'])
+@boilercode
+def subject_questions(posts, tags, categories, passed_days,
+                    remaining_days, category):
+
+    site_updated = posts.site_last_updated()
+    posts.filter_by_category(category)
+
+    current_post = posts[0]
+    answers_form = AnswerRadioForm()
+    answers_form.r_answers.choices = [(answer.p_answer, answer.p_answer) for answer in current_post.answers
+                                      if answer.p_answer != u'']
+
+    return render_template('questions.html', user_status=users.is_current_user_admin(), siteupdated=site_updated, \
+                           daysleft=remaining_days, dayspassed=passed_days, tags=tags, categories=categories,
+                           posts=posts.to_json(),
+                           codeversion=CODEVERSION, answers_field=answers_form)
+
+
 @app.route('/api/answers/<title>', methods=['POST','GET'])
 def answers(title):
     posts = Posts()

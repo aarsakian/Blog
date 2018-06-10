@@ -652,4 +652,40 @@ class TestViews(BlogTestBase):
             accept_google_analytics()
             self.assertFalse(app.jinja_env.globals['ga_accepted'])
 
+    def test_questions_view(self):
+        category_key = self.categories.add("reconstructing a test")
+        test_tags = ["a new tag", "a new new tag"]
+        new_tag_keys = self.tags.add(test_tags)
+        self.posts.add("a title", "body text", category_key, new_tag_keys, "this is a summary",
+                       [{"p_answer": "ans1", "is_correct": True}, {"p_answer": "ans2", "is_correct": False}])
+
+        category_key = self.categories.add("reconstructing a test")
+        test_tags = ["a tag"]
+        new_tag_keys = self.tags.add(test_tags)
+        self.posts.add("a title here", "body to test the question text",
+                       category_key, new_tag_keys, "this is a summary",
+                       [{"p_answer": "a test answ correct", "is_correct": True},
+                        {"p_answer": "a wrong tet answer", "is_correct": False}])
+
+        response = self.client.get(path="/questions/reconstructing a test")
+
+        self.posts.filter_by_category("reconstructing a test")
+
+        flash(MSG)
+        passed_days, remaining_days = calculate_work_date_stats()
+        site_updated = self.posts.site_last_updated()
+        answers_form = AnswerRadioForm()
+        current_post = self.posts[0]
+        answers_form.r_answers.choices = [(answer.p_answer, answer.p_answer) for answer in current_post.answers
+                                          if answer.p_answer != u'']
+        rendered_template = render_template("questions.html", user_status=users.is_current_user_admin(),
+                                            siteupdated=site_updated, \
+                                            daysleft=remaining_days, dayspassed=passed_days,
+                                            tags=self.tags, categories=self.categories,
+                                            posts=self.posts.to_json(),
+                                            codeversion=CODEVERSION,
+                                            answers_field=answers_form)
+
+        return self.assertEqualHTML(rendered_template.decode('utf8'), response.data.decode('utf8'))
+
 
