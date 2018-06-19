@@ -64,7 +64,8 @@ textarea{min-height:60px;}
 #newpost input,.post input{width:70%;padding:6px;display:block;}
 #posts  .post  .edit{display:inline;}
 #right .row-fluid,#posts .row-fluid{margin-bottom:20px;}
-#posts textarea,#posts  input,.post  .hide,.morelinks .hide{display:none;}
+#posts textarea,#posts  input,.post  .hide,.morelinks .hide{visibility:hidden;}
+#posts .aggregate input {visibility:visible;}
 input,textarea{font-size:0.8em;}
 
 /*posts*/
