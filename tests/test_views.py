@@ -674,17 +674,15 @@ class TestViews(BlogTestBase):
         flash(MSG)
         passed_days, remaining_days = calculate_work_date_stats()
         site_updated = self.posts.site_last_updated()
-        answers_form = AnswerRadioForm()
-        current_post = self.posts[0]
-        answers_form.r_answers.choices = [(answer.p_answer, answer.p_answer) for answer in current_post.answers
-                                          if answer.p_answer != u'']
+        self.posts.to_answers_form()
+
         rendered_template = render_template("questions.html", user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated, \
                                             daysleft=remaining_days, dayspassed=passed_days,
                                             tags=self.tags, categories=self.categories,
-                                            posts=self.posts.to_json(),
-                                            codeversion=CODEVERSION,
-                                            answers_field=answers_form)
+                                            posts=self.posts,
+                                            codeversion=CODEVERSION)
+
 
         return self.assertEqualHTML(rendered_template.decode('utf8'), response.data.decode('utf8'))
 
