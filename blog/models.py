@@ -6,6 +6,7 @@ from utils import datetimeformat
 
 from errors import InvalidUsage
 
+from forms import AnswerRadioForm
 from search import add_document_in_search_index, delete_document, find_posts_from_index
 from utils import find_modified_tags, find_tags_to_be_removed, find_tags_to_be_added, make_external
 
@@ -102,7 +103,10 @@ class BlogPost(ndb.Model):
         jsoned_data[u"answers"] = post_dict["answers"]
         return jsoned_data
 
+    def to_answers_form(self):
 
+        self.answers_form = AnswerRadioForm()
+        self.answers_form.r_answers.choices = [(answer.p_answer, answer.p_answer) for answer in self.answers]
 
     def edit(self, title, body, updated, tags, category_key, summary=None, answers=[]):
 
@@ -295,6 +299,10 @@ class Posts(BlogList, JsonMixin):
             add_document_in_search_index(post.id, post.title, post.body,
                                          post.summary, post.get_category(),
                                          post.timestamp, post.get_tag_names())
+
+    def to_answers_form(self):
+        [post.to_answers_form() for post in self.posts]
+
 
 
 class Tags(BlogList, JsonMixin):

@@ -598,3 +598,32 @@ class TestModels(BlogTestBase):
 
         self.assertFalse(post.is_answer_correct("ans1", False))
         self.assertTrue(post.is_answer_correct("ans1", True))
+
+    def test_to_answer_form(self):
+        test_tags = ["a new tag", "a new new tag"]
+        tag_keys = self.tags.add(test_tags)
+
+        ans1 = Answer(p_answer="ans1",
+                      is_correct=True)
+
+        ans2 = Answer(p_answer="ans2",
+                      is_correct=False)
+
+        category_key = self.categories.add("category")
+        summary = "a summmary"
+        title = "a title"
+        body = "here is a body"
+
+        post_key = BlogPost(title=title,
+                            body=body,
+                            category=category_key,
+                            tags=tag_keys,
+                            summary=summary,
+                            answers=[ans1, ans2]).put()
+
+        post = post_key.get()
+
+        self.posts.to_answers_form()
+
+        self.assertItemsEqual([(u'ans1', u'ans1'), (u'ans2', u'ans2')], post.answers_form.r_answers.choices)
+
