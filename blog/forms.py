@@ -14,6 +14,7 @@ class AnswerRadioForm(FlaskForm):
     r_answers = RadioField("", choices= [])
     submit = SubmitField('Submit')
 
+
 class PostForm(FlaskForm):
     title = StringField("", validators=[DataRequired()], default="{{title}}")
     body = TextAreaField("", default="{{body}}")
