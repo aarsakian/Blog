@@ -40,9 +40,11 @@ $(document).ready(function() {
 
     $('.aggregate .answer-choice').on("click", function(){
          if (!_.isEmpty(answerEl)) {
-              answerEl.parent().parent().removeClass("bg-success").removeClass("bg-danger");
+             answerEl.parent().parent().removeClass("bg-success").removeClass("bg-danger");
          }
            answerEl = $(this);
+           answerEl.parent().parent().parent().parent().next().removeClass('disabled');
+
 
      });
 
@@ -53,6 +55,8 @@ $(document).ready(function() {
      var url = '/api/answers/'+title;
      var p_answer = answerEl.data("answer");
      var data = JSON.stringify({p_answer:p_answer,is_correct:"True" });
+     var csrf_token = $(this).prev().prev().val();
+
 
      $.ajax({
 		url : url,
@@ -60,8 +64,12 @@ $(document).ready(function() {
 		data: data,
 		dataType:  "json",
 		contentType: "application/json",
-		success: highlightResult
-		});
+		success: highlightResult,
+		headers:
+        {
+            'X-CSRF-TOKEN': csrf_token
+        }
+	  });
 
   })
 
