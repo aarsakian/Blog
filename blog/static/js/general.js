@@ -34,7 +34,49 @@ $(document).ready(function() {
         });
   })
 
-   
+
+    var answerEl = {};
+
+    $('.aggregate .answer-choice').on("click", function(){
+           answerEl = $(this);
+           answerEl.parent().parent().removeClass("bg-success").removeClass("bg-danger");
+     });
+
+  $(".aggregate .submit").on("click", function(event){
+     event.preventDefault();
+
+     var title = $(this).parent().data("title");
+     var url = '/api/answers/'+title;
+     var p_answer = answerEl.data("answer");
+     var data = JSON.stringify({p_answer:p_answer,is_correct:"True" });
+
+     $.ajax({
+		url : url,
+		type: "post",
+		data: data,
+		dataType:  "json",
+		contentType: "application/json",
+		success: highlightResult
+		});
+
+  })
+
+  function highlightResult(data) {
+       var result = data.result;
+       var postId = data.id;
+    
+       var colorResult = ""
+       if (result) {
+         colorResult = "bg-success";
+
+       } else {
+         colorResult = "bg-danger";
+       }
+       answerEl.parent().parent().addClass(colorResult);
+
+  }
+
+
     var map = {}
     $('.typeahead').typeahead({
         minLength: 3,
