@@ -1,5 +1,6 @@
 'user strict';
 var $ = require('jquery');
+var _ = require('underscore');
 require('bootstrap-3-typeahead');
 
 $(document).ready(function() {
@@ -38,8 +39,11 @@ $(document).ready(function() {
     var answerEl = {};
 
     $('.aggregate .answer-choice').on("click", function(){
+         if (!_.isEmpty(answerEl)) {
+              answerEl.parent().parent().removeClass("bg-success").removeClass("bg-danger");
+         }
            answerEl = $(this);
-           answerEl.parent().parent().removeClass("bg-success").removeClass("bg-danger");
+
      });
 
   $(".aggregate .submit").on("click", function(event){
@@ -64,7 +68,7 @@ $(document).ready(function() {
   function highlightResult(data) {
        var result = data.result;
        var postId = data.id;
-    
+
        var colorResult = ""
        if (result) {
          colorResult = "bg-success";
