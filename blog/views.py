@@ -18,8 +18,7 @@ from jinja2.environment import Environment
 from datetime import datetime
 
 from forms import PostForm, AnswerRadioForm
-from utils import datetimeformat, calculate_work_date_stats,  to_markdown
-
+from utils import datetimeformat, calculate_work_date_stats,  to_markdown, generate_uid_token
 
 
 
@@ -33,6 +32,8 @@ headerdict={"machine_learning":"Gaussian Graphical Models","programming":"Progra
 MSG = 'This website uses Cookies and Google Analytics (GA) to help analyse how users use the site. ' \
       'By declining you opt out from the collection of anonymized data using GA services. ' \
       'By accepting you agree to the collection of anonymized data, no data is shared with third parties.'
+
+REMAINING_ATTEMPTS = 1
 
 
 @app.before_request
@@ -54,6 +55,13 @@ def accept_google_analytics():
 def fetch_everything_from_db():
     return Posts(), Tags(), Categories()
 
+
+@app.before_request
+def discover_anonymous_uid(*args):
+    if request.path == url_for("answers", title=""):
+
+        if not users.is_current_user_admin() and not session.get('current_user_uid'):
+            session['current_user_uid'] = generate_uid_token()
 
 
 @app.route('/login', methods=['GET'])
@@ -264,15 +272,32 @@ def answers(title):
     posts = Posts()
     current_post = posts.get_by_title(title)
 
+
     if request.method == 'GET':  # all entitites
 
 
         return jsonify(current_post.strip_answers_jsoned())
     elif request.method == 'POST':
+
+
         raw_post = request.get_json()
         p_answer = raw_post["p_answer"]
 
         is_correct = raw_post["is_correct"]
+
+        if not session.get('posts'):
+            session['posts'] = []
+        if title not in session.get('posts'):
+            remaining_attempts = REMAINING_ATTEMPTS
+            session['posts'].append(title)
+            session[title] = remaining_attempts
+        else:
+            remaining_attempts = session.get(title) - 1
+            session[title] = remaining_attempts
+            if remaining_attempts < 0:
+                return jsonify(msg='You have exhausted your attempts.',
+                               remaining_attempts=0)
+
 
         answers_form = AnswerRadioForm()
         answers_form.r_answers.data = p_answer
@@ -281,7 +306,9 @@ def answers(title):
 
         if answers_form.validate_on_submit():
 
-            return jsonify(result =current_post.is_answer_correct(p_answer, is_correct))
+            return jsonify(result =current_post.is_answer_correct(p_answer, is_correct),
+                           msg='You have {} attempts.'.format(remaining_attempts),
+                           remaining_attempts=remaining_attempts)
         else:
             return jsonify({})
 

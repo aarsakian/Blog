@@ -617,13 +617,18 @@ class TestViews(BlogTestBase):
                                     data=json.dumps(json_data_f))#, headers={"csrf_token":csrf_token})
 
 
-        self.assertDictEqual({u"result":False}, response.json)
+        self.assertDictEqual({u'msg': u'You have 1 attempts.', u'result': False,
+                              'remaining_attempts': 1}, response.json)
 
         json_data_f = {"p_answer": "ans1", "is_correct": "True"}
         response = self.client.post(url_for('answers', title="a title"), content_type='application/json',
                                     data=json.dumps(json_data_f))
 
-        self.assertDictEqual({u"result": True}, response.json)
+        self.assertDictEqual({u'msg': u'You have exhausted your attempts.', 'remaining_attempts':0}, response.json)
+
+        response = self.client.post(url_for('answers', title="a title"), content_type='application/json',
+                                    data=json.dumps(json_data_f))  # , headers={"csrf_token":csrf_token})
+        self.assertDictEqual({u'msg': u'You have exhausted your attempts.','remaining_attempts':0}, response.json)
 
     def test_is_cookie_set(self):
         with app.test_client() as c:
