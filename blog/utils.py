@@ -2,6 +2,11 @@ from urlparse import urljoin
 from datetime import datetime, date
 from math import ceil
 from markdown2 import markdown
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from uuid import UUID
+from flask import g
+
+from blog import app
 
 from bleach import clean, linkify
 
@@ -47,3 +52,20 @@ def calculate_work_date_stats():
     passed_days = (date.today()-date(2012, 3, 2)).days
     remaining_days = int(ceil(2.0/3.0*8*365))-passed_days
     return passed_days, remaining_days
+
+
+def generate_uid_token(expiration=3600):
+    s = Serializer(app.config['SECRET_KEY'], expiration)
+    return s.dumps({'current_user_uid': g.current_user_uid}).decode('utf-8')
+
+
+def confirm_token(token):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token.encode('utf-8'))
+        except:
+            return False
+        if data.get('current_user_uid') == g.current_user_uid:
+            return True
+
+        return False
