@@ -2,6 +2,8 @@
 var $ = require('jquery');
 var _ = require('underscore');
 require('bootstrap-3-typeahead');
+require('bootstrap-notify');
+
 
 $(document).ready(function() {
 
@@ -74,9 +76,57 @@ $(document).ready(function() {
   })
 
   function highlightResult(data) {
-       var result = data.result;
-       var postId = data.id;
 
+       if (_.has(data, 'result')) {
+            var result = data.result;
+            changeColor(result);
+
+            if (result) {
+
+               $.notify({
+	        // options
+	            message: 'You found it.'
+                },{
+	            // settings
+	            type:'success'
+	            });
+
+            }
+        }
+
+        if (data.remaining_attempts == 0) {
+         $.notify({
+	        // options
+	            message: 'you can retry if you know how http works -)'
+            },{
+	            // settings
+	            type:'info'
+	        });
+        }
+
+        if (_.has(data, 'msg')) {
+            $.notify({
+	        // options
+	            message: data.msg
+            },{
+	            // settings
+	            type: function(){
+	                if (data.remaining_attempts != 0)
+	                   return 'warning';
+	                else
+	                    return 'danger';
+
+	            }
+            });
+        }
+
+
+
+
+
+   }
+
+   function changeColor(result) {
        var colorResult = ""
        if (result) {
          colorResult = "bg-success";
