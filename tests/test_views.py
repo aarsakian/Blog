@@ -624,7 +624,8 @@ class TestViews(BlogTestBase):
         response = self.client.post(url_for('answers', title="a title"), content_type='application/json',
                                     data=json.dumps(json_data_f))
 
-        self.assertDictEqual({u'msg': u'You have exhausted your attempts.', 'remaining_attempts':0}, response.json)
+        self.assertDictEqual({u'msg': u'You have 0 attempts.', 'remaining_attempts':0,
+                              'result':True}, response.json)
 
         response = self.client.post(url_for('answers', title="a title"), content_type='application/json',
                                     data=json.dumps(json_data_f))  # , headers={"csrf_token":csrf_token})
