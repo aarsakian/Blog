@@ -94,7 +94,7 @@ $(document).ready(function() {
             }
         }
 
-        if (data.remaining_attempts == 0) {
+        if (data.remaining_attempts == 0 && !data.result) {
          $.notify({
 	        // options
 	            message: 'you can retry if you know how http works -)'
