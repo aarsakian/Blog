@@ -4,7 +4,9 @@
 {%if user_status%}
 <script id="post-form" type="text/x-handlebars-template">
 
-    <form class="form form-horizontal row col-12" method="post" role="form">
+
+    <form class="form form-horizontal row col-12" id="post-form" method="post"
+          role="form">
         {{ form.hidden_tag()}}
         {{ wtf.form_errors(form, hiddens="only") }}
         {{ wtf.form_field(form.title, id="new-post-title",placeholder="Enter your title here")}}
@@ -14,6 +16,8 @@
         placeholder="Enter your category or use existing one")}}
         {{ wtf.form_field(form.tags,id="new-post-tags",
         placeholder="Enter your tags here,use comma between")}}
+
+
         <div class="answers col-12 row">
 
             {{'{{'}}#unless answers{{'}}'}}
@@ -56,7 +60,15 @@
 
 
         </div>
-        {{ wtf.form_field(form.submit, type="submit", class="submit button")}}
+        {{ wtf.form_field(form.submit, type="submit", id="post-submit",
+        class="submit button")}}
+    </form>
+     <form class="form form-horizontal row col-12" method="post"  id="files-post-form"  enctype="multipart/form-data"
+        role="form">
+           {{ uploadform.hidden_tag()}}
+      {{ wtf.form_field(uploadform.images_field, id="files", multiple='')}}
+           {{ wtf.form_field(uploadform.submit, type="submit", id="files-post-submit",
+         class="submit button")}}
     </form>
 </script>
 {%endif%}
