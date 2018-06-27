@@ -17,7 +17,7 @@ from jinja2.environment import Environment
 
 from datetime import datetime
 
-from forms import PostForm, AnswerRadioForm
+from forms import PostForm, AnswerRadioForm, UploadForm, images_set
 from utils import datetimeformat, calculate_work_date_stats,  to_markdown, generate_uid_token
 
 
@@ -172,6 +172,7 @@ def searchresults(posts, tags, categories,  passed_days,
     query_string = request.args.get('q')
     results = query_search_index(query_string)
     form = PostForm()
+    uploadform = UploadForm()
     if results:
         posts_ids = find_posts_from_index(results)
         posts.filter_matched(posts_ids)
@@ -181,7 +182,7 @@ def searchresults(posts, tags, categories,  passed_days,
     return render_template('posts.html', user_status=users.is_current_user_admin(), siteupdated=site_updated, \
                            daysleft=remaining_days, dayspassed=passed_days,
                            posts=posts.to_json(),
-                           codeversion=CODEVERSION, form=form)
+                           codeversion=CODEVERSION, form=form, uploadform=uploadform)
 
 
 @app.route('/built with',methods=['GET'])
@@ -224,12 +225,13 @@ def index(posts, tags, categories, passed_days,
 
 
     form = PostForm()
+    uploadform = UploadForm()
 
     return render_template('posts.html', user_status=users.is_current_user_admin(), siteupdated=site_updated, \
                            daysleft=remaining_days, dayspassed=passed_days, tags=tags, categories=categories,
                            posts=posts.to_json(),
                            codeversion=CODEVERSION,
-                           form=form)
+                           form=form, uploadform=uploadform)
 
 
 @app.route('/archives',methods=['GET'])
@@ -241,12 +243,13 @@ def archives(posts, tags, categories, passed_days,
     if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
 
     form = PostForm()
+    uploadform = UploadForm()
     site_updated = posts.site_last_updated()
 
     return render_template('archives.html',user_status=users.is_current_user_admin(),siteupdated=site_updated,\
                            daysleft=remaining_days,dayspassed=passed_days,tags=tags,categories=categories,
                            posts=posts.to_json(),
-                           codeversion=CODEVERSION, form=form)
+                           codeversion=CODEVERSION, form=form, uploadform=uploadform)
 
 
 
@@ -449,11 +452,12 @@ def edit_a_post_view(postkey=None):
 
     form = PostForm()
     posts = Posts()
+    uploadform = UploadForm()
     passed_days, remaining_days = calculate_work_date_stats()
     site_updated = posts.site_last_updated()
     return render_template('posts.html',user_status=users.is_current_user_admin(),siteupdated=site_updated,\
                            daysleft=remaining_days,dayspassed=passed_days,
-                           codeversion=CODEVERSION, form=form)
+                           codeversion=CODEVERSION, form=form, uploadform=uploadform)
 
 
 
@@ -497,6 +501,20 @@ def searchsite():
     return jsonify(data=data)
 
 
+@app.route('/upload', methods=['POST'])
+def upload():
+    logging.info("UPLOAD")
+    if request.method == 'POST' and request.files:
+
+        filename = images_set.save(request.files['images_field'])
+        logging.info("FILE"+filename)
+        rec = Photo(filename=filename, user=g.user.id)
+        rec.store()
+        flash("Photo saved.")
+        return redirect(url_for('show', id=rec.id))
+
+
+
 @app.errorhandler(InvalidUsage)
 @app.errorhandler(404)
 def page_not_found(error):
@@ -510,3 +528,4 @@ def page_not_found(error):
 @app.errorhandler(500)
 def internal_server_error(e):
     return render_template('500.html')
+
