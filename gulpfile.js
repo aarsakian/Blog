@@ -20,7 +20,7 @@ var useref = require('gulp-useref');
 var gulpif = require('gulp-if');
 var minifyCss = require('gulp-clean-css');
 
-var reload = browserSync.reload;
+
 
 
 // Bundle files with browserify
@@ -191,34 +191,29 @@ gulp.task('minify-html', function() {
 });
 
 
-gulp.task('serve-prod', ['browserify-crud-prod', 'browserify-general-prod', 'html', 'fonts',
-                        'minify-html'], () => {
-  var serverProxy = httpProxy.createProxyServer();
+gulp.task('browser-sync', function(done) {
+    browserSync.init({
+        open: 'external',
+        proxy: "127.0.0.1:9082",
+        port: 9082,
+        host: "127.0.0.1",
+        watch:true
+        // port: 5000,
 
-  browserSync({
-    port: 9000,
-    ui: {
-      port: 9001
-    },
-    server: {
-      baseDir: ['./blog'],
-      middleware: [
-        function (req, res, next) {
-          if (req.url.match(/.*/)) {
-            serverProxy.web(req, res, {
-              target: 'http://localhost:9082'
-            });
-          } else {
-            next();
-          }
-        }
-      ]
-    }
-  });
 
-  gulp.watch([
-    'blog/templates/*.html',
-    'blog/**/*.css',
-    'blog/**/*.js'
-  ]).on('change', reload);
+    });
+    done();
+
+    browserSync.watch([
+        'blog/templates/*.html',
+        'blog/*.py',
+        'blog/**/*.css',
+        'blog/**/*.js'
+        ]).on('change', browserSync.reload);
+
 });
+
+gulp.task('serve-prod',gulp.series('browserify-crud-prod', 'browserify-general-prod', 'html', 'fonts',
+                        'minify-html', 'browser-sync'));
+
+
