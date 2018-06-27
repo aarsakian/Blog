@@ -3,6 +3,10 @@ var $ = require('jquery');
 var _ = require('underscore');
 require('bootstrap-3-typeahead');
 require('bootstrap-notify');
+var marked = require('marked');
+var renderer = require('marked-forms')(new marked.Renderer());
+//var markdown = function(txt) { return marked(txt, {renderer:renderer}); }
+
 
 
 $(document).ready(function() {
@@ -10,7 +14,6 @@ $(document).ready(function() {
 
 
      var actify=function (url){
-
         $('.nav-item').each(function(){
 	    $(this).removeClass('active');
             var link=$(this).children().first()[0].pathname;
@@ -49,6 +52,29 @@ $(document).ready(function() {
 
 
      });
+
+  $("body").on('submit',"#files-post-form", function(event){
+    event.preventDefault();
+    var csrf_token = $(this).children().first();
+    var form_data = $('#files-post-form input').prop('files');
+    $.ajax({
+      type:'POST',
+      url:'/upload',
+      processData: false,
+      contentType: false,
+      async: false,
+      cache: false,
+      data : form_data,
+      success: function(response){
+
+      },
+      headers:
+      {
+            'X-CSRF-TOKEN': csrf_token
+      }
+    });
+  });
+
 
   $(".aggregate .submit").on("click", function(event){
      event.preventDefault();
@@ -171,5 +197,11 @@ $(document).ready(function() {
 
 
 
+});
+
+
+$(function () {
+   var markdown = $('.article').text()
+  var html = marked(markdown, {renderer:renderer});
 
 });

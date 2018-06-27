@@ -293,7 +293,7 @@ class PostForm extends ModelView {
 
   get events() {
     return {
-      'click #submit': 'savePost',
+      'click #post-submit': 'savePost',
       'click #cancel': 'cancel'
     };
   }
