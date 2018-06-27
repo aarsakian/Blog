@@ -1,4 +1,4 @@
-from blog.forms import PostForm,  AnswerRadioForm
+from blog.forms import PostForm,  AnswerRadioForm, UploadForm
 
 from google.appengine.ext import testbed
 from . import BlogTestBase
@@ -28,6 +28,10 @@ class TestForms(BlogTestBase):
         self.assertEqual(form.body.name, 'body')
         self.assertEqual(form.summary.name, 'summary')
         self.assertEqual(form.category.name, 'category')
+
+    def test_upload_form_names(self):
+         upload_form = UploadForm()
+         self.assertEqual(upload_form.images_field.name, 'images_field')
 
        # self.assertEqual(form.answers[0].p_answer.value, 'p_answer')
 

@@ -1,6 +1,7 @@
 import unittest
 import json
 import logging
+from StringIO import StringIO
 
 from freezegun import freeze_time
 from datetime import datetime
@@ -13,7 +14,7 @@ from flask_wtf.csrf import generate_csrf
 from google.appengine.ext import testbed
 from google.appengine.api import users
 from google.appengine.ext import ndb
-from blog.forms import PostForm, AnswerRadioForm
+from blog.forms import PostForm, AnswerRadioForm, UploadForm
 from blog.models import Tags, Posts, Categories, BlogPost
 from blog.utils import find_modified_tags, datetimeformat, make_external,  calculate_work_date_stats
 from blog.search import query_search_index, find_posts_from_index
@@ -61,7 +62,7 @@ class TestViews(BlogTestBase):
         self.categories = Categories()
         self.posts = Posts()
         self.form = PostForm()
-
+        self.uploadform = UploadForm()
 
     def test_tags_view(self):
 
@@ -113,7 +114,10 @@ class TestViews(BlogTestBase):
                                             daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
                                             categories=self.categories,
                                             posts=posts_json,
-                                            codeversion=CODEVERSION, form=self.form, posts_tags_names=post_tag_names)
+                                            codeversion=CODEVERSION,
+                                            form=self.form,
+                                            uploadform=self.uploadform,
+                                            posts_tags_names=post_tag_names)
 
         self.assertEqualHTML(rendered_template, response.data.decode('utf-8'))
 
@@ -140,7 +144,10 @@ class TestViews(BlogTestBase):
                                             daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
                                             categories=self.categories,
                                             posts=posts_json,
-                                            codeversion=CODEVERSION, form=self.form, posts_tags_names=post_tag_names)
+                                            codeversion=CODEVERSION,
+                                            form=self.form,
+                                            uploadform=self.uploadform,
+                                            posts_tags_names=post_tag_names)
 
         self.assertEqualHTML(rendered_template, response.data.decode('utf-8'))
 
@@ -157,7 +164,7 @@ class TestViews(BlogTestBase):
                                             categories=self.categories,
                                             posts=self.posts.to_json(),
                                             codeversion=CODEVERSION,
-                                            form=self.form)
+                                            form=self.form, uploadform=self.uploadform)
         self.assertEqualHTML(rendered_template, response.data.decode('utf-8'))
 
     def test_index_page_with_content_is_ok(self):
@@ -178,7 +185,7 @@ class TestViews(BlogTestBase):
                                             daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
                                             categories=self.categories,
                                             posts=self.posts.to_json(),
-                                            codeversion=CODEVERSION, form=self.form)
+                                            codeversion=CODEVERSION, form=self.form, uploadform=self.uploadform)
         self.assertEqualHTML(rendered_template.decode('utf-8'), response.data.decode('utf-8'))
 
     def test_selected_post_page_returns_correct_html(self):
@@ -277,7 +284,7 @@ class TestViews(BlogTestBase):
                                             daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
                                             categories=self.categories,
                                             posts=self.posts.to_json(),
-                                            codeversion=CODEVERSION, form=self.form)
+                                            codeversion=CODEVERSION, form=self.form, uploadform=self.uploadform)
         self.assertEqualHTML(rendered_template, response.data.decode('utf-8'))
 
     def test_delete_post(self):
@@ -362,6 +369,27 @@ class TestViews(BlogTestBase):
         self.assertDictEqual(json_data, response.json)
         freezer.stop()
 
+    def test_api_posts_with_files(self):
+        existing_tags = [u"a new new tag", u"a new tag"]
+        freezer = freeze_time(u"2017-03-20 17:48:18")
+        freezer.start()
+        json_data = {u'category': u'category', u'tags': existing_tags, u"summary": u"this is a summary",
+                     u'title': u'a title', u'body': u'body text', u'timestamp': datetimeformat(datetime.now())
+                .decode("utf-8"),
+                     u'updated': datetimeformat(datetime.now()).decode("utf-8"),
+                     "answers":
+                         [{u'p_answer': 'a potential answer', u'is_correct': True}]
+                     }
+
+
+        response = self.client.post(url_for('main'), content_type='application/json',
+                         data=json.dumps(json_data))
+
+        json_data[u"id"] = u'4'
+
+        self.assertDictEqual(json_data, response.json)
+        freezer.stop()
+
     def test_no_post(self):
 
         response = self.client.get(url_for('main'))
@@ -425,7 +453,7 @@ class TestViews(BlogTestBase):
         rendered_template = render_template('posts.html', user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated, \
                                             daysleft=remaining_days, dayspassed=passed_days,
-                                            codeversion=CODEVERSION, form=self.form)
+                                            codeversion=CODEVERSION, form=self.form, uploadform=self.uploadform)
 
         self.assertEqualHTML(rendered_template.decode('utf8'), response.data.decode('utf8'))
 
@@ -475,7 +503,7 @@ class TestViews(BlogTestBase):
                                             siteupdated=site_updated, \
                                             daysleft=remaining_days, dayspassed=passed_days,
                                             posts=self.posts.to_json(),
-                                            codeversion=CODEVERSION, form=self.form)
+                                            codeversion=CODEVERSION, form=self.form, uploadform=self.uploadform)
 
         response = self.client.get(url_for('searchresults', q="body"))
 
@@ -521,7 +549,7 @@ class TestViews(BlogTestBase):
                                             daysleft=remaining_days, dayspassed=passed_days,
                                             tags=self.tags, categories=self.categories,
                                             posts=self.posts.to_json(),
-                                            codeversion=CODEVERSION, form=self.form)
+                                            codeversion=CODEVERSION, form=self.form, uploadform=self.uploadform)
 
         response = self.client.get(path='/tags/a new tag')
 
@@ -552,7 +580,7 @@ class TestViews(BlogTestBase):
                                              daysleft=remaining_days, dayspassed=passed_days,
                                              tags=self.tags, categories=self.categories,
                                              posts=self.posts.to_json(),
-                                             codeversion=CODEVERSION, form=self.form)
+                                             codeversion=CODEVERSION, form=self.form, uploadform=self.uploadform)
 
          response = self.client.get(path='/categories/a category')
 
@@ -693,3 +721,8 @@ class TestViews(BlogTestBase):
         return self.assertEqualHTML(rendered_template.decode('utf8'), response.data.decode('utf8'))
 
 
+    def test_upload(self):
+        response = self.client.post(url_for('upload'), data = {
+            'file': (StringIO('my file contents'), 'hello world.txt'),
+             })
+        self.assertEqual('ok',response.data)
