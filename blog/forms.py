@@ -1,8 +1,18 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, SubmitField, BooleanField, FieldList, FormField, Field, RadioField
+from wtforms import StringField, TextAreaField, SubmitField,\
+    BooleanField, FieldList, FormField, Field, RadioField
+from flask_wtf.file import FileField,  FileAllowed
 from wtforms.validators import DataRequired
+from flask_uploads import UploadSet, IMAGES
 
-import logging
+
+images_set = UploadSet('images', IMAGES)
+
+
+class UploadForm(FlaskForm):
+    images_field = FileField("images", validators=[FileAllowed(images_set, 'Images only!')])
+    submit = SubmitField('Submit files')
+
 
 class AnswerForm(FlaskForm):
     p_answer = StringField("", default="{{this.p_answer}}", _name="")
