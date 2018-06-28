@@ -3,6 +3,7 @@ from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_sitemap import Sitemap
 from flask_wtf.csrf import CSRFProtect
+from flask_pagedown import PageDown
 
 
 
@@ -14,6 +15,9 @@ bootstrap = Bootstrap()
 sitemap = Sitemap()
 
 csrf = CSRFProtect()
+
+
+pagedown = PageDown()
 
 
 
@@ -42,6 +46,8 @@ bootstrap.init_app(app)
 sitemap.init_app(app)
 
 csrf.init_app(app)
+
+pagedown.init_app(app)
 
 
 import views
