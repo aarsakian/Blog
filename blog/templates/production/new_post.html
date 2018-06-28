@@ -1,4 +1,4 @@
-{% import "bootstrap/wtf.html" as wtf %} {% block new_post %} {%if user_status%}<script id="post-form" type="text/x-handlebars-template"><form class="form form-horizontal row col-12" method="post"
+{% import "bootstrap/wtf.html" as wtf %} {% block new_post %} {%if user_status%}<script id="post-form" type="text/x-handlebars-template"><form class="form form-horizontal row col-12" id="post-form" method="post"
           role="form">
         {{ form.hidden_tag()}}
         {{ wtf.form_errors(form, hiddens="only") }}
@@ -53,11 +53,13 @@
 
 
         </div>
-        {{ wtf.form_field(form.submit, type="submit", class="submit button")}}
+        {{ wtf.form_field(form.submit, type="submit", id="post-submit",
+        class="submit button")}}
     </form>
-     <form class="form form-horizontal row col-12" method="post"   enctype="multipart/form-data"
-          role="form">
+     <form class="form form-horizontal row col-12" method="post"  id="files-post-form"  enctype="multipart/form-data"
+        role="form">
            {{ uploadform.hidden_tag()}}
       {{ wtf.form_field(uploadform.images_field, id="files", multiple='')}}
-           {{ wtf.form_field(uploadform.submit, type="submit", class="submit button")}}
+           {{ wtf.form_field(uploadform.submit, type="submit", id="files-post-submit",
+         class="submit button")}}
     </form></script>{%endif%} {% endblock %}
