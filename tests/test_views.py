@@ -720,9 +720,13 @@ class TestViews(BlogTestBase):
 
         return self.assertEqualHTML(rendered_template.decode('utf8'), response.data.decode('utf8'))
 
-
     def test_upload(self):
-        response = self.client.post(url_for('upload'), data = {
-            'file': (StringIO('my file contents'), 'hello world.txt'),
-             })
+        output = StringIO()
+        output.write('hello there')
+
+        response = self.client.post(url_for('upload'), buffered=True,
+                           content_type='multipart/form-data',
+                                    data={'file_field': (output, 'hello there')})
+
+
         self.assertEqual('ok',response.data)

@@ -503,15 +503,22 @@ def searchsite():
 
 @app.route('/upload', methods=['POST'])
 def upload():
-    logging.info("UPLOAD")
-    if request.method == 'POST' and request.files:
 
-        filename = images_set.save(request.files['images_field'])
-        logging.info("FILE"+filename)
-        rec = Photo(filename=filename, user=g.user.id)
-        rec.store()
-        flash("Photo saved.")
-        return redirect(url_for('show', id=rec.id))
+    if request.method == 'POST':
+        if "files" not in request.files:
+            flash('No file part')
+            return redirect(url_for("edit_a_post_view"))
+        files = request.files['files']
+        print (files)
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return redirect(url_for('uploaded_file',
+                                    filename=filename))
+
 
 
 
