@@ -56,7 +56,11 @@ $(document).ready(function() {
   $("body").on('submit',"#files-post-form", function(event){
     event.preventDefault();
     var csrf_token = $(this).children().first();
-    var form_data = $('#files-post-form input').prop('files');
+    var formData = new FormData($("#files-post-form")[0]);
+
+    $.each($("#files-post-form input")[0].files, function(idx, file){
+        formData.append("file"+idx, file);
+    })
     $.ajax({
       type:'POST',
       url:'/upload',
@@ -64,7 +68,7 @@ $(document).ready(function() {
       contentType: false,
       async: false,
       cache: false,
-      data : form_data,
+      data : formData,
       success: function(response){
 
       },
