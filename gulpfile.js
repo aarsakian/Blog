@@ -206,7 +206,6 @@ gulp.task('browser-sync', function(done) {
 
     browserSync.watch([
         'blog/templates/*.html',
-        'blog/*.py',
         'blog/**/*.css',
         'blog/**/*.js'
         ]).on('change', browserSync.reload);
