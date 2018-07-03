@@ -12,7 +12,10 @@ from bleach import clean, linkify
 
 allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
                         'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul',
-                        'h1', 'h2', 'h3', 'p', 'img', 'video', 'div', 'p', 'br', 'span', 'hr', 'src', 'class']
+                        'h1', 'h2', 'h3', 'p', 'img',
+                  'table', 'th','tbody','tr','td','thead',
+                'video', 'div', 'p', 'br', 'span', 'hr', 'src', 'class']
+
 allowed_attrs = {'*': ['class'],
                         'a': ['href', 'rel'],
                         'img': ['src', 'alt']}
@@ -38,7 +41,7 @@ def datetimeformat(value, format='%A, %d %B %Y'):
     return value.strftime(format)
 
 def to_markdown(text):
-    return bleach_it(markdown(text))
+    return bleach_it(markdown(text, extras=["tables"]))
 
 
 def bleach_it(text):
