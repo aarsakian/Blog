@@ -46,7 +46,6 @@ sitemap.init_app(app)
 
 csrf.init_app(app)
 
-pagedown.init_app(app)
 
 
 import views
