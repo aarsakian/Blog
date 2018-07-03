@@ -16,7 +16,7 @@
 from google.appengine.ext import vendor
 
 #see issue https://github.com/jschneier/django-storages/issues/281
-import tempfile
+import tempfile # gae version
 import tempfile2
 
 tempfile.SpooledTemporaryFile = tempfile2.SpooledTemporaryFile
