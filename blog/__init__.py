@@ -3,7 +3,7 @@ from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_sitemap import Sitemap
 from flask_wtf.csrf import CSRFProtect
-from flask_pagedown import PageDown
+
 
 
 
@@ -17,7 +17,6 @@ sitemap = Sitemap()
 csrf = CSRFProtect()
 
 
-pagedown = PageDown()
 
 
 
