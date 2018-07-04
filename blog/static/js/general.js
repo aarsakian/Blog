@@ -3,8 +3,8 @@ var $ = require('jquery');
 var _ = require('underscore');
 require('bootstrap-3-typeahead');
 require('bootstrap-notify');
-var marked = require('marked');
-var renderer = require('marked-forms')(new marked.Renderer());
+
+//var renderer = require('marked-forms')(new marked.Renderer());
 //var markdown = function(txt) { return marked(txt, {renderer:renderer}); }
 
 
@@ -203,9 +203,3 @@ $(document).ready(function() {
 
 });
 
-
-$(function () {
-   var markdown = $('.article').text()
-  var html = marked(markdown, {renderer:renderer});
-
-});
