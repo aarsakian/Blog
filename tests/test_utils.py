@@ -39,7 +39,7 @@ class TestUtils(BlogTestBase):
                 "| -------- | -------- |\n" \
                 "| Cell 1 | Cell 2 |"
 
-        rendered_table = u"<table><thead><tr><th>Header 1</th><th>Header 2</th></tr>" \
+        rendered_table = u"<table class='table-bordered'><thead><tr><th>Header 1</th><th>Header 2</th></tr>" \
                          u"</thead>" \
                          u"<tbody><tr><td>Cell 1</td><td>Cell 2</td></tr></tbody></table>"
 

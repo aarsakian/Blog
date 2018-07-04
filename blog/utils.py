@@ -20,6 +20,8 @@ allowed_attrs = {'*': ['class'],
                         'a': ['href', 'rel'],
                         'img': ['src', 'alt']}
 
+CLASSES_Dict = {'table':'table-bordered'}
+
 def find_tags_to_be_removed(old_post_tags, non_modified_tags, remaining_tags):
     tags_candidate_to_be_removed = set(old_post_tags) - set(non_modified_tags)
     return find_modified_tags(tags_candidate_to_be_removed, remaining_tags)
@@ -41,7 +43,8 @@ def datetimeformat(value, format='%A, %d %B %Y'):
     return value.strftime(format)
 
 def to_markdown(text):
-    return bleach_it(markdown(text, extras=["tables"]))
+    return bleach_it(markdown(text, extras={"tables":None,
+                                            "html-classes":CLASSES_Dict}))
 
 
 def bleach_it(text):
