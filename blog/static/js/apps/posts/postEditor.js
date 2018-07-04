@@ -62,7 +62,6 @@ class EditPostForm extends PostForm {
     this.model.set('answers', answers);
 
     var csrf_token = this.getInput('#csrf_token');
-
     this.model.save(null, {
       beforeSend: function(xhr, settings) {
             xhr.setRequestHeader("X-CSRFToken", csrf_token);
@@ -71,7 +70,7 @@ class EditPostForm extends PostForm {
         // Redirect user to contact list after save
      //   App.notifySuccess('Post saved');
 
-     
+         App.router.navigate('edit', true);
        
       },
       error() {
@@ -79,7 +78,7 @@ class EditPostForm extends PostForm {
      //   App.notifyError('Something goes wrong');
       }
     });
-       App.router.navigate('edit', true);
+
 
   //  this.trigger('form:save', this.model);
 //    this.clearForm();
@@ -114,21 +113,23 @@ class PostEditor {
     this.listenTo(postForm, 'form:cancel', this.cancel);
   }
 
-  savePost(postForm) {
+ /*savePost(postForm) {
+
     postForm.save(null, {
 
       success() {
         // Redirect user to contact list after save
        // App.notifySuccess('Contact saved');
-   //     console.log("Navigating to save");
 
+
+         App.router.navigate('edit', true);
       },
       error() {
         // Show error message if something goes wrong
     //    App.notifyError('Something goes wrong');
       }
     });
-  }
+  }*/
 
   cancel() {
     // Warn user before make redirection to prevent accidental
