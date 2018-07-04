@@ -7,7 +7,7 @@ var Layout = require('../../common').Layout;
 var ModelView = require('../../common').ModelView;
 var CollectionView = require('../../common').CollectionView;
 var Post = require('./models/post');
-
+var Marked = require('marked');
 
 
 class PostListLayout extends Layout {
@@ -216,6 +216,7 @@ class PostList {
 
 
   //  layout.getRegion('actions').show(actionBar);
+  
     var postList = new PostListView({collection:
                                     posts});
 
@@ -294,7 +295,8 @@ class PostForm extends ModelView {
   get events() {
     return {
       'click #post-submit': 'savePost',
-      'click #cancel': 'cancel'
+      'click #cancel': 'cancel',
+      'keydown #new-post-body': 'previewMarkdownAndResizeTextArea'
     };
   }
 
@@ -348,7 +350,31 @@ class PostForm extends ModelView {
     //clear the model
     this.model = new Post();
   }
-  
+
+  previewMarkdownAndResizeTextArea(e) {
+    if(e.which == 13){
+      this.previewMarkdown();
+      this.resizeTextArea();
+      return false;
+    }
+  }
+
+  previewMarkdown() {
+      var markdownText = this.getInput('#new-post-body');
+      var html = Marked(markdownText);
+      $('#preview-post-body').html(html);
+
+  }
+  resizeTextArea() {
+     $("#new-post-body").keyup(function(e) {
+        while($(this).outerHeight() <
+          this.scrollHeight + parseFloat($(this).css("borderTopWidth")) +
+           parseFloat($(this).css("borderBottomWidth"))) {
+            $(this).height($(this).height()+1);
+        };
+     });
+  }
+
   clearForm() {
     this.clearInput("#new-post-body");
     this.clearInput('#new-post-tags');
@@ -357,9 +383,11 @@ class PostForm extends ModelView {
     this.clearInput("#new-post-summary");
     this.clearInputs(".new-post-answer");
   }
+
   getInput(selector) {
     return this.$el.find(selector).val();
   }
+
   getInputs(selector) {
     var vals = [];
     this.$el.find(selector).each(function(index) {

@@ -11,7 +11,9 @@
         {{ wtf.form_errors(form, hiddens="only") }}
         {{ wtf.form_field(form.title, id="new-post-title",placeholder="Enter your title here")}}
         {{ wtf.form_field(form.summary, id="new-post-summary",placeholder="Enter your summary here")}}
+
         {{ wtf.form_field(form.body, rows=8, id="new-post-body", type="text")}}
+        <div id="preview-post-body" class="col-12 border border-info"></div>
         {{ wtf.form_field(form.category, id="new-post-category",
         placeholder="Enter your category or use existing one")}}
         {{ wtf.form_field(form.tags,id="new-post-tags",
