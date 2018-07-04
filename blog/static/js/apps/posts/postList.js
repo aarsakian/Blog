@@ -216,7 +216,7 @@ class PostList {
 
 
   //  layout.getRegion('actions').show(actionBar);
-  
+
     var postList = new PostListView({collection:
                                     posts});
 
@@ -352,11 +352,8 @@ class PostForm extends ModelView {
   }
 
   previewMarkdownAndResizeTextArea(e) {
-    if(e.which == 13){
       this.previewMarkdown();
       this.resizeTextArea();
-      return false;
-    }
   }
 
   previewMarkdown() {
