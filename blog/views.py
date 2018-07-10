@@ -317,13 +317,12 @@ def answers(title):
 
 @app.route('/api/posts',methods=['POST','GET'])
 def main():
+
     if users.is_current_user_admin():
         if request.method=='GET':  #all entitites
             posts = Posts()
 
-
             return jsonify(posts.to_json())
-
 
         elif request.method == "POST":
 
@@ -350,7 +349,8 @@ def main():
                             answers=raw_post["answers"]).id()
                 post = BlogPost.get(post_id)
                 return jsonify(post.to_json()) #  Needs check
-
+            else:
+                return jsonify(msg="missing token")
     else:
         return jsonify({})
 
