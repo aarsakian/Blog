@@ -4,8 +4,6 @@ var _ = require('underscore');
 require('bootstrap-3-typeahead');
 require('bootstrap-notify');
 
-//var renderer = require('marked-forms')(new marked.Renderer());
-//var markdown = function(txt) { return marked(txt, {renderer:renderer}); }
 
 
 

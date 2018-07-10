@@ -8,6 +8,8 @@ var ModelView = require('../../common').ModelView;
 var CollectionView = require('../../common').CollectionView;
 var Post = require('./models/post');
 var Marked = require('marked');
+var Renderer = require('marked-forms')(new Marked.Renderer());
+
 
 
 class PostListLayout extends Layout {
@@ -358,7 +360,8 @@ class PostForm extends ModelView {
 
   previewMarkdown() {
       var markdownText = this.getInput('#new-post-body');
-      var html = Marked(markdownText);
+
+      var html = Marked(markdownText, {renderer:Renderer});
       $('#preview-post-body').html(html);
 
   }
