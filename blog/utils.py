@@ -1,7 +1,7 @@
 from urlparse import urljoin
 from datetime import datetime, date
 from math import ceil
-from markdown2 import markdown
+from mistune import markdown, Renderer
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from uuid import UUID
 from flask import g
@@ -20,7 +20,35 @@ allowed_attrs = {'*': ['class'],
                         'a': ['href', 'rel'],
                         'img': ['src', 'alt']}
 
-CLASSES_Dict = {'table':'table-bordered'}
+
+class BlogRenderer(Renderer):
+    def table(self, header, body):
+        """Rendering table element. Wrap header and body in it.
+               :param header: header part of the table.
+               :param body: body part of the table.
+               """
+        return (
+                   '<table class="table table-bordered">\n<thead>%s</thead>\n'
+                   '<tbody>\n%s</tbody>\n</table>\n'
+               ) % (header, body)
+
+    def table_cell(self, content, **flags):
+        """Rendering a table cell. Like ``<th>`` ``<td>``.
+        :param content: content of current table cell.
+        :param header: whether this is header or not.
+        :param align: align of current table cell.
+        """
+        if flags['header']:
+            tag = 'th scope="col"'
+        else:
+            tag = 'td'
+        align = flags['align']
+        if not align:
+            return '<%s>%s</%s>\n' % (tag, content, tag)
+        return '<%s style="text-align:%s">%s</%s>\n' % (
+            tag, align, content, tag
+        )
+
 
 def find_tags_to_be_removed(old_post_tags, non_modified_tags, remaining_tags):
     tags_candidate_to_be_removed = set(old_post_tags) - set(non_modified_tags)
@@ -43,8 +71,8 @@ def datetimeformat(value, format='%A, %d %B %Y'):
     return value.strftime(format)
 
 def to_markdown(text):
-    return bleach_it(markdown(text, extras={"tables":None,
-                                            "html-classes":CLASSES_Dict}))
+    renderer = BlogRenderer()
+    return bleach_it(markdown(text,  escape=True, hard_wrap=True, renderer=renderer))
 
 
 def bleach_it(text):
