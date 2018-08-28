@@ -6,9 +6,11 @@ var App = require('../../app');
 var Layout = require('../../common').Layout;
 var ModelView = require('../../common').ModelView;
 var CollectionView = require('../../common').CollectionView;
+var BackboneValidation = require('../../common').BackboneValidation;
 var Post = require('./models/post');
 var Marked = require('marked');
 var Renderer = require('marked-forms')(new Marked.Renderer());
+
 
 
 
@@ -308,13 +310,26 @@ class PostForm extends ModelView {
     return _.defaults(this.model.toJSON());
   }
 
+  onRender() {
+
+   BackboneValidation.bind(this);
+  }
+
   savePost(event) {
     event.preventDefault();
+
+
+
     this.model.set('body',this.getInput('#new-post-body'));
     this.model.set('title',this.getInput('#new-post-title'));
     this.model.set('summary',this.getInput('#new-post-summary'));
     this.model.set('tags',this.getInput('#new-post-tags').split(','));
     this.model.set('category',this.getInput('#new-post-category'));
+
+    if (!this.model.isValid(true)) {
+      console.log("IS VALID");
+      return;
+    }
 
     var answers_a = this.getInputs('.new-post-answer');
     var areCorrect = this.getInputsCheckbox('.form-check-input');//.new-post-answer-is-correct

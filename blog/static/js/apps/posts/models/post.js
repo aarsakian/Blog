@@ -8,6 +8,14 @@ class Post extends Backbone.NestedModel {
   constructor(options) {
     super(options);
     this.urlRoot = '/api/posts';
+
+   this.validation = {
+      title: {
+        required: true,
+        minLength: 15
+      }
+    };
+
   }
 
   get defaults() {
@@ -15,6 +23,7 @@ class Post extends Backbone.NestedModel {
       title:"",
       body:"body of post",
       date:"date of the post",
+      category:"",
       updated:"",
       tags:"",
       summary:"",
@@ -22,6 +31,8 @@ class Post extends Backbone.NestedModel {
 
     };
   }
+
+
 }
 
 module.exports = Post;
