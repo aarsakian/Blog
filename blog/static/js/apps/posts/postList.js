@@ -327,7 +327,6 @@ class PostForm extends ModelView {
     this.model.set('category',this.getInput('#new-post-category'));
 
     if (!this.model.isValid(true)) {
-      console.log("IS VALID");
       return;
     }
 

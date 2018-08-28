@@ -61,6 +61,10 @@ class EditPostForm extends PostForm {
     var posts = {};
     this.model.set('answers', answers);
 
+     if (!this.model.isValid(true)) {
+      return;
+    }
+
     var csrf_token = this.getInput('#csrf_token');
     this.model.save(null, {
       beforeSend: function(xhr, settings) {
