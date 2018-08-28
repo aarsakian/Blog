@@ -12,7 +12,11 @@ class Post extends Backbone.NestedModel {
    this.validation = {
       title: {
         required: true,
-        minLength: 15
+        minLength: 5,
+      },
+      category: {
+        required: true,
+        minLength: 2
       }
     };
 
