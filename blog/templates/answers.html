@@ -14,20 +14,20 @@
 <script id="post-answers" type="text/x-handlebars-template">
 <form class="form form-horizontal row" method="post" role="form">
     {{ answers_field.hidden_tag()}}
-    <table class="answer table border table-hover col-12" data-id="{{Post.id}}">
+    <table class="answer table border table-hover row col-12" data-id="{{Post.id}}">
 
 
   <tbody>
         {% for f in answers_field.r_answers%}
 
 
-        <tr class="mb-2">
+        <tr class="row">
 
-            <td class="col-md-1 col-sm-4">
-                <input id="r_answers-{{loop.index}}" class="answer-choice"
-                                                 name="r_answers"  value="0" type="radio">
+            <td class="col-2">
+                <input  type="radio" id="r_answers-{{loop.index}}" class="answer-choice"
+                                                 name="r_answers"  >
             </td>
-            <td class="col-md-11 col-sm-8"><label for="r_answers-{{loop.index}}">{{f.label}}</label></td>
+            <td class="col-10"><label for="r_answers-{{loop.index}}">{{f.label}}</label></td>
         </tr>
 
         {% endfor %}
