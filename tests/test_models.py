@@ -627,3 +627,37 @@ class TestModels(BlogTestBase):
 
         self.assertItemsEqual([(u'ans1', u'ans1'), (u'ans2', u'ans2')], post.answers_form.r_answers.choices)
 
+
+    def test_update_statistics(self):
+        test_tags = ["a new tag", "a new new tag"]
+        tag_keys = self.tags.add(test_tags)
+
+        ans1 = Answer(p_answer="ans1",
+                      is_correct=True)
+
+        ans2 = Answer(p_answer="ans2",
+                      is_correct=False)
+
+        category_key = self.categories.add("category")
+        summary = "a summmary"
+        title = "a title"
+        body = "here is a body"
+
+        post_key = BlogPost(title=title,
+                            body=body,
+                            category=category_key,
+                            tags=tag_keys,
+                            summary=summary,
+                            answers=[ans1, ans2]).put()
+        post = post_key.get()
+
+        post.update_statistics("ans1")
+        self.assertTupleEqual((post.answers[0].statistics, post.answers[1].statistics), (1.0, 0.0))
+
+        post.update_statistics("ans2")
+        self.assertTupleEqual((post.answers[0].statistics, post.answers[1].statistics), (0.5, 0.5))
+
+        post.update_statistics("ans2")
+        self.assertAlmostEqual(post.answers[0].statistics, 0.3333, places=4)
+        self.assertAlmostEqual(post.answers[1].statistics, 0.6666666666666666, places=4)
+

@@ -16,7 +16,8 @@ POSTS_INDEX = "posts_idx"
 class Answer(ndb.Model):
     p_answer = ndb.TextProperty()
     is_correct = ndb.BooleanProperty(default=False)
-
+    nof_times_selected = ndb.IntegerProperty(default=0)
+    statistics = ndb.FloatProperty(default=0.0)
 
 
 class Tag(ndb.Model):
@@ -143,6 +144,19 @@ class BlogPost(ndb.Model):
             if answer.is_correct == bool(is_correct) and answer.p_answer == p_answer:
                 return True
         return False
+
+    def update_statistics(self, p_answer):
+        for answer in self.answers:
+            if answer.p_answer == p_answer:
+                answer.nof_times_selected += 1
+                break
+
+        total_participation = \
+            sum([answer.nof_times_selected for answer in self.answers])
+
+        for answer in self.answers:
+            answer.statistics = float(answer.nof_times_selected)/total_participation
+
 
 
 class BlogList(list):
