@@ -315,7 +315,7 @@ def answers(title):
             return jsonify(result =current_post.is_answer_correct(),
                            msg='You have {} attempts.'.format(remaining_attempts),
                            remaining_attempts=remaining_attempts,
-                           stats=current_post.selected_answer.nof_times_selected)
+                           nof_times_selected=current_post.selected_answer.nof_times_selected)
         else:
             return jsonify({})
 
