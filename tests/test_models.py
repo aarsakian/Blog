@@ -43,6 +43,29 @@ class TestModels(BlogTestBase):
         self.categories = Categories()
         self.posts = Posts()
 
+    def create_post_with_answers(self, ans1, is_correct1, ans2, is_correct2):
+        test_tags = ["a new tag", "a new new tag"]
+        tag_keys = self.tags.add(test_tags)
+
+        ans1 = Answer(p_answer=ans1,
+                      is_correct=is_correct1)
+
+        ans2 = Answer(p_answer=ans2,
+                      is_correct=is_correct2)
+
+        category_key = self.categories.add("category")
+        summary = "a summmary"
+        title = "a title"
+        body = "here is a body"
+
+        post_key = BlogPost(title=title,
+                            body=body,
+                            category=category_key,
+                            tags=tag_keys,
+                            summary=summary,
+                            answers=[ans1, ans2]).put()
+        return post_key.get()
+
     def test_add_a_tag(self):
         tag_keys = self.tags.add(["a new tag"])
         self.assertEqual("a new tag", tag_keys[0].get().tag)
@@ -571,57 +594,27 @@ class TestModels(BlogTestBase):
 
         self.assertItemsEqual(post.strip_answers_jsoned(), jsoned_answers)
 
+    def test_selected_answer_setter(self):
+        post = self.create_post_with_answers("ans1",True, "ans2", False)
+        ans1 = Answer(p_answer="ans1",
+                      is_correct=True)
+
+        post.set_selected_answer("ans1")
+
+        self.assertEqual(ans1, post.selected_answer)
 
 
     def test_is_answer_correct(self):
-        test_tags = ["a new tag", "a new new tag"]
-        tag_keys = self.tags.add(test_tags)
+        post = self.create_post_with_answers("ans1", True, "ans2", False)
+        post.set_selected_answer("ans1")
 
-        ans1 = Answer(p_answer="ans1",
-                      is_correct=True)
+        self.assertTrue(post.is_answer_correct())
 
-        ans2 = Answer(p_answer="ans2",
-                      is_correct=False)
-
-        category_key = self.categories.add("category")
-        summary = "a summmary"
-        title = "a title"
-        body = "here is a body"
-
-        post_key = BlogPost(title=title,
-                            body=body,
-                            category=category_key,
-                            tags=tag_keys,
-                            summary=summary,
-                            answers=[ans1, ans2]).put()
-        post = post_key.get()
-
-        self.assertFalse(post.is_answer_correct("ans1", False))
-        self.assertTrue(post.is_answer_correct("ans1", True))
+        post.set_selected_answer('ans2')
+        self.assertFalse(post.is_answer_correct())
 
     def test_to_answer_form(self):
-        test_tags = ["a new tag", "a new new tag"]
-        tag_keys = self.tags.add(test_tags)
-
-        ans1 = Answer(p_answer="ans1",
-                      is_correct=True)
-
-        ans2 = Answer(p_answer="ans2",
-                      is_correct=False)
-
-        category_key = self.categories.add("category")
-        summary = "a summmary"
-        title = "a title"
-        body = "here is a body"
-
-        post_key = BlogPost(title=title,
-                            body=body,
-                            category=category_key,
-                            tags=tag_keys,
-                            summary=summary,
-                            answers=[ans1, ans2]).put()
-
-        post = post_key.get()
+        post = self.create_post_with_answers("ans1", True, "ans2", False)
 
         self.posts.to_answers_form()
 
@@ -629,35 +622,18 @@ class TestModels(BlogTestBase):
 
 
     def test_update_statistics(self):
-        test_tags = ["a new tag", "a new new tag"]
-        tag_keys = self.tags.add(test_tags)
+        post = self.create_post_with_answers("ans1", True, "ans2", False)
 
-        ans1 = Answer(p_answer="ans1",
-                      is_correct=True)
-
-        ans2 = Answer(p_answer="ans2",
-                      is_correct=False)
-
-        category_key = self.categories.add("category")
-        summary = "a summmary"
-        title = "a title"
-        body = "here is a body"
-
-        post_key = BlogPost(title=title,
-                            body=body,
-                            category=category_key,
-                            tags=tag_keys,
-                            summary=summary,
-                            answers=[ans1, ans2]).put()
-        post = post_key.get()
-
-        post.update_statistics("ans1")
+        post.set_selected_answer("ans1")
+        post.update_statistics()
         self.assertTupleEqual((post.answers[0].statistics, post.answers[1].statistics), (1.0, 0.0))
 
-        post.update_statistics("ans2")
+        post.set_selected_answer("ans2")
+        post.update_statistics()
         self.assertTupleEqual((post.answers[0].statistics, post.answers[1].statistics), (0.5, 0.5))
 
-        post.update_statistics("ans2")
+        post.set_selected_answer("ans2")
+        post.update_statistics()
         self.assertAlmostEqual(post.answers[0].statistics, 0.3333, places=4)
         self.assertAlmostEqual(post.answers[1].statistics, 0.6666666666666666, places=4)
 

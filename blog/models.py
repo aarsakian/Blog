@@ -89,6 +89,12 @@ class BlogPost(ndb.Model):
     def id(self):
         return self.key.id()
 
+    def set_selected_answer(self, p_answer):
+        for answer in self.answers:
+            if answer.p_answer == p_answer:
+                self.selected_answer = answer
+                break
+
     def to_json(self):
         """creates json based structure"""
         post_dict = self.to_dict()
@@ -138,25 +144,17 @@ class BlogPost(ndb.Model):
     def _pre_put_hook(self):
         self.title = self.title.lstrip().rstrip()
 
-    def is_answer_correct(self, p_answer, is_correct):
-        for answer in self.answers:
+    def is_answer_correct(self):
+        return self.selected_answer.is_correct
 
-            if answer.is_correct == bool(is_correct) and answer.p_answer == p_answer:
-                return True
-        return False
-
-    def update_statistics(self, p_answer):
-        for answer in self.answers:
-            if answer.p_answer == p_answer:
-                answer.nof_times_selected += 1
-                break
+    def update_statistics(self):
+        self.selected_answer.nof_times_selected += 1
 
         total_participation = \
             sum([answer.nof_times_selected for answer in self.answers])
 
         for answer in self.answers:
             answer.statistics = float(answer.nof_times_selected)/total_participation
-
 
 
 class BlogList(list):

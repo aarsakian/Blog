@@ -339,7 +339,8 @@ class TestViews(BlogTestBase):
         json_data = {u'category': u'category', u'tags': existing_tags, u"summary": u"this is a summary",
                      u'title': u'a title',u'body': u'body text', u'timestamp': datetimeformat(datetime.now()).decode("utf-8"),
                      u'updated': datetimeformat(datetime.now()).decode("utf-8"), "answers" :
-                         [{u'p_answer':'a potential answer', u'is_correct':True}]}
+                         [{u'p_answer':'a potential answer', u'is_correct':True,
+                           u'statistics': 0.0,    u'nof_times_selected': 0}]}
 
         response = self.client.post(url_for('main'), content_type='application/json',
                                    data=json.dumps(json_data))
@@ -357,9 +358,8 @@ class TestViews(BlogTestBase):
                 .decode("utf-8"),
                      u'updated': datetimeformat(datetime.now()).decode("utf-8"),
                      "answers":
-                         [{u'p_answer': 'a potential answer', u'is_correct': True}]
-                     }
-
+                         [{u'p_answer': 'a potential answer', u'is_correct': True,
+                           u'statistics': 0.0, u'nof_times_selected': 0}]}
 
         response = self.client.post(url_for('main'), content_type='application/json',
                          data=json.dumps(json_data))
@@ -378,8 +378,8 @@ class TestViews(BlogTestBase):
                 .decode("utf-8"),
                      u'updated': datetimeformat(datetime.now()).decode("utf-8"),
                      "answers":
-                         [{u'p_answer': 'a potential answer', u'is_correct': True}]
-                     }
+                         [{u'p_answer': 'a potential answer', u'is_correct': True,
+                           u'statistics': 0.0, u'nof_times_selected': 0}]}
 
 
         response = self.client.post(url_for('main'), content_type='application/json',
@@ -645,18 +645,13 @@ class TestViews(BlogTestBase):
                                     data=json.dumps(json_data_f))#, headers={"csrf_token":csrf_token})
 
 
-        self.assertDictEqual({u'msg': u'You have 1 attempts.', u'result': False,
-                              'remaining_attempts': 1}, response.json)
+        self.assertDictEqual({u'msg': u'You have 0 attempts.', u'result': False,
+                              'remaining_attempts': 0, 'stats':1.0}, response.json)
 
         json_data_f = {"p_answer": "ans1", "is_correct": "True"}
         response = self.client.post(url_for('answers', title="a title"), content_type='application/json',
                                     data=json.dumps(json_data_f))
 
-        self.assertDictEqual({u'msg': u'You have 0 attempts.', 'remaining_attempts':0,
-                              'result':True}, response.json)
-
-        response = self.client.post(url_for('answers', title="a title"), content_type='application/json',
-                                    data=json.dumps(json_data_f))  # , headers={"csrf_token":csrf_token})
         self.assertDictEqual({u'msg': u'You have exhausted your attempts.','remaining_attempts':0}, response.json)
 
     def test_is_cookie_set(self):

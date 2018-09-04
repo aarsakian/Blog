@@ -282,7 +282,6 @@ def answers(title):
         return jsonify(current_post.strip_answers_jsoned())
     elif request.method == 'POST':
 
-
         raw_post = request.get_json()
         p_answer = raw_post["p_answer"]
 
@@ -291,7 +290,9 @@ def answers(title):
         if not session.get('posts'):
             session['posts'] = []
         if title not in session.get('posts'):
-            remaining_attempts = REMAINING_ATTEMPTS
+            remaining_attempts =  REMAINING_ATTEMPTS \
+                if len(current_post.answers) != 2 else 0
+
             session['posts'].append(title)
             session[title] = remaining_attempts
         else:
@@ -308,10 +309,13 @@ def answers(title):
 
 
         if answers_form.validate_on_submit():
+            current_post.set_selected_answer(p_answer)
+            current_post.update_statistics()
 
-            return jsonify(result =current_post.is_answer_correct(p_answer, is_correct),
+            return jsonify(result =current_post.is_answer_correct(),
                            msg='You have {} attempts.'.format(remaining_attempts),
-                           remaining_attempts=remaining_attempts)
+                           remaining_attempts=remaining_attempts,
+                           stats=current_post.selected_answer.nof_times_selected)
         else:
             return jsonify({})
 
