@@ -17,17 +17,19 @@
     <table class="answer table border table-hover row col-12" data-id="{{Post.id}}">
 
 
-  <tbody>
+  <tbody class="row col-12 no-gutters">
         {% for f in answers_field.r_answers%}
 
 
-        <tr class="row">
+        <tr class="row col-12 no-gutters">
 
-            <td class="col-2">
+            <td class="col-1">
                 <input  type="radio" id="r_answers-{{loop.index}}" class="answer-choice"
-                                                 name="r_answers"  >
+                                                 name="r_answers">
             </td>
-            <td class="col-10"><label for="r_answers-{{loop.index}}">{{f.label}}</label></td>
+            <td class="col-9"><label for="r_answers-{{loop.index}}">{{f.label}}</label></td>
+            </td>
+            <td class="col-2" id="stats-{{loop.index-1}}"></td>
         </tr>
 
         {% endfor %}
