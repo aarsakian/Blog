@@ -70,6 +70,12 @@ class TestModels(BlogTestBase):
         tag_keys = self.tags.add(["a new tag"])
         self.assertEqual("a new tag", tag_keys[0].get().tag)
 
+    def test_add_a_tag_once(self):
+        tag_keys = self.tags.add(["a new tag"])
+        self.tags.add(["a new tag"])
+
+        self.assertEqual(len(self.tags), 1)
+
     def test_add_tags(self):
         tag_keys = self.tags.add(["a new tag", "a second new tag"])
         self.assertItemsEqual(["a new tag", "a second new tag"],
@@ -93,6 +99,12 @@ class TestModels(BlogTestBase):
     def test_add_a_category(self):
         category_key = self.categories.add("category")
         self.assertEqual("category", category_key.get().category)
+
+    def test_add_a_category_once(self):
+        category_key = self.categories.add("category")
+        self.assertEqual("category", category_key.get().category)
+        self.categories.add("category")
+        self.assertEqual(len(self.categories), 1)
 
     def test_delete_a_category(self):
         category_key = self.categories.add("category")

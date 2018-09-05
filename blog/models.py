@@ -65,10 +65,8 @@ class BlogPost(ndb.Model):
     answers = ndb.StructuredProperty(Answer, repeated=True)
 
     def strip_answers_jsoned(self):
-        for answer in self.answers:
-            if answer.p_answer != u'':
-                logging.info(answer)
-        return [{"p_answer" :answer.p_answer, "is_correct":False} for answer in self.answers if answer.p_answer != u'']
+        return [{"p_answer" :answer.p_answer, "is_correct":False}
+                for answer in self.answers if answer.p_answer != u'']
 
     @staticmethod
     def add_to_memcache(post):
@@ -214,8 +212,11 @@ class Posts(BlogList, JsonMixin):
         """
 
         if answers:
+            for answer in answers:
+                logging.info("{} {}".format(len(answer), answer))
             processed_answers = [Answer(p_answer=answer['p_answer'],
-                                        is_correct=answer['is_correct']) for answer in answers]
+                                        is_correct=answer['is_correct'])
+                                 for answer in answers if answer['p_answer'] != '']
         else:
             processed_answers = []
 
@@ -352,7 +353,7 @@ class Tags(BlogList, JsonMixin):
             logging.error("Memcache delete failed for tags")
 
     def add(self, new_tags):
-        new_tags_keys = [Tag(tag=new_tag).put() for new_tag in new_tags]
+        new_tags_keys = [Tag(tag=new_tag).put() for new_tag in new_tags if new_tag not in self]
         self._tags.extend([tag_key.get() for tag_key in new_tags_keys])
         return new_tags_keys
 
@@ -397,6 +398,7 @@ class Categories(BlogList, JsonMixin):
     def __contains__(self, raw_category):
         if self._categories:
             for category in self._categories:
+                print  category.category, raw_category
                 if category.category == raw_category:
                     return True
         return False
@@ -404,13 +406,19 @@ class Categories(BlogList, JsonMixin):
     def __iter__(self):
         return (category.category for category in self._categories)
 
+    def __len__(self):
+        return len(self._categories)
+
     @property
     def categories(self):
         return self._categories
 
     def add(self, raw_category):
-        category_key = Category(category=raw_category).put()
-        self._categories.append(Category.get_by_id(category_key.id()))
+        if raw_category not in self:
+            category_key = Category(category=raw_category).put()
+            self._categories.append(Category.get_by_id(category_key.id()))
+        else:
+            category_key = self.get_key(raw_category)
 
         return category_key
 
