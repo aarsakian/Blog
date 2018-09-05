@@ -639,13 +639,18 @@ class TestModels(BlogTestBase):
         post.set_selected_answer("ans1")
         post.update_statistics()
         self.assertTupleEqual((post.answers[0].statistics, post.answers[1].statistics), (1.0, 0.0))
+        self.assertTupleEqual((post.answers[0].nof_times_selected, post.answers[1].nof_times_selected), (1, 0))
 
         post.set_selected_answer("ans2")
         post.update_statistics()
         self.assertTupleEqual((post.answers[0].statistics, post.answers[1].statistics), (0.5, 0.5))
+        self.assertTupleEqual((post.answers[0].nof_times_selected, post.answers[1].nof_times_selected), (1, 1))
 
         post.set_selected_answer("ans2")
         post.update_statistics()
         self.assertAlmostEqual(post.answers[0].statistics, 0.3333, places=4)
         self.assertAlmostEqual(post.answers[1].statistics, 0.6666666666666666, places=4)
+        self.assertTupleEqual((post.answers[0].nof_times_selected, post.answers[1].nof_times_selected), (1, 2))
+
+
 
