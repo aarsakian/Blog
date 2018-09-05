@@ -24,29 +24,6 @@ class AnswersLayout extends Layout {
 
 
 
-
-//class PostListActionBar extends ModelView {
-//  constructor(options) {
-//    super(options);
-//    this.template = '#actions-template';
-//  }
-//
-//  get className() {
-//    return 'options-bar col-xs-12';
-//  }
-//
-//  get events() {
-//    return {
-//      'click button': 'createContact'
-//    };
-//  }
-//
-//  createContact() {
-//    App.router.navigate('contacts/new', true);
-//  }
-//}
-
-
 class AnswersView extends ModelView {
   constructor(options) {
     super(options);
@@ -100,14 +77,18 @@ class AnswersView extends ModelView {
         },
        success(model, response, options) {
         // Redirect user to contact list after save
-          //App.notifySuccess('answers submitted');
 
-            answersView.trigger("answer:submitted", response.result, model.get("idx"), answersView);
+            if (response.result)  {
+               //  App.notifySuccess('You answered correctly');
+            }
+
+            answersView.trigger("answer:submitted", response, model.get("idx"), answersView);
+
 
       },
       error() {
         // Show error message if something goes wrong
-     //   App.notifyError('Something goes wrong');
+       //  App.notifyError('Something went wrong');
       }
     });
 
@@ -123,16 +104,24 @@ class AnswersView extends ModelView {
      return this.getSelector(selector).val();
   }
 
-  checkAnswer(result, idx, modelView) {
+  addStat(nof_times_selected, idx, modelview) {
+        console.log("#stats-"+idx);
+
+
+  }
+
+  colorAnswer(response, idx, modelView) {
+    console.log(" "+".stats-"+idx);
        var colorResult = ""
-       if (result) {
+       if (response.result) {
          colorResult = "bg-success";
 
        } else {
          colorResult = "bg-danger";
        }
+       modelView.getSelector("tr").eq(idx).addClass(colorResult);
+       modelView.getSelector("#stats-"+idx).text(response.nof_times_selected);
 
-        modelView.getSelector("tr").eq(idx).addClass(colorResult);
   }
 
   getSelector(selector) {
@@ -182,7 +171,8 @@ class Answers {
 
         layout.getRegion('answers').show(answersView);
 
-        this.listenTo(answersView,'answer:submitted', answersView.checkAnswer);
+        this.listenTo(answersView,'answer:submitted', answersView.colorAnswer)
+
     }
 
 
