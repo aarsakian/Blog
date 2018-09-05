@@ -147,6 +147,7 @@ class BlogPost(ndb.Model):
 
     def update_statistics(self):
         self.selected_answer.nof_times_selected += 1
+        self.put()
 
         total_participation = \
             sum([answer.nof_times_selected for answer in self.answers])
@@ -428,7 +429,6 @@ class Categories(BlogList, JsonMixin):
         :param raw_category:
         :return: the key of the requested category
         """
-        logging.info("{} {}".format(raw_category, len(self._categories)))
         return [category.key for category in self._categories
                 if category.category == raw_category][0]
 
