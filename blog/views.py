@@ -302,7 +302,6 @@ def answers(title):
                 return jsonify(msg='You have exhausted your attempts.',
                                remaining_attempts=0)
 
-
         answers_form = AnswerRadioForm()
         answers_form.r_answers.data = p_answer
         answers_form.r_answers.choices = [(answer.p_answer, answer.p_answer) for answer in current_post.answers]
@@ -310,12 +309,13 @@ def answers(title):
 
         if answers_form.validate_on_submit():
             current_post.set_selected_answer(p_answer)
-            current_post.update_statistics()
-
+            current_post.update_answers_statistics()
+            answers_stats = current_post.get_answers_statistics()
+            logging.info("ANSWERS {}".format(current_post.selected_answer.nof_times_selected))
             return jsonify(result =current_post.is_answer_correct(),
                            msg='You have {} attempts.'.format(remaining_attempts),
                            remaining_attempts=remaining_attempts,
-                           nof_times_selected=current_post.selected_answer.nof_times_selected)
+                           answers_stats=answers_stats)
         else:
             return jsonify({})
 
