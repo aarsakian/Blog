@@ -39,14 +39,14 @@ class AnswersGraphView extends ModelView {
 
       var options = {
         chartArea: {width: '35%'},
-        hAxis: {xx
+        hAxis: {
           title: 'Answers Statistics',
           minValue: 0
         },
         vAxis: {
-          title: ''
+          title: '',
           textStyle:{
-            fontSize:0.5em;
+            fontSize:'0.5em'
           }
         },
         legend:{position:'none'},
