@@ -170,7 +170,7 @@ class TestModels(BlogTestBase):
 
         post_key1 = self.posts.add("a title", "body text", category_key, new_tag_keys1)
         self.posts.add("a title 2", "body text 2", category_key, new_tag_keys2)
-        self.assertItemsEqual(test_tags2, self.posts.get_other_tags(post_key1.id()))
+        self.assertItemsEqual(["a new tag 1"], self.posts.get_other_tags(post_key1.id()))
 
     def test_find_modified_tags(self):
         test_existing_tags = ["a new tag", "a new new tag"]
