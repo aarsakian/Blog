@@ -145,7 +145,7 @@ class BlogPost(ndb.Model):
     def is_answer_correct(self):
         return self.selected_answer.is_correct
 
-    def update_statistics(self):
+    def update_answers_statistics(self):
         self.selected_answer.nof_times_selected += 1
         self.put()
 
@@ -154,6 +154,10 @@ class BlogPost(ndb.Model):
 
         for answer in self.answers:
             answer.statistics = float(answer.nof_times_selected)/total_participation
+
+    def get_answers_statistics(self):
+        return [{answer.p_answer:answer.nof_times_selected} for answer in self.answers]
+
 
 
 class BlogList(list):

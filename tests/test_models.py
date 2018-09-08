@@ -633,24 +633,38 @@ class TestModels(BlogTestBase):
         self.assertItemsEqual([(u'ans1', u'ans1'), (u'ans2', u'ans2')], post.answers_form.r_answers.choices)
 
 
-    def test_update_statistics(self):
+    def test_update_answers_statistics(self):
         post = self.create_post_with_answers("ans1", True, "ans2", False)
 
         post.set_selected_answer("ans1")
-        post.update_statistics()
+        post.update_answers_statistics()
         self.assertTupleEqual((post.answers[0].statistics, post.answers[1].statistics), (1.0, 0.0))
         self.assertTupleEqual((post.answers[0].nof_times_selected, post.answers[1].nof_times_selected), (1, 0))
 
         post.set_selected_answer("ans2")
-        post.update_statistics()
+        post.update_answers_statistics()
         self.assertTupleEqual((post.answers[0].statistics, post.answers[1].statistics), (0.5, 0.5))
         self.assertTupleEqual((post.answers[0].nof_times_selected, post.answers[1].nof_times_selected), (1, 1))
 
         post.set_selected_answer("ans2")
-        post.update_statistics()
+        post.update_answers_statistics()
         self.assertAlmostEqual(post.answers[0].statistics, 0.3333, places=4)
         self.assertAlmostEqual(post.answers[1].statistics, 0.6666666666666666, places=4)
         self.assertTupleEqual((post.answers[0].nof_times_selected, post.answers[1].nof_times_selected), (1, 2))
 
+    def test_get_answers_statistics(self):
+        post = self.create_post_with_answers("ans1", True, "ans2", False)
+        post.set_selected_answer("ans1")
+        post.update_answers_statistics()
+        answers_stats = post.get_answers_statistics()
 
+        self.assertDictEqual(answers_stats[0], {"ans1": 1})
+        self.assertDictEqual(answers_stats[1], {"ans2": 0})
+
+        post.set_selected_answer("ans1")
+        post.update_answers_statistics()
+        answers_stats = post.get_answers_statistics()
+
+        self.assertDictEqual(answers_stats[0], {"ans1": 2})
+        self.assertDictEqual(answers_stats[1], {"ans2": 0})
 
