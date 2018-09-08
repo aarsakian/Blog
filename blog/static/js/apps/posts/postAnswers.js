@@ -14,12 +14,50 @@ class AnswersLayout extends Layout {
     this.template = '#answers-layout';
     this.regions = {
       answers: '.answers-layout-container',
-
+      gcharts: '.g-charts-layout'
     };
   }
 
 }
 
+
+class AnswersGraphView extends ModelView {
+  constructor(options) {
+    super(options);
+    this.template = '#answers-graph';
+    google.charts.load('current', {packages: ['corechart', 'bar']});
+  }
+
+   createGraph(response, answersGraphView) {
+        google.charts.setOnLoadCallback(answersGraphView.drawBasic(response));
+
+   }
+
+   drawBasic(response) {
+
+      var data = google.visualization.arrayToDataTable(_.pairs(response.answers_stats));
+
+      var options = {
+        chartArea: {width: '35%'},
+        hAxis: {xx
+          title: 'Answers Statistics',
+          minValue: 0
+        },
+        vAxis: {
+          title: ''
+          textStyle:{
+            fontSize:0.5em;
+          }
+        },
+        legend:{position:'none'},
+        gridlines: { count: -1}
+      };
+
+      var chart = new google.visualization.BarChart(document.getElementById('gviz'));
+      chart.draw(data, options);
+   }
+
+}
 
 
 
@@ -28,6 +66,7 @@ class AnswersView extends ModelView {
   constructor(options) {
     super(options);
     this.template = '#post-answers';
+    this.answersGraphView = options.answersGraphView;
 
   }
 
@@ -84,6 +123,7 @@ class AnswersView extends ModelView {
 
             answersView.trigger("answer:submitted", response, model.get("idx"), answersView);
 
+            answersView.answersGraphView.trigger("answer:submitted", response, answersView.answersGraphView);
 
       },
       error() {
@@ -104,11 +144,6 @@ class AnswersView extends ModelView {
      return this.getSelector(selector).val();
   }
 
-  addStat(nof_times_selected, idx, modelview) {
-        console.log("#stats-"+idx);
-
-
-  }
 
   colorAnswer(response, idx, modelView) {
     console.log(" "+".stats-"+idx);
@@ -166,12 +201,17 @@ class Answers {
 
   //  layout.getRegion('actions').show(actionBar);
     if (postAnswers.length > 0  ) {
+
+        var answersGraphView = new AnswersGraphView();
+
         var answersView = new AnswersView({collection:
-                                    postAnswers});
+                                    postAnswers, answersGraphView});
 
         layout.getRegion('answers').show(answersView);
+        layout.getRegion('gcharts').show(answersGraphView);
 
         this.listenTo(answersView,'answer:submitted', answersView.colorAnswer)
+        this.listenTo(answersGraphView,'answer:submitted', answersGraphView.createGraph)
 
     }
 
