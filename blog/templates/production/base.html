@@ -71,4 +71,4 @@
 
 
     </div><!--closes links-->
-    </div></script>{% endraw %} {%endif%} {% block scripts %} {{super()}} {%if ga_accepted %} {%if request.url_root == "https://arsakian.com/" %} {{google.uanalytics('UA-38392254-1')}} {% endif %} {% endif %} {% endblock %}<link href="../static/css/lib/fontawesome-all.min.css" rel="stylesheet"><link href="../static/css/style.css" rel="stylesheet" media="screen"><script src="{{url_for('static', filename='js/prod/general.min.js')}}"></script><script src="{{url_for('static', filename='js/prod/app.min.js')}}"></script>{% endblock %}
+    </div></script>{% endraw %} {%endif%} {% block scripts %} {{super()}} {%if ga_accepted %} {%if request.url_root == "https://arsakian.com/" %} {{google.uanalytics('UA-38392254-1')}} {% endif %} {% endif %} {% endblock %}<link href="../static/css/lib/fontawesome-all.min.css" rel="stylesheet"><link href="../static/css/style.css" rel="stylesheet" media="screen"><script src="{{url_for('static', filename='js/prod/general.min.js')}}"></script><script src="{{url_for('static', filename='js/prod/app.min.js')}}"></script>{% endblock %} {% block gscripts %} {% endblock %}

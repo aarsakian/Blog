@@ -13,7 +13,7 @@ h3{font-size:1.1em;}
 
 ul li{display:inline;list-style-type:none;}
 
-#newpost .answer input{
+#newpost .answer input {
     outline:0;
     box-sizing:none;
     box-shadow:none;
