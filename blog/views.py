@@ -311,7 +311,7 @@ def answers(title):
             current_post.set_selected_answer(p_answer)
             current_post.update_answers_statistics()
             answers_stats = current_post.get_answers_statistics()
-            logging.info("ANSWERS {}".format(current_post.selected_answer.nof_times_selected))
+            logging.info("ANSWERS {}".format(answers_stats))
             return jsonify(result =current_post.is_answer_correct(),
                            msg='You have {} attempts.'.format(remaining_attempts),
                            remaining_attempts=remaining_attempts,
