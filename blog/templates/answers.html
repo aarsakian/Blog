@@ -3,12 +3,14 @@
 {% block answers %}
 
 <div id="answers-container"> </div>
+<div id="gcharts-container"> </div>
 
 
 
 <script  id="answers-layout" type="text/x-handlebars-template">
 
  <div class="answers-layout-container col-12"></div>
+ <div class="g-charts-layout col-12"></div>
 </script>
 
 <script id="post-answers" type="text/x-handlebars-template">
@@ -27,9 +29,9 @@
                 <input  type="radio" id="r_answers-{{loop.index}}" class="answer-choice"
                                                  name="r_answers">
             </td>
-            <td class="col-9"><label for="r_answers-{{loop.index}}">{{f.label}}</label></td>
+            <td class="col-11"><label for="r_answers-{{loop.index}}">{{f.label}}</label></td>
             </td>
-            <td class="col-2" id="stats-{{loop.index-1}}"></td>
+
         </tr>
 
         {% endfor %}
@@ -40,8 +42,20 @@
     submit button")}}
 
 </form>
+
 </script>
 
+{% raw %}
+<script id="answers-graph" type="text/x-handlebars-template">
+  <div id="gviz"></div>
+</script>
+{% endraw %}
+
+
+
+{% block gscripts %}
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+{% endblock %}
 
 
 {% endblock %}
