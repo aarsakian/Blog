@@ -287,15 +287,11 @@ class Posts(BlogList, JsonMixin):
             return last_post.updated.strftime('%A %d %B %Y')
 
     def get_related_posts(self, current_post_id):
-        related_posts = []
+
         current_post = BlogPost.get(current_post_id)
-        for post in self.posts:
-            if post.id != current_post.id:
-                for tag in post.tags:
-                    if tag.get().tag in current_post.get_tag_names():
-                        related_posts.append(post)
-                        break
-        return related_posts
+        current_post_tags = current_post.get_tag_names()
+        return [post  for post in self.posts if post.id !=
+                current_post.id and set(current_post_tags)&set(post.get_tag_names())]
 
     def add_to_feed(self, feed, base_url):
         for post in self.posts:
@@ -360,7 +356,7 @@ class Tags(BlogList, JsonMixin):
     def add(self, new_tags):
         new_tags_keys = [Tag(tag=new_tag).put() for new_tag in new_tags if new_tag not in self]
         self._tags.extend([tag_key.get() for tag_key in new_tags_keys])
-        return new_tags_keys
+        return self.get_keys(new_tags)
 
     def delete(self, tags_for_deletion):
         for tag_idx, tag in enumerate(self._tags):
@@ -403,7 +399,6 @@ class Categories(BlogList, JsonMixin):
     def __contains__(self, raw_category):
         if self._categories:
             for category in self._categories:
-                print  category.category, raw_category
                 if category.category == raw_category:
                     return True
         return False
