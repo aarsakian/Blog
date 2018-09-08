@@ -661,13 +661,12 @@ class TestModels(BlogTestBase):
         post.update_answers_statistics()
         answers_stats = post.get_answers_statistics()
 
-        self.assertDictEqual(answers_stats[0], {"ans1": 1})
-        self.assertDictEqual(answers_stats[1], {"ans2": 0})
+        self.assertDictEqual(answers_stats, {"Answer":"Selection","ans1": 1, "ans2": 0})
 
-        post.set_selected_answer("ans1")
+        post.set_selected_answer("ans2")
         post.update_answers_statistics()
         answers_stats = post.get_answers_statistics()
 
-        self.assertDictEqual(answers_stats[0], {"ans1": 2})
-        self.assertDictEqual(answers_stats[1], {"ans2": 0})
+        self.assertDictEqual(answers_stats, {"Answer":"Selection","ans1": 1,"ans2": 1})
+
 

@@ -156,7 +156,10 @@ class BlogPost(ndb.Model):
             answer.statistics = float(answer.nof_times_selected)/total_participation
 
     def get_answers_statistics(self):
-        return [{answer.p_answer:answer.nof_times_selected} for answer in self.answers]
+        answers_stats = {"Answer":"Selection"}
+        for answer in self.answers:
+            answers_stats.update({answer.p_answer: answer.nof_times_selected})
+        return answers_stats
 
 
 
