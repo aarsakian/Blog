@@ -3,12 +3,12 @@
 {% block answers %}
 
 <div id="answers-container"> </div>
-<div id="gcharts-container"> </div>
+
 
 
 
 <script  id="answers-layout" type="text/x-handlebars-template">
-
+ <div class="notifications-container"></div>
  <div class="answers-layout-container col-12"></div>
  <div class="g-charts-layout col-12"></div>
 </script>
@@ -57,5 +57,10 @@
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 {% endblock %}
 
+
+
+{% block notifications %}
+{% include 'notifications.html' %}
+{% endblock %}
 
 {% endblock %}
