@@ -306,20 +306,20 @@ def answers(title):
 
 
         if answers_form.validate_on_submit():
-
+            answers_stats = {}
             if  remaining_attempts < 0:
                 result = False
                 alert_type = "warning"
                 msg = "Sorry, no attempts left!"
-                answers_stats = current_post.get_answers_statistics()
+
             else:
                 current_post.set_selected_answer(p_answer)
                 current_post.update_answers_statistics()
-                answers_stats = current_post.get_answers_statistics()
                 if current_post.is_answer_correct():
                     result = True
                     alert_type = "success"
                     msg = "Great!"
+                    answers_stats = current_post.get_answers_statistics()
                 elif remaining_attempts == 1:
                     result = False
                     alert_type = "danger"
