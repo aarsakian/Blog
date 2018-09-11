@@ -5,7 +5,7 @@ var Backbone = require('backbone');
 var App = require('../../app');
 var Layout = require('../../common').Layout;
 var ModelView = require('../../common').ModelView;
-
+var NotificationView = require('../notifications/app')
 
 class AnswersLayout extends Layout {
   constructor(options) {
@@ -14,7 +14,8 @@ class AnswersLayout extends Layout {
     this.template = '#answers-layout';
     this.regions = {
       answers: '.answers-layout-container',
-      gcharts: '.g-charts-layout'
+      gcharts: '.g-charts-layout',
+      notifications:'.notifications-container'
     };
   }
 
@@ -67,6 +68,7 @@ class AnswersView extends ModelView {
     super(options);
     this.template = '#post-answers';
     this.answersGraphView = options.answersGraphView;
+    this.notificationView = options.notificationView;
 
   }
 
@@ -117,13 +119,14 @@ class AnswersView extends ModelView {
        success(model, response, options) {
         // Redirect user to contact list after save
 
-            if (response.result)  {
-               //  App.notifySuccess('You answered correctly');
-            }
+            answersView.notificationView.showMessage(response.msg, response.alert_type);
 
             answersView.trigger("answer:submitted", response, model.get("idx"), answersView);
+            if (response.result) {
+                answersView.answersGraphView.trigger("answer:submitted:success");
+                answersView.answersGraphView.trigger("answer:submitted", response, answersView.answersGraphView);
+            }
 
-            answersView.answersGraphView.trigger("answer:submitted", response, answersView.answersGraphView);
 
       },
       error() {
@@ -146,7 +149,6 @@ class AnswersView extends ModelView {
 
 
   colorAnswer(response, idx, modelView) {
-    console.log(" "+".stats-"+idx);
        var colorResult = ""
        if (response.result) {
          colorResult = "bg-success";
@@ -187,41 +189,40 @@ class Answers {
 
   showAnswers(postAnswers) {
     // Create the views
-    var layout = new AnswersLayout();
-    //var actionBar = new PostListActionBar();
- 
-    
-    //var titleForm = new TitleForm();
-
+    this.layout = new AnswersLayout();
 
     // Show the views
 
-    this.region.show(layout);
+    this.region.show(this.layout);
     
 
   //  layout.getRegion('actions').show(actionBar);
     if (postAnswers.length > 0  ) {
 
         var answersGraphView = new AnswersGraphView();
-
+        var notificationView = new NotificationView({});
         var answersView = new AnswersView({collection:
-                                    postAnswers, answersGraphView});
+                                    postAnswers, answersGraphView, notificationView});
 
-        layout.getRegion('answers').show(answersView);
-        layout.getRegion('gcharts').show(answersGraphView);
+        this.layout.getRegion('answers').show(answersView);
+        this.layout.getRegion('gcharts').show(answersGraphView);
 
-        this.listenTo(answersView,'answer:submitted', answersView.colorAnswer)
-        this.listenTo(answersGraphView,'answer:submitted', answersGraphView.createGraph)
+        this.layout.getRegion('notifications').show(notificationView);
 
+        this.listenTo(answersView,'answer:submitted', answersView.colorAnswer);
+        this.listenTo(answersGraphView,'answer:submitted', answersGraphView.createGraph);
+
+        this.listenTo(notificationView,'answer:submitted', notificationView.showMessage);
+
+        this.listenTo(notificationView,'answer:submitted:success', this.ShowGraph);
     }
 
 
     
   }
   
-  addPost(view, post) {
-    
-    
+  showGraph() {
+    this.layout.getRegion('notifications').show(notificationView);
   }
   
   editTitlePost(view, post) {
