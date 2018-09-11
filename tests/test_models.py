@@ -43,15 +43,16 @@ class TestModels(BlogTestBase):
         self.categories = Categories()
         self.posts = Posts()
 
-    def create_post_with_answers(self, ans1, is_correct1, ans2, is_correct2):
+    def create_post_with_answers(self, answers):
+
         test_tags = ["a new tag", "a new new tag"]
         tag_keys = self.tags.add(test_tags)
+        answers_keys = [Answer(p_answer=ans,
+               is_correct=is_correct)
+            for ans, is_correct in answers.items()]
 
-        ans1 = Answer(p_answer=ans1,
-                      is_correct=is_correct1)
 
-        ans2 = Answer(p_answer=ans2,
-                      is_correct=is_correct2)
+
 
         category_key = self.categories.add("category")
         summary = "a summmary"
@@ -63,7 +64,7 @@ class TestModels(BlogTestBase):
                             category=category_key,
                             tags=tag_keys,
                             summary=summary,
-                            answers=[ans1, ans2]).put()
+                            answers=answers_keys).put()
         return post_key.get()
 
     def test_add_a_tag(self):
@@ -610,7 +611,7 @@ class TestModels(BlogTestBase):
         self.assertItemsEqual(post.strip_answers_jsoned(), jsoned_answers)
 
     def test_selected_answer_setter(self):
-        post = self.create_post_with_answers("ans1",True, "ans2", False)
+        post = self.create_post_with_answers({"ans1":True, "ans2":False})
         ans1 = Answer(p_answer="ans1",
                       is_correct=True)
 
@@ -620,7 +621,7 @@ class TestModels(BlogTestBase):
 
 
     def test_is_answer_correct(self):
-        post = self.create_post_with_answers("ans1", True, "ans2", False)
+        post = self.create_post_with_answers({"ans1":True, "ans2":False})
         post.set_selected_answer("ans1")
 
         self.assertTrue(post.is_answer_correct())
@@ -628,8 +629,11 @@ class TestModels(BlogTestBase):
         post.set_selected_answer('ans2')
         self.assertFalse(post.is_answer_correct())
 
+        post.set_selected_answer('non existent')
+        self.assertFalse(post.is_answer_correct())
+
     def test_to_answer_form(self):
-        post = self.create_post_with_answers("ans1", True, "ans2", False)
+        post = self.create_post_with_answers({"ans1":True, "ans2":False})
 
         self.posts.to_answers_form()
 
@@ -637,7 +641,7 @@ class TestModels(BlogTestBase):
 
 
     def test_update_answers_statistics(self):
-        post = self.create_post_with_answers("ans1", True, "ans2", False)
+        post = self.create_post_with_answers({"ans1":True, "ans2":False})
 
         post.set_selected_answer("ans1")
         post.update_answers_statistics()
@@ -656,17 +660,23 @@ class TestModels(BlogTestBase):
         self.assertTupleEqual((post.answers[0].nof_times_selected, post.answers[1].nof_times_selected), (1, 2))
 
     def test_get_answers_statistics(self):
-        post = self.create_post_with_answers("ans1", True, "ans2", False)
+        post = self.create_post_with_answers({"ans1": True, "ans2": False, "ans3": False})
         post.set_selected_answer("ans1")
         post.update_answers_statistics()
         answers_stats = post.get_answers_statistics()
 
-        self.assertDictEqual(answers_stats, {"Answer":"Selection","ans1": 1, "ans2": 0})
+        self.assertDictEqual(answers_stats, {"Answer":"Selection","ans1": 1, "ans2": 0, "ans3":0})
 
         post.set_selected_answer("ans2")
         post.update_answers_statistics()
         answers_stats = post.get_answers_statistics()
 
-        self.assertDictEqual(answers_stats, {"Answer":"Selection","ans1": 1,"ans2": 1})
+        self.assertDictEqual(answers_stats, {"Answer":"Selection","ans1": 1,"ans2": 1,"ans3":0})
+
+        if post.set_selected_answer("non existent"):
+            post.update_answers_statistics()
+        answers_stats = post.get_answers_statistics()
+        self.assertDictEqual(answers_stats, {"Answer": "Selection", u"ans1": 1, u"ans2": 1, u"ans3": 0})
+
 
 

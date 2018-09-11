@@ -10,6 +10,7 @@ from forms import AnswerRadioForm
 from search import add_document_in_search_index, delete_document, find_posts_from_index
 from utils import find_modified_tags, find_tags_to_be_removed, find_tags_to_be_added, make_external
 
+
 POSTS_INDEX = "posts_idx"
 
 
@@ -91,7 +92,8 @@ class BlogPost(ndb.Model):
         for answer in self.answers:
             if answer.p_answer == p_answer:
                 self.selected_answer = answer
-                break
+                return True
+        return False
 
     def to_json(self):
         """creates json based structure"""

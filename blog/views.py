@@ -21,7 +21,6 @@ from forms import PostForm, AnswerRadioForm, UploadForm, images_set
 from utils import datetimeformat, calculate_work_date_stats,  to_markdown, generate_uid_token
 
 
-
 KEY="posts"
 TAG="tags"
 CATEGORY="categories"
@@ -313,8 +312,8 @@ def answers(title):
                 msg = "Sorry, no attempts left!"
 
             else:
-                current_post.set_selected_answer(p_answer)
-                current_post.update_answers_statistics()
+                if current_post.set_selected_answer(p_answer):
+                    current_post.update_answers_statistics()
                 if current_post.is_answer_correct():
                     result = True
                     alert_type = "success"

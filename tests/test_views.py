@@ -657,7 +657,21 @@ class TestViews(BlogTestBase):
                               u'answers_stats': {}
                               }, response.json)
 
+    def test_api_answers_post_method_correct_guess(self):
+        category_key = self.categories.add("category")
+        test_tags = ["a new tag", "a new new tag"]
+        new_tag_keys = self.tags.add(test_tags)
+        self.posts.add("a title", "body text", category_key, new_tag_keys, "this is a summary",
+                       [{"p_answer": "ans1", "is_correct": True}, {"p_answer": "ans2", "is_correct": False}])
 
+        json_data_f = {"p_answer": "ans1", "is_correct": "True"}
+
+        response = self.client.post(url_for('answers', title="a title"), content_type='application/json',
+                                    data=json.dumps(json_data_f))  # , headers={"csrf_token":csrf_token})
+
+        self.assertDictEqual({u'msg': u'Great!', u'result': True,
+                              u'remaining_attempts': 0, u'alert_type': u'success',
+                              u'answers_stats': {u'Answer': u'Selection', u'ans1': 1, u'ans2': 0}}, response.json)
 
     def test_is_cookie_set(self):
         with app.test_client() as c:
