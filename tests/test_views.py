@@ -651,11 +651,13 @@ class TestViews(BlogTestBase):
         json_data_f = {"p_answer": "ans2", "is_correct": "True"}
         response = self.client.post(url_for('answers', title="a title"), content_type='application/json',
                                     data=json.dumps(json_data_f))
-       
+
         self.assertDictEqual({u'msg': u'Sorry, no attempts left!',u'alert_type':u'warning', u'result': False,
                               u'remaining_attempts':-1,
                               u'answers_stats': {u"Answer": u"Selection", u'ans1': 0, u'ans2': 2}
                               }, response.json)
+
+
 
     def test_is_cookie_set(self):
         with app.test_client() as c:
