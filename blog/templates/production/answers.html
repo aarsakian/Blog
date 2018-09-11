@@ -1,4 +1,5 @@
-{% import "bootstrap/wtf.html" as wtf %} {% block answers %}<div id="answers-container"></div><div id="gcharts-container"></div><script id="answers-layout" type="text/x-handlebars-template"><div class="answers-layout-container col-12"></div>
+{% import "bootstrap/wtf.html" as wtf %} {% block answers %}<div id="answers-container" class="col-12"></div><script id="answers-layout" type="text/x-handlebars-template"><div class="notifications-container col-12"></div>
+ <div class="answers-layout-container col-12"></div>
  <div class="g-charts-layout col-12"></div></script><script id="post-answers" type="text/x-handlebars-template"><form class="form form-horizontal row" method="post" role="form">
     {{ answers_field.hidden_tag()}}
     <table class="answer table border table-hover row col-12" data-id="{{Post.id}}">
@@ -26,4 +27,4 @@
     {{ wtf.form_field(answers_field.submit, type="submit", class="disabled col-md-2 col-sm-4 .mx-left float-left btn btn-primary
     submit button")}}
 
-</form></script>{% raw %}<script id="answers-graph" type="text/x-handlebars-template"><div id="gviz"></div></script>{% endraw %} {% block gscripts %}<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>{% endblock %} {% endblock %}
+</form></script>{% raw %}<script id="answers-graph" type="text/x-handlebars-template"><div id="gviz"></div></script>{% endraw %} {% block gscripts %}<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>{% endblock %} {% block notifications %} {% include 'notifications.html' %} {% endblock %} {% endblock %}
