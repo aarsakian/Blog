@@ -298,9 +298,7 @@ def answers(title):
         else:
             remaining_attempts = session.get(title) - 1
             session[title] = remaining_attempts
-            if remaining_attempts < 0:
-                return jsonify(msg='You have exhausted your attempts.',
-                               remaining_attempts=0)
+
 
         answers_form = AnswerRadioForm()
         answers_form.r_answers.data = p_answer
@@ -311,11 +309,32 @@ def answers(title):
             current_post.set_selected_answer(p_answer)
             current_post.update_answers_statistics()
             answers_stats = current_post.get_answers_statistics()
-            logging.info("ANSWERS {}".format(answers_stats))
-            return jsonify(result =current_post.is_answer_correct(),
-                           msg='You have {} attempts.'.format(remaining_attempts),
-                           remaining_attempts=remaining_attempts,
-                           answers_stats=answers_stats)
+            if current_post.is_answer_correct():
+                result = True
+                alert_type = "success"
+                msg = "Great!"
+            elif remaining_attempts == 1:
+                result = False
+                alert_type = "warning"
+                msg = 'Please try again, {} attempts remaining.'.format(remaining_attempts)
+            elif remaining_attempts == 0:
+                result = False
+                alert_type = "danger"
+                msg = "You have one last attempt!"
+            elif remaining_attempts <0:
+                result = False
+                alert_type = "warning"
+                msg = "Sorry, no attempts left!"
+            else:
+                result = False
+                alert_type = "warning"
+                msg = 'Please try again, {} attempts remaining.'.format(remaining_attempts)
+
+            return jsonify(result=result,
+                               msg=msg,
+                               remaining_attempts=remaining_attempts,
+                               answers_stats=answers_stats,
+                               alert_type=alert_type)
         else:
             return jsonify({})
 
