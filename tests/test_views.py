@@ -643,9 +643,9 @@ class TestViews(BlogTestBase):
 
         response = self.client.post(url_for('answers', title="a title"), content_type='application/json',
                                     data=json.dumps(json_data_f))#, headers={"csrf_token":csrf_token})
-
-        self.assertDictEqual({u'msg': u'You have one last attempt!', u'result': False,
-                              u'remaining_attempts': 0,u'alert_type':u'danger',
+ 
+        self.assertDictEqual({u'msg': u'Sorry, no attempts left!', u'result': False,
+                              u'remaining_attempts': 0,u'alert_type':u'warning',
                               u'answers_stats':{u"Answer":u"Selection", u'ans1':0, u'ans2':1}}, response.json)
 
         json_data_f = {"p_answer": "ans2", "is_correct": "True"}
@@ -654,7 +654,7 @@ class TestViews(BlogTestBase):
 
         self.assertDictEqual({u'msg': u'Sorry, no attempts left!',u'alert_type':u'warning', u'result': False,
                               u'remaining_attempts':-1,
-                              u'answers_stats': {u"Answer": u"Selection", u'ans1': 0, u'ans2': 2}
+                              u'answers_stats': {u"Answer": u"Selection", u'ans1': 0, u'ans2': 1}
                               }, response.json)
 
 

@@ -307,10 +307,11 @@ def answers(title):
 
         if answers_form.validate_on_submit():
 
-            if  remaining_attempts <0:
+            if  remaining_attempts < 0:
                 result = False
                 alert_type = "warning"
                 msg = "Sorry, no attempts left!"
+                answers_stats = current_post.get_answers_statistics()
             else:
                 current_post.set_selected_answer(p_answer)
                 current_post.update_answers_statistics()
@@ -321,13 +322,12 @@ def answers(title):
                     msg = "Great!"
                 elif remaining_attempts == 1:
                     result = False
-                    alert_type = "warning"
-                    msg = 'Please try again, {} attempts remaining.'.format(remaining_attempts)
-                elif remaining_attempts == 0:
-                    result = False
                     alert_type = "danger"
                     msg = "You have one last attempt!"
-
+                elif remaining_attempts == 0:
+                    result = False
+                    alert_type = "warning"
+                    msg = "Sorry, no attempts left!"
                 else:
                     result = False
                     alert_type = "warning"
