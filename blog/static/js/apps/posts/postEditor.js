@@ -9,7 +9,7 @@ var ModelView = require('../../common').ModelView;
 var PostForm = require('./postList').PostForm;
 
 
-class ContactFormLayout extends Layout {
+class PostFormLayout extends Layout {
   constructor(options) {
     super({tagName:"div",className:"col"});
     this.template = '#post-form-layout';
@@ -103,7 +103,7 @@ class PostEditor {
   showEditor(post) {
     // Create the views
 
-    var layout = new ContactFormLayout({model: post});
+    var layout = new PostFormLayout({model: post});
 
     var postForm = new EditPostForm({model: post});
 
