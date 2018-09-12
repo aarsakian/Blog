@@ -312,8 +312,8 @@ def answers(title):
                 msg = "Sorry, no attempts left!"
 
             else:
-                if current_post.set_selected_answer(p_answer):
-                    current_post.update_answers_statistics()
+                current_post.set_selected_answer(p_answer)
+
                 if current_post.is_answer_correct():
                     result = True
                     alert_type = "success"
@@ -413,7 +413,7 @@ def edit_post(id):
         category_key = categories.update(raw_category, updating_post.category)
 
         updating_post.edit(title, body, datetime.now(), tags_keys,
-                           category_key, raw_summary, answers=request.json['answers'])
+                           category_key, raw_summary, raw_answers=request.json['answers'])
 
         return jsonify(updating_post.to_json())  # dangerous
 
