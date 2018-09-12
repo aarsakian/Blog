@@ -9,7 +9,7 @@ from errors import InvalidUsage
 from forms import AnswerRadioForm
 from search import add_document_in_search_index, delete_document, find_posts_from_index
 from utils import find_modified_tags, find_tags_to_be_removed, find_tags_to_be_added, make_external
-
+from collections import OrderedDict
 
 POSTS_INDEX = "posts_idx"
 
@@ -158,7 +158,7 @@ class BlogPost(ndb.Model):
             answer.statistics = float(answer.nof_times_selected)/total_participation
 
     def get_answers_statistics(self):
-        answers_stats = {"Answer":"Selection"}
+        answers_stats = OrderedDict({"Answer":"Selection"})
         for answer in self.answers:
             answers_stats.update({answer.p_answer: answer.nof_times_selected})
         return answers_stats
