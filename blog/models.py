@@ -9,7 +9,6 @@ from errors import InvalidUsage
 from forms import AnswerRadioForm
 from search import add_document_in_search_index, delete_document, find_posts_from_index
 from utils import find_modified_tags, find_tags_to_be_removed, find_tags_to_be_added, make_external
-from collections import OrderedDict
 
 POSTS_INDEX = "posts_idx"
 
@@ -20,6 +19,16 @@ class Answer(ndb.Model):
     nof_times_selected = ndb.IntegerProperty(default=0)
     statistics = ndb.FloatProperty(default=0.0)
 
+    def edit(self, raw_answer, is_correct):
+
+        if self.p_answer != raw_answer:
+            self.p_answer = raw_answer
+
+        if self.is_correct != is_correct:
+            self.is_correct = is_correct
+
+        if self.is_correct != is_correct or self.p_answer != raw_answer:
+            self.put()
 
 class Tag(ndb.Model):
     tag = ndb.StringProperty()
@@ -53,6 +62,10 @@ class Category(ndb.Model):
             category = cls.get_by_id(int(id))
             Category.add_to_memcache(category)
         return category
+
+
+class AnswersDict(dict):
+    pass
 
 
 class BlogPost(ndb.Model):
@@ -92,6 +105,7 @@ class BlogPost(ndb.Model):
         for answer in self.answers:
             if answer.p_answer == p_answer:
                 self.selected_answer = answer
+                self._update_answers_statistics()
                 return True
         return False
 
@@ -115,7 +129,7 @@ class BlogPost(ndb.Model):
         self.answers_form = AnswerRadioForm()
         self.answers_form.r_answers.choices = [(answer.p_answer, answer.p_answer) for answer in self.answers]
 
-    def edit(self, title, body, updated, tags, category_key, summary=None, answers=[]):
+    def edit(self, title, body, updated, tags, category_key, summary=None, raw_answers=[]):
 
         self.title = title
         self.body = body
@@ -123,11 +137,12 @@ class BlogPost(ndb.Model):
         self.tags = tags
         self.category = category_key
         self.summary = summary
-        if answers:
-            self.answers = [Answer(p_answer=answer['p_answer'],
-                                        is_correct=answer['is_correct']) for answer in answers]
 
-
+        if raw_answers:
+            structured_answers = zip(raw_answers[0].keys(), raw_answers[0].values())
+            for idx, answer in enumerate(self.answers):
+                 raw_answer, is_correct = structured_answers[idx]
+                 answer.edit(raw_answer, is_correct)
 
         self.put()
         add_document_in_search_index(self.id, self.title, self.body,
@@ -144,10 +159,16 @@ class BlogPost(ndb.Model):
     def _pre_put_hook(self):
         self.title = self.title.lstrip().rstrip()
 
+    def get_answers(self):
+        answers = dict()
+        for answer in self.answers:
+            answers.update({answer.p_answer: answer.is_correct})
+        return answers
+
     def is_answer_correct(self):
         return self.selected_answer.is_correct
 
-    def update_answers_statistics(self):
+    def _update_answers_statistics(self):
         self.selected_answer.nof_times_selected += 1
         self.put()
 
@@ -158,7 +179,8 @@ class BlogPost(ndb.Model):
             answer.statistics = float(answer.nof_times_selected)/total_participation
 
     def get_answers_statistics(self):
-        answers_stats = OrderedDict({"Answer":"Selection"})
+        answers_stats = dict({"Answer":"Selection"})
+        
         for answer in self.answers:
             answers_stats.update({answer.p_answer: answer.nof_times_selected})
         return answers_stats
