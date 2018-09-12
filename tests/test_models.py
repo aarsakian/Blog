@@ -251,7 +251,10 @@ class TestModels(BlogTestBase):
 
     def test_get_answers(self):
         post, _, _, _ = self.create_post_with_answers({"ans1": True, "ans2": False, "ans3": False})
-        self.assertDictEqual(post.get_answers(), {"ans1": True, "ans2": False, "ans3": False})
+
+        self.assertItemsEqual(post.get_answers(), [{u'is_correct': True, u'p_answer': u'ans1'},
+                                                 {u'is_correct': False, u'p_answer': u'ans2'},
+                                                 {u'is_correct': False, u'p_answer': u'ans3'}])
 
     def test_edit_post_answers(self):
         category_key = self.categories.add("category")
@@ -261,22 +264,27 @@ class TestModels(BlogTestBase):
 
         post, _, _, _ = self.create_post_with_answers({"ans1": True, "ans2": False, "ans3": False})
         post.edit("a modified title", "a modified body text", datetime.now(), new_tag_keys, category_key,"",
-                  [{"ans1": True, "ans2_mod": False, "ans3": False}])
+                  raw_answers=[{u'is_correct': True, u'p_answer': u'ans1'},
+                                                 {u'is_correct': True, u'p_answer': u'ans2_mod'},
+                                                 {u'is_correct': False, u'p_answer': u'ans3'}])
 
-        self.assertDictEqual(post.get_answers(),{"ans1": True, "ans2_mod": False, "ans3": False} )
+        self.assertItemsEqual(post.get_answers(),[{u'is_correct': True, u'p_answer': u'ans1'},
+                                                 {u'is_correct': True, u'p_answer': u'ans2_mod'},
+                                                 {u'is_correct': False, u'p_answer': u'ans3'}])
 
     def test_statistics_when_editing_a_post(self):
         post, category_key, tags_key, _ = self.create_post_with_answers({"ans1": True, "ans2": False, "ans3": False})
         post.set_selected_answer("ans1")
         post.set_selected_answer("ans1")
 
-        self.assertEqual({"Answer": "Selection", u"ans1": 2, u"ans2": 0, u"ans3": 0},
-                         post.get_answers_statistics())
+        self.assertEqual(post.get_answers_statistics(),
+                         {"Answer": "Selection", u"ans1": 2, u"ans2": 0, u"ans3": 0})
         post.edit("a modified title", "a modified body text", datetime.now(), tags_key,
-                   category_key, "",
-                  [{"ans1": True, "ans2_mod": False, "ans3": True}])
-        self.assertEqual({"Answer": "Selection", u"ans1": 2, u"ans2_mod": 0, u"ans3": 0},
-                         post.get_answers_statistics())
+                   category_key, "",raw_answers=[{u'is_correct': True, u'p_answer': u'ans1'},
+                                                 {u'is_correct': True, u'p_answer': u'ans2_mod'},
+                                                 {u'is_correct': False, u'p_answer': u'ans3'}])
+
+        self.assertEqual(post.get_answers_statistics(), {"Answer": "Selection", u"ans1": 2, u"ans2_mod": 0, u"ans3": 0})
 
     def test_delete_post(self):
         category_key = self.categories.add("category")

@@ -138,11 +138,8 @@ class BlogPost(ndb.Model):
         self.category = category_key
         self.summary = summary
 
-        if raw_answers:
-            structured_answers = zip(raw_answers[0].keys(), raw_answers[0].values())
-            for idx, answer in enumerate(self.answers):
-                 raw_answer, is_correct = structured_answers[idx]
-                 answer.edit(raw_answer, is_correct)
+        [answer.edit(raw_answers[idx]['p_answer'], raw_answers[idx]['is_correct'])
+            for idx, answer in enumerate(self.answers) if raw_answers]
 
         self.put()
         add_document_in_search_index(self.id, self.title, self.body,
@@ -160,10 +157,7 @@ class BlogPost(ndb.Model):
         self.title = self.title.lstrip().rstrip()
 
     def get_answers(self):
-        answers = dict()
-        for answer in self.answers:
-            answers.update({answer.p_answer: answer.is_correct})
-        return answers
+        return [{'p_answer':answer.p_answer,'is_correct':answer.is_correct} for answer in self.answers]
 
     def is_answer_correct(self):
         return self.selected_answer.is_correct
@@ -180,7 +174,7 @@ class BlogPost(ndb.Model):
 
     def get_answers_statistics(self):
         answers_stats = dict({"Answer":"Selection"})
-        
+
         for answer in self.answers:
             answers_stats.update({answer.p_answer: answer.nof_times_selected})
         return answers_stats
