@@ -20,6 +20,7 @@ var useref = require('gulp-useref');
 var gulpif = require('gulp-if');
 var minifyCss = require('gulp-clean-css');
 
+var workbox = require('workbox-build');
 
 
 
@@ -149,17 +150,7 @@ gulp.task('browserify-general-prod', () => {
 });
 
 
-gulp.task('js-resolve', function(){
-  gulp.src(['blog/static/js/blog/static/js/app.min.js'])
-    .pipe(resolveDependencies({
-      pattern: /\* @requires [\s-]*(.*\.js)/g
-    }))
-        .on('error', function(err) {
-            console.log(err.message);
-        })
-    .pipe(concat('app.min.js'))
-    .pipe(gulp.dest('dests.js'));
-});
+
 
 
 gulp.task('html', function() {
@@ -191,6 +182,72 @@ gulp.task('minify-html', function() {
 });
 
 
+gulp.task('generate-service-worker', () => {
+  return workbox.generateSW({
+    globDirectory: 'blog/',
+    globPatterns: [
+      'static/js/prod/*min.js',
+    ],
+    swDest: 'blog/static/js/sw.js',
+    clientsClaim: true,
+    runtimeCaching: [{
+    // Match any same-origin request that contains 'api'.
+    urlPattern: '/api/posts',
+    // Apply a network-first strategy.
+    handler: 'networkFirst',
+    options: {
+      // Fall back to the cache after 10 seconds.
+      networkTimeoutSeconds: 10,
+      // Use a custom cache name for this route.
+      cacheName: 'my-api-cache',
+      // Configure custom cache expiration.
+      expiration: {
+        maxEntries: 5,
+        maxAgeSeconds: 60,
+      },
+      // Configure background sync.
+      backgroundSync: {
+        name: 'my-queue-name',
+        options: {
+          maxRetentionTime: 60 * 60,
+        },
+      },
+      // Configure which responses are considered cacheable.
+      cacheableResponse: {
+        statuses: [0, 200],
+        headers: {'x-test': 'true'},
+      },
+      // Configure the broadcast cache update plugin.
+      broadcastUpdate: {
+        channelName: 'my-update-channel',
+      },
+      // Add in any additional plugin logic you need.
+
+      // matchOptions and fetchOptions are used to configure the handler.
+      fetchOptions: {
+        mode: 'no-cors',
+      },
+      matchOptions: {
+        ignoreSearch: true,
+      },
+    },
+  }],
+
+    skipWaiting: true
+  }).then(({warnings}) => {
+    // In case there are any warnings from workbox-build, log them.
+    for (const warning of warnings) {
+      console.warn(warning);
+    }
+    console.info('Service worker generation completed.');
+  }).catch((error) => {
+    console.warn('Service worker generation failed:', error);
+  });
+});
+
+
+
+
 gulp.task('browser-sync', function(done) {
     browserSync.init({
         open: 'external',
@@ -212,7 +269,7 @@ gulp.task('browser-sync', function(done) {
 
 });
 
-gulp.task('serve-prod',gulp.series('browserify-crud-prod', 'browserify-general-prod', 'html', 'fonts',
-                        'minify-html', 'browser-sync'));
+gulp.task('serve-prod', gulp.series('browserify-crud-prod', 'browserify-general-prod', 'html', 'fonts',
+                        'minify-html','generate-service-worker', 'browser-sync'));
 
 
