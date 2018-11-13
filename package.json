@@ -41,6 +41,7 @@
     "jstify": "^0.14.0",
     "popper.js": "^1.14.3",
     "vinyl-buffer": "^1.0.1",
-    "watchify": "^3.11.0"
+    "watchify": "^3.11.0",
+    "workbox-build": "^3.6.3"
   }
 }
