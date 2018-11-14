@@ -184,15 +184,20 @@ gulp.task('minify-html', function() {
 
 gulp.task('generate-service-worker', () => {
   return workbox.generateSW({
-    globDirectory: 'blog/',
+    globDirectory: 'blog/static/js',
     globPatterns: [
-      'static/js/prod/*min.js',
+      'prod/*min.js'
+
     ],
     swDest: 'blog/static/js/sw.js',
     clientsClaim: true,
+    templatedUrls: {
+        '/':  'blog/templates/production/index.html'
+
+      },
     runtimeCaching: [{
     // Match any same-origin request that contains 'api'.
-    urlPattern: '/api/posts',
+    urlPattern: '/api/*',
     // Apply a network-first strategy.
     handler: 'networkFirst',
     options: {
@@ -230,7 +235,9 @@ gulp.task('generate-service-worker', () => {
       matchOptions: {
         ignoreSearch: true,
       },
+
     },
+
   }],
 
     skipWaiting: true
