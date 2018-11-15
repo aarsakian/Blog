@@ -23,15 +23,19 @@ workbox.clientsClaim();
  */
 self.__precacheManifest = [
   {
-    "url": "static/js/prod/app.min.js",
+    "url": "prod/app.min.js",
     "revision": "9985112238110b8092d71fc8f1faf2ed"
   },
   {
-    "url": "static/js/prod/general.min.js",
+    "url": "prod/general.min.js",
     "revision": "27607804f5f0f7b9df50ccde5f62cd17"
+  },
+  {
+    "url": "/",
+    "revision": "9a1bef2cc49fce5d1274b3eed48326c2"
   }
 ].concat(self.__precacheManifest || []);
 workbox.precaching.suppressWarnings();
 workbox.precaching.precacheAndRoute(self.__precacheManifest, {});
 
-workbox.routing.registerRoute("/api/posts", workbox.strategies.networkFirst({ "cacheName":"my-api-cache","networkTimeoutSeconds":10,"fetchOptions":{"mode":"no-cors"},"matchOptions":{"ignoreSearch":true}, plugins: [new workbox.expiration.Plugin({"maxEntries":5,"maxAgeSeconds":60,"purgeOnQuotaError":false}), new workbox.backgroundSync.Plugin("my-queue-name", {"maxRetentionTime":3600}), new workbox.cacheableResponse.Plugin({"statuses":[0,200],"headers":{"x-test":"true"}}), new workbox.broadcastUpdate.Plugin("my-update-channel")] }), 'GET');
+workbox.routing.registerRoute("/api/*", workbox.strategies.networkFirst({ "cacheName":"my-api-cache","networkTimeoutSeconds":10,"fetchOptions":{"mode":"no-cors"},"matchOptions":{"ignoreSearch":true}, plugins: [new workbox.expiration.Plugin({"maxEntries":5,"maxAgeSeconds":60,"purgeOnQuotaError":false}), new workbox.backgroundSync.Plugin("my-queue-name", {"maxRetentionTime":3600}), new workbox.cacheableResponse.Plugin({"statuses":[0,200],"headers":{"x-test":"true"}}), new workbox.broadcastUpdate.Plugin("my-update-channel")] }), 'GET');
