@@ -30,6 +30,15 @@
 
 {% block body %}
 
+<!-- build:css /static/css/combined.css -->
+<link defer href="../static/css/lib/fontawesome-all.min.css" rel="stylesheet">
+<link defer  href="../static/css/style.css" rel="stylesheet" media="screen">
+<!-- endbuild -->
+
+<script defer src="{{url_for('static', filename='js/prod/general.min.js')}}"></script>
+
+<script defer src="{{url_for('static', filename='js/prod/app.min.js')}}"></script>
+
 
 <div class="container-fluid w-100 px-5 row col-12">
     {% with messages = get_flashed_messages() %}
@@ -60,7 +69,7 @@
                     <div class="typeahead__field">
 
             <span class="typeahead__query">
-                <input class="form-control typeahead" data-provide="typeahead"
+                <input class="form-control typeahead" data-provide="typeahead" aria-label="search"
                        name="" placeholder="Search" autocomplete="off" type="search">
             </span>
 
@@ -94,19 +103,23 @@
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item icon">
                     <a class="nav-link" href="https://www.linkedin.com/in/arsakian"><i class="fab fa-linkedin"
+                                                                                     aria-label="aarsakian@linkedin"
                                                                                        aria-hidden="true"></i></a>
                 </li>
                 <li class="nav-item icon">
                     <a class="nav-link" href="https://twitter.com/aarsakian"><i class="fab fa-twitter-square"
+                                                                                 aria-label="aarsakian@twitter"
                                                                                 aria-hidden="true"></i>
                     </a>
                 </li>
                 <li class="nav-item icon">
                     <a class="nav-link" href="https://github.com/aarsakian"><i class="fab fa-github-square"
+                                                                                  aria-label="aarsakian@github"
                                                                                aria-hidden="true"></i></a>
                 </li>
                 <li class="nav-item icon ">
-                    <a class="nav-link" href="/recent.atom"><i class="fas fa-rss-square" aria-hidden="true"></i></a>
+                    <a class="nav-link" href="/recent.atom"><i class="fas fa-rss-square"
+                                                               aria-hidden="true"></i></a>
                 </li>
             </ul>
         </div>
@@ -265,17 +278,7 @@
 
 {% endblock %}
 
-<!-- build:css /static/css/combined.css -->
-<link href="../static/css/lib/fontawesome-all.min.css" rel="stylesheet">
-<link href="../static/css/style.css" rel="stylesheet" media="screen">
-<!-- endbuild -->
-
-<script src="{{url_for('static', filename='js/prod/general.min.js')}}"></script>
-
-<script src="{{url_for('static', filename='js/prod/app.min.js')}}"></script>
-{% endblock %}
-
-
-{% block gscripts %}
 
 {% endblock %}
+
+
