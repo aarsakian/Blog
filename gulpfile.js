@@ -171,14 +171,25 @@ gulp.task('fonts', function () {
 })
 
 gulp.task('minify-html', function() {
-  return gulp.src(['blog/templates/rebase/*.html', 'blog/templates/*.html',
-                  '!blog/templates/production'])
+  return gulp.src([ 'blog/templates/*.html'
+                  ])
     .pipe(htmlmin({collapseWhitespace: true, removeComments: true,
     processScripts:["text/x-handlebars.template"],
     collapseInlineTagWhitespace:true,
     collapseBooleanAttributes:true,
     minifyJS:true}))
     .pipe(gulp.dest('blog/templates/production'));
+});
+
+
+gulp.task('minify-html-rebase', function() {
+  return gulp.src(['blog/templates/rebase/base.html'])
+    .pipe(htmlmin({collapseWhitespace: true, removeComments: true,
+    processScripts:["text/x-handlebars.template"],
+    collapseInlineTagWhitespace:true,
+    collapseBooleanAttributes:true,
+    minifyJS:true}))
+    .pipe(gulp.dest('blog/templates/production/rebase'));
 });
 
 
@@ -277,6 +288,6 @@ gulp.task('browser-sync', function(done) {
 });
 
 gulp.task('serve-prod', gulp.series('browserify-crud-prod', 'browserify-general-prod', 'html', 'fonts',
-                        'minify-html','generate-service-worker', 'browser-sync'));
+                        'minify-html','minify-html-rebase', 'generate-service-worker', 'browser-sync'));
 
 
