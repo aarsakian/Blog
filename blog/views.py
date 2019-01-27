@@ -550,6 +550,7 @@ def upload():
 @app.errorhandler(InvalidUsage)
 @app.errorhandler(404)
 def page_not_found(error):
+    logging.error("error! {}".format(error))
     if isinstance(error, InvalidUsage):
         response = jsonify(error.to_dict())
         response.status_code = error.status_code
