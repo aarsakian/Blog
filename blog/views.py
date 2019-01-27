@@ -1,10 +1,11 @@
-import logging, json
+import logging, json, urlparse
 from blog import app, csrf
 from models import Posts, Tags, Categories
 from flask import render_template,request,jsonify,redirect,url_for, Markup, flash, session,g, make_response,\
                     after_this_request
 
 from errors import InvalidUsage
+
 from models import BlogPost,Tag,Category
 
 from search import query_search_index, find_posts_from_index, delete_all_in_index
@@ -36,6 +37,16 @@ MSG = 'This website uses Cookies and Google Analytics (GA) to help analyse how u
 REMAINING_ATTEMPTS = 1
 
 
+
+
+@app.before_request
+def redirect_nonwww():
+    """Redirect non-www requests to www."""
+    urlparts = urlparse.urlparse(request.url)
+    if urlparts.netloc == 'arsakian.com':
+        urlparts_list = list(urlparts)
+        urlparts_list[1] = 'www.arsakian.com'
+        return redirect(urlparse.urlunparse(urlparts_list), code=301)
 
 
 @app.before_request

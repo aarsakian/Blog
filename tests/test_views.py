@@ -734,6 +734,17 @@ class TestViews(BlogTestBase):
 
         return self.assertEqualHTML(rendered_template.decode('utf8'), response.data.decode('utf8'))
 
+
+    def test_redirect_nonwww(self):
+        app.config['SERVER_NAME'] = "arsakian.com"
+        with app.test_request_context():
+            with app.test_client() as c:
+                response = c.get(url_for('index', _external=True))
+                self.assertEqual(response.location, "http://www.arsakian.com/")
+
+                response = c.get(url_for('archives', _external=True))
+                self.assertEqual(response.location, "http://www.arsakian.com/archives")
+
     # def test_upload(self):
     #     output = StringIO()
     #     output.write('hello there')
