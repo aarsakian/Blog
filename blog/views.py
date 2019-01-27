@@ -1,7 +1,8 @@
 import logging, json
 from blog import app, csrf
 from models import Posts, Tags, Categories
-from flask import render_template,request,jsonify,redirect,url_for, Markup, flash, session,g, make_response
+from flask import render_template,request,jsonify,redirect,url_for, Markup, flash, session,g, make_response,\
+                    after_this_request
 
 from errors import InvalidUsage
 from models import BlogPost,Tag,Category
@@ -35,6 +36,8 @@ MSG = 'This website uses Cookies and Google Analytics (GA) to help analyse how u
 REMAINING_ATTEMPTS = 1
 
 
+
+
 @app.before_request
 def accept_google_analytics():
     app.jinja_env.globals['ga_accepted'] = False
@@ -42,8 +45,9 @@ def accept_google_analytics():
     if request.path not in (url_for('login'), url_for('logout'), url_for('edit_a_post_view')):
         accept_google_analytics = request.cookies.get('ga_accepted')
 
-        if not accept_google_analytics:
+        if not accept_google_analytics and app.static_url_path not in request.path:
             flash(MSG)
+
         elif accept_google_analytics == 'False':
             app.jinja_env.globals['ga_accepted'] = False
 
