@@ -40,13 +40,14 @@
 <script defer src="{{url_for('static', filename='js/prod/app.min.js')}}"></script>
 
 
-<div class="container-fluid w-100 px-5 row col-12">
+<div class="container-fluid w-100 col-12">
     {% with messages = get_flashed_messages() %}
     {% if messages %}
 
     {% for message in messages %}
     <div class="alert alert-info alert-dismissible fade show p-2 messages" role="alert">
          <strong>{{ message }}</strong>
+        <div class="row">
         <button id="ga-accept" type="button" class="p-1 ml-4 btn btn-primary" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">Accept</span>
         </button>
@@ -54,7 +55,7 @@
             <span aria-hidden="true">Decline</span>
         </button>
 
-
+        </div>
     </div>
 
     {% endfor %}
@@ -83,7 +84,7 @@
     </div>
 
 
-    <nav id="hd" class="row col-12 mt-md-3 mb-md-2 mb-xs-1 navbar navbar-expand-md navbar-light">
+    <nav id="hd" class="no-gutters col-12 mt-md-3 mb-md-2 mb-xs-1 navbar navbar-expand-md navbar-light">
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -126,10 +127,10 @@
     </nav>
 
 
-    <div class="row col-12" id="bd">
+    <div class="col-12 no-gutters px-1" id="bd">
         {% block content %}<!-- main content area --> {% endblock %}
     </div>
-    <div class="row col-12" id="ld">
+    <div class="row col-12 no-gutters" id="ld">
         {%if user_status%}
         <div id="newpost" class="clear">
             {% block new_post%}{% endblock %}

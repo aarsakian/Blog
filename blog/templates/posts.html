@@ -14,7 +14,7 @@
 {% endblock %}
 
 {% block content%}
-<div class="page-header clear col-12 my-md-5 my-sm-2 my-xs-1">
+<div class="page-header clear p-sm-1 col-12 my-md-5 my-sm-2 my-xs-1">
     <div class="page-header-inner">
         <h1>Recent posts</h1>
 
@@ -22,14 +22,14 @@
 
 </div>
 
-<div id="posts" class="col-12">
+<div id="posts" class="no-gutters">
     {%if posts %}
     {%for Post in posts%}
 
     <div class="row col-12 my-2 mx-0 list post_key" data-id="{{Post.id}}">
 
 
-        <div class="post col-md-9 col-sm-12">
+        <div class="post col-md-9 col-sm-12 px-0">
             <div class="classic">
                 {% set timestamp = Post.timestamp.split(' ') %}
 
