@@ -27,6 +27,11 @@ handlers:
   script: blog.app
   login: admin
   secure: always
+
+libraries:
+  - name: ssl
+    version: "latest"
+
 skip_files:
  - ^(.*/)?#.*#$
  - ^(.*/)?.*~$
