@@ -5,7 +5,7 @@ Armen Arsakian personal blog
 {% endblock %}
 
 
-{% block header %}
+{% block head %}
 
 {{ super() }}
 {%for tag in posttagnames%}
@@ -15,11 +15,14 @@ Armen Arsakian personal blog
 
 {% block content%}
 {%if Post %}
-<div class="page-header row col-12 my-md-4 mx-0 py-1">
-    <h1 class="editable">{{Post.title}}</h1>
-</div>
 
-<div class="col-md-12 row my-md-2">
+{% block header%}
+    {% include 'header.html' %}
+
+{% endblock %}
+
+
+<div class="col-md-12 row my-md-2 pl-3 pr-1">
     <div class="date col-5 text-left my-1">Created: {{Post.timestamp}}</div>
     <div class="date col-5 text-left  my-1"> Updated: {{Post.updated}}</div>
 
