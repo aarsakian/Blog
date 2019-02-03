@@ -23,7 +23,7 @@ class BlogTestBase(TestCase):
         are not equal, and an exception gets raised.
         """
 
-        from BeautifulSoup import BeautifulSoup as bs
+        from bs4 import BeautifulSoup as bs
         import difflib
 
         def short(mystr):
@@ -36,7 +36,7 @@ class BlogTestBase(TestCase):
         for mystr, file in [(string1, file1), (string2, file2)]:
             if not isinstance(mystr, unicode):
                 raise Exception(u'string ist not unicode: %r %s' % (short(mystr), file))
-            soup = bs(mystr)
+            soup = bs(mystr, 'html.parser')
             pretty = soup.prettify()
             p.append(pretty)
         if p[0] != p[1]:
