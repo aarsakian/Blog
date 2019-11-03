@@ -1,12 +1,11 @@
 import logging, json, urlparse
 from blog import app, csrf
 from models import Posts, Tags, Categories
-from flask import render_template,request,jsonify,redirect,url_for, Markup, flash, session,g, make_response,\
-                    after_this_request
+from flask import render_template,request,jsonify,redirect,url_for, flash, session, make_response
 
 from errors import InvalidUsage
 
-from models import BlogPost,Tag,Category
+from models import BlogPost
 
 from search import query_search_index, find_posts_from_index, delete_all_in_index
 
@@ -15,7 +14,7 @@ from werkzeug.contrib.atom import AtomFeed
 
 from functools import wraps
 
-from jinja2.environment import Environment
+from werkzeug import secure_filename
 
 from datetime import datetime
 
@@ -387,6 +386,18 @@ def main():
                             tags_ids=tag_keys,
                             summary=raw_summary,
                             answers=raw_post["answers"]).id()
+
+                image = form.image.data
+                if allowed_file(image.filename):
+                    filename = secure_filename(image.filename)
+                    image.save(os.path.join(app.config['UPLOAD_FOLDER'],
+                                            filename)) ”
+
+                    Excerpt
+                    From: Shalabh
+                    Aggarwal. “Flask
+                    Framework
+                    Cookbook.” iBooks.
                 post = BlogPost.get(post_id)
                 return jsonify(post.to_json()) #  Needs check
             else:
