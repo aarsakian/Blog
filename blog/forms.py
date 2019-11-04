@@ -9,11 +9,6 @@ from flask_uploads import UploadSet, IMAGES
 images_set = UploadSet('images', IMAGES)
 
 
-class UploadForm(FlaskForm):
-    images_field = FileField("images", validators=[FileAllowed(images_set, 'Images only!')])
-    submit = SubmitField('Submit files')
-
-
 class AnswerForm(FlaskForm):
     p_answer = StringField("", default="{{this.p_answer}}", _name="")
     is_correct = BooleanField(default="{{is_correct}}", _name="")
@@ -32,5 +27,6 @@ class PostForm(FlaskForm):
     tags = StringField("", default="{{tags}}")
     category = StringField("", validators=[DataRequired()], default="{{category}}")
     answers = FieldList(FormField(AnswerForm), min_entries=4)
+    image = FileField("images", validators=[FileAllowed(images_set, 'Images only!')])
     submit = SubmitField('Save')
 
