@@ -1,6 +1,10 @@
 import logging
 from google.appengine.ext import ndb
 from google.appengine.api import memcache
+import cloudstorage
+from google.appengine.api import app_identity
+from google.appengine.ext import blobstore
+import magic
 
 from utils import datetimeformat
 
@@ -77,6 +81,7 @@ class BlogPost(ndb.Model):
     category = ndb.KeyProperty(kind=Category)
     summary = ndb.TextProperty()
     answers = ndb.StructuredProperty(Answer, repeated=True)
+    blob_key = ndb.BlobKeyProperty()
 
     def strip_answers_jsoned(self):
         return [{"p_answer" :answer.p_answer, "is_correct":False}
@@ -179,6 +184,25 @@ class BlogPost(ndb.Model):
             answers_stats.update({answer.p_answer: answer.nof_times_selected})
         return answers_stats
 
+    def add_blob(self, image, image_filename):
+
+        bucket = app_identity.get_default_gcs_bucket_name()
+
+        # Cloud Storage file names are in the format /bucket/object.
+        filename = '/{}/{}'.format(bucket, image_filename)
+
+        # Create a file in Google Cloud Storage and write something to it.
+        mime = magic.Magic(mime=True)
+
+        with cloudstorage.open(filename, 'w', content_type= mime.from_file(image_filename)) as filehandle:
+            filehandle.write(image)
+
+        blobstore_filename = '/gs{}'.format(filename)
+        self.blob_key = blobstore.BlobKey(blobstore.create_gs_key(blobstore_filename))
+        blob_info = blobstore.BlobInfo.get(self.blob_key)
+        file_name = blob_info.filename
+        print(file_name)
+        return True
 
 
 class BlogList(list):
@@ -471,3 +495,5 @@ class Categories(BlogList, JsonMixin):
 
     def get(self, category_key):
         return  Category.get(category_key.id())
+
+

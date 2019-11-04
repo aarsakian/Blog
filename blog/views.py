@@ -1,8 +1,8 @@
-import logging, json, urlparse
+import logging, json, urlparse, base64
 from blog import app, csrf
 from models import Posts, Tags, Categories
 from flask import render_template,request,jsonify,redirect,url_for, flash, session, make_response
-
+from werkzeug import secure_filename
 from errors import InvalidUsage
 
 from models import BlogPost
@@ -14,12 +14,11 @@ from werkzeug.contrib.atom import AtomFeed
 
 from functools import wraps
 
-from werkzeug import secure_filename
-
 from datetime import datetime
 
-from forms import PostForm, AnswerRadioForm, UploadForm, images_set
-from utils import datetimeformat, calculate_work_date_stats,  to_markdown, generate_uid_token
+from forms import PostForm, AnswerRadioForm
+from utils import datetimeformat, calculate_work_date_stats,  to_markdown, generate_uid_token, allowed_file
+
 
 
 KEY="posts"
@@ -185,7 +184,7 @@ def searchresults(posts, tags, categories,  passed_days,
     query_string = request.args.get('q')
     results = query_search_index(query_string)
     form = PostForm()
-    uploadform = UploadForm()
+
     if results:
         posts_ids = find_posts_from_index(results)
         posts.filter_matched(posts_ids)
@@ -195,7 +194,7 @@ def searchresults(posts, tags, categories,  passed_days,
     return render_template('posts.html', user_status=users.is_current_user_admin(), siteupdated=site_updated, \
                            daysleft=remaining_days, dayspassed=passed_days,
                            posts=posts.to_json(),
-                           codeversion=CODEVERSION, form=form, uploadform=uploadform)
+                           codeversion=CODEVERSION, form=form)
 
 
 @app.route('/built with',methods=['GET'])
@@ -238,13 +237,12 @@ def index(posts, tags, categories, passed_days,
 
 
     form = PostForm()
-    uploadform = UploadForm()
 
     return render_template('posts.html', user_status=users.is_current_user_admin(), siteupdated=site_updated, \
                            daysleft=remaining_days, dayspassed=passed_days, tags=tags, categories=categories,
                            posts=posts.to_json(),
                            codeversion=CODEVERSION,
-                           form=form, uploadform=uploadform)
+                           form=form)
 
 
 @app.route('/archives',methods=['GET'])
@@ -256,13 +254,13 @@ def archives(posts, tags, categories, passed_days,
     if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
 
     form = PostForm()
-    uploadform = UploadForm()
+
     site_updated = posts.site_last_updated()
 
     return render_template('archives.html',user_status=users.is_current_user_admin(),siteupdated=site_updated,\
                            daysleft=remaining_days,dayspassed=passed_days,tags=tags,categories=categories,
                            posts=posts.to_json(),
-                           codeversion=CODEVERSION, form=form, uploadform=uploadform)
+                           codeversion=CODEVERSION, form=form)
 
 
 
@@ -376,9 +374,11 @@ def main():
                 editing_tags = raw_post["tags"]
                 raw_summary = raw_post["summary"]
 
-
                 tag_keys = tags.update(editing_tags)
                 category_key = categories.update(raw_category)
+                if raw_post["image"]:
+                    image_base64 = raw_post["image"]["url"].split("base64,")[-1]
+                    image_filename = raw_post["image"]["filename"].split("\\")[-1]
 
                 post_id = posts.add(raw_title=raw_post["title"],
                             raw_body=raw_post["body"],
@@ -386,19 +386,12 @@ def main():
                             tags_ids=tag_keys,
                             summary=raw_summary,
                             answers=raw_post["answers"]).id()
-
-                image = form.image.data
-                if allowed_file(image.filename):
-                    filename = secure_filename(image.filename)
-                    image.save(os.path.join(app.config['UPLOAD_FOLDER'],
-                                            filename)) ”
-
-                    Excerpt
-                    From: Shalabh
-                    Aggarwal. “Flask
-                    Framework
-                    Cookbook.” iBooks.
                 post = BlogPost.get(post_id)
+
+                if allowed_file(image_filename):
+                    image_filename = secure_filename(image_filename)
+                    post.add_blob(base64.b64decode(image_base64), image_filename)
+
                 return jsonify(post.to_json()) #  Needs check
             else:
                 return jsonify(msg="missing token")
@@ -503,12 +496,12 @@ def edit_a_post_view(postkey=None):
 
     form = PostForm()
     posts = Posts()
-    uploadform = UploadForm()
+
     passed_days, remaining_days = calculate_work_date_stats()
     site_updated = posts.site_last_updated()
     return render_template('posts.html',user_status=users.is_current_user_admin(),siteupdated=site_updated,\
                            daysleft=remaining_days,dayspassed=passed_days,
-                           codeversion=CODEVERSION, form=form, uploadform=uploadform)
+                           codeversion=CODEVERSION, form=form)
 
 
 
@@ -550,27 +543,6 @@ def searchsite():
         data = "something went wrong while searching"
 
     return jsonify(data=data)
-
-
-@app.route('/upload', methods=['POST'])
-def upload():
-
-    if request.method == 'POST':
-        if "files" not in request.files:
-            flash('No file part')
-            return redirect(url_for("edit_a_post_view"))
-        files = request.files['files']
-        print (files)
-        if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('uploaded_file',
-                                    filename=filename))
-
-
 
 
 @app.errorhandler(InvalidUsage)
