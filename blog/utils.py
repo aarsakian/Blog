@@ -3,8 +3,9 @@ from datetime import datetime, date
 from math import ceil
 from mistune import markdown, Renderer
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-from uuid import UUID
 from flask import g
+
+
 
 from blog import app
 
@@ -19,6 +20,10 @@ allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
 allowed_attrs = {'*': ['class'],
                         'a': ['href', 'rel'],
                         'img': ['src', 'alt']}
+
+
+ALLOWED_EXTENSIONS = set([  'png', 'jpg', 'jpeg', 'gif'])
+
 
 
 class BlogRenderer(Renderer):
@@ -93,6 +98,10 @@ def generate_uid_token(expiration=3600):
     return s.dumps({'current_user_uid': g.current_user_uid}).decode('utf-8')
 
 
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.lower().rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
 def confirm_token(token):
         s = Serializer(current_app.config['SECRET_KEY'])
         try:
@@ -103,3 +112,5 @@ def confirm_token(token):
             return True
 
         return False
+
+
