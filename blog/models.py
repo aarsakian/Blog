@@ -4,7 +4,6 @@ from google.appengine.api import memcache
 import cloudstorage
 from google.appengine.api import app_identity
 from google.appengine.ext import blobstore
-import magic
 
 from utils import datetimeformat
 
@@ -192,9 +191,8 @@ class BlogPost(ndb.Model):
         filename = '/{}/{}'.format(bucket, image_filename)
 
         # Create a file in Google Cloud Storage and write something to it.
-        mime = magic.Magic(mime=True)
 
-        with cloudstorage.open(filename, 'w', content_type= mime.from_file(image_filename)) as filehandle:
+        with cloudstorage.open(filename, 'w') as filehandle:
             filehandle.write(image)
 
         blobstore_filename = '/gs{}'.format(filename)
