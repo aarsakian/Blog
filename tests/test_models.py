@@ -748,7 +748,7 @@ class TestModels(BlogTestBase):
     def test_add_blob(self):
         post, _, _ = self.create_post()
         image_filename = '775772399_3a87c21f93_o.jpg'
-        with open(os.path.join('tests', image_filename)) as f:
+        with open(os.path.join( image_filename)) as f:
             self.assertTrue(post.add_blob(f.read(), image_filename))
 
 
