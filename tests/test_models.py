@@ -1,3 +1,4 @@
+import os
 
 from datetime import datetime
 
@@ -32,6 +33,12 @@ class TestModels(BlogTestBase):
 
         self.testbed.init_user_stub()
 
+        self.testbed.init_blobstore_stub()
+
+        self.testbed.init_app_identity_stub()
+
+        self.testbed.init_urlfetch_stub()
+
         self.testbed.init_search_stub(enable=True)
         # Clear ndb's in-context cache between tests.
         # This prevents data from leaking between tests.
@@ -48,6 +55,25 @@ class TestModels(BlogTestBase):
                                is_correct=is_correct)
                         for ans, is_correct in answers.items()]
         return answers_keys
+
+    def create_post(self, category="a category"):
+        category_key = self.categories.add(category)
+
+        test_tags = ["a new tag", "a new new tag"]
+        tag_keys = self.tags.add(test_tags)
+
+        summary = "a summmary"
+        title = "a title"
+        body = "here is a body"
+
+        post_key = BlogPost(title=title,
+                            body=body,
+                            category=category_key,
+                            tags=tag_keys,
+                            summary=summary,
+                            answers=()).put()
+
+        return post_key.get(), category_key, tag_keys
 
     def create_post_with_answers(self, answers, category="a category"):
 
@@ -718,6 +744,12 @@ class TestModels(BlogTestBase):
 
         answers_stats = post.get_answers_statistics()
         self.assertDictEqual(answers_stats, {"Answer": "Selection", u"ans1": 1, u"ans2": 1, u"ans3": 0})
+
+    def test_add_blob(self):
+        post, _, _ = self.create_post()
+        image_filename = '775772399_3a87c21f93_o.jpg'
+        with open(os.path.join('tests', image_filename)) as f:
+            self.assertTrue(post.add_blob(f.read(), image_filename))
 
 
 
