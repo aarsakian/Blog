@@ -300,9 +300,36 @@ class PostForm extends ModelView {
     return {
       'click #post-submit': 'savePost',
       'click #cancel': 'cancel',
-      'keydown #new-post-body': 'previewMarkdownAndResizeTextArea'
+      'keydown #new-post-body': 'previewMarkdownAndResizeTextArea',
+      'change #files': 'fileSelected'
     };
   }
+
+  fileSelected(event) {
+    event.preventDefault();
+
+    // Get a blob instance of the file selected
+    var $fileInput = this.$('#files')[0];
+    var fileBlob = $fileInput.files[0];
+
+    // Render the image selected in the img tag
+    var fileReader = new FileReader();
+    fileReader.onload = event => {
+
+      if (this.model.isNew()) {
+        this.model.set({
+          image: {
+            url: event.target.result,
+            filename: this.$('#files').val()
+          }
+        });
+      }
+    };
+    fileReader.readAsDataURL(fileBlob);
+
+    this.trigger('image:selected', fileBlob);
+  }
+
 
   serializeData() {
     var str = JSON.stringify(this.model.toJSON());

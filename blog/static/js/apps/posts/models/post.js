@@ -1,8 +1,10 @@
 'use strict';
 
 
-
+var $ = require('jquery');
+var _ = require('underscore');
 var Backbone = require('../../../libs/backbone/backbone-nested');
+
 
 class Post extends Backbone.NestedModel {
   constructor(options) {
@@ -31,9 +33,52 @@ class Post extends Backbone.NestedModel {
       updated:"",
       tags:"",
       summary:"",
+      image:null,
       answers:[]
 
     };
+  }
+
+  uploadImage(imageBlob, options) {
+    // Create a form object to emulate a multipart/form-data
+    var formData = new FormData();
+    formData.append('avatar', imageBlob);
+
+    var ajaxOptions = {
+      url: '/api/posts/' + this.get('id') + '/image',
+      type: 'POST',
+      data: formData,
+      cache: false,
+      contentType: false,
+      processData: false
+    };
+
+    options = options || {};
+
+    // Copy options to ajaxOptions
+    _.extend(ajaxOptions, _.pick(options, 'success', 'error'));
+
+    // Attach a progress handler only if is defined
+    if (options.progress) {
+      ajaxOptions.xhr = function() {
+        var xhr = $.ajaxSettings.xhr();
+
+        if (xhr.upload) {
+          // For handling the progress of the upload
+          xhr.upload.addEventListener('progress', event => {
+            let length = event.total;
+            let uploaded = event.loaded;
+            let percent = uploaded / length;
+
+            options.progress(length, uploaded, percent);
+          }, false);
+        }
+
+        return xhr;
+      };
+    }
+
+    $.ajax(ajaxOptions);
   }
 
 

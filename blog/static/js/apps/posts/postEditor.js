@@ -115,7 +115,45 @@ class PostEditor {
 
     this.listenTo(postForm, 'form:save', this.savePost);
     this.listenTo(postForm, 'form:cancel', this.cancel);
+
+
+    this.listenTo(postForm, 'image:selected', blob => {
+      this.imageSelected = blob;
+
+      if (!post.isNew()) {
+        this.uploadImage(post);
+      }
+    });
+
   }
+
+
+  uploadImage(post, options) {
+    // Tell to others that upload will start
+    this.trigger('avatar:uploading:start');
+
+    post.uploadImage(this.avatarSelected, {
+      progress: (length, uploaded, percent) => {
+        // Tell to others that upload is in progress
+        this.trigger('avatar:uploading:progress',
+                     length, uploaded, percent);
+        if (options && _.isFunction(options.success)) {
+          options.success();
+        }
+      },
+      success: () => {
+        // Tell to others that upload was done successfully
+        this.trigger('avatar:uploading:done');
+      },
+      error: err => {
+        // Tell to others that upload was error
+        this.trigger('avatar:uploading:error', err);
+      }
+    });
+  }
+
+
+
 
  /*savePost(postForm) {
 
