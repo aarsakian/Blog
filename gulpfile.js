@@ -202,7 +202,7 @@ gulp.task('generate-service-worker', () => {
     ],
     swDest: 'blog/static/js/sw.js',
     clientsClaim: true,
-    templatedUrls: {
+    templatedURLs: {
         '/':  'blog/templates/production/index.html'
 
       },
@@ -210,7 +210,7 @@ gulp.task('generate-service-worker', () => {
     // Match any same-origin request that contains 'api'.
     urlPattern: '/api/*',
     // Apply a network-first strategy.
-    handler: 'networkFirst',
+    handler: 'NetworkFirst',
     options: {
       // Fall back to the cache after 10 seconds.
       networkTimeoutSeconds: 10,
