@@ -376,9 +376,6 @@ def main():
 
                 tag_keys = tags.update(editing_tags)
                 category_key = categories.update(raw_category)
-                if raw_post["image"]:
-                    image_base64 = raw_post["image"]["url"].split("base64,")[-1]
-                    image_filename = raw_post["image"]["filename"].split("\\")[-1]
 
                 post_id = posts.add(raw_title=raw_post["title"],
                             raw_body=raw_post["body"],
@@ -387,10 +384,13 @@ def main():
                             summary=raw_summary,
                             answers=raw_post["answers"]).id()
                 post = BlogPost.get(post_id)
-
-                if allowed_file(image_filename):
-                    image_filename = secure_filename(image_filename)
-                    post.add_blob(base64.b64decode(image_base64), image_filename)
+                if "image" in raw_post.keys():
+                    image_base64 = raw_post["image"]["url"].split("base64,")[-1]
+                    image_filename = raw_post["image"]["filename"].split("\\")[-1]
+                    print(image_filename)
+                    if allowed_file(image_filename):
+                        image_filename = secure_filename(image_filename)
+                        post.add_blob(base64.b64decode(image_base64), image_filename)
 
                 return jsonify(post.to_json()) #  Needs check
             else:

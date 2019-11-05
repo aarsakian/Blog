@@ -1,5 +1,6 @@
 
-from blog.utils import find_modified_tags, datetimeformat, make_external,  calculate_work_date_stats, to_markdown
+from blog.utils import find_modified_tags, datetimeformat, make_external,  calculate_work_date_stats, to_markdown, \
+    allowed_file
 from google.appengine.ext import testbed
 
 
@@ -44,3 +45,9 @@ class TestUtils(BlogTestBase):
                          u"<tbody><tr><td>Cell 1</td><td>Cell 2</td></tr></tbody></table>"
 
         self.assertEqualHTML(rendered_table, to_markdown(table).strip())
+
+    def test_allowed_extensions(self):
+        not_allowed_file = 'test.txt'
+        allowed_file_ext = 'myphoto.jpg'
+        self.assertFalse(allowed_file(not_allowed_file))
+        self.assertTrue(allowed_file(allowed_file_ext))

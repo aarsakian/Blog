@@ -1,9 +1,9 @@
 import unittest
 import json
-import logging
-from StringIO import StringIO
+import os
+from base64 import b64encode
 
-from freezegun import freeze_time
+from freezegun import freeze_time as _freeze_time
 from datetime import datetime
 from werkzeug.contrib.atom import AtomFeed
 from werkzeug.http import parse_cookie
@@ -14,18 +14,35 @@ from flask_wtf.csrf import generate_csrf
 from google.appengine.ext import testbed
 from google.appengine.api import users
 from google.appengine.ext import ndb
-from blog.forms import PostForm, AnswerRadioForm, UploadForm
+from blog.forms import PostForm, AnswerRadioForm
 from blog.models import Tags, Posts, Categories, BlogPost
 from blog.utils import find_modified_tags, datetimeformat, make_external,  calculate_work_date_stats
 from blog.search import query_search_index, find_posts_from_index
 from blog import app
 from blog.views import accept_google_analytics, MSG
-from blog.errors import InvalidUsage
+from contextlib import contextmanager
+from google.appengine.api import datastore_types
+from mock import patch
+from freezegun.api import FakeDatetime
 
 CODEVERSION = ':v0.7'
 
 DATEFORMAT = '%A, %d %B %Y'
 
+
+@contextmanager
+def freeze_time(*args, **kwargs):
+    with patch('google.appengine.ext.db.DateTimeProperty.data_type',
+               new=FakeDatetime):
+        datastore_types._VALIDATE_PROPERTY_VALUES[FakeDatetime] = \
+            datastore_types.ValidatePropertyNothing
+        datastore_types._PACK_PROPERTY_VALUES[FakeDatetime] = \
+            datastore_types.PackDatetime
+        datastore_types._PROPERTY_MEANINGS[FakeDatetime] = \
+            datastore_types.entity_pb.Property.GD_WHEN
+
+        with _freeze_time(*args, **kwargs):
+            yield
 
 
 from . import BlogTestBase
@@ -46,6 +63,11 @@ class TestViews(BlogTestBase):
 
         self.testbed.init_search_stub(enable=True)
 
+        self.testbed.init_urlfetch_stub()
+
+        self.testbed.init_app_identity_stub()
+        self.testbed.init_blobstore_stub()
+
         self.testbed.setup_env(
             USER_EMAIL='test@example.com',
             USER_ID='123',
@@ -62,7 +84,6 @@ class TestViews(BlogTestBase):
         self.categories = Categories()
         self.posts = Posts()
         self.form = PostForm()
-        self.uploadform = UploadForm()
 
     def test_tags_view(self):
 
@@ -116,7 +137,6 @@ class TestViews(BlogTestBase):
                                             posts=posts_json,
                                             codeversion=CODEVERSION,
                                             form=self.form,
-                                            uploadform=self.uploadform,
                                             posts_tags_names=post_tag_names)
 
         self.assertEqualHTML(rendered_template, response.data.decode('utf-8'))
@@ -146,7 +166,6 @@ class TestViews(BlogTestBase):
                                             posts=posts_json,
                                             codeversion=CODEVERSION,
                                             form=self.form,
-                                            uploadform=self.uploadform,
                                             posts_tags_names=post_tag_names)
 
         self.assertEqualHTML(rendered_template, response.data.decode('utf-8'))
@@ -164,7 +183,7 @@ class TestViews(BlogTestBase):
                                             categories=self.categories,
                                             posts=self.posts.to_json(),
                                             codeversion=CODEVERSION,
-                                            form=self.form, uploadform=self.uploadform)
+                                            form=self.form)
         self.assertEqualHTML(rendered_template, response.data.decode('utf-8'))
 
     def test_index_page_with_content_is_ok(self):
@@ -185,7 +204,7 @@ class TestViews(BlogTestBase):
                                             daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
                                             categories=self.categories,
                                             posts=self.posts.to_json(),
-                                            codeversion=CODEVERSION, form=self.form, uploadform=self.uploadform)
+                                            codeversion=CODEVERSION, form=self.form)
         self.assertEqualHTML(rendered_template.decode('utf-8'), response.data.decode('utf-8'))
 
     def test_selected_post_page_returns_correct_html(self):
@@ -284,7 +303,7 @@ class TestViews(BlogTestBase):
                                             daysleft=remaining_days, dayspassed=passed_days, tags=self.tags,
                                             categories=self.categories,
                                             posts=self.posts.to_json(),
-                                            codeversion=CODEVERSION, form=self.form, uploadform=self.uploadform)
+                                            codeversion=CODEVERSION, form=self.form)
         self.assertEqualHTML(rendered_template, response.data.decode('utf-8'))
 
     def test_delete_post(self):
@@ -324,7 +343,7 @@ class TestViews(BlogTestBase):
                  u"timestamp": asked_post.timestamp.strftime(DATEFORMAT).decode('utf8')
                     , u"updated":
                      asked_post.updated.strftime(DATEFORMAT).decode('utf8'),
-                u"answers":[]
+                u"answers":[], u'image': u"None"
                  }
 
         response = self.client.get(url_for("get_post", id=post_key.id()))
@@ -334,61 +353,66 @@ class TestViews(BlogTestBase):
     def test_add_post(self):
 
         existing_tags = [u"a new new tag", u"a new tag"]
-        freezer = freeze_time(u"2017-03-20")
+        freezer = _freeze_time(u"2017-03-20")
         freezer.start()
         json_data = {u'category': u'category', u'tags': existing_tags, u"summary": u"this is a summary",
                      u'title': u'a title',u'body': u'body text', u'timestamp': datetimeformat(datetime.now()).decode("utf-8"),
-                     u'updated': datetimeformat(datetime.now()).decode("utf-8"), "answers" :
-                         [{u'p_answer':'a potential answer', u'is_correct':True,
+                     u'updated': datetimeformat(datetime.now()).decode("utf-8"), u"answers" :
+                         [{u'p_answer':u'a potential answer', u'is_correct':True,
                            u'statistics': 0.0,    u'nof_times_selected': 0}]}
 
         response = self.client.post(url_for('main'), content_type='application/json',
                                    data=json.dumps(json_data))
         json_data[u"id"] = u'4'
-
+        json_data[u'image'] = u"None"
         self.assertDictEqual(json_data, response.json)
         freezer.stop()
 
     def test_api_posts(self):
         existing_tags = [u"a new new tag", u"a new tag"]
-        freezer = freeze_time(u"2017-03-20 17:48:18")
+        freezer = _freeze_time(u"2017-03-20 17:48:18")
         freezer.start()
         json_data = {u'category': u'category', u'tags': existing_tags, u"summary": u"this is a summary",
                      u'title': u'a title', u'body': u'body text', u'timestamp': datetimeformat(datetime.now())
                 .decode("utf-8"),
                      u'updated': datetimeformat(datetime.now()).decode("utf-8"),
-                     "answers":
-                         [{u'p_answer': 'a potential answer', u'is_correct': True,
+                     u"answers":
+                         [{u'p_answer': u'a potential answer', u'is_correct': True,
                            u'statistics': 0.0, u'nof_times_selected': 0}]}
 
         response = self.client.post(url_for('main'), content_type='application/json',
                          data=json.dumps(json_data))
 
         json_data[u"id"] = u'4'
-
+        json_data[u'image'] = u"None"
         self.assertDictEqual(json_data, response.json)
         freezer.stop()
 
     def test_api_posts_with_files(self):
         existing_tags = [u"a new new tag", u"a new tag"]
-        freezer = freeze_time(u"2017-03-20 17:48:18")
-        freezer.start()
-        json_data = {u'category': u'category', u'tags': existing_tags, u"summary": u"this is a summary",
-                     u'title': u'a title', u'body': u'body text', u'timestamp': datetimeformat(datetime.now())
-                .decode("utf-8"),
-                     u'updated': datetimeformat(datetime.now()).decode("utf-8"),
-                     "answers":
-                         [{u'p_answer': 'a potential answer', u'is_correct': True,
-                           u'statistics': 0.0, u'nof_times_selected': 0}]}
+        with freeze_time(u"2019-11-05"):
 
+            image = {}
+            file_name = '775772399_3a87c21f93_o.jpg'
+            with open(file_name, 'rb') as f:
+                byte_content = f.read()
 
-        response = self.client.post(url_for('main'), content_type='application/json',
-                         data=json.dumps(json_data))
+            base64_content = b64encode(byte_content)
+            image['filename'] = "C:\\fakepath\\{}".format(file_name)
+            image['url'] = "data:image/jpeg;base64,{}".format(base64_content)
+            json_data = {u'category': u'category', u'tags': existing_tags, u"summary": u"this is a summary",
+                         u'title': u'a title', u'body': u'body text', u'timestamp': datetimeformat(datetime.now())
+                    .decode("utf-8"),
+                         u'updated': datetimeformat(datetime.now()).decode("utf-8"),
+                         u"answers":[], u'image':image}
 
-        json_data[u"id"] = u'4'
+            response = self.client.post(url_for('main'), content_type='application/json',
+                             data=json.dumps(json_data))
 
-        self.assertDictEqual(json_data, response.json)
-        freezer.stop()
+            json_data[u"id"] = u'4'
+            json_data[u'image'] = u'encoded_gs_file:YXBwX2RlZmF1bHRfYnVja2V0Lzc3NTc3MjM5OV8zYTg3YzIxZjkzX28uanBn'
+            self.assertDictEqual(json_data, response.json)
+
 
     def test_no_post(self):
 
@@ -411,8 +435,8 @@ class TestViews(BlogTestBase):
 
         updating_post = post_key.get()
 
-        json_data = {'category': 'a new category', 'tags': editing_tags, 'title': 'a new title', 'body': 'body text',
-                     'summary': 'this is a new summary',
+        json_data = {u'category': u'a new category', 'tags': editing_tags, 'title': 'a new title', 'body': 'body text',
+                     u'summary': u'this is a new summary',
                      'answers':[]}
 
         response = self.client.put(url_for('edit_post', id=post_key.id()), content_type='application/json',
@@ -421,14 +445,14 @@ class TestViews(BlogTestBase):
         tag_names = [u"a new tag", u"a new new tag", u"tag to added"]
         post_tag_names = [u"a new tag", u"tag to added"]
 
-        data = {u"title": 'a new title', u"body": updating_post.body, u"category":
-                 "a new category", u"id": str(updating_post.key.id()).decode('utf8'), \
+        data = {u"title": u'a new title', u"body": updating_post.body, u"category":
+                 u"a new category", u"id": str(updating_post.key.id()).decode('utf8'), \
                  u"tags": post_tag_names,
-                'summary': 'this is a new summary',
+                u'summary': u'this is a new summary',
                  u"timestamp": updating_post.timestamp.strftime(DATEFORMAT).decode('utf8')
                     , u"updated":
                      updating_post.updated.strftime(DATEFORMAT).decode('utf8'),
-                 u"answers":updating_post.answers
+                 u"answers":updating_post.answers,u'image':u'None',
                  }
 
         self.assertDictEqual(data, response.json)
@@ -453,7 +477,7 @@ class TestViews(BlogTestBase):
         rendered_template = render_template('posts.html', user_status=users.is_current_user_admin(),
                                             siteupdated=site_updated, \
                                             daysleft=remaining_days, dayspassed=passed_days,
-                                            codeversion=CODEVERSION, form=self.form, uploadform=self.uploadform)
+                                            codeversion=CODEVERSION, form=self.form)
 
         self.assertEqualHTML(rendered_template.decode('utf8'), response.data.decode('utf8'))
 
@@ -503,7 +527,7 @@ class TestViews(BlogTestBase):
                                             siteupdated=site_updated, \
                                             daysleft=remaining_days, dayspassed=passed_days,
                                             posts=self.posts.to_json(),
-                                            codeversion=CODEVERSION, form=self.form, uploadform=self.uploadform)
+                                            codeversion=CODEVERSION, form=self.form)
 
         response = self.client.get(url_for('searchresults', q="body"))
 
@@ -549,7 +573,7 @@ class TestViews(BlogTestBase):
                                             daysleft=remaining_days, dayspassed=passed_days,
                                             tags=self.tags, categories=self.categories,
                                             posts=self.posts.to_json(),
-                                            codeversion=CODEVERSION, form=self.form, uploadform=self.uploadform)
+                                            codeversion=CODEVERSION, form=self.form)
 
         response = self.client.get(path='/tags/a new tag')
 
@@ -580,7 +604,7 @@ class TestViews(BlogTestBase):
                                              daysleft=remaining_days, dayspassed=passed_days,
                                              tags=self.tags, categories=self.categories,
                                              posts=self.posts.to_json(),
-                                             codeversion=CODEVERSION, form=self.form, uploadform=self.uploadform)
+                                             codeversion=CODEVERSION, form=self.form)
 
          response = self.client.get(path='/categories/a category')
 
