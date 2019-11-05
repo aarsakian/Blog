@@ -5,6 +5,7 @@ import cloudstorage
 from google.appengine.api import app_identity
 from google.appengine.ext import blobstore
 
+
 from utils import datetimeformat
 
 from errors import InvalidUsage
@@ -126,6 +127,7 @@ class BlogPost(ndb.Model):
         jsoned_data[u"updated"] = datetimeformat(post_dict["updated"])
         jsoned_data[u"timestamp"] = datetimeformat(post_dict["timestamp"])
         jsoned_data[u"answers"] = post_dict["answers"]
+        jsoned_data[u"image"] = str(self.blob_key)
         return jsoned_data
 
     def to_answers_form(self):
