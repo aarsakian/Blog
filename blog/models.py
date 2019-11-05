@@ -81,7 +81,7 @@ class BlogPost(ndb.Model):
     category = ndb.KeyProperty(kind=Category)
     summary = ndb.TextProperty()
     answers = ndb.StructuredProperty(Answer, repeated=True)
-    blob_key = ndb.BlobKeyProperty()
+    image_blob_key = ndb.BlobKeyProperty()
 
     def strip_answers_jsoned(self):
         return [{"p_answer" :answer.p_answer, "is_correct":False}
@@ -127,7 +127,7 @@ class BlogPost(ndb.Model):
         jsoned_data[u"updated"] = datetimeformat(post_dict["updated"])
         jsoned_data[u"timestamp"] = datetimeformat(post_dict["timestamp"])
         jsoned_data[u"answers"] = post_dict["answers"]
-        jsoned_data[u"image"] = str(self.blob_key)
+        jsoned_data[u"image"] = str(self.image_blob_key)
         return jsoned_data
 
     def to_answers_form(self):
@@ -194,14 +194,15 @@ class BlogPost(ndb.Model):
 
         # Create a file in Google Cloud Storage and write something to it.
 
-        with cloudstorage.open(filename, 'w') as filehandle:
+        with cloudstorage.open(filename=filename, mode='w',
+                               content_type='image/jpeg') as filehandle:
             filehandle.write(image)
 
         blobstore_filename = '/gs{}'.format(filename)
-        self.blob_key = blobstore.BlobKey(blobstore.create_gs_key(blobstore_filename))
-        blob_info = blobstore.BlobInfo.get(self.blob_key)
+        self.image_blob_key = blobstore.BlobKey(blobstore.create_gs_key(blobstore_filename))
+        blob_info = blobstore.BlobInfo.get(self.image_blob_key)
         file_name = blob_info.filename
-        print(file_name)
+        print("RTES",self.image_blob_key)
         return True
 
 
