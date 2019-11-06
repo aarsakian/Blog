@@ -781,15 +781,14 @@ class TestViews(BlogTestBase):
             img_stringIO = StringIO.StringIO(f.read())  # in memory read
 
         post, _, _ = self.create_post()
-        post.add_blob(img_stringIO.read(), TEST_IMAGE)
-        image_key = post.to_json()['image']
+        image_key = post.add_blob(img_stringIO.read(), TEST_IMAGE)
 
         response = self.client.get(path='/images/{}'.format(image_key),
                                       content_type='multipart/form-data',
                                       follow_redirects=True)
 
-        with open(TEST_IMAGE, 'wb') as f:
-            self.assertEqual(img_stringIO.read(), response.data)
+
+        self.assertEqual(img_stringIO.read(), response.data)
 
         with app.test_client() as c:
             accept_google_analytics()

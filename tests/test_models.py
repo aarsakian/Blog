@@ -738,9 +738,11 @@ class TestModels(BlogTestBase):
 
     def test_add_blob(self):
         post, _, _ = self.create_post()
-        image_filename = '775772399_3a87c21f93_o.jpg'
-        with open(os.path.join(image_filename)) as f:
-            self.assertTrue(post.add_blob(f.read(), image_filename))
+
+        with open(os.path.join(TEST_IMAGE)) as f:
+            image_key = post.add_blob(f.read(), TEST_IMAGE)
+            self.assertEqual(image_key, u'encoded_gs_file:YXBwX2RlZmF1bHRfYnVja2V0Lzc3NTc3MjM5OV8zYTg3YzIxZjkzX28uanBn')
+
 
 
 
