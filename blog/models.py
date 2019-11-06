@@ -27,7 +27,7 @@ class ViewImageHandler:
 
     def get(self):
         if self.blob_info:
-            return blobstore.fetch_data(self.image_key, 0 ,2)
+            return blobstore.fetch_data(self.image_key, 0 ,self.blob_info.size)
 
     def get_mime_type(self):
         if self.blob_info:
@@ -215,11 +215,10 @@ class BlogPost(ndb.Model):
             filehandle.write(image)
 
         blobstore_filename = '/gs{}'.format(filename)
+
         self.image_blob_key = blobstore.BlobKey(blobstore.create_gs_key(blobstore_filename))
-        blob_info = blobstore.BlobInfo.get(self.image_blob_key)
-        file_name = blob_info.filename
-        print("RTES",self.image_blob_key)
-        return True
+        self.put()
+        return self.image_blob_key
 
 
 class BlogList(list):
