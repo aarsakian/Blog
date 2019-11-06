@@ -4,6 +4,7 @@ from google.appengine.api import memcache
 import cloudstorage
 from google.appengine.api import app_identity
 from google.appengine.ext import blobstore
+from google.appengine.ext.webapp import blobstore_handlers
 
 
 from utils import datetimeformat
@@ -16,6 +17,21 @@ from utils import find_modified_tags, find_tags_to_be_removed, find_tags_to_be_a
 
 POSTS_INDEX = "posts_idx"
 
+
+
+class ViewImageHandler:
+
+    def __init__(self, image_key):
+        self.image_key = image_key
+        self.blob_info = blobstore.get(self.image_key)
+
+    def get(self):
+        if self.blob_info:
+            return blobstore.fetch_data(self.image_key, 0 ,2)
+
+    def get_mime_type(self):
+        if self.blob_info:
+            return self.blob_info.content_type
 
 class Answer(ndb.Model):
     p_answer = ndb.TextProperty()
@@ -127,7 +143,7 @@ class BlogPost(ndb.Model):
         jsoned_data[u"updated"] = datetimeformat(post_dict["updated"])
         jsoned_data[u"timestamp"] = datetimeformat(post_dict["timestamp"])
         jsoned_data[u"answers"] = post_dict["answers"]
-        jsoned_data[u"image"] = str(self.image_blob_key)
+        jsoned_data[u"image"] = str(post_dict["image_blob_key"])
         return jsoned_data
 
     def to_answers_form(self):

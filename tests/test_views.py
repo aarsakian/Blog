@@ -1,4 +1,4 @@
-import unittest
+import StringIO
 import json
 import os
 from base64 import b64encode
@@ -28,6 +28,8 @@ from freezegun.api import FakeDatetime
 CODEVERSION = ':v0.7'
 
 DATEFORMAT = '%A, %d %B %Y'
+
+TEST_IMAGE = '775772399_3a87c21f93_o.jpg'
 
 
 @contextmanager
@@ -226,6 +228,9 @@ class TestViews(BlogTestBase):
 
         related_posts = []
 
+        with open(os.path.join(TEST_IMAGE)) as f:
+            self.assertTrue(current_post.add_blob(f.read(), TEST_IMAGE))
+
         response = self.client.get(url_for('view_a_post', category="category", year=current_post.timestamp.year,
                                            month=current_post.timestamp.month, title="a title"))
         for post in self.posts:
@@ -246,7 +251,7 @@ class TestViews(BlogTestBase):
                                             siteupdated=site_updated, \
                                             daysleft=remaining_days, dayspassed=passed_days, RelatedPosts=related_posts, \
                                             Post=current_post.to_json(), posttagnames=post_tag_names,
-                                            category=category,  answers_field = answers_form)
+                                            category=category,  answers_field=answers_form)
 
         self.assertEqual(rendered_template.encode("utf-8"), response.data)
 
@@ -393,7 +398,7 @@ class TestViews(BlogTestBase):
         with freeze_time(u"2019-11-05"):
 
             image = {}
-            file_name = '775772399_3a87c21f93_o.jpg'
+            file_name = TEST_IMAGE
             with open(file_name, 'rb') as f:
                 byte_content = f.read()
 
@@ -756,8 +761,7 @@ class TestViews(BlogTestBase):
                                             codeversion=CODEVERSION)
 
 
-        return self.assertEqualHTML(rendered_template.decode('utf8'), response.data.decode('utf8'))
-
+        self.assertEqualHTML(rendered_template.decode('utf8'), response.data.decode('utf8'))
 
     def test_redirect_nonwww(self):
         app.config['SERVER_NAME'] = "arsakian.com"
@@ -770,6 +774,32 @@ class TestViews(BlogTestBase):
                 response = c.get(url_for('archives', _external=True))
                 self.assertEqual(response.location, "http://www.arsakian.com/archives")
         app.config['SERVER_NAME'] = None
+
+    def test_send_image_file(self):
+
+        with open(os.path.join(TEST_IMAGE)) as f:
+            img_stringIO = StringIO.StringIO(f.read())  # in memory read
+
+        post, _, _ = self.create_post()
+        post.add_blob(img_stringIO.read(), TEST_IMAGE)
+        image_key = post.to_json()['image']
+
+        response = self.client.get(path='/images/{}'.format(image_key),
+                                      content_type='multipart/form-data',
+                                      follow_redirects=True)
+
+        with open(TEST_IMAGE, 'wb') as f:
+            self.assertEqual(img_stringIO.read(), response.data)
+
+        with app.test_client() as c:
+            accept_google_analytics()
+
+            response = c.get(path='/images/{}'.format("non existent"),
+                                  content_type='multipart/form-data',
+                                  follow_redirects=True)
+            rendered_template = render_template('404.html')
+            self.assertEqualHTML(rendered_template.decode('utf8'), response.data.decode('utf8'))
+
 
     # def test_upload(self):
     #     output = StringIO()

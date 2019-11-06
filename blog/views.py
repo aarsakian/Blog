@@ -1,11 +1,11 @@
-import logging, json, urlparse, base64
+import logging, json, urlparse, base64, io
 from blog import app, csrf
 from models import Posts, Tags, Categories
-from flask import render_template,request,jsonify,redirect,url_for, flash, session, make_response
+from flask import render_template,request,jsonify,redirect,url_for, flash, session, make_response, send_file, abort
 from werkzeug import secure_filename
 from errors import InvalidUsage
 
-from models import BlogPost
+from models import BlogPost, ViewImageHandler
 
 from search import query_search_index, find_posts_from_index, delete_all_in_index
 
@@ -118,7 +118,19 @@ def ga_decline():
     resp.set_cookie('ga_accepted', 'False', max_age=30 * 24 * 60 * 60)
     return resp
 
-        
+
+@app.route('/images/<image_key>')
+def send_image_file(image_key):
+    view_image_handler = ViewImageHandler(image_key)
+
+    if view_image_handler.blob_info:
+        return send_file(io.BytesIO(view_image_handler.get()),
+              mimetype=(view_image_handler.get_mime_type()))
+    else:
+        abort(404)
+
+
+
 @app.route('/<entity>/user',methods=['GET'])
 @app.route('/user',methods=['GET'])
 def findUser(entity=None):
@@ -387,7 +399,7 @@ def main():
                 if "image" in raw_post.keys():
                     image_base64 = raw_post["image"]["url"].split("base64,")[-1]
                     image_filename = raw_post["image"]["filename"].split("\\")[-1]
-                    print(image_filename)
+
                     if allowed_file(image_filename):
                         image_filename = secure_filename(image_filename)
                         post.add_blob(base64.b64decode(image_base64), image_filename)
@@ -484,7 +496,6 @@ def view_a_post(category, year, month, title):
 
     answers_form.r_answers.choices = [(answer.p_answer, answer.p_answer) for answer in current_post.answers
                                       if answer.p_answer != u'']
-
     return render_template('singlepost.html', user_status=users.is_current_user_admin(), siteupdated=site_updated, \
                                         daysleft=remaining_days, dayspassed=passed_days, RelatedPosts=related_posts, \
                                         Post=current_post.to_json(), posttagnames=post_tag_names, category=category,

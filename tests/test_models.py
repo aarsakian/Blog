@@ -20,6 +20,9 @@ from blog.search import query_search_index, find_posts_from_index
 
 from . import BlogTestBase
 
+TEST_IMAGE = '775772399_3a87c21f93_o.jpg'
+
+
 class TestModels(BlogTestBase):
 
     def setUp(self):
@@ -55,25 +58,6 @@ class TestModels(BlogTestBase):
                                is_correct=is_correct)
                         for ans, is_correct in answers.items()]
         return answers_keys
-
-    def create_post(self, category="a category"):
-        category_key = self.categories.add(category)
-
-        test_tags = ["a new tag", "a new new tag"]
-        tag_keys = self.tags.add(test_tags)
-
-        summary = "a summmary"
-        title = "a title"
-        body = "here is a body"
-
-        post_key = BlogPost(title=title,
-                            body=body,
-                            category=category_key,
-                            tags=tag_keys,
-                            summary=summary,
-                            answers=()).put()
-
-        return post_key.get(), category_key, tag_keys
 
     def create_post_with_answers(self, answers, category="a category"):
 
@@ -353,6 +337,11 @@ class TestModels(BlogTestBase):
         post_key2 = self.posts.add("a new title", "new body text", category_key2, new_tag_keys, "a summary  2")
         post_key1 = self.posts.add("a title", "body text", category_key1, new_tag_keys, "a summary")
 
+        post2 = post_key2.get()
+
+        with open(os.path.join(TEST_IMAGE)) as f:
+            self.assertTrue(post2.add_blob(f.read(), TEST_IMAGE))
+
         json_result = [{u'body':  post_key1.get().body, u'category': post_key1.get().category.get().category
                            , u'updated':
                         datetimeformat(post_key1.get().updated), u'tags':
@@ -370,7 +359,8 @@ class TestModels(BlogTestBase):
                         u'timestamp':  datetimeformat(post_key2.get().timestamp),
                         u'title':  post_key2.get().title, u'id': str(post_key2.get().key.id()),
                         u'summary':post_key2.get().summary,
-                        u'answers': post_key2.get().answers,u'image': 'None'
+                        u'answers': post_key2.get().answers,u'image':
+                             'encoded_gs_file:YXBwX2RlZmF1bHRfYnVja2V0Lzc3NTc3MjM5OV8zYTg3YzIxZjkzX28uanBn'
                          }]
 
         self.assertEqual(json_result, self.posts.to_json())
@@ -749,7 +739,7 @@ class TestModels(BlogTestBase):
     def test_add_blob(self):
         post, _, _ = self.create_post()
         image_filename = '775772399_3a87c21f93_o.jpg'
-        with open(os.path.join( image_filename)) as f:
+        with open(os.path.join(image_filename)) as f:
             self.assertTrue(post.add_blob(f.read(), image_filename))
 
 

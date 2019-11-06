@@ -1,6 +1,7 @@
 import logging
-
-from google.appengine.ext import testbed
+from bs4 import BeautifulSoup as bs
+import difflib
+from blog.models import Tags, Posts, Categories, BlogPost, Answer
 
 from flask_testing import TestCase
 
@@ -16,15 +17,31 @@ class BlogTestBase(TestCase):
     def tearDown(self):
         self.testbed.deactivate()
 
+    def create_post(self, category="a category"):
+        category_key = self.categories.add(category)
+
+        test_tags = ["a new tag", "a new new tag"]
+        tag_keys = self.tags.add(test_tags)
+
+        summary = "a summmary"
+        title = "a title"
+        body = "here is a body"
+
+        post_key = BlogPost(title=title,
+                            body=body,
+                            category=category_key,
+                            tags=tag_keys,
+                            summary=summary,
+                            answers=()).put()
+
+        return post_key.get(), category_key, tag_keys
+
     def assertEqualHTML(self, string1, string2, file1='', file2=''):
         """
         Compare two unicode strings containing HTML.
         A human friendly diff goes to logging.error() if there
         are not equal, and an exception gets raised.
         """
-
-        from bs4 import BeautifulSoup as bs
-        import difflib
 
         def short(mystr):
             max = 20
