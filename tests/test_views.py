@@ -393,6 +393,17 @@ class TestViews(BlogTestBase):
         self.assertDictEqual(json_data, response.json)
         freezer.stop()
 
+    def test_api_posts_with_image(self):
+        post_key = self.create_post()
+        post = post_key.get()
+
+        with open(os.path.join(TEST_IMAGE)) as f:
+            img_stringIO = StringIO.StringIO(f.read())  # in memory read
+
+        response = self.client.post(path='/api/posts/{}/image'.format(post_key),
+                                   content_type='multipart/form-data',
+                                   follow_redirects=True)
+
     def test_api_posts_with_files(self):
         existing_tags = [u"a new new tag", u"a new tag"]
         with freeze_time(u"2019-11-05"):

@@ -411,6 +411,15 @@ def main():
         return jsonify({})
 
 
+@app.route('/api/posts/<id>/image', methods=['POST'])
+def get_post_image(id):
+    if users.is_current_user_admin():
+        asked_post = BlogPost.get(id)
+
+        return jsonify(asked_post.to_json())  # dangerous
+    else:
+        return jsonify({})
+
 @app.route('/api/posts/<id>', methods=['GET'])
 def get_post(id):
     if users.is_current_user_admin():
