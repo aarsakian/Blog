@@ -394,15 +394,20 @@ class TestViews(BlogTestBase):
         freezer.stop()
 
     def test_api_posts_with_image(self):
-        post_key = self.create_post()
-        post = post_key.get()
+        post, _, _ = self.create_post()
+        import io
+        with open(os.path.join(TEST_IMAGE), 'rb') as f:
+            data = dict(
+                image=(io.BytesIO(f.read()), TEST_IMAGE),
+            )
 
-        with open(os.path.join(TEST_IMAGE)) as f:
-            img_stringIO = StringIO.StringIO(f.read())  # in memory read
-
-        response = self.client.post(path='/api/posts/{}/image'.format(post_key),
+            response = self.client.post(path='/api/posts/{}/image'.format(post.id), data=data,
                                    content_type='multipart/form-data',
                                    follow_redirects=True)
+            self.assertDictEqual({'image_key':
+                                      u'encoded_gs_file:YXBwX2RlZmF1bHRfYnVja2V0Lzc3NTc3MjM5OV8zYTg3YzIxZjkzX28uanBn'},
+                                 response.json)
+
 
     def test_api_posts_with_files(self):
         existing_tags = [u"a new new tag", u"a new tag"]
@@ -798,8 +803,9 @@ class TestViews(BlogTestBase):
                                       content_type='multipart/form-data',
                                       follow_redirects=True)
 
+        with open(os.path.join(TEST_IMAGE)) as f:
 
-        self.assertEqual(img_stringIO.read(), response.data)
+            self.assertEqual(f.read(), response.data)
 
         with app.test_client() as c:
             accept_google_analytics()

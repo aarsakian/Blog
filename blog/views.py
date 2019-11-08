@@ -214,7 +214,6 @@ def searchresults(posts, tags, categories,  passed_days,
 @boilercode
 def aboutpage(posts, tags, categories, passed_days,
                     remaining_days, postkey=None):
-
     requested_post = posts.get_by_title("about")
 
     if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
@@ -296,13 +295,12 @@ def subject_questions(posts, tags, categories, passed_days,
 @app.route('/api/answers/<title>', methods=['POST','GET'])
 def answers(title):
     posts = Posts()
+
     current_post = posts.get_by_title(title)
 
-
     if request.method == 'GET':  # all entitites
-
-
         return jsonify(current_post.strip_answers_jsoned())
+
     elif request.method == 'POST':
 
         raw_post = request.get_json()
@@ -413,12 +411,24 @@ def main():
 
 @app.route('/api/posts/<id>/image', methods=['POST'])
 def get_post_image(id):
+
     if users.is_current_user_admin():
         asked_post = BlogPost.get(id)
 
-        return jsonify(asked_post.to_json())  # dangerous
-    else:
-        return jsonify({})
+        if 'image' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+
+        file = request.files['image']
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            image_filename = secure_filename(file.filename)
+
+            image_key = asked_post.add_blob(file.read(), image_filename)
+            return jsonify(image_key=image_key)
+
 
 @app.route('/api/posts/<id>', methods=['GET'])
 def get_post(id):
@@ -484,7 +494,7 @@ def delete_post(id):
 
 
 
-@app.route('/<category>/<year>/<month>/<title>', methods=['GET'])
+@app.route('/articles/<category>/<year>/<month>/<title>', methods=['GET'])
 def view_a_post(category, year, month, title):
     passed_days, remaining_days = calculate_work_date_stats()
 
