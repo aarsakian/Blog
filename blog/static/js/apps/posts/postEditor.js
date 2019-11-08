@@ -132,7 +132,7 @@ class PostEditor {
     // Tell to others that upload will start
     this.trigger('avatar:uploading:start');
 
-    post.uploadImage(this.avatarSelected, {
+    post.uploadImage(this.imageSelected, {
       progress: (length, uploaded, percent) => {
         // Tell to others that upload is in progress
         this.trigger('avatar:uploading:progress',
