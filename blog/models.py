@@ -218,7 +218,10 @@ class BlogPost(ndb.Model):
 
         self.image_blob_key = blobstore.BlobKey(blobstore.create_gs_key(blobstore_filename))
         self.put()
-        return self.image_blob_key
+        return str(self.image_blob_key)
+
+    def del_blob(self):
+        blobstore.delete(self.image_blob_key)
 
 
 class BlogList(list):
