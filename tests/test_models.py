@@ -18,7 +18,7 @@ from blog.search import query_search_index, find_posts_from_index
 
 from . import BlogTestBase
 
-TEST_IMAGE = '775772399_3a87c21f93_o.jpg'
+TEST_IMAGE = '2019_1_4_16z.gif'
 
 
 class TestModels(BlogTestBase):
@@ -358,7 +358,7 @@ class TestModels(BlogTestBase):
                         u'title':  post_key2.get().title, u'id': str(post_key2.get().key.id()),
                         u'summary':post_key2.get().summary,
                         u'answers': post_key2.get().answers,u'image':
-                             'encoded_gs_file:YXBwX2RlZmF1bHRfYnVja2V0Lzc3NTc3MjM5OV8zYTg3YzIxZjkzX28uanBn'
+                             'encoded_gs_file:YXBwX2RlZmF1bHRfYnVja2V0LzIwMTlfMV80XzE2ei5naWY='
                          }]
 
         self.assertEqual(json_result, self.posts.to_json())
@@ -739,7 +739,7 @@ class TestModels(BlogTestBase):
 
         with open(os.path.join(TEST_IMAGE)) as f:
             image_key = post.add_blob(f.read(), TEST_IMAGE)
-            self.assertEqual(image_key, u'encoded_gs_file:YXBwX2RlZmF1bHRfYnVja2V0Lzc3NTc3MjM5OV8zYTg3YzIxZjkzX28uanBn')
+            self.assertEqual(image_key, u'encoded_gs_file:YXBwX2RlZmF1bHRfYnVja2V0LzIwMTlfMV80XzE2ei5naWY=')
 
     def test_delete_blob(self):
         from google.appengine.ext import blobstore

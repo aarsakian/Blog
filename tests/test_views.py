@@ -29,7 +29,7 @@ CODEVERSION = ':v0.7'
 
 DATEFORMAT = '%A, %d %B %Y'
 
-TEST_IMAGE = '775772399_3a87c21f93_o.jpg'
+TEST_IMAGE = '2019_1_4_16z.gif'
 
 
 @contextmanager
@@ -415,7 +415,7 @@ class TestViews(BlogTestBase):
                                    content_type='multipart/form-data',
                                    follow_redirects=True)
             self.assertDictEqual({'image_key':
-                                      u'encoded_gs_file:YXBwX2RlZmF1bHRfYnVja2V0Lzc3NTc3MjM5OV8zYTg3YzIxZjkzX28uanBn'},
+                                      u'encoded_gs_file:YXBwX2RlZmF1bHRfYnVja2V0LzIwMTlfMV80XzE2ei5naWY='},
                                  response.json)
 
         with open(os.path.join(TEST_IMAGE), 'rb') as f:
@@ -460,7 +460,7 @@ class TestViews(BlogTestBase):
                              data=json.dumps(json_data))
 
             json_data[u"id"] = u'4'
-            json_data[u'image'] = u'encoded_gs_file:YXBwX2RlZmF1bHRfYnVja2V0Lzc3NTc3MjM5OV8zYTg3YzIxZjkzX28uanBn'
+            json_data[u'image'] = u'encoded_gs_file:YXBwX2RlZmF1bHRfYnVja2V0LzIwMTlfMV80XzE2ei5naWY='
             self.assertDictEqual(json_data, response.json)
 
 
