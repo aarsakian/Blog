@@ -121,11 +121,11 @@ def ga_decline():
 
 @app.route('/images/<image_key>')
 def send_image_file(image_key):
-    view_image_handler = ViewImageHandler(image_key)
+    view_image_handler = ViewImageHandler()
 
-    if view_image_handler.blob_info:
-        return send_file(io.BytesIO(view_image_handler.get()),
-              mimetype=(view_image_handler.get_mime_type()))
+    if view_image_handler.has_key(image_key):
+        return send_file(io.BytesIO(view_image_handler.get(image_key)),
+              mimetype=(view_image_handler.get_mime_type(image_key)))
     else:
         abort(404)
 

@@ -4,7 +4,7 @@ from google.appengine.api import memcache
 import cloudstorage
 from google.appengine.api import app_identity
 from google.appengine.ext import blobstore
-from google.appengine.ext.webapp import blobstore_handlers
+
 
 
 from utils import datetimeformat
@@ -21,17 +21,40 @@ POSTS_INDEX = "posts_idx"
 
 class ViewImageHandler:
 
-    def __init__(self, image_key):
-        self.image_key = image_key
-        self.blob_info = blobstore.get(self.image_key)
+    def add_blob_image(self, image, image_filename):
+        bucket = app_identity.get_default_gcs_bucket_name()
 
-    def get(self):
-        if self.blob_info:
-            return blobstore.fetch_data(self.image_key, 0 ,self.blob_info.size)
+        # Cloud Storage file names are in the format /bucket/object.
+        filename = '/{}/{}'.format(bucket, image_filename)
 
-    def get_mime_type(self):
-        if self.blob_info:
-            return self.blob_info.content_type
+        # Create a file in Google Cloud Storage and write something to it.
+
+        with cloudstorage.open(filename=filename, mode='w',
+                               content_type='image/jpeg') as filehandle:
+            filehandle.write(image)
+
+        blobstore_filename = '/gs{}'.format(filename)
+        self.image_key = blobstore.BlobKey(blobstore.create_gs_key(blobstore_filename))
+        return self.image_key
+
+    def has_key(self, image_key):
+        return blobstore.get(image_key)
+
+    def get(self, image_key):
+        blob_info = blobstore.get(image_key)
+        if blob_info:
+            return blobstore.fetch_data(image_key, 0, blob_info.size)
+
+    def get_mime_type(self, image_key):
+        blob_info = blobstore.get(image_key)
+        if blob_info:
+            return blob_info.content_type
+
+    def delete_blob(self):
+        blob_info = blobstore.get(self.image_key)
+        if blob_info:
+            blobstore.delete(self.image_key)
+
 
 class Answer(ndb.Model):
     p_answer = ndb.TextProperty()
@@ -62,7 +85,6 @@ class Tag(ndb.Model):
 class Category(ndb.Model):
     category = ndb.StringProperty()
 
-
     def to_json(self):
         cat_dict = self.to_dict()
         cat_dict["id"] = str(self.key.id())
@@ -88,7 +110,7 @@ class AnswersDict(dict):
     pass
 
 
-class BlogPost(ndb.Model):
+class BlogPost(ndb.Model, ViewImageHandler):
     title = ndb.StringProperty()
     body = ndb.TextProperty()
     timestamp = ndb.DateTimeProperty(auto_now_add=True)
@@ -203,25 +225,9 @@ class BlogPost(ndb.Model):
 
     def add_blob(self, image, image_filename):
 
-        bucket = app_identity.get_default_gcs_bucket_name()
-
-        # Cloud Storage file names are in the format /bucket/object.
-        filename = '/{}/{}'.format(bucket, image_filename)
-
-        # Create a file in Google Cloud Storage and write something to it.
-
-        with cloudstorage.open(filename=filename, mode='w',
-                               content_type='image/jpeg') as filehandle:
-            filehandle.write(image)
-
-        blobstore_filename = '/gs{}'.format(filename)
-
-        self.image_blob_key = blobstore.BlobKey(blobstore.create_gs_key(blobstore_filename))
+        self.image_blob_key = self.add_blob_image(image, image_filename)
         self.put()
         return str(self.image_blob_key)
-
-    def del_blob(self):
-        blobstore.delete(self.image_blob_key)
 
 
 class BlogList(list):

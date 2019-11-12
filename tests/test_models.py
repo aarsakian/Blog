@@ -6,12 +6,10 @@ from google.appengine.ext import testbed
 
 from google.appengine.ext import ndb
 
-from google.appengine.api import memcache
-
 from freezegun import freeze_time
 from werkzeug.contrib.atom import AtomFeed
 
-from blog.models import Tags, Posts, Categories, BlogPost, Answer
+from blog.models import Tags, Posts, Categories, BlogPost, Answer, ViewImageHandler
 from blog.utils import find_modified_tags, find_tags_to_be_added, find_tags_to_be_removed, datetimeformat, \
     make_external
 from blog.errors import InvalidUsage
@@ -743,6 +741,13 @@ class TestModels(BlogTestBase):
             image_key = post.add_blob(f.read(), TEST_IMAGE)
             self.assertEqual(image_key, u'encoded_gs_file:YXBwX2RlZmF1bHRfYnVja2V0Lzc3NTc3MjM5OV8zYTg3YzIxZjkzX28uanBn')
 
+    def test_delete_blob(self):
+        from google.appengine.ext import blobstore
+        post, _, _ = self.create_post()
 
+        with open(os.path.join(TEST_IMAGE)) as f:
+            image_key = post.add_blob(f.read(), TEST_IMAGE)
 
-
+        post.delete_blob()
+        with self.assertRaises(blobstore.BlobNotFoundError):
+            blobstore.fetch_data(image_key, 0, 1)
