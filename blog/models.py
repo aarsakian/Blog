@@ -50,10 +50,10 @@ class ViewImageHandler:
         if blob_info:
             return blob_info.content_type
 
-    def delete_blob(self):
-        blob_info = blobstore.get(self.image_key)
+    def delete_blob(self, image_key):
+        blob_info = blobstore.get(image_key)
         if blob_info:
-            blobstore.delete(self.image_key)
+            blobstore.delete(image_key)
 
 
 class Answer(ndb.Model):
@@ -323,8 +323,11 @@ class Posts(BlogList, JsonMixin):
         return other_tags
 
     def delete(self, post_key):
-        [self.posts.pop(post_idx) for post_idx, post
-         in enumerate(self.posts) if post.key == post_key]
+        for post_idx, post in enumerate(self.posts):
+            if post.image_blob_key:
+                post.delete_blob(post.image_blob_key)
+            if post.key == post_key:
+                self.posts.pop(post_idx)
         post_key.delete()
         delete_document(post_key.id())
 
@@ -360,7 +363,7 @@ class Posts(BlogList, JsonMixin):
 
         current_post = BlogPost.get(current_post_id)
         current_post_tags = current_post.get_tag_names()
-        return [post  for post in self.posts if post.id !=
+        return [post for post in self.posts if post.id !=
                 current_post.id and set(current_post_tags)&set(post.get_tag_names())]
 
     def add_to_feed(self, feed, base_url):

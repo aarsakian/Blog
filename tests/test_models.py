@@ -748,6 +748,6 @@ class TestModels(BlogTestBase):
         with open(os.path.join(TEST_IMAGE)) as f:
             image_key = post.add_blob(f.read(), TEST_IMAGE)
 
-        post.delete_blob()
+        post.delete_blob(post.image_blob_key)
         with self.assertRaises(blobstore.BlobNotFoundError):
             blobstore.fetch_data(image_key, 0, 1)

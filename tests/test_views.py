@@ -324,6 +324,16 @@ class TestViews(BlogTestBase):
 
         self.assertEqual("OK", response.json["msg"])
 
+    def test_delete_post_with_image(self):
+        with open(os.path.join(TEST_IMAGE)) as f:
+            img_stringIO = StringIO.StringIO(f.read())  # in memory read
+
+        post, _, _ = self.create_post()
+        post.add_blob(img_stringIO.read(), TEST_IMAGE)
+        response = self.client.delete(url_for('delete_post', id=post.key.id()))
+
+        self.assertEqual("OK", response.json["msg"])
+
     def test_get_post(self):
 
         category_key = self.categories.add("category")
