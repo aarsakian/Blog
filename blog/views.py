@@ -416,13 +416,12 @@ def get_post_image(id):
         asked_post = BlogPost.get(id)
 
         if 'image' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
+            abort(500)
 
         file = request.files['image']
         if file.filename == '':
             flash('No selected file')
-            return redirect(request.url)
+            abort(500)
         if file and allowed_file(file.filename):
             image_filename = secure_filename(file.filename)
 

@@ -418,6 +418,25 @@ class TestViews(BlogTestBase):
                                       u'encoded_gs_file:YXBwX2RlZmF1bHRfYnVja2V0Lzc3NTc3MjM5OV8zYTg3YzIxZjkzX28uanBn'},
                                  response.json)
 
+        with open(os.path.join(TEST_IMAGE), 'rb') as f:
+            data = dict(
+                wrong_key=(io.BytesIO(f.read()), TEST_IMAGE),
+            )
+
+            response = self.client.post(path='/api/posts/{}/image'.format(post.id), data=data,
+                                   content_type='multipart/form-data',
+                                   follow_redirects=True)
+            return self.assertStatus(response, 500)
+
+        with open(os.path.join(TEST_IMAGE), 'rb') as f:
+            data = dict(
+                wrong_key=(io.BytesIO(f.read()), ''),
+            )
+
+            response = self.client.post(path='/api/posts/{}/image'.format(post.id), data=data,
+                                        content_type='multipart/form-data',
+                                        follow_redirects=True)
+            return self.assertStatus(response, 500)
 
     def test_api_posts_with_files(self):
         existing_tags = [u"a new new tag", u"a new tag"]
