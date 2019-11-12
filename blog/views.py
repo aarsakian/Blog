@@ -394,7 +394,7 @@ def main():
                             summary=raw_summary,
                             answers=raw_post["answers"]).id()
                 post = BlogPost.get(post_id)
-                if "image" in raw_post.keys():
+                if "image" in raw_post.keys() and raw_post["image"]:
                     image_base64 = raw_post["image"]["url"].split("base64,")[-1]
                     image_filename = raw_post["image"]["filename"].split("\\")[-1]
 
