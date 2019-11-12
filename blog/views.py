@@ -445,25 +445,27 @@ def edit_post(id):
 
     form = PostForm()
     if users.is_current_user_admin() and form.validate_on_submit():
+        try:
+            tags = Tags()
 
-        tags = Tags()
+            categories = Categories()
 
-        categories = Categories()
+            updating_post = BlogPost.get(int(id))
 
-        updating_post = BlogPost.get(int(id))
+            title = request.json['title']
+            body = request.json['body']
+            raw_category = request.json['category']
+            editing_tags = request.json['tags']
+            raw_summary = request.json['summary']
 
-        title = request.json['title']
-        body = request.json['body']
-        raw_category = request.json['category']
-        editing_tags = request.json['tags']
-        raw_summary = request.json['summary']
+            tags_keys = tags.update(editing_tags, updating_post)
 
-        tags_keys = tags.update(editing_tags, updating_post)
+            category_key = categories.update(raw_category, updating_post.category)
 
-        category_key = categories.update(raw_category, updating_post.category)
-
-        updating_post.edit(title, body, datetime.now(), tags_keys,
-                           category_key, raw_summary, raw_answers=request.json['answers'])
+            updating_post.edit(title, body, datetime.now(), tags_keys,
+                               category_key, raw_summary, raw_answers=request.json['answers'])
+        except AttributeError:
+            abort(500)
 
         return jsonify(updating_post.to_json())  # dangerous
 

@@ -648,6 +648,18 @@ class TestViews(BlogTestBase):
 
         return self.assertEqualHTML(rendered_template.decode('utf8'), response.data.decode('utf8'))
 
+    def test_500_error_page(self):
+        json_data = {u'category': u'a new category', 'tags': '', 'title': 'a new title', 'body': 'body text',
+                     u'summary': u'this is a new summary',
+                     'answers': []}
+
+        response = self.client.put(url_for('edit_post', id='34'), content_type='application/json',
+                                   data=json.dumps(json_data))
+        accept_google_analytics()
+        rendered_template = render_template('500.html')
+
+        return self.assertEqualHTML(rendered_template.decode('utf8'), response.data.decode('utf8'))
+
     def test_user(self):
         response = self.client.get(path='/user')
         return self.assertDictEqual({'user_status':users.is_current_user_admin()},response.json)
