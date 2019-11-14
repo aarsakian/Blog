@@ -362,6 +362,7 @@ def answers(title):
         else:
             return jsonify({})
 
+
 @app.route('/api/posts',methods=['POST','GET'])
 def main():
 
@@ -409,6 +410,7 @@ def main():
         return jsonify({})
 
 
+@csrf.exempt
 @app.route('/api/posts/<id>/image', methods=['POST'])
 def get_post_image(id):
 
@@ -469,6 +471,7 @@ def edit_post(id):
         return jsonify(updating_post.to_json())  # dangerous
 
 
+@csrf.exempt
 @app.route('/api/posts/<id>', methods=['DELETE'])
 def delete_post(id):
 

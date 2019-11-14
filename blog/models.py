@@ -43,6 +43,7 @@ class ViewImageHandler:
     def get(self, image_key):
         blob_info = blobstore.get(image_key)
         if blob_info:
+            logging.info("fetching image for {}".format(image_key))
             return blobstore.fetch_data(image_key, 0, blob_info.size)
 
     def get_mime_type(self, image_key):
