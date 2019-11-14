@@ -49,6 +49,7 @@ class EditPostForm extends PostForm {
     this.model.set('summary',this.getInput('#new-post-summary'));
     this.model.set('tags',this.getInput('#new-post-tags').split(','));
     this.model.set('category',this.getInput('#new-post-category'));
+    this.model.set('csrf_token', this.getInput('#csrf_token'));
 
     var answers_a = this.getInputs('.new-post-answer');
     var areCorrect = this.getInputsCheckbox('.form-check-input');//.new-post-answer-is-correct
@@ -65,7 +66,8 @@ class EditPostForm extends PostForm {
       return;
     }
 
-    var csrf_token = this.getInput('#csrf_token');
+
+    var csrf_token = this.model.get('csrf_token');
     this.model.save(null, {
       beforeSend: function(xhr, settings) {
             xhr.setRequestHeader("X-CSRFToken", csrf_token);

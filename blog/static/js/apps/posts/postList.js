@@ -238,7 +238,7 @@ class PostList {
     this.listenTo(postForm, 'form:cancel', this.cancel);
     
   }
-  
+
   savePost(post) {
     this.posts.trigger('add', post);
 
@@ -257,20 +257,20 @@ class PostList {
     App.router.navigate(`edit/${post.id}`, true);
   }
   
-  
+
   deletePost(view, post) {
    // App.askConfirmation('The contact will be deleted', (isConfirm) => {
     //  if (isConfirm) {
+
         post.destroy({
-          success() {
-           // App.notifySuccess('Contact was deleted');
-          },
-          error() {
-          //  App.notifyError('Ooops... Something went wrong');
-          }
+
+            success() {
+                // App.notifySuccess('Contact was deleted');
+            },
+            error() {
+                //  App.notifyError('Ooops... Something went wrong');
+            }
         });
-      //}
-    //});
   }
 
   // Close any active view and remove event listeners

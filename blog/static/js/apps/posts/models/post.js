@@ -44,6 +44,8 @@ class Post extends Backbone.NestedModel {
     var formData = new FormData();
     formData.append('image', imageBlob);
 
+
+
     var ajaxOptions = {
       url: '/api/posts/' + this.get('id') + '/image',
       type: 'POST',
