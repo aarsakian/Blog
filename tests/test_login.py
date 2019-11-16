@@ -30,8 +30,17 @@ class TestLogin(BlogTestBase):
         self.loginUserGAE(is_admin=True)
         return self.client.get('/login', follow_redirects=True)
 
+    def loginRegularUser(self):
+        self.loginUserGAE(is_admin=False)
+
     def logoutUser(self):
         return self.client.get('/logout')
+
+    def testLoginURL_withLoggedInUser(self):
+        self.loginRegularUser()
+        response = self.client.get('/login', follow_redirects=True)
+
+        self.assertEqualHTML(self.client.get(url_for('index')).data.decode('utf-8'), response.data.decode('utf-8'))
 
     def testLogin(self):
         rv = self.loginUser()

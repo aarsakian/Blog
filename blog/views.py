@@ -84,9 +84,10 @@ def login():
     otherwise redirect him to index
     """
     user = users.get_current_user()
+
     if not user:
         return redirect(users.create_login_url('/edit'))
-    elif users.is_current_user_admin(): # already logged
+    else: # not admin
         return redirect(url_for('index'))
 
 
