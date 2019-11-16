@@ -11,7 +11,7 @@ class PostsRouter extends Backbone.Router {
       'edit': 'displayPosts',
 	  'tags': 'displayPosts',
 	  'edit/:key': 'editPost',
-	  ':category/:month/:year/:title' : 'getAnswers'
+	  'articles/:category/:month/:year/:title' : 'getAnswers'
 	};
     this._bindRoutes();
   }
