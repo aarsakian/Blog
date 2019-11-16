@@ -50,16 +50,18 @@ Armen Arsakian personal blog
 
 
         </div><!--closes post-->
-        <img src="{{request.url_root}}images/{{Post.image}}">
+        {%if Post.image %}
+            <img src="{{request.url_root}}images/{{Post.image}}">
+        {%endif%}
         <div id="answers">
- <div class="answers-container"> </div>
-            {% block answers %}
+            <div class="answers-container"> </div>
+                {% block answers %}
 
-                 {% include 'answers.html' %}
-            {% endblock %}
+                    {% include 'answers.html' %}
+                {% endblock %}
 
 
-        </div>
+             </div>
 
 
     </div>
@@ -74,7 +76,7 @@ Armen Arsakian personal blog
 
 
             <h3 class="editable mb-20">
-                <a href="/{{relPost.get_category()}}/{{relPost.timestamp|datetimeformat('%Y')}}/{{relPost.timestamp|datetimeformat('%B')}}/{{relPost.title|trim}}">{{relPost.title}}</a>
+                <a href="/articles/{{relPost.get_category()}}/{{relPost.timestamp|datetimeformat('%Y')}}/{{relPost.timestamp|datetimeformat('%B')}}/{{relPost.title|trim}}">{{relPost.title}}</a>
             </h3>
           <div clas="mt-10">
               {{relPost.body|markdown|safe|truncate(150)}}
