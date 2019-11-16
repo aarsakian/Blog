@@ -30,7 +30,7 @@ class ViewImageHandler:
         # Create a file in Google Cloud Storage and write something to it.
 
         with cloudstorage.open(filename=filename, mode='w',
-                               content_type='image/jpeg') as filehandle:
+                               content_type='image/jpeg', options={'x-goog-acl':'public-read'}) as filehandle:
             filehandle.write(image)
 
         blobstore_filename = '/gs{}'.format(filename)
