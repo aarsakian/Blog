@@ -50,7 +50,7 @@ Armen Arsakian personal blog
 
 
         </div><!--closes post-->
-        {%if Post.image %}
+        {%if Post.image != 'None' %}
             <img src="{{request.url_root}}images/{{Post.image}}">
         {%endif%}
         <div id="answers">
