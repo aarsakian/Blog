@@ -463,12 +463,35 @@ class TestViews(BlogTestBase):
             json_data[u'image'] = u'encoded_gs_file:YXBwX2RlZmF1bHRfYnVja2V0LzIwMTlfMV80XzE2ei5naWY='
             self.assertDictEqual(json_data, response.json)
 
-
     def test_no_post(self):
 
         response = self.client.get(url_for('main'))
 
         self.assertFalse(response.json)
+
+    def test_edit_post_add_answers(self):
+        post, _, _ = self.create_post()
+
+        editing_tags = ["a new tag", "tag to added"]
+        json_data = {u'category': u'a new category', 'tags': editing_tags, 'title': 'a new title', 'body': 'body text',
+                     u'summary': u'this is a new summary',
+                     'answers': [{"p_answer": "ans1", "is_correct": True}, {"p_answer": "ans2", "is_correct": False}]}
+
+        response = self.client.put(url_for('edit_post', id=post.key.id()), content_type='application/json',
+                                   data=json.dumps(json_data))
+
+        data = {u"title": u'a new title', u"body": post.body, u"category":
+            u"a new category", u"id": str(post.key.id()).decode('utf8'), \
+                u"tags": post.get_tag_names(),
+                u'summary': u'this is a new summary',
+                u"timestamp": post.timestamp.strftime(DATEFORMAT).decode('utf8')
+            , u"updated": post.updated.strftime(DATEFORMAT).decode('utf8'),
+                u"answers": [{"p_answer": "ans1", u"is_correct": True,
+                              u'statistics': 0.0, u'nof_times_selected': 0},
+                             {"p_answer": "ans2", u"is_correct": False,
+                              u'statistics': 0.0, u'nof_times_selected': 0}], u'image': u'None'}
+
+        self.assertDictEqual(data, response.json)
 
     def test_edit_post(self):
 
@@ -502,7 +525,7 @@ class TestViews(BlogTestBase):
                  u"timestamp": updating_post.timestamp.strftime(DATEFORMAT).decode('utf8')
                     , u"updated":
                      updating_post.updated.strftime(DATEFORMAT).decode('utf8'),
-                 u"answers":updating_post.answers,u'image':u'None',
+                 u"answers":[],u'image':u'None',
                  }
 
         self.assertDictEqual(data, response.json)
@@ -724,8 +747,6 @@ class TestViews(BlogTestBase):
 
 
         json_data_f = {"p_answer":"ans2","is_correct":"True"}
-
-
 
         response = self.client.post(url_for('answers', title="a title"), content_type='application/json',
                                     data=json.dumps(json_data_f))#, headers={"csrf_token":csrf_token})

@@ -182,9 +182,13 @@ class BlogPost(ndb.Model, ViewImageHandler):
         self.tags = tags
         self.category = category_key
         self.summary = summary
-
-        [answer.edit(raw_answers[idx]['p_answer'], raw_answers[idx]['is_correct'])
-            for idx, answer in enumerate(self.answers) if raw_answers]
+        if self.answers:
+            [answer.edit(raw_answers[idx]['p_answer'], raw_answers[idx]['is_correct'])
+                for idx, answer in enumerate(self.answers) if raw_answers]
+        else: # first time answers
+            self.answers = [Answer(p_answer=answer['p_answer'],
+                                        is_correct=answer['is_correct'])
+                                 for answer in raw_answers if answer['p_answer'] != '']
 
         self.put()
         add_document_in_search_index(self.id, self.title, self.body,
@@ -288,8 +292,6 @@ class Posts(BlogList, JsonMixin):
         """
 
         if answers:
-            for answer in answers:
-                logging.info("{} {}".format(len(answer), answer))
             processed_answers = [Answer(p_answer=answer['p_answer'],
                                         is_correct=answer['is_correct'])
                                  for answer in answers if answer['p_answer'] != '']
