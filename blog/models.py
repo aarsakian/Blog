@@ -41,7 +41,9 @@ class ViewImageHandler:
         return blobstore.get(image_key)
 
     def get(self, image_key):
+        logging.info("gettting key {}".format(image_key))
         blob_info = blobstore.get(image_key)
+        logging.info("BLOB INFO {}".format(blob_info))
         if blob_info:
             logging.info("fetching image for {}".format(image_key))
             return blobstore.fetch_data(image_key, 0, blob_info.size)
