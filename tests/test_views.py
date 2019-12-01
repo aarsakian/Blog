@@ -841,7 +841,7 @@ class TestViews(BlogTestBase):
         post, _, _ = self.create_post()
         image_key = post.add_blob(img_stringIO.read(), TEST_IMAGE)
 
-        response = self.client.get(path='/images/{}'.format(image_key),
+        response = self.client.get(path='/images/{}'.format(TEST_IMAGE),
                                       content_type='multipart/form-data',
                                       follow_redirects=True)
 
@@ -856,7 +856,7 @@ class TestViews(BlogTestBase):
                                   content_type='multipart/form-data',
                                   follow_redirects=True)
             rendered_template = render_template('404.html')
-            self.assertEqualHTML(rendered_template.decode('utf8'), response.data.decode('utf8'))
+            self.assertStatus(404, response.data.decode('utf8'))
 
 
     # def test_upload(self):
