@@ -14,9 +14,9 @@ from errors import InvalidUsage
 from forms import AnswerRadioForm
 from search import add_document_in_search_index, delete_document, find_posts_from_index
 from utils import find_modified_tags, find_tags_to_be_removed, find_tags_to_be_added, make_external
+import os
 
 POSTS_INDEX = "posts_idx"
-
 
 
 class ViewImageHandler:
@@ -45,15 +45,35 @@ class ViewImageHandler:
         if blob_info:
             return blobstore.fetch_data(image_key, 0, blob_info.size)
 
-    def get_mime_type(self, image_key):
-        blob_info = blobstore.get(image_key)
-        if blob_info:
-            return blob_info.content_type
+    def read_blob_image(self, image_filename):
+        bucket = app_identity.get_default_gcs_bucket_name()
+
+        # Cloud Storage file names are in the format /bucket/object.
+        filename = '/{}/{}'.format(bucket, image_filename)
+
+        with cloudstorage.open(filename) as cloudstorage_file:
+            return cloudstorage_file.read()
+
+    def get_mime_type(self, image_filename):
+        bucket = app_identity.get_default_gcs_bucket_name()
+
+        # Cloud Storage file names are in the format /bucket/object.
+        filename = '/{}/{}'.format(bucket, image_filename)
+        stat = cloudstorage.stat(filename)
+        if stat:
+            return stat.content_type
 
     def delete_blob(self, image_key):
         blob_info = blobstore.get(image_key)
         if blob_info:
             blobstore.delete(image_key)
+
+    def list_images(self):
+        """List all files in GCP bucket."""
+        bucket = app_identity.get_default_gcs_bucket_name()
+
+        stats = cloudstorage.listbucket("/"+bucket)
+        return [stat.filename for stat in stats if stat.filename]
 
 
 class Answer(ndb.Model):
@@ -72,6 +92,7 @@ class Answer(ndb.Model):
 
         if self.is_correct != is_correct or self.p_answer != raw_answer:
             self.put()
+
 
 class Tag(ndb.Model):
     tag = ndb.StringProperty()
@@ -110,6 +131,11 @@ class AnswersDict(dict):
     pass
 
 
+class Image(ndb.Model):
+    blob_key = ndb.BlobKeyProperty()
+    filename = ndb.StringProperty()
+
+
 class BlogPost(ndb.Model, ViewImageHandler):
     title = ndb.StringProperty()
     body = ndb.TextProperty()
@@ -119,7 +145,7 @@ class BlogPost(ndb.Model, ViewImageHandler):
     category = ndb.KeyProperty(kind=Category)
     summary = ndb.TextProperty()
     answers = ndb.StructuredProperty(Answer, repeated=True)
-    image_blob_key = ndb.BlobKeyProperty()
+    images = ndb.StructuredProperty(Image, repeated=True)
 
     def strip_answers_jsoned(self):
         return [{"p_answer" :answer.p_answer, "is_correct":False}
@@ -165,7 +191,10 @@ class BlogPost(ndb.Model, ViewImageHandler):
         jsoned_data[u"updated"] = datetimeformat(post_dict["updated"])
         jsoned_data[u"timestamp"] = datetimeformat(post_dict["timestamp"])
         jsoned_data[u"answers"] = post_dict["answers"]
-        jsoned_data[u"image"] = str(post_dict["image_blob_key"])
+        jsoned_data[u"images"] = \
+            [{u"blob_key":str(image["blob_key"]),u"filename":image["filename"]}
+             for idx, image in enumerate(post_dict["images"]) if post_dict["images"]]
+
         return jsoned_data
 
     def to_answers_form(self):
@@ -225,9 +254,11 @@ class BlogPost(ndb.Model, ViewImageHandler):
 
     def add_blob(self, image, image_filename):
 
-        self.image_blob_key = self.add_blob_image(image, image_filename)
+        blob_key = self.add_blob_image(image, image_filename)
+        image = Image(blob_key=blob_key, filename=image_filename)
+        self.images = [image]
         self.put()
-        return str(self.image_blob_key)
+        return str(image.blob_key)
 
 
 class BlogList(list):
@@ -324,8 +355,8 @@ class Posts(BlogList, JsonMixin):
 
     def delete(self, post_key):
         for post_idx, post in enumerate(self.posts):
-            if post.image_blob_key:
-                post.delete_blob(post.image_blob_key)
+            if post.images and post.images[0].blob_key:
+                post.delete_blob(post.images[0].blob_key)
             if post.key == post_key:
                 self.posts.pop(post_idx)
         post_key.delete()

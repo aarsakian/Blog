@@ -358,7 +358,7 @@ class TestViews(BlogTestBase):
                  u"timestamp": asked_post.timestamp.strftime(DATEFORMAT).decode('utf8')
                     , u"updated":
                      asked_post.updated.strftime(DATEFORMAT).decode('utf8'),
-                u"answers":[], u'image': u"None"
+                u"answers":[], u'images': []
                  }
 
         response = self.client.get(url_for("get_post", id=post_key.id()))
@@ -379,7 +379,7 @@ class TestViews(BlogTestBase):
         response = self.client.post(url_for('main'), content_type='application/json',
                                    data=json.dumps(json_data))
         json_data[u"id"] = u'4'
-        json_data[u'image'] = u"None"
+        json_data[u'images'] = []
         self.assertDictEqual(json_data, response.json)
         freezer.stop()
 
@@ -399,7 +399,7 @@ class TestViews(BlogTestBase):
                          data=json.dumps(json_data))
 
         json_data[u"id"] = u'4'
-        json_data[u'image'] = u"None"
+        json_data[u'images'] = []
         self.assertDictEqual(json_data, response.json)
         freezer.stop()
 
@@ -408,22 +408,23 @@ class TestViews(BlogTestBase):
         import io
         with open(os.path.join(TEST_IMAGE), 'rb') as f:
             data = dict(
-                image=(io.BytesIO(f.read()), TEST_IMAGE),
+                images=[(io.BytesIO(f.read()), TEST_IMAGE)],
             )
 
-            response = self.client.post(path='/api/posts/{}/image'.format(post.id), data=data,
+            response = self.client.post(path='/api/posts/{}/images'.format(post.id), data=data,
                                    content_type='multipart/form-data',
                                    follow_redirects=True)
+
             self.assertDictEqual({'image_key':
                                       u'encoded_gs_file:YXBwX2RlZmF1bHRfYnVja2V0Lzc3NTc3MjM5OV8zYTg3YzIxZjkzX28uanBn'},
                                  response.json)
 
         with open(os.path.join(TEST_IMAGE), 'rb') as f:
             data = dict(
-                wrong_key=(io.BytesIO(f.read()), TEST_IMAGE),
+                wrong_key=[(io.BytesIO(f.read()), TEST_IMAGE)],
             )
 
-            response = self.client.post(path='/api/posts/{}/image'.format(post.id), data=data,
+            response = self.client.post(path='/api/posts/{}/images'.format(post.id), data=data,
                                    content_type='multipart/form-data',
                                    follow_redirects=True)
             return self.assertStatus(response, 500)
@@ -454,13 +455,13 @@ class TestViews(BlogTestBase):
                          u'title': u'a title', u'body': u'body text', u'timestamp': datetimeformat(datetime.now())
                     .decode("utf-8"),
                          u'updated': datetimeformat(datetime.now()).decode("utf-8"),
-                         u"answers":[], u'image':image}
+                         u"answers":[], u'images':[image]}
 
             response = self.client.post(url_for('main'), content_type='application/json',
                              data=json.dumps(json_data))
 
             json_data[u"id"] = u'4'
-            json_data[u'image'] = u'encoded_gs_file:YXBwX2RlZmF1bHRfYnVja2V0Lzc3NTc3MjM5OV8zYTg3YzIxZjkzX28uanBn'
+            json_data[u'images'] = [u'encoded_gs_file:YXBwX2RlZmF1bHRfYnVja2V0Lzc3NTc3MjM5OV8zYTg3YzIxZjkzX28uanBn']
             self.assertDictEqual(json_data, response.json)
 
 
@@ -502,7 +503,7 @@ class TestViews(BlogTestBase):
                  u"timestamp": updating_post.timestamp.strftime(DATEFORMAT).decode('utf8')
                     , u"updated":
                      updating_post.updated.strftime(DATEFORMAT).decode('utf8'),
-                 u"answers":updating_post.answers,u'image':u'None',
+                 u"answers":updating_post.answers,u'images':[],
                  }
 
         self.assertDictEqual(data, response.json)

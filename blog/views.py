@@ -119,15 +119,15 @@ def ga_decline():
     return resp
 
 
-@app.route('/images/<image_key>')
-def send_image_file(image_key):
+@app.route('/images/<file_name>')
+def send_image_file(file_name):
     view_image_handler = ViewImageHandler()
 
-    if view_image_handler.has_key(image_key):
-        return send_file(io.BytesIO(view_image_handler.get(image_key)),
-              mimetype=(view_image_handler.get_mime_type(image_key)))
-    else:
-        abort(404)
+    return send_file(io.BytesIO(view_image_handler.read_blob_image(file_name)),
+              mimetype=(view_image_handler.get_mime_type(file_name)))
+
+
+
 
 
 
@@ -409,16 +409,16 @@ def main():
         return jsonify({})
 
 
-@app.route('/api/posts/<id>/image', methods=['POST'])
-def get_post_image(id):
-
+@app.route('/api/posts/<id>/images', methods=['POST'])
+def get_post_images(id):
+    """get images from a post with id"""
     if users.is_current_user_admin():
         asked_post = BlogPost.get(id)
 
-        if 'image' not in request.files:
+        if 'images' not in request.files:
             abort(500)
 
-        file = request.files['image']
+        file = request.files['images']
         if file.filename == '':
             flash('No selected file')
             abort(500)
