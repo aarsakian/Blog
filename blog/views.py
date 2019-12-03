@@ -415,7 +415,7 @@ def main():
         return jsonify({})
 
 
-
+@csrf.exempt
 @app.route('/api/posts/<id>/images', methods=['POST'])
 def get_post_images(id):
     """get images from a post with id"""
