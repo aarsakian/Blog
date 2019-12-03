@@ -29,7 +29,7 @@ self.__precacheManifest = [
   },
   {
     "url": "prod/general.min.js",
-    "revision": "4311bfb95a0ce7df0fc80928e7ec9972"
+    "revision": "9c71ff7061101364f3bec5fa9c7a692a"
   },
   {
     "url": "/",
