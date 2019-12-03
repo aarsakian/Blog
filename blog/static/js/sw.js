@@ -25,7 +25,7 @@ workbox.core.clientsClaim();
 self.__precacheManifest = [
   {
     "url": "prod/app.min.js",
-    "revision": "6d19b57be4f01b065393c629ecf0cb8f"
+    "revision": "7a2116dbbb30e58eb0a5e484fe7fe461"
   },
   {
     "url": "prod/general.min.js",
