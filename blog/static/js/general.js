@@ -192,7 +192,7 @@ $(document).ready(function() {
    afterSelect: function(item){
      var post = map[item];
      if (typeof post !== "undefined") 
-       window.location =  "/"+post.category+"/"+post.year+"/"+post.month+"/"+post.title;
+       window.location =  "articles/"+post.category+"/"+post.year+"/"+post.month+"/"+post.title;
      } 
   
   });
