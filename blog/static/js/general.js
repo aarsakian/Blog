@@ -191,8 +191,13 @@ $(document).ready(function() {
    },
    afterSelect: function(item){
      var post = map[item];
-     if (typeof post !== "undefined") 
-       window.location =  "articles/"+post.category+"/"+post.year+"/"+post.month+"/"+post.title;
+     if (typeof post !== "undefined")
+       post.year = post.timestamp.split(" ")[3];
+       post.month = post.timestamp.split(" ")[2];
+       var url = window.location.origin;
+       url = url + "articles/"+post.category+"/"+post.year+"/"+post.month+"/"+post.title
+       window.location.href = url;
+
      } 
   
   });
