@@ -55,8 +55,11 @@ def accept_google_analytics():
         accept_google_analytics = request.cookies.get('ga_accepted')
 
         if not accept_google_analytics and app.static_url_path not in request.path:
-            flash(MSG)
 
+            msgs = [msg for _, msg in session.get('_flashes', [])]
+            if MSG not in msgs:
+                flash(MSG)
+                
         elif accept_google_analytics == 'False':
             app.jinja_env.globals['ga_accepted'] = False
 
@@ -394,9 +397,10 @@ def main():
                             summary=raw_summary,
                             answers=raw_post["answers"]).id()
                 post = BlogPost.get(post_id)
-                if "image" in raw_post.keys() and raw_post["image"]:
-                    image_base64 = raw_post["image"]["url"].split("base64,")[-1]
-                    image_filename = raw_post["image"]["filename"].split("\\")[-1]
+                if "images" in raw_post.keys() and raw_post["images"]:
+                    img = raw_post["images"][0]
+                    image_base64 = img["url"].split("base64,")[-1]
+                    image_filename = img["filename"].split("\\")[-1]
 
                     if allowed_file(image_filename):
                         image_filename = secure_filename(image_filename)
@@ -415,10 +419,10 @@ def get_post_images(id):
     if users.is_current_user_admin():
         asked_post = BlogPost.get(id)
 
-        if 'images' not in request.files:
+        if 'image' not in request.files:
             abort(500)
 
-        file = request.files['images']
+        file = request.files['image']
         if file.filename == '':
             flash('No selected file')
             abort(500)
