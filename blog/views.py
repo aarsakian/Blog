@@ -55,8 +55,11 @@ def accept_google_analytics():
         accept_google_analytics = request.cookies.get('ga_accepted')
 
         if not accept_google_analytics and app.static_url_path not in request.path:
-            flash(MSG)
 
+            msgs = [msg for _, msg in session.get('_flashes', [])]
+            if MSG not in msgs:
+                flash(MSG)
+                
         elif accept_google_analytics == 'False':
             app.jinja_env.globals['ga_accepted'] = False
 
@@ -120,15 +123,15 @@ def ga_decline():
     return resp
 
 
-@app.route('/images/<image_key>')
-def send_image_file(image_key):
+@app.route('/images/<file_name>')
+def send_image_file(file_name):
     view_image_handler = ViewImageHandler()
 
-    if view_image_handler.has_key(image_key):
-        return send_file(io.BytesIO(view_image_handler.get(image_key)),
-              mimetype=(view_image_handler.get_mime_type(image_key)))
-    else:
-        abort(404)
+    return send_file(io.BytesIO(view_image_handler.read_blob_image(file_name)),
+              mimetype=(view_image_handler.get_mime_type(file_name)))
+
+
+
 
 
 
@@ -396,9 +399,10 @@ def main():
                             summary=raw_summary,
                             answers=raw_post["answers"]).id()
                 post = BlogPost.get(post_id)
-                if "image" in raw_post.keys() and raw_post["image"]:
-                    image_base64 = raw_post["image"]["url"].split("base64,")[-1]
-                    image_filename = raw_post["image"]["filename"].split("\\")[-1]
+                if "images" in raw_post.keys() and raw_post["images"]:
+                    img = raw_post["images"][0]
+                    image_base64 = img["url"].split("base64,")[-1]
+                    image_filename = img["filename"].split("\\")[-1]
 
                     if allowed_file(image_filename):
                         image_filename = secure_filename(image_filename)
@@ -411,10 +415,10 @@ def main():
         return jsonify({})
 
 
-@csrf.exempt
-@app.route('/api/posts/<id>/image', methods=['POST'])
-def get_post_image(id):
 
+@app.route('/api/posts/<id>/images', methods=['POST'])
+def get_post_images(id):
+    """get images from a post with id"""
     if users.is_current_user_admin():
         asked_post = BlogPost.get(id)
 

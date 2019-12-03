@@ -348,7 +348,7 @@ class TestModels(BlogTestBase):
                         u'title':  post_key1.get().title, u'id': str(post_key1.get().key.id()),
                         u'summary':post_key1.get().summary,
                         u'answers':post_key1.get().answers,
-                        u'image': 'None'
+                        u'images': []
                         },
                         {u'body':  post_key2.get().body, u'category': post_key2.get().category.get().category
                             , u'updated':
@@ -357,9 +357,9 @@ class TestModels(BlogTestBase):
                         u'timestamp':  datetimeformat(post_key2.get().timestamp),
                         u'title':  post_key2.get().title, u'id': str(post_key2.get().key.id()),
                         u'summary':post_key2.get().summary,
-                        u'answers': post_key2.get().answers,u'image':
-                             'encoded_gs_file:YXBwX2RlZmF1bHRfYnVja2V0LzIwMTlfMV80XzE2ei5naWY='
-                         }]
+                        u'answers': post_key2.get().answers,u'images':
+                             [{u'blob_key': 'encoded_gs_file:YXBwX2RlZmF1bHRfYnVja2V0LzIwMTlfMV80XzE2ei5naWY=',
+                              u'filename': TEST_IMAGE}]}]
 
         self.assertEqual(json_result, self.posts.to_json())
 
@@ -748,6 +748,27 @@ class TestModels(BlogTestBase):
         with open(os.path.join(TEST_IMAGE)) as f:
             image_key = post.add_blob(f.read(), TEST_IMAGE)
 
-        post.delete_blob(post.image_blob_key)
+        post.delete_blob(post.images[0].blob_key)
         with self.assertRaises(blobstore.BlobNotFoundError):
             blobstore.fetch_data(image_key, 0, 1)
+
+    def test_read_blob_image(self):
+        post, _, _ = self.create_post()
+        with open(os.path.join(TEST_IMAGE)) as f:
+            post.add_blob(f.read(), TEST_IMAGE)
+            image_file = post.read_blob_image(TEST_IMAGE)
+
+            f.seek(0)
+            self.assertEqual(image_file, f.read())
+
+    def test_list_images(self):
+        post, _, _ = self.create_post()
+        with open(os.path.join(TEST_IMAGE)) as f:
+            post.add_blob(f.read(), TEST_IMAGE)
+        self.assertListEqual(post.list_images(), ['/app_default_bucket/{}'.format(TEST_IMAGE)])
+
+    def test_mime_type(self):
+        post, _, _ = self.create_post()
+        with open(os.path.join(TEST_IMAGE)) as f:
+            post.add_blob(f.read(), TEST_IMAGE)
+        self.assertEqual(post.get_mime_type(TEST_IMAGE), 'image/jpeg')

@@ -47,7 +47,7 @@ class Post extends Backbone.NestedModel {
 
 
     var ajaxOptions = {
-      url: '/api/posts/' + this.get('id') + '/image',
+      url: '/api/posts/' + this.get('id') + '/images',
       type: 'POST',
       data: formData,
       cache: false,

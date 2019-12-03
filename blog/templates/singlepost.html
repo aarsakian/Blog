@@ -50,9 +50,15 @@ Armen Arsakian personal blog
 
 
         </div><!--closes post-->
-        {%if Post.image != 'None' %}
-            <img src="{{request.url_root}}images/{{Post.image}}">
+
+
+        {%if Post.images != 'None' %}
+          {%for image in Post.images%}
+            <img src="{{request.url_root}}images/{{image.filename}}">
+          {% endfor %}
         {%endif%}
+
+
         <div id="answers">
             <div class="answers-container"> </div>
                 {% block answers %}
