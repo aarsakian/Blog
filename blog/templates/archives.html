@@ -37,7 +37,7 @@
 
                 {% set timestamp = Post.timestamp.split(' ') %}
 
-                <h3 class="editable"><a href="{{Post.category}}/{{timestamp[-2]}}
+                <h3 class="editable"><a href="articles/{{Post.category}}/{{timestamp[-2]}}
 				/{{timestamp[-1]}}/{{Post.title|trim}}">{{Post.title}}</a></h3>
                 <div class="row">
                        <div   class="date col-5 text-right my-1">Created: {{Post.timestamp}}</div>
