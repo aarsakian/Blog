@@ -33,7 +33,7 @@ class Post extends Backbone.NestedModel {
       updated:"",
       tags:"",
       summary:"",
-      images:[],
+      image:null,
       answers:[]
 
     };
