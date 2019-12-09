@@ -310,24 +310,31 @@ class PostForm extends ModelView {
 
     // Get a blob instance of the file selected
     var $fileInput = this.$('#files')[0];
-    var fileBlob = $fileInput.files[0];
-
+    var files = $fileInput.files;
+    var postform = this;
     // Render the image selected in the img tag
-    var fileReader = new FileReader();
-    fileReader.onload = event => {
-
-      if (this.model.isNew()) {
-        this.model.set({
-          image: {
+    _.each(files, function(fileBlob){
+         var fileReader = new FileReader();
+        fileReader.onload = event => {
+        console.log("loading event"+postform.model.isNew());
+      if (postform.model.isNew()) {
+       console.log("name "+fileBlob.name+ " target "+event.target.result);
+        var answers = [ {
             url: event.target.result,
-            filename: this.$('#files').val()
-          }
-        });
-      }
+            filename: fileBlob.name
+          }]
+        postform.model.set('answers', answers);
+
+        }
+
     };
+    console.log("TRIGER"+fileBlob);
     fileReader.readAsDataURL(fileBlob);
 
-    this.trigger('image:selected', fileBlob);
+    postform.trigger('image:selected', fileBlob);
+
+    });
+
   }
 
 
