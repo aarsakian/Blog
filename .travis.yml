@@ -29,6 +29,10 @@ script:
 - nosetests --with-coverage --with-gae  --gae-lib-root=google_appengine   --cover-package=blog   tests/test_*  -q
 after_success:
 - codecov
+# safelist
+branches:
+  only:
+  - master
 deploy:
   provider: gae
   skip_cleanup: true
