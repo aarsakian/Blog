@@ -155,26 +155,6 @@ class PostEditor {
   }
 
 
-
-
- /*savePost(postForm) {
-
-    postForm.save(null, {
-
-      success() {
-        // Redirect user to contact list after save
-       // App.notifySuccess('Contact saved');
-
-
-         App.router.navigate('edit', true);
-      },
-      error() {
-        // Show error message if something goes wrong
-    //    App.notifyError('Something goes wrong');
-      }
-    });
-  }*/
-
   cancel() {
     // Warn user before make redirection to prevent accidental
     // cencel
