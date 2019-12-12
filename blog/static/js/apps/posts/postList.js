@@ -313,22 +313,22 @@ class PostForm extends ModelView {
     var files = $fileInput.files;
     var postform = this;
     // Render the image selected in the img tag
+    var images = [];
     _.each(files, function(fileBlob){
          var fileReader = new FileReader();
         fileReader.onload = event => {
-        console.log("loading event"+postform.model.isNew());
       if (postform.model.isNew()) {
-       console.log("name "+fileBlob.name+ " target "+event.target.result);
-        var answers = [ {
+
+         images.push({
             url: event.target.result,
             filename: fileBlob.name
-          }]
-        postform.model.set('answers', answers);
-
+          });
         }
+        console.log("images "+_.pairs(images));
+        postform.model.set('images', images);
 
     };
-    console.log("TRIGER"+fileBlob);
+    console.log("TRIGER"+fileBlob.name);
     fileReader.readAsDataURL(fileBlob);
 
     postform.trigger('image:selected', fileBlob);
