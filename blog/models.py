@@ -23,7 +23,6 @@ class ViewImageHandler:
 
     def add_blob_image(self, image, image_filename):
         bucket = app_identity.get_default_gcs_bucket_name()
-
         # Cloud Storage file names are in the format /bucket/object.
         filename = '/{}/{}'.format(bucket, image_filename)
 
@@ -263,7 +262,7 @@ class BlogPost(ndb.Model, ViewImageHandler):
 
         blob_key = self.add_blob_image(image, image_filename)
         image = Image(blob_key=blob_key, filename=image_filename)
-        self.images = [image]
+        self.images.append(image)
         self.put()
         return str(image.blob_key)
 

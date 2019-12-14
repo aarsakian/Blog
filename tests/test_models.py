@@ -19,7 +19,7 @@ from blog.search import query_search_index, find_posts_from_index
 from . import BlogTestBase
 
 TEST_IMAGE = '2019_1_4_16z.gif'
-
+TEST_IMAGE2 = u'12_3_4_3_12z.png'
 
 class TestModels(BlogTestBase):
 
@@ -340,6 +340,9 @@ class TestModels(BlogTestBase):
         with open(os.path.join(TEST_IMAGE)) as f:
             self.assertTrue(post2.add_blob(f.read(), TEST_IMAGE))
 
+        with open(os.path.join(TEST_IMAGE2)) as f:
+            self.assertTrue(post2.add_blob(f.read(), TEST_IMAGE2))
+
         json_result = [{u'body':  post_key1.get().body, u'category': post_key1.get().category.get().category
                            , u'updated':
                         datetimeformat(post_key1.get().updated), u'tags':
@@ -357,10 +360,9 @@ class TestModels(BlogTestBase):
                         u'timestamp':  datetimeformat(post_key2.get().timestamp),
                         u'title':  post_key2.get().title, u'id': str(post_key2.get().key.id()),
                         u'summary':post_key2.get().summary,
-                        u'answers': post_key2.get().answers,u'images':
-                             [{u'blob_key': 'encoded_gs_file:YXBwX2RlZmF1bHRfYnVja2V0LzIwMTlfMV80XzE2ei5naWY=',
-                              u'filename': TEST_IMAGE}]}]
-
+                        u'answers': post_key2.get().answers,u'images':[{u'blob_key': u'encoded_gs_file:YXBwX2RlZmF1bHRfYnVja2V0LzIwMTlfMV80XzE2ei5naWY=',
+                                      u'filename': TEST_IMAGE}, {u'blob_key': u'encoded_gs_file:YXBwX2RlZmF1bHRfYnVja2V0LzEyXzNfNF8zXzEyei5wbmc=',
+                                                     u'filename': TEST_IMAGE2}]}]
         self.assertEqual(json_result, self.posts.to_json())
 
     def test_retrieve_from_memcache(self):

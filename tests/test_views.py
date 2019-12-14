@@ -30,7 +30,8 @@ CODEVERSION = ':v0.7'
 
 DATEFORMAT = '%A, %d %B %Y'
 
-TEST_IMAGE = '2019_1_4_16z.gif'
+TEST_IMAGE = u'2019_1_4_16z.gif'
+TEST_IMAGE2 = u'12_3_4_3_12z.png'
 
 
 @contextmanager
@@ -430,41 +431,35 @@ class TestViews(BlogTestBase):
                                    follow_redirects=True)
             return self.assertStatus(response, 500)
 
-        with open(os.path.join(TEST_IMAGE), 'rb') as f:
-            data = dict(
-                wrong_key=(io.BytesIO(f.read()), ''),
-            )
-
-            response = self.client.post(path='/api/posts/{}/image'.format(post.id), data=data,
-                                        content_type='multipart/form-data',
-                                        follow_redirects=True)
-            return self.assertStatus(response, 500)
-
     def test_api_posts_with_files(self):
         existing_tags = [u"a new new tag", u"a new tag"]
         with freeze_time(u"2019-11-05"):
 
-            image = {}
-            file_name = TEST_IMAGE
-            with open(file_name, 'rb') as f:
+            with open(TEST_IMAGE, 'rb') as f:
                 byte_content = f.read()
 
-            base64_content = b64encode(byte_content)
-            image['filename'] = "C:\\fakepath\\{}".format(file_name)
-            image['url'] = "data:image/jpeg;base64,{}".format(base64_content)
+            with open(TEST_IMAGE2, 'rb') as f:
+                byte_content_2 = f.read()
+
+            images = [{'filename': "C:\\fakepath\\{}".format(TEST_IMAGE),
+                      'url': "data:image/jpeg;base64,{}".format(b64encode(byte_content))},
+                      {'filename': "C:\\fakepath\\{}".format(TEST_IMAGE2),
+                      'url': "data:image/jpeg;base64,{}".format(b64encode(byte_content_2))}]
+
+
             json_data = {u'category': u'category', u'tags': existing_tags, u"summary": u"this is a summary",
                          u'title': u'a title', u'body': u'body text', u'timestamp': datetimeformat(datetime.now())
                     .decode("utf-8"),
                          u'updated': datetimeformat(datetime.now()).decode("utf-8"),
-                         u"answers":[], u'images':[image]}
+                         u"answers":[], u'images':images}
 
             response = self.client.post(url_for('main'), content_type='application/json',
                              data=json.dumps(json_data))
 
             json_data[u"id"] = u'4'
-            json_data[u'images'] =  [{u'blob_key': u'encoded_gs_file:YXBwX2RlZmF1bHRfYnVja2V0LzIwMTlfMV80XzE2ei5naWY=',
-                                      u'filename': TEST_IMAGE}]
-
+            json_data[u'images'] = [{u'blob_key': u'encoded_gs_file:YXBwX2RlZmF1bHRfYnVja2V0LzIwMTlfMV80XzE2ei5naWY=',
+                                      u'filename': TEST_IMAGE}, {u'blob_key': u'encoded_gs_file:YXBwX2RlZmF1bHRfYnVja2V0LzEyXzNfNF8zXzEyei5wbmc=',
+                                                     u'filename': TEST_IMAGE2}]
             self.assertDictEqual(json_data, response.json)
 
     def test_no_post(self):

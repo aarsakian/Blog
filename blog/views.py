@@ -400,13 +400,13 @@ def main():
                             answers=raw_post["answers"]).id()
                 post = BlogPost.get(post_id)
                 if "images" in raw_post.keys() and raw_post["images"]:
-                    img = raw_post["images"][0]
-                    image_base64 = img["url"].split("base64,")[-1]
-                    image_filename = img["filename"].split("\\")[-1]
+                    for img in raw_post["images"]:
+                        image_base64 = img["url"].split("base64,")[-1]
+                        image_filename = img["filename"].split("\\")[-1]
 
-                    if allowed_file(image_filename):
-                        image_filename = secure_filename(image_filename)
-                        post.add_blob(base64.b64decode(image_base64), image_filename)
+                        if allowed_file(image_filename):
+                            image_filename = secure_filename(image_filename)
+                            post.add_blob(base64.b64decode(image_base64), image_filename)
 
                 return jsonify(post.to_json()) #  Needs check
             else:
