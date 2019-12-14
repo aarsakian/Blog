@@ -117,7 +117,7 @@ class PostEditor {
 
     this.listenTo(postForm, 'form:save', this.savePost);
     this.listenTo(postForm, 'form:cancel', this.cancel);
-
+    this.listenTo(postForm, 'image:delete', this.deleteImage);
 
     this.listenTo(postForm, 'image:selected', blob => {
       this.imageSelected = blob;
@@ -129,6 +129,9 @@ class PostEditor {
 
   }
 
+  deleteImage(post, options) {
+    console.log("deleteing"+post.id)
+  }
 
   uploadImage(post, options) {
     // Tell to others that upload will start

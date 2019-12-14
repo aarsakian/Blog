@@ -301,7 +301,8 @@ class PostForm extends ModelView {
       'click #post-submit': 'savePost',
       'click #cancel': 'cancel',
       'keydown #new-post-body': 'previewMarkdownAndResizeTextArea',
-      'change #files': 'fileSelected'
+      'change #files': 'fileSelected',
+      'click .delete-image': 'deleteImage'
     };
   }
 
@@ -310,6 +311,7 @@ class PostForm extends ModelView {
 
     // Get a blob instance of the file selected
     var $fileInput = this.$('#files')[0];
+    var $preview = this.$('#preview')
     var files = $fileInput.files;
     var postform = this;
     // Render the image selected in the img tag
@@ -323,18 +325,29 @@ class PostForm extends ModelView {
             url: event.target.result,
             filename: fileBlob.name
           });
+         var image = new Image();
+         image.height = 150;
+         image.title = fileBlob.name;
+         image.src = event.target.result;
+         preview.appendChild(image);
+
         }
-        console.log("images "+_.pairs(images));
+
         postform.model.set('images', images);
 
     };
-    console.log("TRIGER"+fileBlob.name);
+
     fileReader.readAsDataURL(fileBlob);
 
     postform.trigger('image:selected', fileBlob);
 
     });
 
+  }
+
+  deleteImage() {
+    event.preventDefault();
+    this.trigger('image:delete')
   }
 
 
