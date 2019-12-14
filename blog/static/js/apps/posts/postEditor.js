@@ -117,10 +117,17 @@ class PostEditor {
 
     this.listenTo(postForm, 'form:save', this.savePost);
     this.listenTo(postForm, 'form:cancel', this.cancel);
-    this.listenTo(postForm, 'image:delete', this.deleteImage);
+    this.listenTo(postForm, 'image:delete', (filename, $el )=> {
+        this.$el = $el;
+        this.imageFilename = filename;
+        if (!post.isNew()) {
+            this.deleteImage(post);
+        }
+    });
 
     this.listenTo(postForm, 'image:selected', blob => {
       this.imageSelected = blob;
+
 
       if (!post.isNew()) {
         this.uploadImage(post);
@@ -130,7 +137,25 @@ class PostEditor {
   }
 
   deleteImage(post, options) {
-    console.log("deleteing"+post.id)
+    post.deleteImage(this.imageFilename, {
+      progress: (length, uploaded, percent) => {
+        // Tell to others that upload is in progress
+        this.trigger('avatar:deleting:progress',
+                     length, uploaded, percent);
+        if (options && _.isFunction(options.success)) {
+          options.success();
+        }
+      },
+      success: () => {
+        // Tell to others that upload was done successfully
+        this.trigger('image:deleting:done', this.imageFilename);
+        this.$el.next().remove();
+      },
+      error: err => {
+        // Tell to others that upload was error
+        this.trigger('avatar:deleting:error', err);
+      }
+    });
   }
 
   uploadImage(post, options) {

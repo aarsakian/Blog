@@ -39,12 +39,23 @@ class Post extends Backbone.NestedModel {
     };
   }
 
+  deleteImage(filename, options) {
+    var ajaxOptions = {
+      url: '/api/posts/' + this.get('id') + '/images/' + filename,
+      type: 'DELETE',
+      cache: false,
+      contentType: false,
+      processData: false
+    };
+    _.extend(ajaxOptions, _.pick(options, 'success', 'error'));
+
+    $.ajax(ajaxOptions);
+  }
+
   uploadImage(imageBlob, options) {
     // Create a form object to emulate a multipart/form-data
     var formData = new FormData();
     formData.append('image', imageBlob);
-
-
 
     var ajaxOptions = {
       url: '/api/posts/' + this.get('id') + '/images',

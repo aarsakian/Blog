@@ -345,9 +345,9 @@ class PostForm extends ModelView {
 
   }
 
-  deleteImage() {
+  deleteImage(event) {
     event.preventDefault();
-    this.trigger('image:delete')
+    this.trigger('image:delete', $(event.currentTarget).data('image-filename'), $(event.currentTarget));
   }
 
 
