@@ -20,8 +20,8 @@ class AnswerRadioForm(FlaskForm):
 
 
 class ImageForm(FlaskForm):
-    blob_key = StringField("", default="{{this.blob_key}}", _name="")
-    filename = StringField("", default="{{this.filename}}", _name="")
+    blob_key = StringField("", default="{{blob_key}}", _name="")
+    filename = StringField("", default="{{filename}}", _name="")
 
 
 class PostForm(FlaskForm):
@@ -32,5 +32,6 @@ class PostForm(FlaskForm):
     category = StringField("", validators=[DataRequired()], default="{{category}}")
     answers = FieldList(FormField(AnswerForm), min_entries=4)
     images = FieldList(FormField(ImageForm), min_entries=0)
+    images_upload = FileField("", validators=[FileAllowed(images_set, 'Images only!')])
     submit = SubmitField('Save')
 
