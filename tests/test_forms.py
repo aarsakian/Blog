@@ -5,6 +5,7 @@ from . import BlogTestBase
 
 from blog.models import BlogPost, Answer, Categories, Tags
 
+TEST_IMAGE = u'2019_1_4_16z.gif'
 
 
 class TestForms(BlogTestBase):
@@ -15,8 +16,13 @@ class TestForms(BlogTestBase):
         self.testbed.activate()
         # Next, enable csrf for proper rendering of forms
         self.app.config['WTF_CSRF_ENABLED'] = True
-
+        self.testbed.init_blobstore_stub()
         self.testbed.init_datastore_v3_stub()
+
+        self.testbed.init_app_identity_stub()
+
+        self.testbed.init_urlfetch_stub()
+
         # enable memcache
         self.testbed.init_memcache_stub()
         self.categories = Categories()
@@ -28,14 +34,14 @@ class TestForms(BlogTestBase):
         self.assertEqual(form.body.name, 'body')
         self.assertEqual(form.summary.name, 'summary')
         self.assertEqual(form.category.name, 'category')
-        self.assertEqual(form.image.name, 'image')
+        self.assertEqual(form.images.name, 'images')
 
     def test_hidden_form(self):
         form = PostForm()
 
         out = form.hidden_tag()
         answer_form = AnswerRadioForm()
-        answer_out =  answer_form.hidden_tag()
+        answer_out = answer_form.hidden_tag()
         assert(all(x in out for x in ('csrf_token')))
         assert (all(x in answer_out for x in ('csrf_token')))
 
@@ -49,16 +55,21 @@ class TestForms(BlogTestBase):
         answer = Answer(p_answer="a test answer",
                is_correct=False)
 
+        with open(TEST_IMAGE, 'rb') as f:
+                byte_content = f.read()
+
         post = BlogPost(title="a title", body= "body text", category=category_key, tags=new_tag_keys,
                         summary="this is a summary", answers=[answer])
+
+        post.add_blob(byte_content, TEST_IMAGE)
+
         post.put()
         form = PostForm(obj = post)
-       # form.answers.append_entry(answer_field)
-        #print (form.answers)
 
         self.assertEqual(form.title.data, "a title")
         self.assertEqual(form.body.data, "body text")
         self.assertEqual(form.answers[0].p_answer.data, "a test answer")
+        self.assertEqual(form.images[0].filename.data, TEST_IMAGE)
 
 
     def test_with_data_using_dict(self):

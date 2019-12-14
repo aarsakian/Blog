@@ -14,10 +14,14 @@ class AnswerForm(FlaskForm):
     is_correct = BooleanField(default="{{is_correct}}", _name="")
 
 
-
 class AnswerRadioForm(FlaskForm):
     r_answers = RadioField("", choices= [])
     submit = SubmitField('Submit')
+
+
+class ImageForm(FlaskForm):
+    blob_key = StringField("", default="{{this.blob_key}}", _name="")
+    filename = StringField("", default="{{this.filename}}", _name="")
 
 
 class PostForm(FlaskForm):
@@ -27,6 +31,6 @@ class PostForm(FlaskForm):
     tags = StringField("", default="{{tags}}")
     category = StringField("", validators=[DataRequired()], default="{{category}}")
     answers = FieldList(FormField(AnswerForm), min_entries=4)
-    image = FileField("images", validators=[FileAllowed(images_set, 'Images only!')])
+    images = FieldList(FormField(ImageForm), min_entries=0)
     submit = SubmitField('Save')
 
