@@ -39,13 +39,14 @@ class ViewImageHandler:
     def has_key(self, image_key):
         return blobstore.get(image_key)
 
-    def get(self, image_key):
-        logging.info("gettting key {}".format(image_key))
+    def get_blob(self, image_key):
         blob_info = blobstore.get(image_key)
-        logging.info("BLOB INFO {}".format(blob_info))
+
         if blob_info:
             logging.info("fetching image for {}".format(image_key))
             return blobstore.fetch_data(image_key, 0, blob_info.size)
+        else:
+            raise cloudstorage.NotFoundError
 
     def read_blob_image(self, image_filename):
         bucket = app_identity.get_default_gcs_bucket_name()
@@ -65,10 +66,15 @@ class ViewImageHandler:
         if stat:
             return stat.content_type
 
-    def delete_blob(self, image_key):
-        blob_info = blobstore.get(image_key)
-        if blob_info:
-            blobstore.delete(image_key)
+    def delete_blob(self, filename):
+
+        bucket = app_identity.get_default_gcs_bucket_name()
+        # Cloud Storage file names are in the format /bucket/object.
+        filename = '/{}/{}'.format(bucket, filename)
+        try:
+            cloudstorage.delete(filename)
+        except cloudstorage.NotFoundError:
+            logging.info("file not found {}".format(filename))
 
     def list_images(self):
         """List all files in GCP bucket."""
@@ -265,6 +271,7 @@ class BlogPost(ndb.Model, ViewImageHandler):
         self.images.append(image)
         self.put()
         return str(image.blob_key)
+
 
 
 class BlogList(list):

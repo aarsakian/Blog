@@ -1,4 +1,5 @@
 import os
+import cloudstorage
 
 from datetime import datetime
 
@@ -750,7 +751,7 @@ class TestModels(BlogTestBase):
         with open(os.path.join(TEST_IMAGE)) as f:
             image_key = post.add_blob(f.read(), TEST_IMAGE)
 
-        post.delete_blob(post.images[0].blob_key)
+        post.delete_blob(TEST_IMAGE)
         with self.assertRaises(blobstore.BlobNotFoundError):
             blobstore.fetch_data(image_key, 0, 1)
 
@@ -774,3 +775,12 @@ class TestModels(BlogTestBase):
         with open(os.path.join(TEST_IMAGE)) as f:
             post.add_blob(f.read(), TEST_IMAGE)
         self.assertEqual(post.get_mime_type(TEST_IMAGE), 'image/jpeg')
+
+    def test_delete_image(self):
+        post, _, _ = self.create_post()
+        with open(os.path.join(TEST_IMAGE)) as f:
+            image_key = post.add_blob(f.read(), TEST_IMAGE)
+
+        post.delete_blob(TEST_IMAGE)
+        with self.assertRaises(cloudstorage.NotFoundError):
+            post.get_blob(image_key)

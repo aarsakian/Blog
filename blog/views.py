@@ -435,6 +435,22 @@ def get_post_images(id):
             image_key = asked_post.add_blob(file.read(), image_filename)
             return jsonify(image_key=image_key)
 
+@csrf.exempt
+@app.route('/api/posts/<id>/images/<filename>', methods=['DELETE'])
+def delete_post_images(id, filename):
+    """get images from a post with id"""
+    if users.is_current_user_admin():
+        asked_post = BlogPost.get(id)
+
+        if filename == '':
+            flash('No selected file')
+            abort(500)
+        if file and allowed_file(filename):
+            image_filename = secure_filename(filename)
+
+            asked_post.delete_blob(image_filename)
+            return jsonify(msg="file deleted")
+
 
 @app.route('/api/posts/<id>', methods=['GET'])
 def get_post(id):

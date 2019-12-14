@@ -875,14 +875,13 @@ class TestViews(BlogTestBase):
         #                           content_type='multipart/form-data',
         #                           follow_redirects=True))
 
+    def test_delete_image_from_a_post(self):
+        with open(os.path.join(TEST_IMAGE)) as f:
+            img_stringIO = StringIO.StringIO(f.read())  # in memory read
 
-    # def test_upload(self):
-    #     output = StringIO()
-    #     output.write('hello there')
-    #
-    #     response = self.client.post(url_for('upload'), buffered=True,
-    #                        content_type='multipart/form-data',
-    #                                 data={'file_field': (output, 'hello there')})
-    #
-    #
-    #     self.assertEqual('ok',response.data)
+        post, _, _ = self.create_post()
+        image_key = post.add_blob(img_stringIO.read(), TEST_IMAGE)
+
+        response = self.client.delete(url_for('delete_post_images', id=post.id, filename=TEST_IMAGE))
+
+        self.assertEqual("file deleted", response.json["msg"])
