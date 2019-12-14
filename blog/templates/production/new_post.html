@@ -55,7 +55,13 @@
 
 
         </div>
-         {{wtf.form_field(form.image,  id="files", multiple='')}}
+  {{'{{'}}#each images{{'}}'}}
+            <li class="col-11 my-1 image"><a href=""><img src={{request.url_root}}images/{{'{{'}}this.filename{{'}}'}}
+                                               title={{'{{'}}this.filename{{'}}'}}></a></li>
+
+  {{'{{'}}/each{{'}}'}}
+        <div id="preview"></div>
+         {{wtf.form_field(form.images_upload,  id="files", multiple='')}}
         {{wtf.form_field(form.submit, type="submit", id="post-submit",
         class="submit button")}}
 
