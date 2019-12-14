@@ -62,9 +62,12 @@
 
 
         </div>
+
   {{'{{'}}#each images{{'}}'}}
-            <li class="col-11 my-1 image"><a href=""><img src={{request.url_root}}images/{{'{{'}}this.filename{{'}}'}}
-                                               title={{'{{'}}this.filename{{'}}'}}></a></li>
+            <li class="col-11 my-1 image">
+                <button class="delete-image btn"><i class="icon-remove"></i>Delete</button>
+                <img src={{request.url_root}}images/{{'{{'}}this.filename{{'}}'}}
+                                               title={{'{{'}}this.filename{{'}}'}}></li>
 
   {{'{{'}}/each{{'}}'}}
         <div id="preview"></div>
