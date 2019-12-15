@@ -325,13 +325,12 @@ class PostForm extends ModelView {
             url: event.target.result,
             filename: fileBlob.name
           });
-         var image = new Image();
-         image.height = 150;
-         image.title = fileBlob.name;
-         image.src = event.target.result;
-         preview.appendChild(image);
-
         }
+        var image = new Image();
+        image.height = 150;
+        image.title = fileBlob.name;
+        image.src = event.target.result;
+        preview.appendChild(image);
 
         postform.model.set('images', images);
 

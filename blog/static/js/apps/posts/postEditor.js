@@ -150,6 +150,7 @@ class PostEditor {
         // Tell to others that upload was done successfully
         this.trigger('image:deleting:done', this.imageFilename);
         this.$el.next().remove();
+        this.$el.remove();
       },
       error: err => {
         // Tell to others that upload was error
