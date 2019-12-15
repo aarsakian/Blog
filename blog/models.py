@@ -66,7 +66,7 @@ class ViewImageHandler:
         if stat:
             return stat.content_type
 
-    def delete_blob(self, filename):
+    def _delete_blob(self, filename):
 
         bucket = app_identity.get_default_gcs_bucket_name()
         # Cloud Storage file names are in the format /bucket/object.
@@ -272,7 +272,10 @@ class BlogPost(ndb.Model, ViewImageHandler):
         self.put()
         return str(image.blob_key)
 
-
+    def delete_blob_from_post(self, image_filename):
+        [self.images.pop(idx) for idx, image in enumerate(self.images) if image.filename == image_filename]
+        self.put()
+        self._delete_blob(image_filename)
 
 class BlogList(list):
 
@@ -366,8 +369,7 @@ class Posts(BlogList, JsonMixin):
 
     def delete(self, post_key):
         for post_idx, post in enumerate(self.posts):
-            if post.images and post.images[0].blob_key:
-                post.delete_blob(post.images[0].blob_key)
+            [post._delete_blob(image.filename) for image in post.images]
             if post.key == post_key:
                 self.posts.pop(post_idx)
         post_key.delete()

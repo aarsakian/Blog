@@ -448,7 +448,7 @@ def delete_post_images(id, filename):
         if file and allowed_file(filename):
             image_filename = secure_filename(filename)
 
-            asked_post.delete_blob(image_filename)
+            asked_post.delete_blob_from_post(image_filename)
             return jsonify(msg="file deleted")
 
 
