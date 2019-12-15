@@ -21,7 +21,7 @@ POSTS_INDEX = "posts_idx"
 
 class ViewImageHandler:
 
-    def add_blob_image(self, image, image_filename):
+    def add_blob_image(self, image, image_filename, mime_type='image/jpeg'):
         bucket = app_identity.get_default_gcs_bucket_name()
         # Cloud Storage file names are in the format /bucket/object.
         filename = '/{}/{}'.format(bucket, image_filename)
@@ -29,7 +29,7 @@ class ViewImageHandler:
         # Create a file in Google Cloud Storage and write something to it.
 
         with cloudstorage.open(filename=filename, mode='w',
-                               content_type='image/jpeg', options={'x-goog-acl':'public-read'}) as filehandle:
+                               content_type=mime_type, options={'x-goog-acl':'public-read'}) as filehandle:
             filehandle.write(image)
 
         blobstore_filename = '/gs{}'.format(filename)
@@ -264,9 +264,9 @@ class BlogPost(ndb.Model, ViewImageHandler):
             answers_stats.update({answer.p_answer: answer.nof_times_selected})
         return answers_stats
 
-    def add_blob(self, image, image_filename):
+    def add_blob(self, image, image_filename, mime_type):
 
-        blob_key = self.add_blob_image(image, image_filename)
+        blob_key = self.add_blob_image(image, image_filename, mime_type)
         image = Image(blob_key=blob_key, filename=image_filename)
         self.images.append(image)
         self.put()

@@ -231,7 +231,7 @@ class TestViews(BlogTestBase):
         related_posts = []
 
         with open(os.path.join(TEST_IMAGE)) as f:
-            self.assertTrue(current_post.add_blob(f.read(), TEST_IMAGE))
+            self.assertTrue(current_post.add_blob(f.read(), TEST_IMAGE, 'image/jpeg'))
 
         response = self.client.get(url_for('view_a_post', category="category", year=current_post.timestamp.year,
                                            month=current_post.timestamp.month, title="a title"))
@@ -332,7 +332,7 @@ class TestViews(BlogTestBase):
             img_stringIO = StringIO.StringIO(f.read())  # in memory read
 
         post, _, _ = self.create_post()
-        post.add_blob(img_stringIO.read(), TEST_IMAGE)
+        post.add_blob(img_stringIO.read(), TEST_IMAGE, 'image/jpeg')
         response = self.client.delete(url_for('delete_post', id=post.key.id()))
 
         self.assertEqual("OK", response.json["msg"])
@@ -860,7 +860,7 @@ class TestViews(BlogTestBase):
             img_stringIO = StringIO.StringIO(f.read())  # in memory read
 
         post, _, _ = self.create_post()
-        image_key = post.add_blob(img_stringIO.read(), TEST_IMAGE)
+        image_key = post.add_blob(img_stringIO.read(), TEST_IMAGE, 'image/jpeg')
 
         response = self.client.get(path='/images/{}'.format(TEST_IMAGE),
                                       content_type='multipart/form-data',
@@ -882,7 +882,7 @@ class TestViews(BlogTestBase):
             img_stringIO = StringIO.StringIO(f.read())  # in memory read
 
         post, _, _ = self.create_post()
-        image_key = post.add_blob(img_stringIO.read(), TEST_IMAGE)
+        image_key = post.add_blob(img_stringIO.read(), TEST_IMAGE, 'image/jpeg')
 
         response = self.client.delete(url_for('delete_post_images', id=post.id, filename=TEST_IMAGE))
 

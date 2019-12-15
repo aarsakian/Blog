@@ -402,11 +402,12 @@ def main():
                 if "images" in raw_post.keys() and raw_post["images"]:
                     for img in raw_post["images"]:
                         image_base64 = img["url"].split("base64,")[-1]
+                        mime_type = img["url"].split("base64,")[0].replace('data:', '').replace(';', '')
                         image_filename = img["filename"].split("\\")[-1]
 
                         if allowed_file(image_filename):
                             image_filename = secure_filename(image_filename)
-                            post.add_blob(base64.b64decode(image_base64), image_filename)
+                            post.add_blob(base64.b64decode(image_base64), image_filename, mime_type)
 
                 return jsonify(post.to_json()) #  Needs check
             else:
@@ -431,8 +432,9 @@ def get_post_images(id):
             abort(500)
         if file and allowed_file(file.filename):
             image_filename = secure_filename(file.filename)
+            mime_type = file.content_type
 
-            image_key = asked_post.add_blob(file.read(), image_filename)
+            image_key = asked_post.add_blob(file.read(), image_filename, mime_type)
             return jsonify(image_key=image_key)
 
 @csrf.exempt
