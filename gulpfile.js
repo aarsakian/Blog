@@ -19,6 +19,7 @@ var httpProxy = require('http-proxy');
 var useref = require('gulp-useref');
 var gulpif = require('gulp-if');
 var minifyCss = require('gulp-clean-css');
+const terser = require('gulp-terser');
 
 var workbox = require('workbox-build');
 
@@ -70,10 +71,10 @@ gulp.task('browserify-crud-prod', () => {
           return bundler.bundle()
             .on('error', $.util.log)
             .pipe(source('app.min.js'))
-      .pipe(buffer())
-      .pipe($.uglify()).on('error', function(e){
+            .pipe(buffer())
+            .pipe(terser()).on('error', function(e){
             console.log(e);
-         })
+            })
       .pipe(sourcemaps.init({loadMaps: true}))
         // Add transformation tasks to the pipeline here.
         .on('error', $.util.log)
@@ -104,7 +105,7 @@ gulp.task('browserify-general', () => {
       .pipe(buffer()).on('error', function(e){
             console.log(e);
          })
-      .pipe($.uglify())
+      .pipe(terser())
       .pipe(sourcemaps.init({loadMaps: true}))
         // Add transformation tasks to the pipeline here.
         .on('error', $.util.log)
@@ -136,7 +137,7 @@ gulp.task('browserify-general-prod', () => {
       .pipe(buffer()).on('error', function(e){
             console.log(e);
          })
-      .pipe($.uglify())
+      .pipe(terser())
       .pipe(sourcemaps.init({loadMaps: true}))
         // Add transformation tasks to the pipeline here.
         .on('error', $.util.log)
