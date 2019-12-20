@@ -3,8 +3,6 @@
   "description": "client dependencies",
   "author": "Armen Arsakian contact@arsakian.com",
   "dependencies": {
-    "@babel/core": "^7.6.4",
-    "@babel/preset-env": "^7.6.3",
     "backbone": "^1.4.0",
     "backbone-model-file-upload": "^1.0.2",
     "backbone-validation": "^0.11.5",
@@ -17,13 +15,12 @@
     "gulp-load-plugins": "^2.0.1",
     "gulp-sourcemaps": "^2.6.5",
     "gulp-useref": "^4.0.0",
-    "handlebars": "^4.5.1",
     "jquery": "^3.4.1",
     "jquery-typeahead": "^2.11.0",
     "jslint": "^0.12.1",
     "jstify": "^0.14.0",
-    "marked": "^0.7.0",
     "marked-forms": "^2.1.0",
+    "minify-html": "0.0.2",
     "popper.js": "^1.16.0",
     "source-map": "^0.7.3",
     "underscore": "^1.9.1",
@@ -31,6 +28,8 @@
     "watchify": "^3.11.1"
   },
   "devDependencies": {
+    "@babel/core": "^7.7.7",
+    "@babel/preset-env": "^7.7.7",
     "babel-core": "^6.26.3",
     "babel-preset-env": "^1.7.0",
     "babelify": "^10.0.0",
@@ -42,9 +41,11 @@
     "gulp-flatten": "^0.4.0",
     "gulp-if": "^3.0.0",
     "gulp-resolve-dependencies": "^3.0.1",
-    "gulp-uglify": "^3.0.2",
+    "gulp-terser": "^1.2.0",
     "gulp-util": "^3.0.8",
+    "handlebars": "^4.5.3",
     "http-proxy": "^1.18.0",
+    "marked": "^0.8.0",
     "workbox-build": "^4.3.1"
   }
 }
