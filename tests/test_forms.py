@@ -63,7 +63,7 @@ class TestForms(BlogTestBase):
 
         post.put()
         with open(os.path.join(TEST_IMAGE)) as f:
-            self.assertTrue(post.add_blob(f.read(), TEST_IMAGE))
+            self.assertTrue(post.add_blob(f.read(), TEST_IMAGE, 'image/jpeg'))
 
         form = PostForm(obj = post)
        # form.answers.append_entry(answer_field)
