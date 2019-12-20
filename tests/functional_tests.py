@@ -1,4 +1,5 @@
 from selenium import webdriver
+from datetime import datetime
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -6,9 +7,11 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import WebDriverException
 import unittest, time
+from . import BlogTestBase
 
 MAX_WAIT = 10
 
+URL = 'http://127.0.0.1:8080/'
 
 def wait(fn):
     def modified_fn(*args, **kwargs):
@@ -23,7 +26,7 @@ def wait(fn):
     return modified_fn
 
 
-class NewVisitorTest(unittest.TestCase):  #
+class NewVisitorTest(BlogTestBase):  #
 
     def setUp(self):  #
         self.browser = webdriver.Chrome()
@@ -33,10 +36,9 @@ class NewVisitorTest(unittest.TestCase):  #
     def tearDown(self):  #
         self.browser.quit()
 
+    def test_can_login(self):
 
-    def can_login(self):
-
-        self.browser.get('http://127.0.0.1:9082/login')
+        self.browser.get(URL+'login')
 
         admin_input_checkbox = self.browser.find_element_by_id('admin')
 
@@ -44,31 +46,36 @@ class NewVisitorTest(unittest.TestCase):  #
 
         self.browser.find_element_by_id("submit-login").click()
 
-        # after I login i should see an edit link
-        self.wait_to_be_logged_in()
+        # after I login i should see a submit button
+        submit_button = self.browser.find_element_by_id("post-submit")
+        self.assertTrue(submit_button)
 
-    @wait
-    def wait_to_be_logged_in(self):
-
-        edit_element = self.browser.find_element_by_class_name("edit")
-        self.assertEqual("Edit", edit_element.text)
-
-    @wait
-    def wait_to_find_a_post(self):
+    def test_find_a_post(self):
         title_element = self.browser.find_element_by_css_selector(".postTitle h3 a").text
         body_element = self.browser.find_element_by_css_selector(".article").text
 
 
         tags = self.browser.find_elements_by_class_name("tag")
         post_key = self.browser.find_element_by_css_selector("[data-id]").text
-        print (title_element, body_element, tags)
+
         self.assertEqual(u"introducing TDD requires discipline which is not given", body_element)
         [self.assertIn(tag.text, "tag1, tag2") for tag in tags]
         self.assertEqual(u"my ultimate blog post", title_element)
         self.assertNotEqual(post_key, "")
 
-    def create_a_post(self):
+    def test_create_a_post(self):
         # A text field for the title
+        self.browser.get(URL + 'login')
+
+        admin_input_checkbox = self.browser.find_element_by_id('admin')
+
+        admin_input_checkbox.click()
+
+        self.browser.find_element_by_id("submit-login").click()
+
+        # after I login i should see a submit button
+        submit_button = self.browser.find_element_by_id("post-submit")
+
         new_post_title_field = self.browser.find_element_by_id("new-post-title")
         # A text box for the body of the post
         new_post_body_textfield = self.browser.find_element_by_id("new-post-body")
@@ -90,12 +97,17 @@ class NewVisitorTest(unittest.TestCase):  #
 
         summary_field.send_keys("a little summary")
         # There is a submit button to post the article
-        self.browser.find_element_by_id("submit").click()
+        self.browser.find_element_by_id("post-submit").click()
+
+        self.browser.get(URL + 'articles/cat1/'+datetime.strftime(datetime.now(), '%B/%Y')+
+                         '/my ultimate blog post')
+
+        assert "my ultimate blog post" in self.browser.title
 
     def test_can_create_a_post_and_retrieve_it_later(self):  #
         #  after login I am directed to the main page
         self.can_login()
-        self.browser.get('http://127.0.0.1:9082/edit')
+        self.browser.get(URL+'edit')
 
         # I notice the page title and header mention my name and title of my blog
         self.assertIn('Armen Arsakian personal blog', self.browser.title)
