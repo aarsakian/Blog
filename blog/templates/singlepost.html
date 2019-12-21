@@ -51,6 +51,12 @@ Armen Arsakian personal blog {{Post.title}}
 
         </div><!--closes post-->
 
+        <div class="tags row col-md-9">
+            {%for tag in Post.tags %}
+                <span col-md-4 mx-10>{{tag}}</span>
+            {% endfor %}
+        </div>
+
 
         {%if Post.images != 'None' %}
           {%for image in Post.images%}
