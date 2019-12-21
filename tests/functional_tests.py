@@ -11,6 +11,9 @@ from . import BlogTestBase
 
 MAX_WAIT = 10
 
+SUMMARY = "a little summary"
+BODY_TEXT = "introducing TDD requires discipline which is not given"
+
 URL = 'http://127.0.0.1:8080/'
 
 def wait(fn):
@@ -69,13 +72,13 @@ class NewVisitorTest(BlogTestBase):  #
         new_post_title_field.send_keys('my ultimate blog post')
 
         new_post_body_textfield.clear()
-        new_post_body_textfield.send_keys('introducing TDD requires discipline which is not given')
+        new_post_body_textfield.send_keys(BODY_TEXT)
 
         new_post_category_field.send_keys('cat1')
 
         new_post_tags_field.send_keys("tag1, tag2")
 
-        summary_field.send_keys("a little summary")
+        summary_field.send_keys(SUMMARY)
         # There is a submit button to post the article
         self.browser.find_element_by_id("post-submit").click()
 
@@ -83,6 +86,22 @@ class NewVisitorTest(BlogTestBase):  #
                          '/my ultimate blog post')
 
         assert "my ultimate blog post" in self.browser.title
+
+    def test_can_edit_a_post(self):
+        self.login_user()
+
+        self.browser.get(URL + 'articles/cat1/' + datetime.strftime(datetime.now(), '%B/%Y') +
+                         '/my ultimate blog post')
+        post_key = self.browser.find_element_by_css_selector("[data-id]").get_attribute('data-id')
+
+        self.browser.get(URL + 'edit/' + post_key)
+
+        summary_text = self.browser.find_element_by_id("new-post-summary").get_attribute("value")
+        self.assertEqual(summary_text, SUMMARY)
+
+        new_post_body_text = self.browser.find_element_by_id("new-post-body").get_attribute("value")
+        self.assertEqual(new_post_body_text, BODY_TEXT)
+
 
     def test_find_a_post(self):
         self.browser.get(URL + 'articles/cat1/' + datetime.strftime(datetime.now(), '%B/%Y') +
