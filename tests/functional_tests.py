@@ -36,35 +36,7 @@ class NewVisitorTest(BlogTestBase):  #
     def tearDown(self):  #
         self.browser.quit()
 
-    def test_can_login(self):
-
-        self.browser.get(URL+'login')
-
-        admin_input_checkbox = self.browser.find_element_by_id('admin')
-
-        admin_input_checkbox.click()
-
-        self.browser.find_element_by_id("submit-login").click()
-
-        # after I login i should see a submit button
-        submit_button = self.browser.find_element_by_id("post-submit")
-        self.assertTrue(submit_button)
-
-    def test_find_a_post(self):
-        title_element = self.browser.find_element_by_css_selector(".postTitle h3 a").text
-        body_element = self.browser.find_element_by_css_selector(".article").text
-
-
-        tags = self.browser.find_elements_by_class_name("tag")
-        post_key = self.browser.find_element_by_css_selector("[data-id]").text
-
-        self.assertEqual(u"introducing TDD requires discipline which is not given", body_element)
-        [self.assertIn(tag.text, "tag1, tag2") for tag in tags]
-        self.assertEqual(u"my ultimate blog post", title_element)
-        self.assertNotEqual(post_key, "")
-
-    def test_create_a_post(self):
-        # A text field for the title
+    def login_user(self):
         self.browser.get(URL + 'login')
 
         admin_input_checkbox = self.browser.find_element_by_id('admin')
@@ -73,7 +45,15 @@ class NewVisitorTest(BlogTestBase):  #
 
         self.browser.find_element_by_id("submit-login").click()
 
+    def test_can_login(self):
+
+        self.login_user()
         # after I login i should see a submit button
+        submit_button = self.browser.find_element_by_id("post-submit")
+        self.assertTrue(submit_button)
+
+    def test_create_a_post(self):
+        self.login_user()
         submit_button = self.browser.find_element_by_id("post-submit")
 
         new_post_title_field = self.browser.find_element_by_id("new-post-title")
@@ -104,16 +84,32 @@ class NewVisitorTest(BlogTestBase):  #
 
         assert "my ultimate blog post" in self.browser.title
 
-    def test_can_create_a_post_and_retrieve_it_later(self):  #
-        #  after login I am directed to the main page
-        self.can_login()
-        self.browser.get(URL+'edit')
+    def test_find_a_post(self):
+        self.browser.get(URL + 'articles/cat1/' + datetime.strftime(datetime.now(), '%B/%Y') +
+                         '/my ultimate blog post')
+        title_element = self.browser.find_element_by_css_selector(".page-header h1").text
+        body_element = self.browser.find_element_by_css_selector(".article p").text
 
-        # I notice the page title and header mention my name and title of my blog
-        self.assertIn('Armen Arsakian personal blog', self.browser.title)
 
-        self.create_a_post()
-        self.wait_to_find_a_post()
+        tags = self.browser.find_elements_by_class_name("tags span")
+        post_key = self.browser.find_element_by_css_selector("[data-id]").text
+
+        self.assertEqual(u"introducing TDD requires discipline which is not given", body_element)
+        [self.assertIn(tag.text, u"tag1,tag2") for tag in tags]
+        self.assertEqual(u"my ultimate blog post", title_element)
+        self.assertNotEqual(post_key, "")
+
+
+    # def test_can_create_a_post_and_retrieve_it_later(self):  #
+    #     #  after login I am directed to the main page
+    #     self.can_login()
+    #     self.browser.get(URL+'edit')
+    #
+    #     # I notice the page title and header mention my name and title of my blog
+    #     self.assertIn('Armen Arsakian personal blog', self.browser.title)
+    #
+    #     self.create_a_post()
+    #     self.wait_to_find_a_post()
 
 
 
