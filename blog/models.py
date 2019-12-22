@@ -495,7 +495,7 @@ class Tags(BlogList, JsonMixin):
             old_post_tags = updating_post.get_tag_names()
         else:
             remaining_tags = posts.get_tags()
-            old_post_tags = []
+            old_post_tags = set(self.get_names()) - set(remaining_tags)
 
         non_modified_tags = set(editing_tags) & set(old_post_tags)
 
