@@ -325,7 +325,9 @@ class TestViews(BlogTestBase):
         response = self.client.delete(url_for('delete_post', id=post_key.id()))
 
         self.assertEqual("OK", response.json["msg"])
-        self.assertEqual(0, len(self.posts))
+
+        self.assertItemsEqual([], self.posts)
+
 
     def test_delete_post_with_image(self):
         with open(os.path.join(TEST_IMAGE)) as f:
