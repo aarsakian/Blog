@@ -511,7 +511,8 @@ def delete_post(id):
 
         posts.delete(updating_post.key)
 
-        tags.update(updating_post.get_tag_names())
+        tags.update([])
+
 
     return jsonify(msg="OK")
 
