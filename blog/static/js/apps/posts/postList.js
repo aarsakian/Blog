@@ -66,9 +66,16 @@ class TagListItemView extends ModelView {
 
   initialize(options) {
     this.listenTo(options.model, 'change', this.render);
+    this.listenTo(options.model, 'change', options.model.updateTags);
+  }
+
+  onRender() {
+
+   BackboneValidation.bind(this);
   }
 
   deleteTag() {
+     console.log("MODE"+this.destroy)
      this.model.destroy({
 
             success() {
@@ -80,9 +87,22 @@ class TagListItemView extends ModelView {
      });
   }
 
-  editTag() {
-    console.log("EDIT TAG");
-  }
+  editTag(event) {
+    var new_tag = $(event.currentTarget).prev().val();
+    this.model.set("val", new_tag);
+    this.model.updateTags({
+      success: () => {
+        // Tell to others that upload was done successfully
+        this.trigger('tag:editing:done', this.model.val);
+
+      },
+      error: err => {
+        // Tell to others that upload was error
+        this.trigger('avatar:deleting:error', err);
+      }
+    });
+
+   }
 
 }
 
@@ -240,7 +260,7 @@ class PostList {
             model: Tag
         });
         tags.push(_.map(post.get("tags"), function(tag) {
-            return new Tag({val:tag});
+            return new Tag({val:tag["val"], key:tag["key"]});
         }));
 
         var tagList = new TagListView({collection:tags});
