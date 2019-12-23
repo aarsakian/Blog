@@ -28,7 +28,7 @@ class PostForm(FlaskForm):
     title = StringField("", validators=[DataRequired()], default="{{title}}")
     body = TextAreaField("", default="{{body}}")
     summary = StringField("", default="{{summary}}")
-    tags = StringField("", default="{{tags}}")
+    tags = StringField("", default=" {{#each tags}} {{this.val}}, {{/each}}")
     category = StringField("", validators=[DataRequired()], default="{{category}}")
     answers = FieldList(FormField(AnswerForm), min_entries=4)
     images = FieldList(FormField(ImageForm), min_entries=0)
