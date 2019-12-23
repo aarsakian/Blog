@@ -163,7 +163,7 @@
 
 {% raw %}
 <script id="tag-list-item" type="text/x-handlebars-template">
-    <input class="post-title editmode"  value="{{val}}" name="title" placeholder="">
+    <input class="tag-input editmode"  value="{{this.val}}" name="title" placeholder="">
     <button class="edit btn"><i class="far fa-edit"></i></button>
     <button class="destroy btn"><i class="far fa-trash-alt"></i></button>
 
@@ -240,7 +240,7 @@
         <div class="btn-group">
             {{#each tags}}
 
-            <a class="btn tag" href="/tags/{{this}}">{{this}}</a>
+            <a class="btn tag" href="/tags/{{this.val}}" data-tag-key="{{this.key}}">{{this.val}}</a>
             {{/each}}
         </div>
         {{/unless}}

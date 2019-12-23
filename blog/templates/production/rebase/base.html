@@ -3,7 +3,7 @@
     <div class="tag-list-container col-10"></div>
 
     <div class="post-form-container col-12"></div></script><script id="post-form-layout" type="text/x-handlebars-template"><div id="preview-container" class="row col-12"></div>
-    <div class="post-form-container row col-12"></div></script>{% raw %}<script id="tag-list-item" type="text/x-handlebars-template"><input class="post-title editmode"  value="{{val}}" name="title" placeholder="">
+    <div class="post-form-container row col-12"></div></script>{% raw %}<script id="tag-list-item" type="text/x-handlebars-template"><input class="tag-input editmode"  value="{{this.val}}" name="title" placeholder="">
     <button class="edit btn"><i class="far fa-edit"></i></button>
     <button class="destroy btn"><i class="far fa-trash-alt"></i></button></script>{% endraw %} {% raw %}<script id="collection-template" type="text/x-handlebars-template"><h1> {{#unless type}}
            {{title}}
@@ -60,7 +60,7 @@
         <div class="btn-group">
             {{#each tags}}
 
-            <a class="btn tag" href="/tags/{{this}}">{{this}}</a>
+            <a class="btn tag" href="/tags/{{this.val}}" data-tag-key="{{this.key}}">{{this.val}}</a>
             {{/each}}
         </div>
         {{/unless}}
