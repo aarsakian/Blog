@@ -254,7 +254,7 @@ gulp.task('browser-sync', function(done) {
 
 });
 
-gulp.task('serve-prod', gulp.series('browserify-crud-prod', 'browser-sync'))//, 'browserify-general-prod', 'html', 'fonts',
-                        //'minify-html','minify-html-rebase', 'generate-service-worker', 'browser-sync'));
+gulp.task('serve-prod', gulp.series('browserify-crud-prod', 'browserify-general-prod', 'html', 'fonts',
+                        'minify-html','minify-html-rebase', 'generate-service-worker', 'browser-sync'));
 
 
