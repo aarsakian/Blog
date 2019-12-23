@@ -31,7 +31,7 @@ class Post extends Backbone.NestedModel {
       date:"date of the post",
       category:"",
       updated:"",
-      tags:"",
+      tags:[],
       summary:"",
       images:[],
       answers:[]

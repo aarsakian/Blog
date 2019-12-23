@@ -144,6 +144,7 @@ class CollectionView extends Backbone.View {
 
     // Bind collection events to automatically insert
     // and remove items in the view
+    console.log("COLLECTION "+this.collection);
     this.listenTo(this.collection, 'add', this.modelAdded);
     this.listenTo(this.collection, 'remove', this.modelRemoved);
     this.listenTo(this.collection, 'reset', this.render);
@@ -151,6 +152,7 @@ class CollectionView extends Backbone.View {
 
   // Render a model when is added to the collection
   modelAdded(model) {
+    console.log("RENDERING "+model+"EL "+this.$el+ " VIE "+view.$el);
     var view = this.renderModel(model);
     this.$el.append(view.$el);
   }

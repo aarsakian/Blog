@@ -146,6 +146,8 @@
 <script id="post-list-layout" type="text/x-handlebars-template">
     <div class="list-container col-12"></div>
     <div class="actions-bar-container col-10"></div>
+    <div class="tag-list-container col-10"></div>
+
     <div class="post-form-container col-12"></div>
 
 </script>
@@ -156,14 +158,19 @@
 
 </script>
 
-<script id="tag-list-layout" type="text/x-handlebars-template">
-    <div class="tag-list-container"></div>
+
+
+
+{% raw %}
+<script id="tag-list-item" type="text/x-handlebars-template">
+    <input class="post-title editmode"  value="{{val}}" name="title" placeholder="">
+    <button class="edit btn"><i class="far fa-edit"></i></button>
+    <button class="destroy btn"><i class="far fa-trash-alt"></i></button>
+
+
 </script>
 
-<script id="tag-list-template" type="text/x-handlebars-template">
-
-    <a class="button taggy" href="/tags#!{{'{{'}}tag{{'}}'}}">{{'{{'}}tag{{'}}'}}</a>
-</script>
+{% endraw %}
 
 {% raw %}
 <script id="collection-template" type="text/x-handlebars-template">

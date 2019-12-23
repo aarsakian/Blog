@@ -8,9 +8,9 @@ var ModelView = require('../../common').ModelView;
 var CollectionView = require('../../common').CollectionView;
 var BackboneValidation = require('../../common').BackboneValidation;
 var Post = require('./models/post');
+var Tag = require('./models/tag');
 var Marked = require('marked');
 var Renderer = require('marked-forms')(new Marked.Renderer());
-
 
 
 
@@ -22,21 +22,14 @@ class PostListLayout extends Layout {
     this.regions = {
       actions: '.actions-bar-container',
       list: '.list-container',
-      postform: '.post-form-container'
+      tagsform: '.tag-list-container',
+      postform: '.post-form-container',
     };
   }
 
 }
 
-class TagListLayout extends Layout {
-  constructor(options) {
-    super(options);
-    this.template = '#tag-list-layout';
-    this.regions = {
-      list: '.tag-list-container',
-    };
-  }
-}
+
 
 
 class TagListView extends CollectionView {
@@ -49,11 +42,7 @@ class TagListView extends CollectionView {
     return 'tag-list';
   }
   
-  get events() {
 
-    return {
-    }
-  }
   
 }
 
@@ -69,9 +58,8 @@ class TagListItemView extends ModelView {
 
   get events() {
     return {
-      'click .destroy': 'deletePost',
-      'click #view': 'viewPost',
-      'click .edit': 'editPost'
+      'click .destroy': 'deleteTag',
+      'click .edit': 'editTag'
 
     };
   }
@@ -80,21 +68,20 @@ class TagListItemView extends ModelView {
     this.listenTo(options.model, 'change', this.render);
   }
 
-  deletePost() {
-    this.trigger('delete', this.model);
+  deleteTag() {
+     this.model.destroy({
+
+            success() {
+                // App.notifySuccess('Contact was deleted');
+            },
+            error() {
+                //  App.notifyError('Ooops... Something went wrong');
+            }
+     });
   }
 
-  viewPost() {
-    var tagId = this.model.get('id');
-    App.router.navigate(`edit/tag/${tagId}`, true);
-  }
-  
-  editTitle() {
-     this.trigger('edit:title', this.model);  
-  }
-  
-  editPost() {
-    this.trigger('edit', this.model);  
+  editTag() {
+    console.log("EDIT TAG");
   }
 
 }
@@ -163,8 +150,7 @@ class PostListItemView extends ModelView {
 
   initialize(options) {
     this.listenTo(options.model, 'change', this.render);
-           
-  //  var tagList = new TagListView({collection: options.model.tags});
+
  
   }
 
@@ -176,11 +162,11 @@ class PostListItemView extends ModelView {
     var postId = this.model.get('id');
     App.router.navigate(`edit/${postId}`, true);
   }
-  
+
   editTitle() {
-     this.trigger('edit:title', this.model);  
+     this.trigger('edit:title', this.model);
   }
-  
+
   editPost() {
     this.trigger('edit', this.model);  
   }
@@ -205,7 +191,7 @@ class PostList {
 
   showList(posts) {
     // Create the views
-    var layout = new PostListLayout();
+    this.layout = new PostListLayout();
     
     //var actionBar = new PostListActionBar();
  
@@ -216,7 +202,7 @@ class PostList {
   
     // Show the views
 
-    this.region.show(layout);
+    this.region.show(this.layout);
 
 
   //  layout.getRegion('actions').show(actionBar);
@@ -224,8 +210,8 @@ class PostList {
     var postList = new PostListView({collection:
                                     posts});
 
-    layout.getRegion('list').show(postList);
-    layout.getRegion('postform').show(postForm);
+    this.layout.getRegion('list').show(postList);
+    this.layout.getRegion('postform').show(postForm);
 
     this.posts = posts;
     
@@ -250,6 +236,16 @@ class PostList {
   }
 
   editTags(view, post) {
+        var tags = new Backbone.Collection(null, {
+            model: Tag
+        });
+        tags.push(_.map(post.get("tags"), function(tag) {
+            return new Tag({val:tag});
+        }));
+
+        var tagList = new TagListView({collection:tags});
+
+        this.layout.getRegion('tagsform').show(tagList);
 
   }
   
