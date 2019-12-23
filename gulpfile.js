@@ -36,20 +36,27 @@ gulp.task('browserify-crud-prod', () => {
         // defining transforms here will avoid crashing your stream
         transform: [babelify, jstify]
         });
+
    bundler = watchify(bundler);
 
-    var rebundle = function() { return bundler.bundle()
+    var rebundle = function() {
+         return bundler.bundle().on('error', function(e){
+            console.log(e);
+         })
         .pipe(source('app.min.js'))
         .pipe(buffer())
         .pipe(sourcemaps.init({loadMaps: true}))
         // Add transformation tasks to the pipeline here.
         .pipe(terser())
-        .on('error', log.error)
+        .on('error', function(e){
+            console.log(e);
+         })
         .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest('./blog/static/js/prod/'));
     };
     bundler.on('update', rebundle);
-    bundler.on('log', log.info)
+    bundler.on('log', log.info);
+    bundler.on('error', $.util.log);
     return rebundle();
 });
 
