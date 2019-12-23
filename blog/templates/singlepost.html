@@ -53,7 +53,7 @@ Armen Arsakian personal blog {{Post.title}}
 
         <div class="tags row col-md-9">
             {%for tag in Post.tags %}
-                <span class="col-md-1 mx-1">{{tag}}</span>
+                <span class="col-md-1 mx-1" data-tag-key="{{tag.key}}">{{tag.val}}</span>
             {% endfor %}
         </div>
 

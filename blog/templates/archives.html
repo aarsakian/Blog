@@ -57,7 +57,7 @@
                 <a class="tags" href="/tags"><i class="icon-tags"></i></a>
 
                 {%for tag in Post.tags%}
-                <a class="tag" href="/tags/{{tag}}">{{tag}}</a>
+                <a class="tag" href="/tags/{{tag.val}}" data-tag-key="{{tag.key}}">{{tag.val}}</a>
                 {%endfor%}
 
                 {%endif%}
