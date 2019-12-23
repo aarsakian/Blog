@@ -6,10 +6,10 @@ var watchify = require('watchify');
 var jstify = require('jstify');
 
 var htmlmin = require('gulp-htmlmin');
-
+var sourcemaps = require('gulp-sourcemaps')
 var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
-var sourcemaps = require('gulp-sourcemaps');
+var minifyStream = require('minify-stream')
 var babelify = require('babelify');
 var resolveDependencies = require('gulp-resolve-dependencies');
 var concat = require('gulp-concat');
@@ -19,82 +19,48 @@ var httpProxy = require('http-proxy');
 var useref = require('gulp-useref');
 var gulpif = require('gulp-if');
 var minifyCss = require('gulp-clean-css');
+var log = require('gulplog');
 const terser = require('gulp-terser');
 
 var workbox = require('workbox-build');
 
 
 
-// Bundle files with browserify
-gulp.task('browserify-crud', () => {
-// set up the browserify instance on a task basis
-    var bundler = browserify({
-    entries: 'blog/static/js/main.js',
-    debug: true,
-// defining transforms here will avoid crashing your stream
-    transform: [jstify]
-    });
-
-     bundler = watchify(bundler);
-
-     var rebundle = function() {
-          return bundler.bundle()
-            .on('error', $.util.log)
-            .pipe(source('app.min.js'))
-      .pipe(buffer())
-      .pipe(sourcemaps.init({loadMaps: true}))
-        // Add transformation tasks to the pipeline here.
-        .on('error', $.util.log)
-      .pipe(sourcemaps.write('./'))
-      .pipe(gulp.dest('./blog/static/js/tmp/'));
-  };
-
-  bundler.on('update', rebundle);
-
-  return rebundle();
-});
-
 
 // Bundle files with browserify
 gulp.task('browserify-crud-prod', () => {
 // set up the browserify instance on a task basis
     var bundler = browserify({
-    entries: 'blog/static/js/main.js',
-    debug: true,
-// defining transforms here will avoid crashing your stream
-    transform: [babelify, jstify]
-    });
+        entries: 'blog/static/js/main.js',
+        debug: true,
+        // defining transforms here will avoid crashing your stream
+        transform: [babelify, jstify]
+        });
+   bundler = watchify(bundler);
 
-     bundler = watchify(bundler);
-
-     var rebundle = function() {
-          return bundler.bundle()
-            .on('error', $.util.log)
-            .pipe(source('app.min.js'))
-            .pipe(buffer())
-            .pipe(terser()).on('error', function(e){
-            console.log(e);
-            })
-      .pipe(sourcemaps.init({loadMaps: true}))
+    var rebundle = function() { return bundler.bundle()
+        .pipe(source('app.min.js'))
+        .pipe(buffer())
+        .pipe(sourcemaps.init({loadMaps: true}))
         // Add transformation tasks to the pipeline here.
-        .on('error', $.util.log)
-      .pipe(sourcemaps.write('./'))
-      .pipe(gulp.dest('./blog/static/js/prod/'));
-  };
-
-  bundler.on('update', rebundle);
-
-  return rebundle();
+        .pipe(terser())
+        .on('error', log.error)
+        .pipe(sourcemaps.write('./'))
+        .pipe(gulp.dest('./blog/static/js/prod/'));
+    };
+    bundler.on('update', rebundle);
+    bundler.on('log', log.info)
+    return rebundle();
 });
 
 gulp.task('browserify-general', () => {
 // set up the browserify instance on a task basis
     var bundler = browserify({
-    entries: 'blog/static/js/general.js',
-    debug: true,
-// defining transforms here will avoid crashing your stream
-    transform: [ jstify]
-    });
+        entries: 'blog/static/js/general.js',
+        debug: true,
+        // defining transforms here will avoid crashing your stream
+        transform: [ jstify]
+        });
 
      bundler = watchify(bundler);
 
@@ -288,7 +254,7 @@ gulp.task('browser-sync', function(done) {
 
 });
 
-gulp.task('serve-prod', gulp.series('browserify-crud-prod', 'browserify-general-prod', 'html', 'fonts',
-                        'minify-html','minify-html-rebase', 'generate-service-worker', 'browser-sync'));
+gulp.task('serve-prod', gulp.series('browserify-crud-prod', 'browser-sync'))//, 'browserify-general-prod', 'html', 'fonts',
+                        //'minify-html','minify-html-rebase', 'generate-service-worker', 'browser-sync'));
 
 
