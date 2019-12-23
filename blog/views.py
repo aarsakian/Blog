@@ -298,7 +298,9 @@ def subject_questions(posts, tags, categories, passed_days,
 
 @app.route('/api/tags/<tagname>', methods=['PUT'])
 def updateTags(tagname):
-    tags = Tags()
+
+    if users.is_current_user_admin():
+        tags = Tags()
 
 
 @app.route('/api/answers/<title>', methods=['POST','GET'])
