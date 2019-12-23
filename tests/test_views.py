@@ -359,7 +359,10 @@ class TestViews(BlogTestBase):
         data = {u"title": asked_post.title, u"body": asked_post.body, u"category":
             asked_post.category.get().category,
                  u"category": category_key.get().category, u"id": str(asked_post.key.id()).decode('utf8'), \
-                 u"tags": post_tag_names,
+                 u"tags": [{u"key": str(existing_tag_keys[0]).decode('utf8'),
+                            u"val":existing_tag_keys[0].get().tag},
+                         {u"key": str(existing_tag_keys[1]).decode('utf8'),
+                          u"val":existing_tag_keys[1].get().tag}],
                  u"summary":asked_post.summary,
                  u"timestamp": asked_post.timestamp.strftime(DATEFORMAT).decode('utf8')
                     , u"updated":
@@ -386,6 +389,8 @@ class TestViews(BlogTestBase):
                                    data=json.dumps(json_data))
         json_data[u"id"] = u'4'
         json_data[u'images'] = []
+        json_data[u'tags'] = [{u"key": str(tag_key).decode("utf-8"), u"val": tag_key.get().tag} for tag_key in
+                              self.posts[0].tags]
         self.assertDictEqual(json_data, response.json)
         freezer.stop()
 
@@ -406,6 +411,7 @@ class TestViews(BlogTestBase):
 
         json_data[u"id"] = u'4'
         json_data[u'images'] = []
+        json_data[u'tags'] = [{u"key": str(tag_key).decode("utf-8"), u"val": tag_key.get().tag} for tag_key in self.posts[0].tags]
         self.assertDictEqual(json_data, response.json)
         freezer.stop()
 
@@ -450,7 +456,6 @@ class TestViews(BlogTestBase):
                       {'filename': "C:\\fakepath\\{}".format(TEST_IMAGE2),
                       'url': "data:image/jpeg;base64,{}".format(b64encode(byte_content_2))}]
 
-
             json_data = {u'category': u'category', u'tags': existing_tags, u"summary": u"this is a summary",
                          u'title': u'a title', u'body': u'body text', u'timestamp': datetimeformat(datetime.now())
                     .decode("utf-8"),
@@ -460,10 +465,15 @@ class TestViews(BlogTestBase):
             response = self.client.post(url_for('main'), content_type='application/json',
                              data=json.dumps(json_data))
 
-            json_data[u"id"] = u'4'
-            json_data[u'images'] = [{u'blob_key': u'encoded_gs_file:YXBwX2RlZmF1bHRfYnVja2V0LzIwMTlfMV80XzE2ei5naWY=',
+            tags = [{ u"key": str(tag_key).decode("utf-8"), u"val": tag_key.get().tag} for tag_key in self.posts[0].tags]
+            json_data = {u"id":"4",u'category': u'category', u'tags': tags, u"summary": u"this is a summary",
+                         u'title': u'a title', u'body': u'body text', u'timestamp': datetimeformat(datetime.now())
+                    .decode("utf-8"),
+                         u'updated': datetimeformat(datetime.now()).decode("utf-8"),
+                         u"answers": [], u'images':
+                             [{u'blob_key': u'encoded_gs_file:YXBwX2RlZmF1bHRfYnVja2V0LzIwMTlfMV80XzE2ei5naWY=',
                                       u'filename': TEST_IMAGE}, {u'blob_key': u'encoded_gs_file:YXBwX2RlZmF1bHRfYnVja2V0LzEyXzNfNF8zXzEyei5wbmc=',
-                                                     u'filename': TEST_IMAGE2}]
+                                                     u'filename': TEST_IMAGE2}]}
             self.assertDictEqual(json_data, response.json)
 
     def test_no_post(self):
@@ -473,7 +483,7 @@ class TestViews(BlogTestBase):
         self.assertFalse(response.json)
 
     def test_edit_post_add_answers(self):
-        post, _, _ = self.create_post()
+        post, _, tag_keys = self.create_post()
 
         editing_tags = ["a new tag", "tag to added"]
         json_data = {u'category': u'a new category', 'tags': editing_tags, 'title': 'a new title', 'body': 'body text',
@@ -482,10 +492,10 @@ class TestViews(BlogTestBase):
 
         response = self.client.put(url_for('edit_post', id=post.key.id()), content_type='application/json',
                                    data=json.dumps(json_data))
-
+        tags = [{"key": str(tag_key), "val": tag_key.get().tag} for tag_key in post.tags]
         data = {u"title": u'a new title', u"body": post.body, u"category":
             u"a new category", u"id": str(post.key.id()).decode('utf8'), \
-                u"tags": post.get_tag_names(),
+                u"tags": tags,
                 u'summary': u'this is a new summary',
                 u"timestamp": post.timestamp.strftime(DATEFORMAT).decode('utf8')
             , u"updated": post.updated.strftime(DATEFORMAT).decode('utf8'),
@@ -518,12 +528,10 @@ class TestViews(BlogTestBase):
         response = self.client.put(url_for('edit_post', id=post_key.id()), content_type='application/json',
                                    data=json.dumps(json_data))
 
-        tag_names = [u"a new tag", u"a new new tag", u"tag to added"]
-        post_tag_names = [u"a new tag", u"tag to added"]
-
+        tags = [{"key": str(tag_key), "val": tag_key.get().tag} for tag_key in post_key.get().tags]
         data = {u"title": u'a new title', u"body": updating_post.body, u"category":
                  u"a new category", u"id": str(updating_post.key.id()).decode('utf8'), \
-                 u"tags": post_tag_names,
+                 u"tags": tags,
                 u'summary': u'this is a new summary',
                  u"timestamp": updating_post.timestamp.strftime(DATEFORMAT).decode('utf8')
                     , u"updated":

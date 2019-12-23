@@ -347,7 +347,8 @@ class TestModels(BlogTestBase):
         json_result = [{u'body':  post_key1.get().body, u'category': post_key1.get().category.get().category
                            , u'updated':
                         datetimeformat(post_key1.get().updated), u'tags':
-                        [(post_key1.get().tags[0].get()).tag,  (post_key1.get().tags[1].get()).tag],
+                        [{"key": str(new_tag_keys[0]), "val":new_tag_keys[0].get().tag},
+                         {"key": str(new_tag_keys[1]), "val":new_tag_keys[1].get().tag}],
                         u'timestamp':  datetimeformat(post_key1.get().timestamp),
                         u'title':  post_key1.get().title, u'id': str(post_key1.get().key.id()),
                         u'summary':post_key1.get().summary,
@@ -357,7 +358,8 @@ class TestModels(BlogTestBase):
                         {u'body':  post_key2.get().body, u'category': post_key2.get().category.get().category
                             , u'updated':
                         datetimeformat(post_key2.get().updated), u'tags':
-                        [(post_key2.get().tags[0].get()).tag,  (post_key2.get().tags[1].get()).tag],
+                        [{"key": str(new_tag_keys[0]), "val":new_tag_keys[0].get().tag},
+                         {"key": str(new_tag_keys[1]), "val":new_tag_keys[1].get().tag}],
                         u'timestamp':  datetimeformat(post_key2.get().timestamp),
                         u'title':  post_key2.get().title, u'id': str(post_key2.get().key.id()),
                         u'summary':post_key2.get().summary,

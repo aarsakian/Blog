@@ -194,7 +194,7 @@ class BlogPost(ndb.Model, ViewImageHandler):
         jsoned_data[u"body"] = post_dict["body"]
         jsoned_data[u"summary"] = post_dict["summary"]
         jsoned_data[u"id"] = str(self.key.id())
-        jsoned_data[u"tags"] = self.get_tag_names()
+        jsoned_data[u"tags"] = [{"key":str(tag_key),"val":tag_key.get().tag} for tag_key in self.tags]
         jsoned_data[u"category"] = self.category.get().category
         jsoned_data[u"updated"] = datetimeformat(post_dict["updated"])
         jsoned_data[u"timestamp"] = datetimeformat(post_dict["timestamp"])

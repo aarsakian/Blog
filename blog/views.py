@@ -296,6 +296,11 @@ def subject_questions(posts, tags, categories, passed_days,
                            codeversion=CODEVERSION)
 
 
+@app.route('/api/tags/<tagname>', methods=['PUT'])
+def updateTags(tagname):
+    tags = Tags()
+
+
 @app.route('/api/answers/<title>', methods=['POST','GET'])
 def answers(title):
     posts = Posts()
