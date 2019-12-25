@@ -1,0 +1,9 @@
+#ignore pyc
+*.pyc
+*.idea
+*.json
+!package.json
+!package-lock.json
+credentials.tar.gz
+secret_keys.py
+.DS_Store 
