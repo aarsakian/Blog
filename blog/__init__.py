@@ -3,8 +3,8 @@ from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_sitemap import Sitemap
 from flask_wtf.csrf import CSRFProtect
-
-
+from google.cloud import ndb
+from google.oauth2 import service_account
 
 
 import os
@@ -19,7 +19,15 @@ csrf = CSRFProtect()
 
 
 
+client = ndb.Client()
 
+
+def ndb_wsgi_middleware(wsgi_app):
+    def middleware(environ, start_response):
+        with client.context():
+            return wsgi_app(environ, start_response)
+
+    return middleware
 
 
 
@@ -46,9 +54,10 @@ sitemap.init_app(app)
 
 csrf.init_app(app)
 
+# Wrap the app in middleware.
+app.wsgi_app = ndb_wsgi_middleware(app.wsgi_app)
 
-
-import views
+from . import views
 
 
 
