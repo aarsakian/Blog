@@ -1,4 +1,4 @@
-from urlparse import urljoin
+from urllib.parse import urljoin
 from datetime import datetime, date
 from math import ceil
 from mistune import markdown, Renderer

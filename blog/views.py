@@ -1,23 +1,23 @@
-import logging, json, urlparse, base64, io
+import logging, base64, io
+from urllib.parse import urlparse
 from blog import app, csrf
-from models import Posts, Tags, Categories
+from .models import Posts, Tags, Categories, BlogPost, ViewImageHandler
 from flask import render_template,request,jsonify,redirect,url_for, flash, session, make_response, send_file, abort
 from werkzeug import secure_filename
-from errors import InvalidUsage
+from .errors import InvalidUsage
 
-from models import BlogPost, ViewImageHandler
 
-from search import query_search_index, find_posts_from_index, delete_all_in_index
+#from search import query_search_index, find_posts_from_index, delete_all_in_index
 
-from google.appengine.api import users
+
 from werkzeug.contrib.atom import AtomFeed
 
 from functools import wraps
 
 from datetime import datetime
 
-from forms import PostForm, AnswerRadioForm
-from utils import datetimeformat, calculate_work_date_stats,  to_markdown, generate_uid_token, allowed_file
+from .forms import PostForm, AnswerRadioForm
+from .utils import datetimeformat, calculate_work_date_stats,  to_markdown, generate_uid_token, allowed_file
 
 
 
@@ -40,11 +40,11 @@ REMAINING_ATTEMPTS = 1
 @app.before_request
 def redirect_nonwww():
     """Redirect non-www requests to www."""
-    urlparts = urlparse.urlparse(request.url)
+    urlparts = urlparse(request.url)
     if urlparts.netloc == 'arsakian.com':
         urlparts_list = list(urlparts)
         urlparts_list[1] = 'www.arsakian.com'
-        return redirect(urlparse.urlunparse(urlparts_list), code=301)
+        return redirect(urlunparse(urlparts_list), code=301)
 
 
 @app.before_request
@@ -86,12 +86,7 @@ def login():
     if not connected redirected him to login page
     otherwise redirect him to index
     """
-    user = users.get_current_user()
-
-    if not user:
-        return redirect(users.create_login_url('/edit'))
-    else: # not admin
-        return redirect(url_for('index'))
+    return render_template("auth.html")
 
 
 @app.route('/logout', methods=['GET'])

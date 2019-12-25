@@ -1,20 +1,13 @@
 import logging
-from google.appengine.ext import ndb
-from google.appengine.api import memcache
-import cloudstorage
-from google.appengine.api import app_identity
-from google.appengine.ext import blobstore
+from google.cloud import ndb
+from google.cloud import storage
 
+from .errors import InvalidUsage
 
+from .forms import AnswerRadioForm
+#from .search import add_document_in_search_index, delete_document, find_posts_from_index
+from .utils import datetimeformat, find_tags_to_be_removed, find_tags_to_be_added, make_external
 
-from utils import datetimeformat
-
-from errors import InvalidUsage
-
-from forms import AnswerRadioForm
-from search import add_document_in_search_index, delete_document, find_posts_from_index
-from utils import find_modified_tags, find_tags_to_be_removed, find_tags_to_be_added, make_external
-import os
 
 POSTS_INDEX = "posts_idx"
 
@@ -22,65 +15,64 @@ POSTS_INDEX = "posts_idx"
 class ViewImageHandler:
 
     def add_blob_image(self, image, image_filename, mime_type='image/jpeg'):
-        bucket = app_identity.get_default_gcs_bucket_name()
+        bucket_name = "aarsakian"
+        storage_client = storage.Client()
+
+        bucket = storage_client.get_bucket(bucket_name)
         # Cloud Storage file names are in the format /bucket/object.
         filename = '/{}/{}'.format(bucket, image_filename)
 
         # Create a file in Google Cloud Storage and write something to it.
-
-        with cloudstorage.open(filename=filename, mode='w',
+        with storage_client.open(filename=filename, mode='w',
                                content_type=mime_type, options={'x-goog-acl':'public-read'}) as filehandle:
             filehandle.write(image)
 
         blobstore_filename = '/gs{}'.format(filename)
-        self.image_key = blobstore.BlobKey(blobstore.create_gs_key(blobstore_filename))
-        return self.image_key
-
-    def has_key(self, image_key):
-        return blobstore.get(image_key)
-
-    def get_blob(self, image_key):
-        blob_info = blobstore.get(image_key)
-
-        if blob_info:
-            logging.info("fetching image for {}".format(image_key))
-            return blobstore.fetch_data(image_key, 0, blob_info.size)
-        else:
-            raise cloudstorage.NotFoundError
 
     def read_blob_image(self, image_filename):
-        bucket = app_identity.get_default_gcs_bucket_name()
+        bucket_name = "aarsakian"
+        storage_client = storage.Client()
+
+        bucket = storage_client.get_bucket(bucket_name)
 
         # Cloud Storage file names are in the format /bucket/object.
         filename = '/{}/{}'.format(bucket, image_filename)
 
-        with cloudstorage.open(filename) as cloudstorage_file:
+        with storage_client.open(filename) as cloudstorage_file:
             return cloudstorage_file.read()
 
     def get_mime_type(self, image_filename):
-        bucket = app_identity.get_default_gcs_bucket_name()
+        bucket_name = "aarsakian"
+        storage_client = storage.Client()
+
+        bucket = storage_client.get_bucket(bucket_name)
 
         # Cloud Storage file names are in the format /bucket/object.
         filename = '/{}/{}'.format(bucket, image_filename)
-        stat = cloudstorage.stat(filename)
+        stat = storage_client.stat(filename)
         if stat:
             return stat.content_type
 
     def _delete_blob(self, filename):
+        bucket_name = "aarsakian"
+        storage_client = storage.Client()
 
-        bucket = app_identity.get_default_gcs_bucket_name()
+        bucket = storage_client.get_bucket(bucket_name)
         # Cloud Storage file names are in the format /bucket/object.
         filename = '/{}/{}'.format(bucket, filename)
         try:
-            cloudstorage.delete(filename)
-        except cloudstorage.NotFoundError:
+            storage_client.delete(filename)
+        except storage_client.NotFoundError:
             logging.info("file not found {}".format(filename))
 
     def list_images(self):
         """List all files in GCP bucket."""
-        bucket = app_identity.get_default_gcs_bucket_name()
+        bucket_name = "aarsakian"
+        storage_client = storage.Client()
 
-        stats = cloudstorage.listbucket("/"+bucket)
+        bucket = storage_client.get_bucket(bucket_name)
+
+        stats = storage_client.listbucket("/"+bucket)
         return [stat.filename for stat in stats if stat.filename]
 
 
