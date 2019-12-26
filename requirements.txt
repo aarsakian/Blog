@@ -11,9 +11,10 @@ Werkzeug
 GoogleAppEngineCloudStorageClient
 google-cloud-ndb
 google-cloud-storage
+google-auth
+requests
 bleach
 mistune
 itsdangerous
 Jinja2
 MarkupSafe
-gunicorn
