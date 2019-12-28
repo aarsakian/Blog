@@ -78,7 +78,7 @@ def fetch_everything_from_db():
 def discover_anonymous_uid(*args):
     if request.path == url_for("answers", title=""):
 
-        if not users.is_current_user_admin() and not session.get('current_user_uid'):
+        if not current_user.is_admin and not session.get('current_user_uid'):
             session['current_user_uid'] = generate_uid_token()
 
 
@@ -172,7 +172,7 @@ def send_image_file(file_name):
 @app.route('/<entity>/user',methods=['GET'])
 @app.route('/user',methods=['GET'])
 def findUser(entity=None):
-    return jsonify(user_status=current_user.is_admin())
+    return jsonify(user_status=current_user.is_admin)
 
 
 
@@ -208,7 +208,7 @@ def view_all_tags(posts, tags, categories,  passed_days,
           remaining_days):
 
     site_updated = posts.site_last_updated()
-    return render_template('tags.html',user_status=current_user.is_admin(),siteupdated=site_updated,\
+    return render_template('tags.html',user_status=current_user.is_admin,siteupdated=site_updated,\
                            daysleft=remaining_days,dayspassed=passed_days,tags=tags.to_json(),
                            codeversion=CODEVERSION)
 
@@ -220,7 +220,7 @@ def view_all_categories(posts, tags, categories,  passed_days,
           remaining_days):
 
     site_updated = posts.site_last_updated()
-    return render_template('categories.html',user_status=current_user.is_admin(),siteupdated=site_updated,\
+    return render_template('categories.html',user_status=current_user.is_admin,siteupdated=site_updated,\
                            daysleft=remaining_days,dayspassed=passed_days,categories=categories.to_json(),
                            codeversion=CODEVERSION)
 
@@ -241,7 +241,7 @@ def searchresults(posts, tags, categories,  passed_days,
 
     site_updated = posts.site_last_updated()
 
-    return render_template('posts.html', user_status=current_user.is_admin(), siteupdated=site_updated, \
+    return render_template('posts.html', user_status=current_user.is_admin, siteupdated=site_updated, \
                            daysleft=remaining_days, dayspassed=passed_days,
                            posts=posts.to_json(),
                            codeversion=CODEVERSION, form=form)
@@ -257,7 +257,7 @@ def aboutpage(posts, tags, categories, passed_days,
     if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
     site_updated = posts.site_last_updated()
 
-    return render_template('about.html',user_status=current_user.is_admin(),siteupdated=site_updated,\
+    return render_template('about.html',user_status=current_user.is_admin,siteupdated=site_updated,\
                            daysleft=remaining_days,dayspassed=passed_days,Post=requested_post,
                            codeversion=CODEVERSION)
 
@@ -305,7 +305,7 @@ def archives(posts, tags, categories, passed_days,
 
     site_updated = posts.site_last_updated()
 
-    return render_template('archives.html',user_status=current_user.is_admin(),siteupdated=site_updated,\
+    return render_template('archives.html',user_status=current_user.is_admin,siteupdated=site_updated,\
                            daysleft=remaining_days,dayspassed=passed_days,tags=tags,categories=categories,
                            posts=posts.to_json(),
                            codeversion=CODEVERSION, form=form)
@@ -323,7 +323,7 @@ def subject_questions(posts, tags, categories, passed_days,
     posts.to_answers_form()
 
 
-    return render_template('questions.html', user_status=current_user.is_admin(), siteupdated=site_updated, \
+    return render_template('questions.html', user_status=current_user.is_admin, siteupdated=site_updated, \
                            daysleft=remaining_days, dayspassed=passed_days, tags=tags, categories=categories,
                            posts=posts,
                            codeversion=CODEVERSION)
@@ -332,7 +332,7 @@ def subject_questions(posts, tags, categories, passed_days,
 @app.route('/api/tags/<tagname>', methods=['PUT'])
 def updateTags(tagname):
 
-    if users.is_current_user_admin():
+    if current_user.is_admin:
         tags = Tags()
 
 
@@ -418,7 +418,7 @@ def main():
 @login_required
 def new_post():
     form = PostForm()
-    if form.validate_on_submit():  # new entity
+    if current_user.is_admin and form.validate_on_submit():  # new entity
         posts = Posts()
         categories = Categories()
         tags = Tags()
@@ -456,9 +456,10 @@ def new_post():
 
 @csrf.exempt
 @app.route('/api/posts/<id>/images', methods=['POST'])
+@login_required
 def get_post_images(id):
     """get images from a post with id"""
-    if users.is_current_user_admin():
+    if current_user.is_admin:
         asked_post = BlogPost.get(id)
 
         if 'image' not in request.files:
@@ -475,11 +476,12 @@ def get_post_images(id):
             image_key = asked_post.add_blob(file.read(), image_filename, mime_type)
             return jsonify(image_key=image_key)
 
+
 @csrf.exempt
 @app.route('/api/posts/<id>/images/<filename>', methods=['DELETE'])
 def delete_post_images(id, filename):
     """get images from a post with id"""
-    if users.is_current_user_admin():
+    if current_user.is_admin:
         asked_post = BlogPost.get(id)
 
         if filename == '':
@@ -494,19 +496,16 @@ def delete_post_images(id, filename):
 
 @app.route('/api/posts/<id>', methods=['GET'])
 def get_post(id):
-    if users.is_current_user_admin():
-        asked_post = BlogPost.get(id)
+    asked_post = BlogPost.get(id)
+    return jsonify(asked_post.to_json())  # dangerous
 
-        return jsonify(asked_post.to_json())  # dangerous
-    else:
-        return jsonify({})
 
 
 @app.route('/api/posts/<id>', methods=['PUT'])
 def edit_post(id):
 
     form = PostForm()
-    if users.is_current_user_admin() and form.validate_on_submit():
+    if current_user.is_admin and form.validate_on_submit():
         try:
             tags = Tags()
 
@@ -534,9 +533,10 @@ def edit_post(id):
 
 @csrf.exempt
 @app.route('/api/posts/<id>', methods=['DELETE'])
+@login_required
 def delete_post(id):
 
-    if users.is_current_user_admin():
+    if current_user.is_admin:
         posts = Posts()
 
         tags = Tags()
@@ -551,12 +551,7 @@ def delete_post(id):
 
         tags.update([])
 
-
     return jsonify(msg="OK")
-
-
-
-       
 
 
 
@@ -581,7 +576,7 @@ def view_a_post(category, year, month, title):
 
     answers_form.r_answers.choices = [(answer.p_answer, answer.p_answer) for answer in current_post.answers
                                       if answer.p_answer != u'']
-    return render_template('singlepost.html', user_status=current_user.is_admin(), siteupdated=site_updated, \
+    return render_template('singlepost.html', user_status=current_user.is_admin, siteupdated=site_updated, \
                                         daysleft=remaining_days, dayspassed=passed_days, RelatedPosts=related_posts, \
                                         Post=current_post.to_json(), posttagnames=post_tag_names, category=category,
                                         answers_field = answers_form)
@@ -616,7 +611,7 @@ def recent_feed():
 
 @app.route('/rebuild_index', methods=['GET'])
 def rebuild_index():
-    if users.is_current_user_admin():
+    if current_user.is_admin:
         delete_all_in_index()
         posts = Posts()
         posts.rebuild_index()
