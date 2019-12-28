@@ -1,7 +1,8 @@
 import logging
 from google.cloud import ndb
 from google.cloud import storage
-
+from flask_login import UserMixin, AnonymousUserMixin
+from . import login_manager
 from .errors import InvalidUsage
 
 from .forms import AnswerRadioForm
@@ -10,6 +11,31 @@ from .utils import datetimeformat, find_tags_to_be_removed, find_tags_to_be_adde
 
 
 POSTS_INDEX = "posts_idx"
+
+
+class MyAnonymousUser(AnonymousUserMixin):
+
+    @property
+    def is_admin(self):
+        return False
+
+
+login_manager.anonymous_user = MyAnonymousUser
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.get_by_id(user_id)
+
+
+class User(ndb.Model, UserMixin):
+    email = ndb.StringProperty()
+    name = ndb.StringProperty()
+    is_admin = ndb.BooleanProperty(default=False)
+
+    def get_id(self):
+        return self.key.id()
+
 
 
 class ViewImageHandler:
