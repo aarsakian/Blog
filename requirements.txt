@@ -6,6 +6,7 @@ Flask-Bootstrap4
 Flask-Testing
 Flask-uploads
 Flask-Sitemap
+Flask-Login
 itsdangerous
 Werkzeug
 GoogleAppEngineCloudStorageClient
