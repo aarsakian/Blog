@@ -1,25 +1,28 @@
 import logging, base64, io
 from urllib.parse import urlparse
 from blog import app, csrf
-from .models import Posts, Tags, Categories, BlogPost, ViewImageHandler
-from flask import render_template,request,jsonify,redirect,url_for, flash, session, make_response, send_file, abort
+from flask_login import login_user, login_required, logout_user, current_user
+from .models import Posts, Tags, Categories, BlogPost, ViewImageHandler, User
+from flask import render_template,request,jsonify,\
+    redirect,url_for, flash, session, make_response, send_file, abort, escape
 from werkzeug import secure_filename
 from .errors import InvalidUsage
+import google.oauth2.id_token
+from google.auth.transport import requests
 
 
-#from search import query_search_index, find_posts_from_index, delete_all_in_index
 
-
+import datetime
 from werkzeug.contrib.atom import AtomFeed
 
 from functools import wraps
 
-from datetime import datetime
 
 from .forms import PostForm, AnswerRadioForm
 from .utils import datetimeformat, calculate_work_date_stats,  to_markdown, generate_uid_token, allowed_file
 
 
+firebase_request_adapter = requests.Request()
 
 KEY="posts"
 TAG="tags"
@@ -79,6 +82,7 @@ def discover_anonymous_uid(*args):
             session['current_user_uid'] = generate_uid_token()
 
 
+
 @app.route('/login', methods=['GET'])
 def login():
     """
@@ -86,19 +90,54 @@ def login():
     if not connected redirected him to login page
     otherwise redirect him to index
     """
-    return render_template("auth.html")
+    # Verify Firebase auth.
+
+    id_token = request.cookies.get("token")
+    error_message = None
+    claims = None
+    times = None
+
+    if id_token:
+        try:
+            # Verify the token against the Firebase Auth API. This example
+            # verifies the token on each page load. For improved performance,
+            # some applications may wish to cache results in an encrypted
+            # session store (see for instance
+            # http://flask.pocoo.org/docs/1.0/quickstart/#sessions).
+            claims = google.oauth2.id_token.verify_firebase_token(
+                id_token, firebase_request_adapter)
+        except ValueError as exc:
+            # This will be raised if the token is expired or any other
+            # verification checks fail.
+            error_message = str(exc)
+
+        # Record and fetch the recent times a logged-in user has accessed
+        # the site. This is currently shared amongst all users, but will be
+        # individualized in a following step.
+
+        if claims:
+            user = iter(User.query().filter(User.email == claims['email'])).next()
+            if user.is_admin:
+
+                login_user(user)
+                next = request.args.get('next')
+                if not escape(next):
+                    return abort(400)
+
+                return redirect(next or url_for('index'))
+
+    return render_template('auth.html',
+        user_data=claims, error_message=error_message, times=times)
 
 
 @app.route('/logout', methods=['GET'])
+@login_required
 def logout():
     """uses gae api to get information about current user
     if connected redirected him to logout page
     otherwise redirect him to index"""
-    user = users.get_current_user()
-    if user:
-        return redirect(users.create_logout_url(dest_url=request.url))
-    else:
-        return redirect(url_for('index'))
+    logout_user()
+    return redirect(url_for('index'))
 
 
 @app.route('/ga-accept', methods=['POST'])
@@ -133,7 +172,7 @@ def send_image_file(file_name):
 @app.route('/<entity>/user',methods=['GET'])
 @app.route('/user',methods=['GET'])
 def findUser(entity=None):
-    return jsonify(user_status=users.is_current_user_admin())
+    return jsonify(user_status=current_user.is_admin())
 
 
 
@@ -169,7 +208,7 @@ def view_all_tags(posts, tags, categories,  passed_days,
           remaining_days):
 
     site_updated = posts.site_last_updated()
-    return render_template('tags.html',user_status=users.is_current_user_admin(),siteupdated=site_updated,\
+    return render_template('tags.html',user_status=current_user.is_admin(),siteupdated=site_updated,\
                            daysleft=remaining_days,dayspassed=passed_days,tags=tags.to_json(),
                            codeversion=CODEVERSION)
 
@@ -181,7 +220,7 @@ def view_all_categories(posts, tags, categories,  passed_days,
           remaining_days):
 
     site_updated = posts.site_last_updated()
-    return render_template('categories.html',user_status=users.is_current_user_admin(),siteupdated=site_updated,\
+    return render_template('categories.html',user_status=current_user.is_admin(),siteupdated=site_updated,\
                            daysleft=remaining_days,dayspassed=passed_days,categories=categories.to_json(),
                            codeversion=CODEVERSION)
 
@@ -202,7 +241,7 @@ def searchresults(posts, tags, categories,  passed_days,
 
     site_updated = posts.site_last_updated()
 
-    return render_template('posts.html', user_status=users.is_current_user_admin(), siteupdated=site_updated, \
+    return render_template('posts.html', user_status=current_user.is_admin(), siteupdated=site_updated, \
                            daysleft=remaining_days, dayspassed=passed_days,
                            posts=posts.to_json(),
                            codeversion=CODEVERSION, form=form)
@@ -218,7 +257,7 @@ def aboutpage(posts, tags, categories, passed_days,
     if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
     site_updated = posts.site_last_updated()
 
-    return render_template('about.html',user_status=users.is_current_user_admin(),siteupdated=site_updated,\
+    return render_template('about.html',user_status=current_user.is_admin(),siteupdated=site_updated,\
                            daysleft=remaining_days,dayspassed=passed_days,Post=requested_post,
                            codeversion=CODEVERSION)
 
@@ -245,10 +284,9 @@ def index(posts, tags, categories, passed_days,
         category = kwargs["category"]
         posts.filter_by_category(category)
 
-
     form = PostForm()
 
-    return render_template('posts.html', user_status=users.is_current_user_admin(), siteupdated=site_updated, \
+    return render_template('posts.html', user_status=current_user.is_admin, siteupdated=site_updated, \
                            daysleft=remaining_days, dayspassed=passed_days, tags=tags, categories=categories,
                            posts=posts.to_json(),
                            codeversion=CODEVERSION,
@@ -267,7 +305,7 @@ def archives(posts, tags, categories, passed_days,
 
     site_updated = posts.site_last_updated()
 
-    return render_template('archives.html',user_status=users.is_current_user_admin(),siteupdated=site_updated,\
+    return render_template('archives.html',user_status=current_user.is_admin(),siteupdated=site_updated,\
                            daysleft=remaining_days,dayspassed=passed_days,tags=tags,categories=categories,
                            posts=posts.to_json(),
                            codeversion=CODEVERSION, form=form)
@@ -285,7 +323,7 @@ def subject_questions(posts, tags, categories, passed_days,
     posts.to_answers_form()
 
 
-    return render_template('questions.html', user_status=users.is_current_user_admin(), siteupdated=site_updated, \
+    return render_template('questions.html', user_status=current_user.is_admin(), siteupdated=site_updated, \
                            daysleft=remaining_days, dayspassed=passed_days, tags=tags, categories=categories,
                            posts=posts,
                            codeversion=CODEVERSION)
@@ -369,53 +407,51 @@ def answers(title):
             return jsonify({})
 
 
-@app.route('/api/posts',methods=['POST','GET'])
+@app.route('/api/posts',methods=['GET'])
 def main():
+        posts = Posts()
 
-    if users.is_current_user_admin():
-        if request.method=='GET':  #all entitites
-            posts = Posts()
+        return jsonify(posts.to_json())
 
-            return jsonify(posts.to_json())
 
-        elif request.method == "POST":
+@app.route('/api/posts', methods=['POST'])
+@login_required
+def new_post():
+    form = PostForm()
+    if form.validate_on_submit():  # new entity
+        posts = Posts()
+        categories = Categories()
+        tags = Tags()
 
-            form = PostForm()
-            if form.validate_on_submit():  #new entity
-                posts = Posts()
-                categories = Categories()
-                tags = Tags()
+        raw_post = request.get_json()
+        raw_category = raw_post["category"]
+        editing_tags = raw_post["tags"]
+        raw_summary = raw_post["summary"]
 
-                raw_post = request.get_json()
-                raw_category = raw_post["category"]
-                editing_tags = raw_post["tags"]
-                raw_summary = raw_post["summary"]
+        tag_keys = tags.update(editing_tags)
+        category_key = categories.update(raw_category)
 
-                tag_keys = tags.update(editing_tags)
-                category_key = categories.update(raw_category)
-
-                post_id = posts.add(raw_title=raw_post["title"],
+        post_id = posts.add(raw_title=raw_post["title"],
                             raw_body=raw_post["body"],
                             category_key=category_key,
                             tags_ids=tag_keys,
                             summary=raw_summary,
                             answers=raw_post["answers"]).id()
-                post = BlogPost.get(post_id)
-                if "images" in raw_post.keys() and raw_post["images"]:
-                    for img in raw_post["images"]:
-                        image_base64 = img["url"].split("base64,")[-1]
-                        mime_type = img["url"].split("base64,")[0].replace('data:', '').replace(';', '')
-                        image_filename = img["filename"].split("\\")[-1]
+        post = BlogPost.get(post_id)
+        if "images" in raw_post.keys() and raw_post["images"]:
+            for img in raw_post["images"]:
+                image_base64 = img["url"].split("base64,")[-1]
+                mime_type = img["url"].split("base64,")[0].replace('data:', '').replace(';', '')
+                image_filename = img["filename"].split("\\")[-1]
 
-                        if allowed_file(image_filename):
-                            image_filename = secure_filename(image_filename)
-                            post.add_blob(base64.b64decode(image_base64), image_filename, mime_type)
+                if allowed_file(image_filename):
+                    image_filename = secure_filename(image_filename)
+                    post.add_blob(base64.b64decode(image_base64), image_filename, mime_type)
 
-                return jsonify(post.to_json()) #  Needs check
-            else:
-                return jsonify(msg="missing token")
+        return jsonify(post.to_json())  # Needs check
     else:
-        return jsonify({})
+        return jsonify(msg="missing token")
+
 
 
 @csrf.exempt
@@ -545,13 +581,14 @@ def view_a_post(category, year, month, title):
 
     answers_form.r_answers.choices = [(answer.p_answer, answer.p_answer) for answer in current_post.answers
                                       if answer.p_answer != u'']
-    return render_template('singlepost.html', user_status=users.is_current_user_admin(), siteupdated=site_updated, \
+    return render_template('singlepost.html', user_status=current_user.is_admin(), siteupdated=site_updated, \
                                         daysleft=remaining_days, dayspassed=passed_days, RelatedPosts=related_posts, \
                                         Post=current_post.to_json(), posttagnames=post_tag_names, category=category,
                                         answers_field = answers_form)
 
 @app.route('/edit',methods=['GET'])
 @app.route('/edit/<postkey>',methods=['GET'])
+@login_required
 def edit_a_post_view(postkey=None):
 
     form = PostForm()
@@ -559,7 +596,7 @@ def edit_a_post_view(postkey=None):
 
     passed_days, remaining_days = calculate_work_date_stats()
     site_updated = posts.site_last_updated()
-    return render_template('posts.html',user_status=users.is_current_user_admin(),siteupdated=site_updated,\
+    return render_template('posts.html',user_status=current_user.is_admin, siteupdated=site_updated,\
                            daysleft=remaining_days,dayspassed=passed_days,
                            codeversion=CODEVERSION, form=form)
 
