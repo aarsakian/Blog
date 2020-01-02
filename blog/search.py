@@ -1,5 +1,4 @@
 from google.appengine.api import search, memcache
-from google.appengine.ext import db
 import logging
 
 from flask import request, jsonify
@@ -19,6 +18,7 @@ query_options = search.QueryOptions(
     sort_options=sort_opts)
 
 _INDEX_NAME="posts"
+
 
 def delete_document(document_id):
     """deletes document from search index"""

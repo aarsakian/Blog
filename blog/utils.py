@@ -1,5 +1,5 @@
 from urllib.parse import urljoin
-from datetime import datetime, date
+from datetime import date
 from math import ceil
 from mistune import markdown, Renderer
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
