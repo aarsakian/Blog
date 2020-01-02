@@ -19,3 +19,4 @@ mistune
 itsdangerous
 Jinja2
 MarkupSafe
+mock
