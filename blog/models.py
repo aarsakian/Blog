@@ -1,10 +1,10 @@
 import logging
 from google.cloud import ndb
-from google.cloud import storage
+
 from flask_login import UserMixin, AnonymousUserMixin
 from . import login_manager
 from .errors import InvalidUsage
-
+from . import storage_client
 from .forms import AnswerRadioForm
 #from .search import add_document_in_search_index, delete_document, find_posts_from_index
 from .utils import datetimeformat, find_tags_to_be_removed, find_tags_to_be_added, make_external
@@ -41,8 +41,7 @@ class User(ndb.Model, UserMixin):
 class ViewImageHandler:
 
     def add_blob_image(self, image, image_filename, mime_type='image/jpeg'):
-        bucket_name = "aarsakian"
-        storage_client = storage.Client()
+        bucket_name = "aarsakian.appspot.com"
 
         bucket = storage_client.get_bucket(bucket_name)
         # Cloud Storage file names are in the format /bucket/object.
@@ -146,11 +145,10 @@ class Category(ndb.Model):
 
     @classmethod
     def get(cls, id):
-        category = memcache.get('{}:categories'.format(id))
-        if not category:
-            category = cls.get_by_id(int(id))
-            Category.add_to_memcache(category)
-        return category
+        #category = memcache.get('{}:categories'.format(id))
+
+        return cls.get_by_id(int(id))
+        #    Category.add_to_memcache(category)
 
 
 class AnswersDict(dict):
@@ -186,11 +184,10 @@ class BlogPost(ndb.Model, ViewImageHandler):
 
     @classmethod
     def get(cls, id):
-        post = memcache.get('{}:posts'.format(id))
-        if not post:
-            post = cls.get_by_id(int(id))
-            BlogPost.add_to_memcache(post)
-        return post
+     #   post = memcache.get('{}:posts'.format(id))
+       # if not post:
+        return cls.get_by_id(int(id))
+        #    BlogPost.add_to_memcache(post)
 
     @property
     def id(self):
@@ -245,9 +242,9 @@ class BlogPost(ndb.Model, ViewImageHandler):
                                  for answer in raw_answers if answer['p_answer'] != '']
 
         self.put()
-        add_document_in_search_index(self.id, self.title, self.body,
-                                     self.summary, self.get_category(),
-                                     self.timestamp, self.get_tag_names())
+        # add_document_in_search_index(self.id, self.title, self.body,
+        #                              self.summary, self.get_category(),
+        #                              self.timestamp, self.get_tag_names())
 
     def get_tag_names(self):
         return [tag_key.get().tag for tag_key in self.tags
@@ -367,10 +364,10 @@ class Posts(BlogList, JsonMixin):
 
         post = post_key.get()
         self.posts.append(post)
-        BlogPost.add_to_memcache(post)
-        add_document_in_search_index(post.id, post.title, post.body,
-                                     post.summary, post.get_category(),
-                                     post.timestamp, post.get_tag_names())
+        #BlogPost.add_to_memcache(post)
+      #  add_document_in_search_index(post.id, post.title, post.body,
+      #                               post.summary, post.get_category(),
+      #                               post.timestamp, post.get_tag_names())
 
         return post_key
 
@@ -391,7 +388,7 @@ class Posts(BlogList, JsonMixin):
             if post.key == post_key:
                 self.posts.pop(post_idx)
         post_key.delete()
-        delete_document(post_key.id())
+        #delete_document(post_key.id())
 
     def get_by_title(self, title):
         for post in self.posts:

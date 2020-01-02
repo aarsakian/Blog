@@ -502,10 +502,11 @@ def get_post(id):
 
 
 @app.route('/api/posts/<id>', methods=['PUT'])
+@login_required
 def edit_post(id):
 
     form = PostForm()
-    if current_user.is_admin and form.validate_on_submit():
+    if form.validate_on_submit():
         try:
             tags = Tags()
 
@@ -523,9 +524,9 @@ def edit_post(id):
 
             category_key = categories.update(raw_category, updating_post.category)
 
-            updating_post.edit(title, body, datetime.now(), tags_keys,
+            updating_post.edit(title, body, datetime.datetime.now(), tags_keys,
                                category_key, raw_summary, raw_answers=request.json['answers'])
-        except AttributeError:
+        except AttributeError as e:
             abort(500)
 
         return jsonify(updating_post.to_json())  # dangerous
