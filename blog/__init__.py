@@ -6,7 +6,7 @@ from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager
 from google.cloud import ndb, storage
 import google.auth.credentials
-import mock
+from unittest import mock
 
 
 
