@@ -64,6 +64,15 @@ def deleted_keys():
     return set()
 
 
+@pytest.fixture(scope="module", autouse=True)
+def initial_clean():
+    # Make sure database is in clean state at beginning of test run
+    import google.auth.credentials
+    return mock.Mock(spec=google.auth.credentials.Credentials)
+    client = datastore.Client(credentials=credentials)
+    for entity in all_entities(client):
+        client.delete(entity.key)
+
 
 @pytest.fixture
 def dispose_of(with_ds_client, to_delete):
@@ -91,6 +100,7 @@ def with_ds_client(ds_client, to_delete, deleted_keys):
     yield ds_client
 
     if to_delete:
+        print('DEL',to_delete)
         ds_client.delete_multi(to_delete)
         deleted_keys.update(to_delete)
 
@@ -109,10 +119,11 @@ def ds_client(namespace, g_credentials):
 
 @pytest.fixture(autouse=True)
 def client_context(namespace, g_credentials):
-    #print(g_credentials, "CREDS", os.environ["GOOGLE_APPLICATION_CREDENTIALS"])
+
     client = ndb.Client(project="test", namespace=namespace, credentials=g_credentials)
     with client.context(cache_policy=False, legacy_data=False) as the_context:
         yield the_context
+
 
 @pytest.fixture
 def post_with_answers(client_context, tags, categories, answer_keys, dispose_of):
