@@ -2,11 +2,12 @@ import os
 
 from datetime import datetime
 
-#from freezegun import freeze_time
+# from freezegun import freeze_time
 
 from werkzeug.contrib.atom import AtomFeed
 
 from blog.models import Tags, Posts, Categories, BlogPost, Answer, ViewImageHandler
+
 # from blog.utils import find_modified_tags, find_tags_to_be_added, find_tags_to_be_removed, datetimeformat, \
 #     make_external
 # from blog.errors import InvalidUsage
@@ -20,7 +21,6 @@ TEST_IMAGE2 = u'12_3_4_3_12z.png'
 
 
 def test_add_a_tag(tags, dispose_of):
-
     tag_keys = tags.add(["a new tag"])
     assert "a new tag" == tag_keys[0].get().tag
     dispose_of(tag_keys)
@@ -35,182 +35,190 @@ def test_add_a_tag_once(tags, dispose_of):
     dispose_of(tags_keys)
 
 
-    # def test_add_tags(self):
-    #     tag_keys = self.tags.add(["a new tag", "a second new tag"])
-    #     self.assertItemsEqual(["a new tag", "a second new tag"],
-    #                           [tag_keys[0].get().tag, tag_keys[1].get().tag])
-    #
-    # def test_delete_a_tag(self):
-    #     self.tags.add(["a new tag"])
-    #     self.tags.delete("a new tag")
-    #     self.assertItemsEqual([], self.tags)
-    #
-    # def test_delete_tags(self):
-    #     self.tags.add(["a new tag", "a second new tag"])
-    #     self.tags.delete(["a new tag", "a second new tag"])
-    #     self.assertItemsEqual([], self.tags)
-    #
-    # def test_get_keys_of_tags(self):
-    #     test_tags = ["a new tag", "a new new tag"]
-    #     new_tag_keys = self.tags.add(test_tags)
-    #     self.assertItemsEqual(new_tag_keys, self.tags.get_keys(test_tags))
-    #
-    # def test_add_a_category(self):
-    #     category_key = self.categories.add("category")
-    #     self.assertEqual("category", category_key.get().category)
-    #
-    # def test_add_a_category_once(self):
-    #     category_key = self.categories.add("category")
-    #     self.assertEqual("category", category_key.get().category)
-    #     self.categories.add("category")
-    #     self.assertEqual(len(self.categories), 1)
-    #
-    # def test_delete_a_category(self):
-    #     category_key = self.categories.add("category")
-    #     self.categories.delete(category_key)
-    #     self.assertItemsEqual([], self.categories)
-    #
-    # def test_get_key_of_a_category(self):
-    #     self.assertEqual(self.categories.add("category"), self.categories.get_key("category"))
-    #
-    # def test_add_a_post(self):
-    #
-    #     category_key = self.categories.add("category")
-    #
-    #     test_tags = ["a new tag", "a new new tag"]
-    #     new_tag_keys = self.tags.add(test_tags)
-    #
-    #     post_key = self.posts.add("a title", "body text", category_key, new_tag_keys, "this is a summary")
-    #
-    #     self.assertEqual("a title", post_key.get().title)
-    #     self.assertEqual("body text", post_key.get().body)
-    #     self.assertEqual("this is a summary", post_key.get().summary)
-    #     self.assertEqual(category_key, post_key.get().category)
-    #     self.assertItemsEqual(new_tag_keys, post_key.get().tags)
-    #
-    # def test_get_tags_from_posts(self):
-    #     category_key = self.categories.add("category")
-    #
-    #     test_tags = ["a new tag", "a new new tag"]
-    #     new_tag_keys = self.tags.add(test_tags)
-    #
-    #     self.posts.add("a title", "body text", category_key, new_tag_keys)
-    #
-    #     self.assertItemsEqual(test_tags, self.posts.get_tags())
-    #
-    # def test_get_empty_tags_from_posts(self):
-    #     category_key = self.categories.add("category")
-    #
-    #     test_tags = []
-    #     new_tag_keys = self.tags.add(test_tags)
-    #
-    #     self.posts.add("a title", "body text", category_key, new_tag_keys)
-    #
-    #     self.assertItemsEqual(test_tags, self.posts.get_tags())
-    #
-    # def test_get_tags_from_a_post(self):
-    #     category_key = self.categories.add("category")
-    #
-    #     test_tags = ["a new tag", "a new new tag"]
-    #     new_tag_keys = self.tags.add(test_tags)
-    #
-    #     self.posts.add("a title", "body text", category_key, new_tag_keys)
-    #     for post in self.posts:
-    #         self.assertItemsEqual(test_tags, post.get_tag_names())
-    #
-    # def test_get_other_tags_from_a_post(self):
-    #     category_key = self.categories.add("category")
-    #
-    #     test_tags1 = ["a new tag", "a new new tag"]
-    #     test_tags2 = ["a new tag 1", "a new new tag"]
-    #
-    #     new_tag_keys1 = self.tags.add(test_tags1)
-    #     new_tag_keys2 = self.tags.add(test_tags2)
-    #
-    #     post_key1 = self.posts.add("a title", "body text", category_key, new_tag_keys1)
-    #     self.posts.add("a title 2", "body text 2", category_key, new_tag_keys2)
-    #
-    #     self.assertItemsEqual(test_tags2 , self.posts.get_other_tags(post_key1.id()))
-    #
-    # def test_find_modified_tags(self):
-    #     test_existing_tags = ["a new tag", "a new new tag"]
-    #     editing_tags1 = ["a new tag 1", "a new new tag 2"]
-    #     editing_tags2 = ["a new tag 1", "a new tag"]
-    #
-    #     modified_tags = find_modified_tags(editing_tags1, test_existing_tags)
-    #     self.assertItemsEqual(modified_tags,  editing_tags1)
-    #
-    #     modified_tags = find_modified_tags(editing_tags2, test_existing_tags)
-    #     self.assertItemsEqual(modified_tags,  ["a new tag 1"])
-    #
-    # def test_find_tags_to_be_deleted(self):
-    #     category_key = self.categories.add("category")
-    #
-    #     other_tags = ["a new tag 3", "a new new tag"]
-    #     test_existing_tags = ["a new tag", "a new new tag"]
-    #     editing_tags1 = ["a new tag 1", "a new new tag 2"]
-    #     editing_tags2 = ["a new tag 1", "a new tag"]
-    #
-    #     # scenario to delete tags "a new tag",
-    #     non_modified_tags = set(editing_tags1) & set(test_existing_tags)
-    #
-    #     tags_to_be_removed = find_tags_to_be_removed(test_existing_tags, non_modified_tags, other_tags)
-    #     self.assertItemsEqual(tags_to_be_removed, ["a new tag"])
-    #
-    #     # scenario to delete all tags
-    #     non_modified_tags = set(editing_tags1) & set(test_existing_tags)
-    #     tags_to_be_removed = find_tags_to_be_removed(test_existing_tags, non_modified_tags, [])
-    #     self.assertItemsEqual(tags_to_be_removed, test_existing_tags)
-    #     # scenario not to delete any tag
-    #     tags_to_be_removed = find_tags_to_be_removed(test_existing_tags, [], test_existing_tags)
-    #     self.assertItemsEqual(tags_to_be_removed, [])
-    #
-    # def test_find_tags_to_be_added_from_an_edited_post(self):
-    #     category_key = self.categories.add("category")
-    #
-    #     test_existing_tags = ["a new tag", "a new new tag"]
-    #     editing_tags1 = ["a new tag 1", "a new new tag 2"]
-    #     editing_tags2 = ["a new tag 1", "a new tag"]
-    #
-    #     tag_keys = self.tags.add(test_existing_tags)
-    #
-    #     self.posts.add("a title", "body text", category_key, tag_keys)
-    #
-    #     # scenario to add all tags "a new tag", "a new new tag"
-    #     tags_to_be_added = find_modified_tags(editing_tags1, test_existing_tags)
-    #     self.assertItemsEqual(tags_to_be_added,  editing_tags1)
-    #
-    #     # scenario to add one tag "a new tag 1"
-    #     tags_to_be_added = find_modified_tags(editing_tags2, test_existing_tags)
-    #     self.assertItemsEqual(tags_to_be_added, ["a new tag 1"])
-    #
-    #     # scenario not to delete any tag
-    #     tags_to_be_added= find_modified_tags(test_existing_tags, test_existing_tags)
-    #     self.assertItemsEqual(tags_to_be_added, [])
-    #
-    # def test_edit_post(self):
-    #     category_key = self.categories.add("category")
-    #
-    #     test_tags = ["a new tag", "a new new tag"]
-    #     new_tag_keys = self.tags.add(test_tags)
-    #
-    #     post_key = self.posts.add("a title", "body text", category_key, new_tag_keys)
-    #
-    #     post = post_key.get()
-    #     post.edit("a modified title", "a modified body text", datetime.now(), new_tag_keys, category_key)
-    #
-    #     self.assertEqual("a modified title", post_key.get().title)
-    #     self.assertEqual("a modified body text", post_key.get().body)
-    #     self.assertEqual(category_key, post_key.get().category)
-    #     self.assertItemsEqual(new_tag_keys, post_key.get().tags)
-    #
+def test_add_tags(tags):
+    tag_keys = tags.add(["a new tag", "a second new tag"])
+    assert ["a new tag", "a second new tag"] == \
+           [tag_keys[0].get().tag, tag_keys[1].get().tag]
+
+
+def test_delete_a_tag(tags):
+    tags.add(["a new tag"])
+    tags.delete("a new tag")
+    assert [] == tags
+
+
+def test_delete_tags(tags):
+    tags.add(["a new tag", "a second new tag"])
+    tags.delete(["a new tag", "a second new tag"])
+    assert [] == tags
+
+
+def test_get_keys_of_tags(tags):
+    test_tags = ["a new tag", "a new new tag"]
+    new_tag_keys = tags.add(test_tags)
+    assert new_tag_keys == tags.get_keys(test_tags)
+
+
+def test_add_a_category(categories):
+    category_key = categories.add("category")
+    assert "category" == category_key.get().category
+
+
+def test_add_a_category_once(categories):
+    category_key = categories.add("category")
+    assert "category" == category_key.get().category
+    categories.add("category")
+    assert len(categories) == 1
+
+
+def test_delete_a_category(categories):
+    category_key = categories.add("category")
+    categories.delete(category_key)
+    assert [] == categories
+
+
+def test_get_key_of_a_category(categories):
+    assert categories.add("category") == categories.get_key("category")
+
+
+def test_add_a_post(categories, tags, posts):
+
+    category_key = categories.add("category")
+
+    test_tags = ["a new tag", "a new new tag"]
+    new_tag_keys = tags.add(test_tags)
+
+    post_key = posts.add("a title", "body text", category_key, new_tag_keys, "this is a summary")
+
+    assert "a title" == post_key.get().title
+    assert "body text" == post_key.get().body
+    assert "this is a summary" == post_key.get().summary
+    assert category_key == post_key.get().category
+    assert new_tag_keys == post_key.get().tags
+#
+# def test_get_tags_from_posts(self):
+#     category_key = self.categories.add("category")
+#
+#     test_tags = ["a new tag", "a new new tag"]
+#     new_tag_keys = self.tags.add(test_tags)
+#
+#     self.posts.add("a title", "body text", category_key, new_tag_keys)
+#
+#     self.assertItemsEqual(test_tags, self.posts.get_tags())
+#
+# def test_get_empty_tags_from_posts(self):
+#     category_key = self.categories.add("category")
+#
+#     test_tags = []
+#     new_tag_keys = self.tags.add(test_tags)
+#
+#     self.posts.add("a title", "body text", category_key, new_tag_keys)
+#
+#     self.assertItemsEqual(test_tags, self.posts.get_tags())
+#
+# def test_get_tags_from_a_post(self):
+#     category_key = self.categories.add("category")
+#
+#     test_tags = ["a new tag", "a new new tag"]
+#     new_tag_keys = self.tags.add(test_tags)
+#
+#     self.posts.add("a title", "body text", category_key, new_tag_keys)
+#     for post in self.posts:
+#         self.assertItemsEqual(test_tags, post.get_tag_names())
+#
+# def test_get_other_tags_from_a_post(self):
+#     category_key = self.categories.add("category")
+#
+#     test_tags1 = ["a new tag", "a new new tag"]
+#     test_tags2 = ["a new tag 1", "a new new tag"]
+#
+#     new_tag_keys1 = self.tags.add(test_tags1)
+#     new_tag_keys2 = self.tags.add(test_tags2)
+#
+#     post_key1 = self.posts.add("a title", "body text", category_key, new_tag_keys1)
+#     self.posts.add("a title 2", "body text 2", category_key, new_tag_keys2)
+#
+#     self.assertItemsEqual(test_tags2 , self.posts.get_other_tags(post_key1.id()))
+#
+# def test_find_modified_tags(self):
+#     test_existing_tags = ["a new tag", "a new new tag"]
+#     editing_tags1 = ["a new tag 1", "a new new tag 2"]
+#     editing_tags2 = ["a new tag 1", "a new tag"]
+#
+#     modified_tags = find_modified_tags(editing_tags1, test_existing_tags)
+#     self.assertItemsEqual(modified_tags,  editing_tags1)
+#
+#     modified_tags = find_modified_tags(editing_tags2, test_existing_tags)
+#     self.assertItemsEqual(modified_tags,  ["a new tag 1"])
+#
+# def test_find_tags_to_be_deleted(self):
+#     category_key = self.categories.add("category")
+#
+#     other_tags = ["a new tag 3", "a new new tag"]
+#     test_existing_tags = ["a new tag", "a new new tag"]
+#     editing_tags1 = ["a new tag 1", "a new new tag 2"]
+#     editing_tags2 = ["a new tag 1", "a new tag"]
+#
+#     # scenario to delete tags "a new tag",
+#     non_modified_tags = set(editing_tags1) & set(test_existing_tags)
+#
+#     tags_to_be_removed = find_tags_to_be_removed(test_existing_tags, non_modified_tags, other_tags)
+#     self.assertItemsEqual(tags_to_be_removed, ["a new tag"])
+#
+#     # scenario to delete all tags
+#     non_modified_tags = set(editing_tags1) & set(test_existing_tags)
+#     tags_to_be_removed = find_tags_to_be_removed(test_existing_tags, non_modified_tags, [])
+#     self.assertItemsEqual(tags_to_be_removed, test_existing_tags)
+#     # scenario not to delete any tag
+#     tags_to_be_removed = find_tags_to_be_removed(test_existing_tags, [], test_existing_tags)
+#     self.assertItemsEqual(tags_to_be_removed, [])
+#
+# def test_find_tags_to_be_added_from_an_edited_post(self):
+#     category_key = self.categories.add("category")
+#
+#     test_existing_tags = ["a new tag", "a new new tag"]
+#     editing_tags1 = ["a new tag 1", "a new new tag 2"]
+#     editing_tags2 = ["a new tag 1", "a new tag"]
+#
+#     tag_keys = self.tags.add(test_existing_tags)
+#
+#     self.posts.add("a title", "body text", category_key, tag_keys)
+#
+#     # scenario to add all tags "a new tag", "a new new tag"
+#     tags_to_be_added = find_modified_tags(editing_tags1, test_existing_tags)
+#     self.assertItemsEqual(tags_to_be_added,  editing_tags1)
+#
+#     # scenario to add one tag "a new tag 1"
+#     tags_to_be_added = find_modified_tags(editing_tags2, test_existing_tags)
+#     self.assertItemsEqual(tags_to_be_added, ["a new tag 1"])
+#
+#     # scenario not to delete any tag
+#     tags_to_be_added= find_modified_tags(test_existing_tags, test_existing_tags)
+#     self.assertItemsEqual(tags_to_be_added, [])
+#
+# def test_edit_post(self):
+#     category_key = self.categories.add("category")
+#
+#     test_tags = ["a new tag", "a new new tag"]
+#     new_tag_keys = self.tags.add(test_tags)
+#
+#     post_key = self.posts.add("a title", "body text", category_key, new_tag_keys)
+#
+#     post = post_key.get()
+#     post.edit("a modified title", "a modified body text", datetime.now(), new_tag_keys, category_key)
+#
+#     self.assertEqual("a modified title", post_key.get().title)
+#     self.assertEqual("a modified body text", post_key.get().body)
+#     self.assertEqual(category_key, post_key.get().category)
+#     self.assertItemsEqual(new_tag_keys, post_key.get().tags)
+#
 
 def test_get_answers(post_with_answers):
     post, _, _, _ = post_with_answers
 
     assert post.get_answers() == [{u'is_correct': True, u'p_answer': u'ans1'},
-                                               {u'is_correct': False, u'p_answer': u'ans2'},
-                                               {u'is_correct': False, u'p_answer': u'ans3'}]
+                                  {u'is_correct': False, u'p_answer': u'ans2'},
+                                  {u'is_correct': False, u'p_answer': u'ans3'}]
 
     # def test_edit_post_answers(self):
     #     category_key = self.categories.add("category")
@@ -743,6 +751,7 @@ def test_get_answers(post_with_answers):
     #     post.delete_blob_from_post(TEST_IMAGE)
     #
     #     self.assertEqual(0, len(post.images))
+
 
 if __name__ == '__main__':
     unittest.main()
