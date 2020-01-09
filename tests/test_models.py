@@ -1,4 +1,4 @@
-import os
+from blog import app
 
 from datetime import datetime
 
@@ -7,7 +7,7 @@ from werkzeug.contrib.atom import AtomFeed
 
 from blog.models import Tags, Posts, Categories, BlogPost, Answer, ViewImageHandler
 
-from blog.utils import find_modified_tags, find_tags_to_be_added, find_tags_to_be_removed, datetimeformat, \
+from blog.utils import find_modified_tags, find_tags_to_be_removed, datetimeformat, \
      make_external
 
 import pytest
@@ -55,10 +55,11 @@ def test_delete_tags(tags):
     assert [] == tags
 
 
-def test_get_keys_of_tags(tags):
+def test_get_keys_of_tags(tags, dispose_of):
     test_tags = ["a new tag", "a new new tag"]
     new_tag_keys = tags.add(test_tags)
     assert new_tag_keys == tags.get_keys(test_tags)
+    dispose_of(new_tag_keys )
 
 
 def test_add_a_category(categories, dispose_of):
@@ -81,8 +82,9 @@ def test_delete_a_category(categories):
     assert [] == categories
 
 
-def test_get_key_of_a_category(categories):
+def test_get_key_of_a_category(categories, dispose_of):
     assert categories.add("category") == categories.get_key("category")
+    dispose_of([categories.get_key("category")])
 
 
 def test_add_a_post(categories, tags, posts, dispose_of):
@@ -104,40 +106,52 @@ def test_add_a_post(categories, tags, posts, dispose_of):
     dispose_of(new_tag_keys)
 
 
-def test_get_tags_from_posts(categories, tags, posts):
+def test_get_tags_from_posts(categories, tags, posts, dispose_of):
     category_key = categories.add("category")
 
     test_tags = ["a new tag", "a new new tag"]
     new_tag_keys = tags.add(test_tags)
 
-    posts.add("a title", "body text", category_key, new_tag_keys)
+    post_key = posts.add("a title", "body text", category_key, new_tag_keys)
 
     assert test_tags == posts.get_tags()
 
+    dispose_of([post_key])
+    dispose_of([category_key])
+    dispose_of(new_tag_keys)
 
-def test_get_empty_tags_from_posts(categories, tags, posts):
+
+def test_get_empty_tags_from_posts(categories, tags, posts, dispose_of):
     category_key = categories.add("category")
 
     test_tags = []
     new_tag_keys = tags.add(test_tags)
 
-    posts.add("a title", "body text", category_key, new_tag_keys)
+    post_key = posts.add("a title", "body text", category_key, new_tag_keys)
 
     assert test_tags == posts.get_tags()
 
+    dispose_of([post_key])
+    dispose_of([category_key])
+    dispose_of(new_tag_keys)
 
-def test_get_tags_from_a_post(categories, tags, posts):
+
+def test_get_tags_from_a_post(categories, tags, posts, dispose_of):
     category_key = categories.add("category")
 
     test_tags = ["a new tag", "a new new tag"]
     new_tag_keys = tags.add(test_tags)
 
-    posts.add("a title", "body text", category_key, new_tag_keys)
+    post_key = posts.add("a title", "body text", category_key, new_tag_keys)
     for post in posts:
         assert test_tags == post.get_tag_names()
 
+    dispose_of([post_key])
+    dispose_of([category_key])
+    dispose_of(new_tag_keys)
 
-def test_get_other_tags_from_a_post(categories, tags, posts):
+
+def test_get_other_tags_from_a_post(categories, tags, posts, dispose_of):
     category_key = categories.add("category")
 
     test_tags1 = ["a new tag", "a new new tag"]
@@ -147,71 +161,16 @@ def test_get_other_tags_from_a_post(categories, tags, posts):
     new_tag_keys2 = tags.add(test_tags2)
 
     post_key1 = posts.add("a title", "body text", category_key, new_tag_keys1)
-    posts.add("a title 2", "body text 2", category_key, new_tag_keys2)
+    post_key2 = posts.add("a title 2", "body text 2", category_key, new_tag_keys2)
 
-    assert test_tags2 == posts.get_other_tags(post_key1.id())
-
-
-def test_find_modified_tags():
-    test_existing_tags = ["a new tag", "a new new tag"]
-    editing_tags1 = ["a new tag 1", "a new new tag 2"]
-    editing_tags2 = ["a new tag 1", "a new tag"]
-
-    modified_tags = find_modified_tags(editing_tags1, test_existing_tags)
-    assert modified_tags == editing_tags1
-
-    modified_tags = find_modified_tags(editing_tags2, test_existing_tags)
-    assert modified_tags == ["a new tag 1"]
+    assert set(test_tags2) == set(posts.get_other_tags(post_key1.id()))
+    dispose_of([post_key1, post_key2])
+    dispose_of([category_key])
+    dispose_of(tags.get_keys())
 
 
-def test_find_tags_to_be_deleted(categories):
-    category_key = categories.add("category")
 
-    other_tags = ["a new tag 3", "a new new tag"]
-    test_existing_tags = ["a new tag", "a new new tag"]
-    editing_tags1 = ["a new tag 1", "a new new tag 2"]
-    editing_tags2 = ["a new tag 1", "a new tag"]
-
-    # scenario to delete tags "a new tag",
-    non_modified_tags = set(editing_tags1) & set(test_existing_tags)
-
-    tags_to_be_removed = find_tags_to_be_removed(test_existing_tags, non_modified_tags, other_tags)
-    assert tags_to_be_removed == ["a new tag"]
-
-    # scenario to delete all tags
-    non_modified_tags = set(editing_tags1) & set(test_existing_tags)
-    tags_to_be_removed = find_tags_to_be_removed(test_existing_tags, non_modified_tags, [])
-    assert tags_to_be_removed == test_existing_tags
-    # scenario not to delete any tag
-    tags_to_be_removed = find_tags_to_be_removed(test_existing_tags, [], test_existing_tags)
-    assert tags_to_be_removed == []
-
-
-def test_find_tags_to_be_added_from_an_edited_post(categories, tags, posts):
-    category_key = categories.add("category")
-
-    test_existing_tags = ["a new tag", "a new new tag"]
-    editing_tags1 = ["a new tag 1", "a new new tag 2"]
-    editing_tags2 = ["a new tag 1", "a new tag"]
-
-    tag_keys = tags.add(test_existing_tags)
-
-    posts.add("a title", "body text", category_key, tag_keys)
-
-    # scenario to add all tags "a new tag", "a new new tag"
-    tags_to_be_added = find_modified_tags(editing_tags1, test_existing_tags)
-    assert tags_to_be_added ==  editing_tags1
-
-    # scenario to add one tag "a new tag 1"
-    tags_to_be_added = find_modified_tags(editing_tags2, test_existing_tags)
-    assert tags_to_be_added == ["a new tag 1"]
-
-    # scenario not to delete any tag
-    tags_to_be_added= find_modified_tags(test_existing_tags, test_existing_tags)
-    assert tags_to_be_added == []
-
-
-def test_edit_post(categories, tags, posts):
+def test_edit_post(categories, tags, posts, dispose_of):
     category_key = categories.add("category")
 
     test_tags = ["a new tag", "a new new tag"]
@@ -227,6 +186,10 @@ def test_edit_post(categories, tags, posts):
     assert category_key == post_key.get().category
     assert new_tag_keys == post_key.get().tags
 
+    dispose_of([post_key])
+    dispose_of([category_key])
+    dispose_of(new_tag_keys)
+
 
 def test_get_answers(post_with_answers):
     post, _, _, _ = post_with_answers
@@ -234,6 +197,7 @@ def test_get_answers(post_with_answers):
     assert post.get_answers() == [{u'is_correct': True, u'p_answer': u'ans1'},
                                   {u'is_correct': False, u'p_answer': u'ans2'},
                                   {u'is_correct': False, u'p_answer': u'ans3'}]
+
 
 def test_edit_post_answers(categories, tags, post_with_answers):
     category_key = categories.add("category")
@@ -267,7 +231,7 @@ def test_statistics_when_editing_a_post(post_with_answers):
     assert post.get_answers_statistics() == {"Answer": "Selection", u"ans1": 2, u"ans2_mod": 0, u"ans3": 0}
 
 
-def test_delete_post(categories, tags, posts):
+def test_delete_post(categories, tags, posts, dispose_of):
     category_key = categories.add("category")
 
     test_tags = ["a new tag", "a new new tag"]
@@ -278,23 +242,8 @@ def test_delete_post(categories, tags, posts):
     posts.delete(post_key)
     assert posts == []
 
-
-def test_find_tags_to_be_added():
-    test_existing_tags = ["a new tag", "a new new tag"]
-    editing_tags = ["a new tag 1", "a new new tag 2"]
-    editing_tags2 = ["a new tag", "a new new tag 2"]
-
-    non_modified_tags = set(editing_tags) & set(test_existing_tags)
-    tags_to_be_added = find_tags_to_be_added(editing_tags, non_modified_tags, test_existing_tags)
-
-    # scenario to add all tags "a new tag 1", "a new new tag 2"
-    assert editing_tags == tags_to_be_added
-
-    # scenario to add one tag "a new new tag 2"
-    non_modified_tags = set(editing_tags2) & set(test_existing_tags)
-    tags_to_be_added = find_tags_to_be_added(editing_tags2, non_modified_tags, test_existing_tags)
-
-    assert ["a new new tag 2"] == tags_to_be_added
+    dispose_of([category_key])
+    dispose_of(new_tag_keys)
 
 
 # def test_to_json_of_posts(categories, tags, posts):
@@ -354,7 +303,7 @@ def test_find_tags_to_be_added():
 #     assert memcached_post.key, post_key)
 
 
-def test_get_by_title(categories, tags, posts):
+def test_get_by_title(categories, tags, posts, dispose_of):
     category_key = categories.add("category")
 
     test_tags = ["a new tag", "a new new tag"]
@@ -364,27 +313,37 @@ def test_get_by_title(categories, tags, posts):
     post = posts.get_by_title("a title")
     assert post_key == post.key
 
+    dispose_of([post_key])
+    dispose_of([category_key])
+    dispose_of(new_tag_keys)
 
-def test_get_by_title_assert_raises(categories, tags, posts):
+
+def test_get_by_title_assert_raises(categories, tags, posts, dispose_of):
     category_key = categories.add("category")
 
     test_tags = ["a new tag", "a new new tag"]
     new_tag_keys = tags.add(test_tags)
 
-    posts.add("a title", "body text", category_key, new_tag_keys)
+    post_key = posts.add("a title", "body text", category_key, new_tag_keys)
     # test exception
     with pytest.raises(InvalidUsage):
         posts.get_by_title("a non existent title")
 
+    dispose_of([post_key])
+    dispose_of([category_key])
+    dispose_of(new_tag_keys)
 
-def test_get_names_from_tags(tags):
+
+def test_get_names_from_tags(tags, dispose_of):
     test_tags = ["a new tag", "a new new tag"]
-    tags.add(test_tags)
+    tag_keys = tags.add(test_tags)
 
     assert test_tags == tags.get_names()
 
+    dispose_of(tag_keys)
 
-def test_to_json_of_a_tag(tags):
+
+def test_to_json_of_a_tag(tags, dispose_of):
     test_tags = ["a new tag", "a new new tag"]
     tag_key1, tag_key2 = tags.add(test_tags)
     tag = tag_key1.get()
@@ -393,8 +352,10 @@ def test_to_json_of_a_tag(tags):
 
     assert test_dict == tag.to_json()
 
+    dispose_of([tag_key1, tag_key2])
 
-def test_to_json_of_tags(tags):
+
+def test_to_json_of_tags(tags, dispose_of):
     test_tags = [u"a new tag", u"a new new tag"]
     tag_key1, tag_key2 = tags.add(test_tags)
 
@@ -402,8 +363,10 @@ def test_to_json_of_tags(tags):
 
     assert json_data == tags.to_json()
 
+    dispose_of([tag_key1, tag_key2])
 
-def test_get_a_post(categories, tags, posts):
+
+def test_get_a_post(categories, tags, posts, dispose_of):
     category_key = categories.add("category")
     test_tags = ["a new tag", "a new new tag"]
     new_tag_keys = tags.add(test_tags)
@@ -416,6 +379,11 @@ def test_get_a_post(categories, tags, posts):
     #test memcached
     post = BlogPost.get(post_key.id())
     assert post.key == post_key
+
+    dispose_of([post.key])
+    dispose_of(new_tag_keys)
+    dispose_of([category_key])
+
 
 # def test_filter_posts_by_a_tag(self):
 #     category_key = categories.add("category")
@@ -448,7 +416,7 @@ def test_get_a_post(categories, tags, posts):
 #
 #     assert posts == []
 
-def test_get_category(categories, tags, posts):
+def test_get_category(categories, tags, posts, dispose_of):
     category_key = categories.add("category")
     test_tags = ["a new tag", "a new new tag"]
     new_tag_keys = tags.add(test_tags)
@@ -458,8 +426,12 @@ def test_get_category(categories, tags, posts):
 
     assert "category" == post.get_category()
 
+    dispose_of([post_key])
+    dispose_of(new_tag_keys)
+    dispose_of([category_key])
 
-def test_get_tagnames(categories, tags, posts):
+
+def test_get_tagnames(categories, tags, posts, dispose_of):
     category_key = categories.add("category")
     test_tags = ["a new tag", "a new new tag"]
     new_tag_keys = tags.add(test_tags)
@@ -471,8 +443,12 @@ def test_get_tagnames(categories, tags, posts):
 
     assert test_tags == tag_names
 
+    dispose_of([post_key])
+    dispose_of(new_tag_keys)
+    dispose_of([category_key])
 
-def test_posts_contains_a_post(categories, tags, posts):
+
+def test_posts_contains_a_post(categories, tags, posts, dispose_of):
     category_key = categories.add("category")
     test_tags = ["a new tag", "a new new tag"]
     new_tag_keys = tags.add(test_tags)
@@ -480,17 +456,25 @@ def test_posts_contains_a_post(categories, tags, posts):
 
     assert post_key in posts
 
+    dispose_of([post_key])
+    dispose_of(new_tag_keys)
+    dispose_of([category_key])
 
-def test_tags_contains_a_tag(tags):
+
+def test_tags_contains_a_tag(tags, dispose_of):
     test_tags = ["a new tag", "a new new tag"]
-    tags.add(test_tags)
+    tag_keys = tags.add(test_tags)
 
     assert test_tags[0] in tags
 
+    dispose_of(tag_keys)
 
-def test_categories_contains_a_category(categories):
-    categories.add("category")
+
+def test_categories_contains_a_category(categories, dispose_of):
+    category_key = categories.add("category")
     assert "category" in categories
+
+    dispose_of([category_key])
 
 # def test_filter_matched(self):
 #     category_key = categories.add("category")
@@ -502,37 +486,47 @@ def test_categories_contains_a_category(categories):
 #     posts.filter_matched([post_key.id()])
 #     assert posts, [post_key.get()])
 
-def test_site_last_updated(categories, tags, posts):
+
+def test_site_last_updated(categories, tags, posts, dispose_of):
     freezer = freeze_time("2017-11-29 17:48:18")
     freezer.start()
     category_key = categories.add("category")
     test_tags = ["a new tag", "a new new tag"]
     new_tag_keys = tags.add(test_tags)
-    posts.add("a title", "body text", category_key, new_tag_keys)
-    posts.add("a title", "body sec2 text", category_key, new_tag_keys)
+    post_key1 = posts.add("a title", "body text", category_key, new_tag_keys)
+    post_key2 = posts.add("a title", "body sec2 text", category_key, new_tag_keys)
 
     last_updated = posts.site_last_updated()
     assert "Wednesday 29 November 2017" == last_updated
     freezer.stop()
 
+    dispose_of([post_key1, post_key2])
+    dispose_of(new_tag_keys)
+    dispose_of([category_key])
 
-def test_get_related_posts(categories, tags, posts):
+
+def test_get_related_posts(categories, tags, posts, dispose_of):
     category_key = categories.add("category")
     test_tags = ["a new tag", "a new new tag"]
     new_tag_keys = tags.add(test_tags)
-    current_post = posts.add("a title", "body text", category_key, new_tag_keys)
+    current_post_key = posts.add("a title", "body text", category_key, new_tag_keys)
 
     rel_test_tags = ["a new tag", "a different tag"]
     rel_tag_keys = tags.add(rel_test_tags )
     rel_post_key = posts.add("a different title", "body sec2 text", category_key, rel_tag_keys)
     rel_post = BlogPost.get(rel_post_key.id())
 
-    related_posts = posts.get_related_posts(current_post.id())
+    related_posts = posts.get_related_posts(current_post_key.id())
 
     assert [rel_post] == related_posts
 
+    dispose_of([current_post_key, rel_post_key])
+    dispose_of(tags.get_keys())
 
-def test_update_category(categories):
+    dispose_of([category_key])
+
+
+def test_update_category(categories, dispose_of):
     category_key = categories.add("category")
 
     categories.update("a modified category", category_key)
@@ -540,20 +534,24 @@ def test_update_category(categories):
 
     assert "a modified category" == category.category
 
+    dispose_of([category_key])
 
-def test_update_category_without_key(categories):
+
+def test_update_category_without_key(categories, dispose_of):
     category_key = categories.update("a modified category")
     category = categories.get(category_key)
 
     assert "a modified category" == category.category
 
+    dispose_of([category_key])
 
-def test_update_tags_without_post(categories, tags, posts):
+
+def test_update_tags_without_post(categories, tags, posts, dispose_of):
     test_tags = ["a new tag", "a new new tag"]
     tag_keys = tags.add(test_tags)
 
     category_key = categories.add("category")
-    posts.add("a title", "body text", category_key, tag_keys)
+    post_key = posts.add("a title", "body text", category_key, tag_keys)
 
     test_new_tags = ["a new different tag", "a new new tag"]
     tags.update(test_new_tags)
@@ -561,8 +559,12 @@ def test_update_tags_without_post(categories, tags, posts):
 
     assert tag_names == [u"a new tag",  u"a new new tag", u"a new different tag"]
 
+    dispose_of([post_key])
+    dispose_of(tags.get_keys())
+    dispose_of([category_key])
 
-def test_update_tags(categories, tags, posts):
+
+def test_update_tags(categories, tags, posts, dispose_of):
     """
     replacing a new tag with a new different tag
     :return:
@@ -579,6 +581,10 @@ def test_update_tags(categories, tags, posts):
 
     assert tag_names == [ u"a new new tag", u"a new different tag"]
 
+    dispose_of([post_key])
+    dispose_of(tags.get_keys())
+    dispose_of([category_key])
+
 
 # def test_rebuild_index(categories, tags, posts):
 #     test_tags = ["a new tag", "a new new tag"]
@@ -594,12 +600,12 @@ def test_update_tags(categories, tags, posts):
 #
 #     assert post_key.id(), posts_ids[0])
 
-def test_add_to_feed(categories, tags, posts):
+def test_add_to_feed(categories, tags, posts, dispose_of):
     test_tags = ["a new tag", "a new new tag"]
     tag_keys = tags.add(test_tags)
 
     category_key = categories.add("category")
-    posts.add("a title", "body text", category_key, tag_keys)
+    post_key = posts.add("a title", "body text", category_key, tag_keys)
 
     feed_org = AtomFeed('Recent Articles',
                     feed_url='http://localhost/recent.atom', url="")
@@ -623,8 +629,12 @@ def test_add_to_feed(categories, tags, posts):
 
     assert feed_org.to_string() == feed.to_string()
 
+    dispose_of([post_key])
+    dispose_of(tag_keys)
+    dispose_of([category_key])
 
-def test_stripped_answers(categories, tags, posts):
+
+def test_stripped_answers(categories, tags, dispose_of):
     test_tags = ["a new tag", "a new new tag"]
     tag_keys = tags.add(test_tags)
 
@@ -635,7 +645,7 @@ def test_stripped_answers(categories, tags, posts):
                   is_correct=False)
 
     category_key = categories.add("category")
-    summary =  "a summmary"
+    summary = "a summmary"
     title = "a title"
     body = "here is a body"
 
@@ -652,6 +662,10 @@ def test_stripped_answers(categories, tags, posts):
 
     assert post.strip_answers_jsoned() == jsoned_answers
 
+    dispose_of([post_key])
+    dispose_of(tag_keys)
+    dispose_of([category_key])
+
 
 def test_selected_answer_setter(post_with_answers):
     post, _, _, _ = post_with_answers
@@ -659,8 +673,8 @@ def test_selected_answer_setter(post_with_answers):
                   is_correct=True)
 
     post.set_selected_answer("ans1")
-
-    assert Answer(is_correct=True, nof_times_selected=1, p_answer=u'ans1', statistics=1.0) == \
+    print("ans1", ans1)
+    assert ans1 == \
            post.selected_answer
 
 
@@ -678,30 +692,32 @@ def test_is_answer_correct(post_with_answers):
 
 
 def test_to_answer_form(posts, post_with_answers):
+
+    with app.test_request_context():
+        post, _, _, _ = post_with_answers
+        posts.to_answers_form()
+        print (dir(post))
+        assert [(u'ans1', u'ans1'), (u'ans2', u'ans2')] == post.answers_form.r_answers.choices
+
+
+def test_update_answers_statistics(post_with_answers):
     post, _, _, _ = post_with_answers
-    posts.to_answers_form()
 
-    assert [(u'ans1', u'ans1'), (u'ans2', u'ans2')] == post.answers_form.r_answers.choices
+    post.set_selected_answer("ans1")
 
+    assert (post.answers[0].statistics, post.answers[1].statistics) == (1.0, 0.0)
+    assert post.answers[0].nof_times_selected, post.answers[1].nof_times_selected == (1, 0)
 
-# def test_update_answers_statistics(self):
-#     post, _, _, _ = post_with_answers({"ans1":True, "ans2":False})
-#
-#     post.set_selected_answer("ans1")
-#
-#     self.assertTupleEqual((post.answers[0].statistics, post.answers[1].statistics), (1.0, 0.0))
-#     self.assertTupleEqual((post.answers[0].nof_times_selected, post.answers[1].nof_times_selected), (1, 0))
+    post.set_selected_answer("ans2")
 
-#     post.set_selected_answer("ans2")
-#
-#     self.assertTupleEqual((post.answers[0].statistics, post.answers[1].statistics), (0.5, 0.5))
-#     self.assertTupleEqual((post.answers[0].nof_times_selected, post.answers[1].nof_times_selected), (1, 1))
-#
-#     post.set_selected_answer("ans2")
-#
-#     self.assertAlmostEqual(post.answers[0].statistics, 0.3333, places=4)
-#     self.assertAlmostEqual(post.answers[1].statistics, 0.6666666666666666, places=4)
-#     self.assertTupleEqual((post.answers[0].nof_times_selected, post.answers[1].nof_times_selected), (1, 2))
+    assert (post.answers[0].statistics, post.answers[1].statistics) == (0.5, 0.5)
+    assert (post.answers[0].nof_times_selected, post.answers[1].nof_times_selected) == (1, 1)
+
+    post.set_selected_answer("ans2")
+
+    assert post.answers[0].statistics == pytest.approx(0.3333, 4)
+    assert post.answers[1].statistics == pytest.approx(0.6666666666666666, 4)
+    assert (post.answers[0].nof_times_selected, post.answers[1].nof_times_selected) == (1, 2)
 #
 # def test_get_answers_statistics(self):
 #     post, _, _, _ = post_with_answers({"ans1": True, "ans2": False, "ans3": False})
