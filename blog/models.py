@@ -196,6 +196,7 @@ class BlogPost(ndb.Model, ViewImageHandler):
     def set_selected_answer(self, p_answer):
         for answer in self.answers:
             if answer.p_answer == p_answer:
+                print("A",answer)
                 self.selected_answer = answer
                 self._update_answers_statistics()
                 return True
@@ -224,6 +225,7 @@ class BlogPost(ndb.Model, ViewImageHandler):
 
         self.answers_form = AnswerRadioForm()
         self.answers_form.r_answers.choices = [(answer.p_answer, answer.p_answer) for answer in self.answers]
+        print("CHOICES", self.answers_form.r_answers.choices)
 
     def edit(self, title, body, updated, tags, category_key, summary=None, raw_answers=[]):
 
@@ -476,14 +478,14 @@ class Tags(BlogList, JsonMixin):
     def tags(self):
         return self._tags
 
-    def _populate_memcache(self):
-        logging.info("populating cache for tags {}")
-        if not memcache.add("TAGS_CACHE", self._tags):
-            logging.error("Memcache set failed for tags")
-
-    def _delete_memcache(self):
-        if not memcache.delete('TAGS_CACHE') != 2:
-            logging.error("Memcache delete failed for tags")
+    # def _populate_memcache(self):
+    #     logging.info("populating cache for tags {}")
+    #     if not memcache.add("TAGS_CACHE", self._tags):
+    #         logging.error("Memcache set failed for tags")
+    #
+    # def _delete_memcache(self):
+    #     if not memcache.delete('TAGS_CACHE') != 2:
+    #         logging.error("Memcache delete failed for tags")
 
     def add(self, new_tags):
         new_tags_keys = [Tag(tag=new_tag).put() for new_tag in new_tags if new_tag not in self]
@@ -497,8 +499,11 @@ class Tags(BlogList, JsonMixin):
                 self._tags.pop(tag_idx)
                 self.delete(tags_for_deletion)
 
-    def get_keys(self, tags):
-        return [tag.key for tag in self._tags if tag.tag in tags]
+    def get_keys(self, tags=None):
+        if tags:
+            return [tag.key for tag in self._tags if tag.tag in tags]
+        else:
+            return [tag.key for tag in self._tags]
 
     def get_names(self):
         return [tag.tag for tag in self._tags]
