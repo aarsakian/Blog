@@ -67,9 +67,9 @@ def find_tags_to_be_added(editing_tags, non_modified_tags, remaining_tags):
 
 def find_modified_tags(candidate_tags, remaining_tags):
     if not isinstance(candidate_tags, set):
-        candidate_tags = set(candidate_tags)
-        x = set(remaining_tags) & candidate_tags
-    return list(candidate_tags - (set(remaining_tags) & candidate_tags))
+        candidate_tags = set(candidate_tags)  # loses order
+
+    return candidate_tags - (candidate_tags & set(remaining_tags))
 
 
 def datetimeformat(value, format='%A, %d %B %Y'):
