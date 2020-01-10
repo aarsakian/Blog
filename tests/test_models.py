@@ -385,18 +385,22 @@ def test_get_a_post(categories, tags, posts, dispose_of):
     dispose_of([category_key])
 
 
-# def test_filter_posts_by_a_tag(self):
-#     category_key = categories.add("category")
-#     test_tags = ["a new tag", "a new new tag"]
-#     new_test_tags = ["a second tag", "a new second tag"]
-#     new_tag_keys = tags.add(test_tags)
-#     new_test_tag_keys = tags.add(new_test_tags)
-#     post_key = posts.add("a title", "body text", category_key, new_tag_keys)
-#     posts.add("a title", "a second body text", category_key, new_test_tag_keys )
-#     print posts
-#     posts.filter_by_tag("a new tag")
-#     print posts, post_key.get()
-#     assert posts, [post_key.get()])
+def test_filter_posts_by_a_tag(posts, categories, tags, dispose_of):
+    category_key = categories.add("category")
+    test_tags = ["a new tag", "a new new tag"]
+    new_test_tags = ["a second tag", "a new second tag"]
+    new_tag_keys = tags.add(test_tags)
+    new_test_tag_keys = tags.add(new_test_tags)
+    post_key = posts.add("a title", "body text", category_key, new_tag_keys)
+    post_key2 = posts.add("a title", "a second body text", category_key, new_test_tag_keys )
+
+    posts.filter_by_tag("a new tag")
+    print(posts, hex(id(posts)), len(posts))
+    assert posts == [post_key.get()]
+
+    dispose_of([post_key, post_key2])
+    dispose_of(tags.get_keys())
+    dispose_of([category_key])
 
 
 # def test_filter_posts_by_category(posts):
@@ -476,15 +480,20 @@ def test_categories_contains_a_category(categories, dispose_of):
 
     dispose_of([category_key])
 
-# def test_filter_matched(self):
-#     category_key = categories.add("category")
-#     test_tags = ["a new tag", "a new new tag"]
-#     new_tag_keys = tags.add(test_tags)
-#     post_key = posts.add("a title", "body text", category_key, new_tag_keys)
-#     posts.add("a title", "body sec2 text", category_key, new_tag_keys)
-#     print posts
-#     posts.filter_matched([post_key.id()])
-#     assert posts, [post_key.get()])
+
+def test_filter_matched(categories, tags, posts, dispose_of):
+    category_key = categories.add("category")
+    test_tags = ["a new tag", "a new new tag"]
+    new_tag_keys = tags.add(test_tags)
+    post_key = posts.add("a title", "body text", category_key, new_tag_keys)
+    post_key2 = posts.add("a title", "body sec2 text", category_key, new_tag_keys)
+
+    posts.filter_matched([post_key.id()])
+    assert posts == [post_key.get()]
+
+    dispose_of([post_key, post_key2])
+    dispose_of(tags.get_keys())
+    dispose_of([category_key])
 
 
 def test_site_last_updated(categories, tags, posts, dispose_of):
@@ -795,6 +804,3 @@ def test_update_answers_statistics(post_with_answers):
 #
 #     assert 0, len(post.images))
 #
-
-if __name__ == '__main__':
-    unittest.main()
