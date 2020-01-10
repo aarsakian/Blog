@@ -315,11 +315,7 @@ class Posts(BlogList, JsonMixin):
     """
 
     def __init__(self):
-        self._posts = BlogPost.query().order(-BlogPost.timestamp)
-
-    @property
-    def posts(self):
-        return list(self._posts)
+        self.posts = list(BlogPost.query().order(-BlogPost.timestamp))
 
     def __len__(self):
         return len(self.posts)
@@ -331,10 +327,10 @@ class Posts(BlogList, JsonMixin):
         return self.posts[post_idx]
 
     def __contains__(self, post_key):
-        if self._posts:
-            for post in self.posts:
-                if post.key == post_key:
-                    return True
+
+        for post in self.posts:
+            if post.key == post_key:
+                return True
         return False
 
     def add(self, raw_title, raw_body, category_key, tags_ids, summary=None, answers=None):
@@ -406,6 +402,7 @@ class Posts(BlogList, JsonMixin):
     def filter_by_tag(self, tag):
         [self.posts.pop(post_idx) for post_idx, post in enumerate(self.posts)
                 if tag not in post.get_tag_names()]
+        print(hex(id(self.posts)))
 
     def filter_by_category(self, category):
         [self.posts.pop(post_idx) for post_idx, post in enumerate(self.posts)
