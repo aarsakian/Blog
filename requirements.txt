@@ -9,7 +9,6 @@ Flask-Sitemap
 Flask-Login
 itsdangerous
 Werkzeug
-GoogleAppEngineCloudStorageClient
 google-cloud-ndb
 google-cloud-storage
 google-auth
@@ -20,4 +19,6 @@ itsdangerous
 Jinja2
 MarkupSafe
 pytest
+pytest-cov
+pytest-mock
 freezegun
