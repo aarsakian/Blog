@@ -1,3 +1,4 @@
+import os
 from blog import app
 
 from datetime import datetime
@@ -5,10 +6,9 @@ from datetime import datetime
 from freezegun import freeze_time
 from werkzeug.contrib.atom import AtomFeed
 
-from blog.models import Tags, Posts, Categories, BlogPost, Answer, ViewImageHandler
+from blog.models import BlogPost, Answer, ViewImageHandler
 
-from blog.utils import find_modified_tags, find_tags_to_be_removed, datetimeformat, \
-     make_external
+from blog.utils import make_external
 
 import pytest
 from blog.errors import InvalidUsage
@@ -744,14 +744,15 @@ def test_update_answers_statistics(post_with_answers):
 #
 #     answers_stats = post.get_answers_statistics()
 #     self.assertDictEqual(answers_stats, {"Answer": "Selection", u"ans1": 1, u"ans2": 1, u"ans3": 0})
-#
-# def test_add_blob(self):
-#     post, _, _ = self.create_post()
-#
-#     with open(os.path.join(TEST_IMAGE)) as f:
-#         image_key = post.add_blob(f.read(), TEST_IMAGE, 'image/jpeg')
-#         assert image_key, u'encoded_gs_file:YXBwX2RlZmF1bHRfYnVja2V0LzIwMTlfMV80XzE2ei5naWY=')
-#
+
+
+def test_add_blob(post_with_answers):
+    post, _, _, _ = post_with_answers
+
+    with open(os.path.join(TEST_IMAGE), 'rb') as f:
+        image_key = post.add_blob(f.read(), TEST_IMAGE, 'image/jpeg')
+        assert image_key == u'encoded_gs_file:YXBwX2RlZmF1bHRfYnVja2V0LzIwMTlfMV80XzE2ei5naWY='
+
 # def test_delete_blob(self):
 #     from google.appengine.ext import blobstore
 #     post, _, _ = self.create_post()
@@ -763,15 +764,16 @@ def test_update_answers_statistics(post_with_answers):
 #     with self.assertRaises(blobstore.BlobNotFoundError):
 #         blobstore.fetch_data(image_key, 0, 1)
 #
-# def test_read_blob_image(self):
-#     post, _, _ = self.create_post()
-#     with open(os.path.join(TEST_IMAGE)) as f:
-#         post.add_blob(f.read(), TEST_IMAGE, 'image/jpeg')
-#         image_file = post.read_blob_image(TEST_IMAGE)
-#
-#         f.seek(0)
-#         assert image_file, f.read())
-#
+
+def test_read_blob_image(post_with_answers):
+    post, _, _, _ = post_with_answers
+    with open(os.path.join(TEST_IMAGE), 'rb') as f:
+        post.add_blob(f.read(), TEST_IMAGE, 'image/jpeg')
+        image_file = post.read_blob_image(TEST_IMAGE)
+
+        f.seek(0)
+        assert image_file == f.read()
+
 # def test_list_images(self):
 #     post, _, _ = self.create_post()
 #     with open(os.path.join(TEST_IMAGE)) as f:
