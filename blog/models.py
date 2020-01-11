@@ -1,4 +1,6 @@
 import logging
+import os
+
 from google.cloud import ndb
 
 from flask_login import UserMixin, AnonymousUserMixin
@@ -41,7 +43,7 @@ class User(ndb.Model, UserMixin):
 class ViewImageHandler:
 
     def add_blob_image(self, image, image_filename, mime_type='image/jpeg'):
-        bucket_name = "aarsakian.appspot.com"
+        bucket_name = os.environ["BUCKET_NAME"]
 
         bucket = storage_client.get_bucket(bucket_name)
         # Cloud Storage file names are in the format /bucket/object.
@@ -55,8 +57,7 @@ class ViewImageHandler:
         blobstore_filename = '/gs{}'.format(filename)
 
     def read_blob_image(self, image_filename):
-        bucket_name = "aarsakian"
-        storage_client = storage.Client()
+        bucket_name = os.environ["BUCKET_NAME"]
 
         bucket = storage_client.get_bucket(bucket_name)
 
