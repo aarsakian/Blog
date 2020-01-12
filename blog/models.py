@@ -42,19 +42,20 @@ class User(ndb.Model, UserMixin):
 
 class ViewImageHandler:
 
-    def add_blob_image(self, image, image_filename, mime_type='image/jpeg'):
+    def add_to_gcp(self, image_filename, mime_type='image/jpeg'):
         bucket_name = os.environ["BUCKET_NAME"]
 
         bucket = storage_client.get_bucket(bucket_name)
         # Cloud Storage file names are in the format /bucket/object.
         filename = '/{}/{}'.format(bucket, image_filename)
 
+        blob = bucket.blob(filename)
         # Create a file in Google Cloud Storage and write something to it.
-        with storage_client.open(filename=filename, mode='w',
-                               content_type=mime_type, options={'x-goog-acl':'public-read'}) as filehandle:
-            filehandle.write(image)
-
-        blobstore_filename = '/gs{}'.format(filename)
+        try:
+            blob.upload_from_filename(filename=image_filename, content_type=mime_type)
+        except storage_client.GoogleCloudError:
+            logging.error("Uploading error {}".format(image_filename))
+        return blob.key
 
     def read_blob_image(self, image_filename):
         bucket_name = os.environ["BUCKET_NAME"]
@@ -282,18 +283,19 @@ class BlogPost(ndb.Model, ViewImageHandler):
             answers_stats.update({answer.p_answer: answer.nof_times_selected})
         return answers_stats
 
-    def add_blob(self, image, image_filename, mime_type):
-
-        blob_key = self.add_blob_image(image, image_filename, mime_type)
-        image = Image(blob_key=blob_key, filename=image_filename)
-        self.images.append(image)
-        self.put()
-        return str(image.blob_key)
+    def add_blob(self, image_filename, mime_type):
+        return self.add_to_gcp(image_filename, mime_type)
 
     def delete_blob_from_post(self, image_filename):
         [self.images.pop(idx) for idx, image in enumerate(self.images) if image.filename == image_filename]
         self.put()
         self._delete_blob(image_filename)
+
+    def add_image(self, blob_key, image_filename):
+        image = Image(blob_key=blob_key, filename=image_filename)
+        self.images.append(image)
+        self.put()
+
 
 class BlogList(list):
 

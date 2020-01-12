@@ -749,9 +749,8 @@ def test_update_answers_statistics(post_with_answers):
 def test_add_blob(post_with_answers):
     post, _, _, _ = post_with_answers
 
-    with open(os.path.join(TEST_IMAGE), 'rb') as f:
-        image_key = post.add_blob(f.read(), TEST_IMAGE, 'image/jpeg')
-        assert image_key == u'encoded_gs_file:YXBwX2RlZmF1bHRfYnVja2V0LzIwMTlfMV80XzE2ei5naWY='
+    image_key = post.add_blob(TEST_IMAGE, 'image/jpeg')
+    assert image_key == '4477067152'
 
 # def test_delete_blob(self):
 #     from google.appengine.ext import blobstore

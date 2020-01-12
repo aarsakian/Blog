@@ -31,22 +31,32 @@ login_manager = LoginManager()
 if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine/'):
 
     app = Flask(__name__, root_path='blog',
-                template_folder= 'templates/production',
+                template_folder='templates/production',
                 instance_relative_config = True)
 
     app.config.from_object('blog.settings.Production')
     app.jinja_env.globals['DEV'] = False
     client = ndb.Client()
     storage_client = storage.Client()
+    os.environ["BUCKET_NAME"] = 'aarsakian'
 else:
     app = Flask(__name__)
 
     os.environ["DATASTORE_EMULATOR_HOST"] = "localhost:8081"
     os.environ["DATASTORE_PROJECT_ID"] = "test"
+    os.environ["BUCKET_NAME"] = "test-bucket"
 
     credentials = mock.Mock(spec=google.auth.credentials.Credentials)
+    storage_client = mock.create_autospec(storage.Client)
     client = ndb.Client(project="test", credentials=credentials)
-    storage_client = storage.Client(project="test", credentials=credentials)
+    #storage_client = storage.Client(project="test", credentials=credentials)
+
+    mock_bucket = mock.create_autospec(storage.Bucket)
+    storage_client.get_bucket.return_value = mock_bucket
+    mock_blob = mock.create_autospec(storage.Blob)
+    mock_bucket.blob.return_value = mock_blob
+
+    mock_blob.key = ndb.BlobKeyProperty()
 
     app.config.from_object('blog.settings.Testing')
     app.jinja_env.globals['DEV'] = True
