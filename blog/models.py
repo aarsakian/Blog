@@ -51,10 +51,10 @@ class ViewImageHandler:
 
         blob = bucket.blob(filename)
         # Create a file in Google Cloud Storage and write something to it.
-        try:
-            blob.upload_from_filename(filename=image_filename, content_type=mime_type)
-        except storage_client.GoogleCloudError:
-            logging.error("Uploading error {}".format(image_filename))
+       # try:
+        blob.upload_from_filename(filename=image_filename, content_type=mime_type)
+      #  except storage_client.GoogleCloudError:
+      #      logging.error("Uploading error {}".format(image_filename))
         return blob.key
 
     def read_blob_image(self, image_filename):
@@ -64,13 +64,12 @@ class ViewImageHandler:
 
         # Cloud Storage file names are in the format /bucket/object.
         filename = '/{}/{}'.format(bucket, image_filename)
+        blob = bucket.get_blob(filename)
 
-        with storage_client.open(filename) as cloudstorage_file:
-            return cloudstorage_file.read()
+        return blob.download_as_string()
 
     def get_mime_type(self, image_filename):
-        bucket_name = "aarsakian"
-        storage_client = storage.Client()
+        bucket_name = os.environ["BUCKET_NAME"]
 
         bucket = storage_client.get_bucket(bucket_name)
 
@@ -81,8 +80,7 @@ class ViewImageHandler:
             return stat.content_type
 
     def _delete_blob(self, filename):
-        bucket_name = "aarsakian"
-        storage_client = storage.Client()
+        bucket_name = os.environ["BUCKET_NAME"]
 
         bucket = storage_client.get_bucket(bucket_name)
         # Cloud Storage file names are in the format /bucket/object.
@@ -94,8 +92,7 @@ class ViewImageHandler:
 
     def list_images(self):
         """List all files in GCP bucket."""
-        bucket_name = "aarsakian"
-        storage_client = storage.Client()
+        bucket_name = os.environ["BUCKET_NAME"]
 
         bucket = storage_client.get_bucket(bucket_name)
 
