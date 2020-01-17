@@ -1,16 +1,36 @@
 import uuid
-import requests
 import pytest
 import os
 import itertools
 from google.cloud import datastore
-from google.cloud import ndb
+from google.cloud import ndb, storage
 from unittest import mock
+import requests
+import urllib3
+from six.moves import http_client
+from google.api_core.client_options import ClientOptions
+import json
 from blog.models import Answer, BlogPost, Tags, Categories, Posts
 
 KIND = "SomeKind"
 OTHER_KIND = "OtherKind"
 OTHER_NAMESPACE = "other-namespace"
+
+
+
+EXTERNAL_URL = os.getenv("EXTERNAL_URL", "https://127.0.0.1:4443")
+PUBLIC_HOST = os.getenv("PUBLIC_HOST", "storage.gcs.127.0.0.1.nip.io:4443")
+
+storage.blob._API_ACCESS_ENDPOINT = "https://" + PUBLIC_HOST
+storage.blob._DOWNLOAD_URL_TEMPLATE = (
+    u"%s/download/storage/v1{path}?alt=media" % EXTERNAL_URL
+)
+storage.blob._BASE_UPLOAD_TEMPLATE = (
+    u"%s/upload/storage/v1{bucket_path}/o?uploadType=" % EXTERNAL_URL
+)
+storage.blob._MULTIPART_URL_TEMPLATE = storage.blob._BASE_UPLOAD_TEMPLATE + u"multipart"
+storage.blob._RESUMABLE_URL_TEMPLATE = storage.blob._BASE_UPLOAD_TEMPLATE + u"resumable"
+
 
 
 
@@ -35,14 +55,19 @@ def _make_ds_client(namespace, g_credentials):
     return client
 
 
+
+
 @pytest.fixture
 def namespace():
     return str(uuid.uuid4())
 
 
+
+
 @pytest.fixture
 def to_delete():
     return []
+
 
 @pytest.fixture
 def tags(client_context):
@@ -100,7 +125,6 @@ def with_ds_client(ds_client, to_delete, deleted_keys):
     yield ds_client
 
     if to_delete:
-        print('DEL',to_delete)
         ds_client.delete_multi(to_delete)
         deleted_keys.update(to_delete)
 
@@ -117,12 +141,41 @@ def ds_client(namespace, g_credentials):
     return _make_ds_client(namespace, g_credentials)
 
 
+
+
 @pytest.fixture(autouse=True)
 def client_context(namespace, g_credentials):
 
     client = ndb.Client(project="test", namespace=namespace, credentials=g_credentials)
     with client.context(cache_policy=False, legacy_data=False) as the_context:
         yield the_context
+
+
+@pytest.fixture
+def test_bucket(storage_client):
+    return storage_client.create_bucket('test-bucket')
+
+
+@pytest.fixture
+def storage_client(namespace, g_credentials):
+    my_http = requests.Session()
+    my_http.verify = False  # disable SSL validation
+    urllib3.disable_warnings(
+        urllib3.exceptions.InsecureRequestWarning
+    ) # disable https warnings for https insecure certs
+
+    client = storage.Client(project="test", credentials=g_credentials,
+                               _http=my_http,
+                               client_options=ClientOptions(api_endpoint=EXTERNAL_URL))
+
+    yield client
+    for bucket in client.list_buckets():
+        # List the Blobs in each Bucket
+        #print ("cleaning", bucket.list_blobs()[0])
+        blobs = list(bucket.list_blobs())
+        bucket.delete_blobs(blobs, on_error=lambda blob: None)
+
+
 
 
 @pytest.fixture
