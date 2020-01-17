@@ -2,11 +2,12 @@ import logging
 import os
 
 from google.cloud import ndb
-
+from google.cloud.exceptions import GoogleCloudError
+from google.cloud.storage import Blob
 from flask_login import UserMixin, AnonymousUserMixin
 from . import login_manager
 from .errors import InvalidUsage
-from . import storage_client
+
 from .forms import AnswerRadioForm
 #from .search import add_document_in_search_index, delete_document, find_posts_from_index
 from .utils import datetimeformat, find_tags_to_be_removed, find_tags_to_be_added, make_external
@@ -42,22 +43,23 @@ class User(ndb.Model, UserMixin):
 
 class ViewImageHandler:
 
-    def add_to_gcp(self, image_filename, mime_type='image/jpeg'):
+    def add_to_gcp(self,  storage_client, image_filename, mime_type='image/jpeg'):
         bucket_name = os.environ["BUCKET_NAME"]
 
         bucket = storage_client.get_bucket(bucket_name)
         # Cloud Storage file names are in the format /bucket/object.
         filename = '/{}/{}'.format(bucket, image_filename)
 
-        blob = bucket.blob(filename)
+        blob = Blob(filename, bucket)
         # Create a file in Google Cloud Storage and write something to it.
-       # try:
-        blob.upload_from_filename(filename=image_filename, content_type=mime_type)
-      #  except storage_client.GoogleCloudError:
-      #      logging.error("Uploading error {}".format(image_filename))
-        return blob.key
+        try:
+            blob.upload_from_filename(filename=image_filename, content_type=mime_type)
+        except GoogleCloudError as gcp_e:
+            logging.error("Uploading error {}".format(image_filename, gcp_e))
 
-    def read_blob_image(self, image_filename):
+        return blob
+
+    def read_blob_image(self, storage_client, image_filename):
         bucket_name = os.environ["BUCKET_NAME"]
 
         bucket = storage_client.get_bucket(bucket_name)
@@ -155,7 +157,7 @@ class AnswersDict(dict):
 
 
 class Image(ndb.Model):
-    blob_key = ndb.BlobKeyProperty()
+    blob_key = ndb.StringProperty()
     filename = ndb.StringProperty()
 
 
@@ -280,8 +282,10 @@ class BlogPost(ndb.Model, ViewImageHandler):
             answers_stats.update({answer.p_answer: answer.nof_times_selected})
         return answers_stats
 
-    def add_blob(self, image_filename, mime_type):
-        return self.add_to_gcp(image_filename, mime_type)
+    def add_blob(self, storage_client, image_filename, mime_type):
+        blob = self.add_to_gcp(storage_client, image_filename, mime_type)
+        self.add_image(blob.id, image_filename)
+        return blob
 
     def delete_blob_from_post(self, image_filename):
         [self.images.pop(idx) for idx, image in enumerate(self.images) if image.filename == image_filename]
