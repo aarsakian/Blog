@@ -12,6 +12,8 @@ from blog.utils import make_external
 
 import pytest
 from blog.errors import InvalidUsage
+from unittest import mock
+
 #
 # from blog.search import query_search_index, find_posts_from_index
 #
@@ -395,7 +397,6 @@ def test_filter_posts_by_a_tag(posts, categories, tags, dispose_of):
     post_key2 = posts.add("a title", "a second body text", category_key, new_test_tag_keys )
 
     posts.filter_by_tag("a new tag")
-    print(posts, hex(id(posts)), len(posts))
     assert posts == [post_key.get()]
 
     dispose_of([post_key, post_key2])
@@ -682,7 +683,6 @@ def test_selected_answer_setter(post_with_answers):
                   is_correct=True)
 
     post.set_selected_answer("ans1")
-    print("ans1", ans1)
     assert ans1 == \
            post.selected_answer
 
@@ -746,11 +746,12 @@ def test_update_answers_statistics(post_with_answers):
 #     self.assertDictEqual(answers_stats, {"Answer": "Selection", u"ans1": 1, u"ans2": 1, u"ans3": 0})
 
 
-def test_add_blob(post_with_answers):
+def test_add_blob(post_with_answers, storage_client, test_bucket):
     post, _, _, _ = post_with_answers
+    # List the Buckets
 
-    image_key = post.add_blob(TEST_IMAGE, 'image/jpeg')
-    assert image_key == '4477067152'
+    blob = post.add_blob(storage_client, TEST_IMAGE, 'image/jpeg')
+    assert blob._properties['md5hash'] == 'ZLAE/l7C+Rs0xLFhjcZexw=='
 
 # def test_delete_blob(self):
 #     from google.appengine.ext import blobstore
@@ -767,10 +768,9 @@ def test_add_blob(post_with_answers):
 def test_read_blob_image(post_with_answers):
     post, _, _, _ = post_with_answers
     with open(os.path.join(TEST_IMAGE), 'rb') as f:
-        post.add_blob(f.read(), TEST_IMAGE, 'image/jpeg')
+        post.add_blob(TEST_IMAGE, 'image/jpeg')
         image_file = post.read_blob_image(TEST_IMAGE)
 
-        f.seek(0)
         assert image_file == f.read()
 
 # def test_list_images(self):
