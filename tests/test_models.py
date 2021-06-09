@@ -8,7 +8,7 @@ from google.appengine.ext import testbed
 from google.appengine.ext import ndb
 
 from freezegun import freeze_time
-from werkzeug.contrib.atom import AtomFeed
+from feedwerk.atom import AtomFeed
 
 from blog.models import Tags, Posts, Categories, BlogPost, Answer, ViewImageHandler
 from blog.utils import find_modified_tags, find_tags_to_be_added, find_tags_to_be_removed, datetimeformat, \

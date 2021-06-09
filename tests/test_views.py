@@ -6,7 +6,7 @@ from base64 import b64encode
 
 from freezegun import freeze_time as _freeze_time
 from datetime import datetime
-from werkzeug.contrib.atom import AtomFeed
+from feedwerk.atom import AtomFeed
 from werkzeug.http import parse_cookie
 from flask_testing import TestCase
 from flask import url_for, render_template, request, flash

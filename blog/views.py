@@ -2,7 +2,7 @@ import logging, json, urlparse, base64, io
 from blog import app, csrf
 from models import Posts, Tags, Categories
 from flask import render_template,request,jsonify,redirect,url_for, flash, session, make_response, send_file, abort
-from werkzeug import secure_filename
+from werkzeug.utils import secure_filename
 from errors import InvalidUsage
 
 from models import BlogPost, ViewImageHandler
@@ -10,7 +10,7 @@ from models import BlogPost, ViewImageHandler
 from search import query_search_index, find_posts_from_index, delete_all_in_index
 
 from google.appengine.api import users
-from werkzeug.contrib.atom import AtomFeed
+from feedwerk.atom import AtomFeed
 
 from functools import wraps
 
