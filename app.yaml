@@ -39,7 +39,7 @@ skip_files:
  - ^(.*/)?.*/RCS/.*$
  - ^(.*/)?\..*$
  - google_appengine_*
- - virtualEnv*
+ - ^virtualEnv$/*
  - tests*
  - cover*
  - scripts
