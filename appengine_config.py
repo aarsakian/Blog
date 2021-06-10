@@ -14,7 +14,7 @@
 
 # [START vendor]
 from google.appengine.ext import vendor
-
+vendor.add('lib')
 #see issue https://github.com/jschneier/django-storages/issues/281
 import tempfile # gae version
 import tempfile2
@@ -24,6 +24,6 @@ tempfile.SpooledTemporaryFile = tempfile2.SpooledTemporaryFile
 
 
 # Add any libraries installed in the "lib" folder.
-vendor.add('lib')
+
 
 # [END vendor]
