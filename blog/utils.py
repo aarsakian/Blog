@@ -1,8 +1,8 @@
 from urllib.parse import urljoin
 from datetime import date
 from math import ceil
-from mistune import markdown, Renderer
-from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from mistune import markdown, HTMLRenderer
+from itsdangerous.url_safe import URLSafeTimedSerializer as Serializer
 from flask import g
 
 
@@ -26,7 +26,7 @@ ALLOWED_EXTENSIONS = set([  'png', 'jpg', 'jpeg', 'gif'])
 
 
 
-class BlogRenderer(Renderer):
+class BlogRenderer(HTMLRenderer):
     def table(self, header, body):
         """Rendering table element. Wrap header and body in it.
                :param header: header part of the table.
