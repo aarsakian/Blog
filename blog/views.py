@@ -5,16 +5,11 @@ from flask_login import login_user, login_required, logout_user, current_user
 from .models import Posts, Tags, Categories, BlogPost, ViewImageHandler, User
 from flask import render_template,request,jsonify,\
     redirect,url_for, flash, session, make_response, send_file, abort, escape
-from werkzeug import secure_filename
+from werkzeug.utils import secure_filename
 from .errors import InvalidUsage
 import google.oauth2.id_token
 from google.auth.transport import requests
-
-
-
 import datetime
-from werkzeug.contrib.atom import AtomFeed
-
 from functools import wraps
 
 
@@ -600,14 +595,14 @@ def edit_a_post_view(postkey=None):
 
 
 
-@app.route('/recent.atom')
-def recent_feed():
-    feed = AtomFeed('Recent Articles',
-                    feed_url=request.url, url=request.url_root)
-    posts = Posts()
-    feed = posts.add_to_feed(feed, request.url)
+# @app.route('/recent.atom')
+# def recent_feed():
+#     feed = AtomFeed('Recent Articles',
+#                     feed_url=request.url, url=request.url_root)
+#     posts = Posts()
+#     feed = posts.add_to_feed(feed, request.url)
 
-    return feed.get_response()
+#     return feed.get_response()
 
 
 @app.route('/rebuild_index', methods=['GET'])
