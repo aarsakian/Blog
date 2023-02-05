@@ -45,6 +45,7 @@ else:
     os.environ["DATASTORE_EMULATOR_HOST"] = "localhost:8081"
     os.environ["DATASTORE_PROJECT_ID"] = "test"
     os.environ["BUCKET_NAME"] = "test-bucket"
+    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
     credentials = mock.Mock(spec=google.auth.credentials.Credentials)
     storage_client = mock.create_autospec(storage.Client)
