@@ -243,7 +243,7 @@ gulp.task('generate-service-worker', () => {
 gulp.task('browser-sync', function(done) {
     browserSync.init({
         open: 'external',
-        proxy: "127.0.0.1:9082",
+        proxy: "127.0.0.1:8100",
         port: 9082,
         host: "127.0.0.1",
         watch:true
