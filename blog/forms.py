@@ -10,8 +10,8 @@ images_set = UploadSet('images', IMAGES)
 
 
 class AnswerForm(FlaskForm):
-    p_answer = StringField("", default="{{this.p_answer}}", _name="")
-    is_correct = BooleanField(default="{{is_correct}}", _name="")
+    p_answer = StringField("", default="{{this.p_answer}}")
+    is_correct = BooleanField(default="{{is_correct}}")
 
 
 class AnswerRadioForm(FlaskForm):
@@ -20,8 +20,8 @@ class AnswerRadioForm(FlaskForm):
 
 
 class ImageForm(FlaskForm):
-    blob_key = StringField("", default="{{blob_key}}", _name="")
-    filename = StringField("", default="{{filename}}", _name="")
+    blob_key = StringField("", default="{{blob_key}}")
+    filename = StringField("", default="{{filename}}")
 
 
 class PostForm(FlaskForm):
