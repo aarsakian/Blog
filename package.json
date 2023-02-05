@@ -21,6 +21,7 @@
     "jstify": "^0.14.0",
     "marked-forms": "^2.1.0",
     "minify-html": "0.0.2",
+    "minify-stream": "^2.1.0",
     "popper.js": "^1.16.0",
     "source-map": "^0.7.3",
     "underscore": "^1.9.1",
