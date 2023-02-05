@@ -1,4 +1,4 @@
-import logging, base64, io
+import logging, base64, io, os
 from urllib.parse import urlparse
 from blog import app, csrf
 from flask_login import login_user, login_required, logout_user, current_user
@@ -17,7 +17,19 @@ from .forms import PostForm, AnswerRadioForm
 from .utils import datetimeformat, calculate_work_date_stats,  to_markdown, generate_uid_token, allowed_file
 
 
-firebase_request_adapter = requests.Request()
+
+import google.oauth2.credentials
+import google_auth_oauthlib.flow
+import googleapiclient.discovery
+
+# The path to the client-secrets.json file obtained from the Google API
+# Console. You must set this before running this application.
+CLIENT_SECRETS_FILENAME = os.environ['GOOGLE_CLIENT_SECRETS']
+# The OAuth 2.0 scopes that this application will ask the user for. In this
+# case the application will ask for basic profile information.
+SCOPES = ['https://www.googleapis.com/auth/userinfo.email', 
+'https://www.googleapis.com/auth/userinfo.profile', 'openid']
+
 
 KEY="posts"
 TAG="tags"
@@ -85,44 +97,86 @@ def login():
     if not connected redirected him to login page
     otherwise redirect him to index
     """
-    # Verify Firebase auth.
+   
 
-    id_token = request.cookies.get("token")
-    error_message = None
-    claims = None
-    times = None
+    # Create a flow instance to manage the OAuth 2.0 Authorization Grant Flow
+    # steps.
+    flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
+        CLIENT_SECRETS_FILENAME, scopes=SCOPES)
+    flow.redirect_uri = url_for('oauth2callback', _external=True)
+    authorization_url, state = flow.authorization_url(
+        # This parameter enables offline access which gives your application
+        # an access token and a refresh token for the user's credentials.
+        access_type='offline',
+        # This parameter enables incremental auth.
+        include_granted_scopes='true')
 
-    if id_token:
-        try:
-            # Verify the token against the Firebase Auth API. This example
-            # verifies the token on each page load. For improved performance,
-            # some applications may wish to cache results in an encrypted
-            # session store (see for instance
-            # http://flask.pocoo.org/docs/1.0/quickstart/#sessions).
-            claims = google.oauth2.id_token.verify_firebase_token(
-                id_token, firebase_request_adapter)
-        except ValueError as exc:
-            # This will be raised if the token is expired or any other
-            # verification checks fail.
-            error_message = str(exc)
+    # Store the state in the session so that the callback can verify the
+    # authorization server response.
+    session['state'] = state
 
-        # Record and fetch the recent times a logged-in user has accessed
-        # the site. This is currently shared amongst all users, but will be
-        # individualized in a following step.
+    return redirect(authorization_url)
 
-        if claims:
-            user = iter(User.query().filter(User.email == claims['email'])).next()
-            if user.is_admin:
 
-                login_user(user)
-                next = request.args.get('next')
-                if not escape(next):
-                    return abort(400)
+@app.route('/oauth2callback')
+def oauth2callback():
+    # Specify the state when creating the flow in the callback so that it can
+    # verify the authorization server response.
+    state = session['state']
+    flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
+        CLIENT_SECRETS_FILENAME, scopes=SCOPES, state=state)
+    flow.redirect_uri = url_for('oauth2callback', _external=True)
 
-                return redirect(next or url_for('index'))
+    # Use the authorization server's response to fetch the OAuth 2.0 tokens.
+    authorization_response = request.url
+    flow.fetch_token(authorization_response=authorization_response)
 
-    return render_template('auth.html',
-        user_data=claims, error_message=error_message, times=times)
+    # Store the credentials in the session.
+    credentials = flow.credentials
+    session['credentials'] = {
+        'token': credentials.token,
+        'refresh_token': credentials.refresh_token,
+        'token_uri': credentials.token_uri,
+        'client_id': credentials.client_id,
+        'client_secret': credentials.client_secret,
+        'scopes': credentials.scopes
+    }
+    client = googleapiclient.discovery.build(
+        'oauth2', 'v2', credentials=credentials)
+
+    
+    auth_obj = client.userinfo().v2().me().get().execute()
+    if auth_obj['email'] == os.environ['ADMIN_EMAIL'] and auth_obj['verified_email']:
+
+        user_key = User(email=auth_obj['email'], name=auth_obj['name'], is_admin=True).put()
+        user = user_key.get()
+        if user.is_admin:
+            login_user(user)
+            next = request.args.get('next')
+            if not escape(next):
+                return abort(400)
+
+    return redirect(url_for('edit_a_post_view'))
+
+
+@app.route('/revoke')
+def revoke():
+  if 'credentials' not in session:
+    return ('You need to <a href="/authorize">authorize</a> before ' +
+            'testing the code to revoke credentials.')
+
+  credentials = google.oauth2.credentials.Credentials(
+        session['credentials'])
+
+  revoke = requests.post('https://oauth2.googleapis.com/revoke',
+      params={'token': credentials.token},
+      headers = {'content-type': 'application/x-www-form-urlencoded'})
+
+  status_code = getattr(revoke, 'status_code')
+  if status_code == 200:
+    return('Credentials successfully revoked.' + print_index_table())
+  else:
+    return('An error occurred.' + print_index_table())
 
 
 @app.route('/logout', methods=['GET'])
@@ -584,6 +638,15 @@ def edit_a_post_view(postkey=None):
 
     form = PostForm()
     posts = Posts()
+
+     # Load the credentials from the session.
+    credentials = google.oauth2.credentials.Credentials(
+        **session['credentials'])
+     # Get the basic user info from the Google OAuth2.0 API.
+    client = googleapiclient.discovery.build(
+        'oauth2', 'v2', credentials=credentials)
+
+    print(str(client.userinfo().v2().me().get().execute()))
 
     passed_days, remaining_days = calculate_work_date_stats()
     site_updated = posts.site_last_updated()
