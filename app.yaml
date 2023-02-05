@@ -39,9 +39,13 @@ skip_files:
  - ^(.*/)?.*\.py[co]$
  - ^(.*/)?.*/RCS/.*$
  - ^(.*/)?\..*$
- - google_appengine_*
- - virtualEnv*
- - cover*
- - scripts
- - ^(node_modules/.*)
- - ^(tests/.*)
+ - ^google_appengine_*
+ - ^tests/
+ - ^cover/
+ - ^scripts/
+ - ^node_modules/
+ - ^man/
+ - ^emulators/
+ - ^gulpfile.js
+ - ^virtualEnv3?/*$
+

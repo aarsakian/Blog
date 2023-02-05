@@ -4,7 +4,7 @@ from blog import app
 from datetime import datetime
 
 from freezegun import freeze_time
-from werkzeug.contrib.atom import AtomFeed
+from feedwerk.atom import AtomFeed
 
 from blog.models import BlogPost, Answer, ViewImageHandler
 
