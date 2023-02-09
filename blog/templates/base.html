@@ -1,280 +1,276 @@
-{% extends "bootstrap/base.html" %}
-{% import "bootstrap/google.html" as google %}
-{% import "bootstrap/utils.html" as util %}
+{% from 'bootstrap5/nav.html' import render_nav_item %}
+<!doctype html>
+<html lang="en">
+    <head>
+    {% block head %}
+     
+        {% block metas %}
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+            <meta name="description" content="A blog about programming, digital forensics and security engineering in general.">
+            <meta name="author" content="Armen Arsakian">
+        {% endblock %}
+
+        <link href='//fonts.googleapis.com/css?family=Merriweather:400' rel='stylesheet' type='text/css'>
+        {% block styles %}
+            <!-- Bootstrap CSS -->
+            {{ bootstrap.load_css() }}
+        {% endblock %}
+
+        <title>Your page title</title>
+    {% endblock %}
+
+  </head>
+  <body>
+    {% block body %}
+
+    <!-- build:css /static/css/combined.css -->
+    <link defer href="../static/css/lib/fontawesome-all.min.css" rel="stylesheet">
+    <link defer  href="../static/css/style.css" rel="stylesheet" media="screen">
+    <!-- endbuild -->
+
+    <script defer src="{{url_for('static', filename='js/prod/general.min.js')}}"></script>
+
+    <script defer src="{{url_for('static', filename='js/prod/app.min.js')}}"></script>
 
 
+    <div class="container-fluid w-100 col-12">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
 
-{% block head %}
-{{super()}}
-{% block metas %}
-<meta name="description" content="A blog about programming, digital forensics and security engineering in general.">
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="author" content="Armen Arsakian">
-{% endblock %}
+        {% for message in messages %}
+        <div class="alert alert-info alert-dismissible fade show p-2 messages" role="alert">
+            <strong>{{ message }}</strong>
+            <div class="row">
+            <button id="ga-accept" type="button" class="p-1 ml-4 btn btn-primary" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">Accept</span>
+            </button>
+            <button id="ga-decline" type="button" class="ml-2 p-1 btn btn-primary" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">Decline</span>
+            </button>
 
-<link href='//fonts.googleapis.com/css?family=Merriweather:400' rel='stylesheet' type='text/css'>
-{% endblock %}
-
-
-{% block body %}
-
-<!-- build:css /static/css/combined.css -->
-<link defer href="../static/css/lib/fontawesome-all.min.css" rel="stylesheet">
-<link defer  href="../static/css/style.css" rel="stylesheet" media="screen">
-<!-- endbuild -->
-
-<script defer src="{{url_for('static', filename='js/prod/general.min.js')}}"></script>
-
-<script defer src="{{url_for('static', filename='js/prod/app.min.js')}}"></script>
-
-
-<div class="container-fluid w-100 col-12">
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-
-    {% for message in messages %}
-    <div class="alert alert-info alert-dismissible fade show p-2 messages" role="alert">
-         <strong>{{ message }}</strong>
-        <div class="row">
-        <button id="ga-accept" type="button" class="p-1 ml-4 btn btn-primary" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">Accept</span>
-        </button>
-          <button id="ga-decline" type="button" class="ml-2 p-1 btn btn-primary" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">Decline</span>
-        </button>
-
+            </div>
         </div>
-    </div>
 
-    {% endfor %}
+        {% endfor %}
 
-    {% endif %}
-    {% endwith %}
-    <div class="row col-12" id="searchfield">
-        <div class="row ml-auto col-sm-8 col-xs-4">
+        {% endif %}
+        {% endwith %}
+        <div class="row col-12" id="searchfield">
+            <div class="row ml-auto col-sm-8 col-xs-4">
 
-            <form class="navbar-search col-sm-8 col-xs-4 ml-auto" id="searchform">
-                <div class="typeahead__container">
-                    <div class="typeahead__field">
+                <form class="navbar-search col-sm-8 col-xs-4 ml-auto" id="searchform">
+                    <div class="typeahead__container">
+                        <div class="typeahead__field">
 
-            <span class="typeahead__query">
-                <input class="form-control typeahead" data-provide="typeahead" aria-label="search"
-                       name="" placeholder="Search" autocomplete="off" type="search">
-            </span>
+                <span class="typeahead__query">
+                    <input class="form-control typeahead" data-provide="typeahead" aria-label="search"
+                        name="" placeholder="Search" autocomplete="off" type="search">
+                </span>
 
 
+                        </div>
                     </div>
-                </div>
-            </form>
+                </form>
 
 
+            </div>
+        </div>
+
+
+        <nav id="hd" class="no-gutters col-12 mt-md-3 mb-md-2 mb-xs-1 navbar navbar-expand-md navbar-light">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mr-auto">
+                  
+                    {{ render_nav_item('index', 'HOME', _use_li=True)}}
+                    {{ render_nav_item('archives', 'ARCHIVES', _use_li=True) }}
+                    {{ render_nav_item('about', 'ABOUT', _use_li=True) }}
+                   
+                </ul>
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item icon">
+                        <a class="nav-link" href="https://www.linkedin.com/in/arsakian"><i class="fab fa-linkedin"
+                                                                                        aria-label="aarsakian@linkedin"
+                                                                                        aria-hidden="true"></i></a>
+                    </li>
+                    <li class="nav-item icon">
+                        <a class="nav-link" href="https://twitter.com/aarsakian"><i class="fab fa-twitter-square"
+                                                                                    aria-label="aarsakian@twitter"
+                                                                                    aria-hidden="true"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item icon">
+                        <a class="nav-link" href="https://github.com/aarsakian"><i class="fab fa-github-square"
+                                                                                    aria-label="aarsakian@github"
+                                                                                aria-hidden="true"></i></a>
+                    </li>
+                <!----   <li class="nav-item icon ">
+                        <a class="nav-link" href="/recent.atom"><i class="fas fa-rss-square"
+                                                                aria-hidden="true"></i></a>
+                    </li>-->
+                </ul>
+            </div>
+        </nav>
+
+
+        <div class="col-12 no-gutters px-1" id="bd">
+            {% block content %}<!-- main content area --> {% endblock %}
+        </div>
+        <div class="row col-12 no-gutters" id="ld">
+            {%if user_status%}
+            <div id="newpost" class="clear">
+                {% block new_post%}{% endblock %}
+            </div>
+            {%endif%}
+        </div>
+
+
+        <div class="col-12" id="ft">
+            {% block footer %}<!-- main content area --> {% endblock %}
         </div>
     </div>
 
 
-    <nav id="hd" class="no-gutters col-12 mt-md-3 mb-md-2 mb-xs-1 navbar navbar-expand-md navbar-light">
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item active mr-md-2">
-                    <a class="nav-link" href="/">HOME</a>
-                </li>
-                <li class="nav-item mr-md-2">
-                    <a class="nav-link" href="/archives">ARCHIVES</a>
-                </li>
-                <li class="nav-item mr-md-2">
-                    <a class="nav-link" href="/about">ABOUT</a>
-                </li>
-            </ul>
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item icon">
-                    <a class="nav-link" href="https://www.linkedin.com/in/arsakian"><i class="fab fa-linkedin"
-                                                                                     aria-label="aarsakian@linkedin"
-                                                                                       aria-hidden="true"></i></a>
-                </li>
-                <li class="nav-item icon">
-                    <a class="nav-link" href="https://twitter.com/aarsakian"><i class="fab fa-twitter-square"
-                                                                                 aria-label="aarsakian@twitter"
-                                                                                aria-hidden="true"></i>
-                    </a>
-                </li>
-                <li class="nav-item icon">
-                    <a class="nav-link" href="https://github.com/aarsakian"><i class="fab fa-github-square"
-                                                                                  aria-label="aarsakian@github"
-                                                                               aria-hidden="true"></i></a>
-                </li>
-             <!----   <li class="nav-item icon ">
-                    <a class="nav-link" href="/recent.atom"><i class="fas fa-rss-square"
-                                                               aria-hidden="true"></i></a>
-                </li>-->
-            </ul>
-        </div>
-    </nav>
+    {%if user_status%}
+    <script id="post-list-layout" type="text/x-handlebars-template">
+        <div class="list-container col-12"></div>
+        <div class="actions-bar-container col-10"></div>
+        <div class="tag-list-container col-10"></div>
 
+        <div class="post-form-container col-12"></div>
 
-    <div class="col-12 no-gutters px-1" id="bd">
-        {% block content %}<!-- main content area --> {% endblock %}
-    </div>
-    <div class="row col-12 no-gutters" id="ld">
-        {%if user_status%}
-        <div id="newpost" class="clear">
-            {% block new_post%}{% endblock %}
-        </div>
-        {%endif%}
-    </div>
+    </script>
 
+    <script id="post-form-layout" type="text/x-handlebars-template">
+        <div id="preview-container" class="row col-12"></div>
+        <div class="post-form-container row col-12"></div>
 
-    <div class="col-12" id="ft">
-        {% block footer %}<!-- main content area --> {% endblock %}
-    </div>
-</div>
-
-
-{%if user_status%}
-<script id="post-list-layout" type="text/x-handlebars-template">
-    <div class="list-container col-12"></div>
-    <div class="actions-bar-container col-10"></div>
-    <div class="tag-list-container col-10"></div>
-
-    <div class="post-form-container col-12"></div>
-
-</script>
-
-<script id="post-form-layout" type="text/x-handlebars-template">
-    <div id="preview-container" class="row col-12"></div>
-    <div class="post-form-container row col-12"></div>
-
-</script>
+    </script>
 
 
 
 
-{% raw %}
-<script id="tag-list-item" type="text/x-handlebars-template">
-    <input class="tag-input editmode"  value="{{this.val}}" name="title" placeholder="">
-    <button class="edit btn"><i class="far fa-edit"></i></button>
-    <button class="destroy btn"><i class="far fa-trash-alt"></i></button>
+    {% raw %}
+    <script id="tag-list-item" type="text/x-handlebars-template">
+        <input class="tag-input editmode"  value="{{this.val}}" name="title" placeholder="">
+        <button class="edit btn"><i class="far fa-edit"></i></button>
+        <button class="destroy btn"><i class="far fa-trash-alt"></i></button>
 
 
-</script>
+    </script>
 
-{% endraw %}
+    {% endraw %}
 
-{% raw %}
-<script id="collection-template" type="text/x-handlebars-template">
-    <h1> {{#unless type}}
-           {{title}}
-        {{/unless}}
-        {{#if type}}<!--if type not undefined -->
-        {{title}}
-        {{/if}}
-
-
-    </h1>
-</script>
-{% endraw %}
-
-<script id="categories-template" type="text/x-handlebars-template">
-    <a class="button taggy" href="/categories#!{{'{{'}}category{{'}}'}}">{{'{{'}}category{{'}}'}}</a>
-
-</script>
-<!-- post area-->
-{% raw %}
-<script id="post-list-item" type="text/x-handlebars-template">
-    <div data-id={{id}} class="postKey">
-        {{form.csrf_token}}
-        <div class="postTitle">
-            <h3>
-                <a href="edit/{{id}}"> {{title}}</a>
-            </h3>
+    {% raw %}
+    <script id="collection-template" type="text/x-handlebars-template">
+        <h1> {{#unless type}}
+            {{title}}
+            {{/unless}}
+            {{#if type}}<!--if type not undefined -->
+            {{title}}
+            {{/if}}
 
 
- {{#if user_admin}}
-            <input class="post-title editmode" name="title" placeholder="">
-  {{/if}}
+        </h1>
+    </script>
+    {% endraw %}
 
-        </div>
+    <script id="categories-template" type="text/x-handlebars-template">
+        <a class="button taggy" href="/categories#!{{'{{'}}category{{'}}'}}">{{'{{'}}category{{'}}'}}</a>
 
-
-         {{#if user_admin}}
-
-        <div class="editable admin article clear">
-        {{/if}}
-        <div class="viewable admin article clear">
-
-        {{#unless user_admin}}
-
-        <div class="article clear">
-        {{/unless}}>
-
-        {{{body}}}
-
-        {{#if body100}}
-        <span class="morelink"> <a href="/{{category}}/{{title}}">Read More</a></span>
-        {{/if}}
-    </div>
+    </script>
+    <!-- post area-->
+    {% raw %}
+    <script id="post-list-item" type="text/x-handlebars-template">
+        <div data-id={{id}} class="postKey">
+            {{form.csrf_token}}
+            <div class="postTitle">
+                <h3>
+                    <a href="edit/{{id}}"> {{title}}</a>
+                </h3>
 
 
     {{#if user_admin}}
-    <textarea class="clear editmode" type="text">{{post}}</textarea>
+                <input class="post-title editmode" name="title" placeholder="">
     {{/if}}
 
+            </div>
 
-    </div>
 
+            {{#if user_admin}}
 
-    <div class="links">
-        {{#unless type}}
-        <div class="btn-group">
-            {{#each tags}}
+            <div class="editable admin article clear">
+            {{/if}}
+            <div class="viewable admin article clear">
 
-            <a class="btn tag" href="/tags/{{this.val}}" data-tag-key="{{this.key}}">{{this.val}}</a>
-            {{/each}}
+            {{#unless user_admin}}
+
+            <div class="article clear">
+            {{/unless}}>
+
+            {{{body}}}
+
+            {{#if body100}}
+            <span class="morelink"> <a href="/{{category}}/{{title}}">Read More</a></span>
+            {{/if}}
         </div>
-        {{/unless}}
 
 
-        <div class="btn-group">
-            <button class="edit btn"><i class="icon-edit"></i>Edit</button>
-            <button class="save btn"><i class="icon-save"></i>Save</button>
-            <button class="destroy btn"><i class="icon-remove"></i>Delete</button>
-            <button class="edit-tags btn"><i class="icon-tag"></i>Edit Tags</button>
+        {{#if user_admin}}
+        <textarea class="clear editmode" type="text">{{post}}</textarea>
+        {{/if}}
+
+
         </div>
 
 
-    </div><!--closes links-->
-    </div>
-</script>
-{% endraw %}
+        <div class="links">
+            {{#unless type}}
+            <div class="btn-group">
+                {{#each tags}}
 
-{%endif%}
-
-<!--<script
-        src="https://code.jquery.com/jquery-3.2.1.min.js"
-        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
-        crossorigin="anonymous"></script>-->
+                <a class="btn tag" href="/tags/{{this.val}}" data-tag-key="{{this.key}}">{{this.val}}</a>
+                {{/each}}
+            </div>
+            {{/unless}}
 
 
-<!--<script async src="https://www.googletagmanager.com/gtag/js?id=UA-38392254-1"></script>-->
-
-{% block scripts %}
-
-
-{{super()}}
-
-  {%if ga_accepted %}
-    {%if request.url_root == "https://arsakian.com/" %}
-
-        {{google.uanalytics('UA-38392254-1')}}
-    {% endif %}
-   {% endif %}
-
-{% endblock %}
+            <div class="btn-group">
+                <button class="edit btn"><i class="icon-edit"></i>Edit</button>
+                <button class="save btn"><i class="icon-save"></i>Save</button>
+                <button class="destroy btn"><i class="icon-remove"></i>Delete</button>
+                <button class="edit-tags btn"><i class="icon-tag"></i>Edit Tags</button>
+            </div>
 
 
-{% endblock %}
+        </div><!--closes links-->
+        </div>
+    </script>
+    {% endraw %}
 
+    {%endif%}
+
+
+    {% block scripts %}
+
+
+       
+
+        {%if ga_accepted %}
+            {%if request.url_root == "https://arsakian.com/" %}
+
+                {{google.uanalytics('UA-38392254-1')}}
+            {% endif %}
+        {% endif %}
+        {{ bootstrap.load_js() }}
+    {% endblock %}
+
+
+    {% endblock %}
+</body>
+</html>
 
