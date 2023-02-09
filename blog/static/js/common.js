@@ -1,6 +1,6 @@
 'use strict';
 
-//var $ = require('jquery');
+var $ = require('jquery');
 var _ = require('underscore');
 var Backbone = require('backbone');
 var Handlebars = require('handlebars');
