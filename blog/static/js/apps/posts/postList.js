@@ -1,5 +1,6 @@
 'use strict';
 
+var $ = require('jquery');
 var _ = require('underscore');
 var Backbone = require('backbone');
 var App = require('../../app');
@@ -9,8 +10,8 @@ var CollectionView = require('../../common').CollectionView;
 var BackboneValidation = require('../../common').BackboneValidation;
 var Post = require('./models/post');
 var Tag = require('./models/tag');
-var Marked = require('marked');
-var Renderer = require('marked-forms')(new Marked.Renderer());
+var marked = require('marked');
+var markedForms = require('marked-forms');
 
 
 
@@ -436,8 +437,8 @@ class PostForm extends ModelView {
 
   previewMarkdown() {
       var markdownText = this.getInput('#new-post-body');
-
-      var html = Marked(markdownText, {renderer:Renderer});
+      marked.use(markedForms)
+      var html = marked.marked(markdownText);
       $('#preview-post-body').html(html);
 
   }
