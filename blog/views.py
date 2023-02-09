@@ -1,4 +1,4 @@
-import logging, base64, io, os
+import logging, base64, io, os, requests
 from urllib.parse import urlparse
 from blog import app, csrf
 from flask_login import login_user, login_required, logout_user, current_user
@@ -8,7 +8,6 @@ from flask import render_template,request,jsonify,\
 from werkzeug.utils import secure_filename
 from .errors import InvalidUsage
 import google.oauth2.id_token
-from google.auth.transport import requests
 import datetime
 from functools import wraps
 
@@ -147,44 +146,44 @@ def oauth2callback():
     
     auth_obj = client.userinfo().v2().me().get().execute()
     if auth_obj['email'] == os.environ['ADMIN_EMAIL'] and auth_obj['verified_email']:
-
+       
         user_key = User(email=auth_obj['email'], name=auth_obj['name'], is_admin=True).put()
-        user = user_key.get()
-        if user.is_admin:
-            login_user(user)
-            next = request.args.get('next')
-            if not escape(next):
-                return abort(400)
+        user = user_key.get() 
+        login_user(user)
+        next = request.args.get('next')
+        if not escape(next):
+            return abort(400)
 
-    return redirect(url_for('edit_a_post_view'))
+        return redirect(url_for('edit_a_post_view'))
 
 
-@app.route('/revoke')
+
 def revoke():
-  if 'credentials' not in session:
-    return ('You need to <a href="/authorize">authorize</a> before ' +
+    if 'credentials' not in session:
+        flash ('You need to <a href="/authorize">authorize</a> before ' +
             'testing the code to revoke credentials.')
 
-  credentials = google.oauth2.credentials.Credentials(
+    credentials = google.oauth2.credentials.Credentials(
         session['credentials'])
 
-  revoke = requests.post('https://oauth2.googleapis.com/revoke',
+    revoke = requests.post('https://oauth2.googleapis.com/revoke',
       params={'token': credentials.token},
       headers = {'content-type': 'application/x-www-form-urlencoded'})
 
-  status_code = getattr(revoke, 'status_code')
-  if status_code == 200:
-    return('Credentials successfully revoked.' + print_index_table())
-  else:
-    return('An error occurred.' + print_index_table())
+    status_code = getattr(revoke, 'status_code')
+    if status_code == 200:
+        flash('Credentials successfully revoked.')
+    else:
+        app.logger.error("error clearing credentials")
 
 
 @app.route('/logout', methods=['GET'])
 @login_required
 def logout():
-    """uses gae api to get information about current user
+    """uses api to get information about current user
     if connected redirected him to logout page
     otherwise redirect him to index"""
+    revoke()
     logout_user()
     return redirect(url_for('index'))
 
@@ -299,7 +298,7 @@ def searchresults(posts, tags, categories,  passed_days,
 @app.route('/built with',methods=['GET'])
 @app.route('/about',methods=['GET'])
 @boilercode
-def aboutpage(posts, tags, categories, passed_days,
+def about(posts, tags, categories, passed_days,
                     remaining_days, postkey=None):
     requested_post = posts.get_by_title("about")
 
@@ -638,15 +637,6 @@ def edit_a_post_view(postkey=None):
 
     form = PostForm()
     posts = Posts()
-
-     # Load the credentials from the session.
-    credentials = google.oauth2.credentials.Credentials(
-        **session['credentials'])
-     # Get the basic user info from the Google OAuth2.0 API.
-    client = googleapiclient.discovery.build(
-        'oauth2', 'v2', credentials=credentials)
-
-    print(str(client.userinfo().v2().me().get().execute()))
 
     passed_days, remaining_days = calculate_work_date_stats()
     site_updated = posts.site_last_updated()
