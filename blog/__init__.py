@@ -1,6 +1,6 @@
 from flask import Flask
 
-from flask_bootstrap import Bootstrap
+from flask_bootstrap import Bootstrap5
 from flask_sitemap import Sitemap
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager
@@ -13,7 +13,7 @@ from unittest import mock
 import os
 
 
-bootstrap = Bootstrap()
+
 
 sitemap = Sitemap()
 
@@ -71,7 +71,7 @@ def ndb_wsgi_middleware(wsgi_app):
     return middleware
 
 
-bootstrap.init_app(app)
+bootstrap = Bootstrap5(app)
 
 sitemap.init_app(app)
 
