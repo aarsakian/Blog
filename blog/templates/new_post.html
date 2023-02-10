@@ -20,44 +20,44 @@
         placeholder="Enter your tags here,use comma between")}}
 
 
-        <div class="answers col-12 row">
+        <div class="answers row mt-3">
 
             {{'{{'}}#unless answers{{'}}'}}
 
 
             {% for l in form.answers %}
-            {{ wtf.form_field(l.p_answer, class="new-post-answer col-10",
-            placeholder="Answer") }}
-            {{ wtf.form_field(l.is_correct, label="", value="",
-            class="new-post-answer-is-correct col-2") }}
+                <div class="row answer3">
+                    {{ wtf.form_field(l.p_answer, class="new-post-answer col-10",
+                    placeholder="Answer") }}
+                    {{ wtf.form_field(l.is_correct, label="", value="",
+                    class="new-post-answer-is-correct col-2") }}
+                </div>
             {% endfor %}
             {{'{{'}}/unless{{'}}'}}
 
 
             {{'{{'}}#each answers{{'}}'}}
-            <div class="col-11 my-1">
-                <label class="form-control-label" for="answers-{{'{{'}}@index{{'}}'}}-p_answer">
+               
+                    <div class="col-11 my-1">
+                        <label class="form-control-label" 
+                        for="answers-{{'{{'}}@index{{'}}'}}-p_answer">
+                        </label>
 
-                </label>
+                        <input class="new-post-answer col-11" id="answers-{{'{{'}}@index{{'}}'}}-p_answer"
+                            name="answers-{{'{{'}}@index{{'}}'}}-p_answer"
+                            placeholder="Answer" type="text" value="{{'{{'}}this.p_answer{{'}}'}}">
 
-                <input class="new-post-answer col-11" id="answers-{{'{{'}}@index{{'}}'}}-p_answer"
-                       name="answers-{{'{{'}}@index{{'}}'}}-p_answer"
-                       placeholder="Answer" type="text" value="{{'{{'}}this.p_answer{{'}}'}}">
-
-            </div>
-
-
-            <div class="col-1 my-1">
-                <label class="form-check-label">
-                </label>
-                <input class="form-check-input" id="answers-0-is_correct" name="answers-0-is_correct"
-                       type="checkbox"
-                       {{'{{'}}# if this.is_correct{{'}}'}}
-                            checked = "checked"
-                        {{'{{'}}/if{{'}}'}}
-                >
-
-            </div>
+                    </div>
+                    <div class="col-1 my-1">
+                        <label class="form-check-label">
+                        </label>
+                        <input class="form-check-input" id="answers-0-is_correct" name="answers-0-is_correct"
+                            type="checkbox"
+                            {{'{{'}}# if this.is_correct{{'}}'}}
+                                    checked = "checked"
+                                {{'{{'}}/if{{'}}'}}>
+                    </div>
+                </div>
             {{'{{'}}/each{{'}}'}}
 
 
@@ -75,7 +75,7 @@
         <div id="preview" class="img-fluid col-2 row"></div>
          {{wtf.form_field(form.images_upload,  id="files", multiple='')}}
         {{wtf.form_field(form.submit, type="submit", id="post-submit",
-        class="submit button")}}
+        class="submit btn btn-primary m-3 col-2" )}}
 
     </form>
 
