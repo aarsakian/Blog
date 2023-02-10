@@ -20,10 +20,12 @@ class Tag extends Backbone.NestedModel {
 
   updateTags(options) {
       var ajaxOptions = {
-      url: '/api/tags/'+this.get('val'),
+      url: '/api/tags/'+this.get('key'),
       type: 'PUT',
+      data: JSON.stringify({'tag': this.get('val')}),
       cache: false,
-      contentType: false,
+      contentType: 'application/json',
+      dataType: 'json',
       processData: false
     };
     _.extend(ajaxOptions, _.pick(options, 'success', 'error'));
