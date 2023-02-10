@@ -128,6 +128,12 @@ class Tag(ndb.Model):
         tag_dict["id"] = str(self.key.id())
         return tag_dict
 
+    @classmethod
+    def get(cls, id):
+        #category = memcache.get('{}:categories'.format(id))
+
+        return cls.get_by_id(int(id))
+
 
 class Category(ndb.Model):
     category = ndb.StringProperty()
@@ -211,7 +217,7 @@ class BlogPost(ndb.Model, ViewImageHandler):
         jsoned_data[u"body"] = post_dict["body"]
         jsoned_data[u"summary"] = post_dict["summary"]
         jsoned_data[u"id"] = str(self.key.id())
-        jsoned_data[u"tags"] = [{"key":str(tag_key),"val":tag_key.get().tag} for tag_key in self.tags]
+        jsoned_data[u"tags"] = [{"key":tag_key.id(),"val":tag_key.get().tag} for tag_key in self.tags]
         jsoned_data[u"category"] = self.category.get().category
         jsoned_data[u"updated"] = datetimeformat(post_dict["updated"])
         jsoned_data[u"timestamp"] = datetimeformat(post_dict["timestamp"])
@@ -527,6 +533,11 @@ class Tags(BlogList, JsonMixin):
         self.delete(tags_to_be_removed)
 
         return self.get_keys(editing_tags)
+
+    def update_with_id(self, id, tag):
+        tagobj = Tag.get(id)
+        tagobj.tag = tag
+        tagobj.put()
 
 
 class Categories(BlogList, JsonMixin):
