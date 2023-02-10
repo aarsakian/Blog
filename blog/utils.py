@@ -77,7 +77,7 @@ def datetimeformat(value, format='%A, %d %B %Y'):
 
 def to_markdown(text):
     renderer = BlogRenderer()
-    return bleach_it(markdown(text,  escape=True, hard_wrap=True, renderer=renderer))
+    return bleach_it(markdown(text,  escape=True, renderer=renderer))
 
 
 def bleach_it(text):
