@@ -377,11 +377,13 @@ def subject_questions(posts, tags, categories, passed_days,
                            codeversion=CODEVERSION)
 
 
-@app.route('/api/tags/<tagname>', methods=['PUT'])
-def updateTags(tagname):
-
+@app.route('/api/tags/<tagid>', methods=['PUT'])
+def updateTags(tagid):
+    tag = request.json['tag']
     if current_user.is_admin:
         tags = Tags()
+        tags.update_with_id(tagid, tag)
+    return jsonify({})
 
 
 @app.route('/api/answers/<title>', methods=['POST','GET'])
