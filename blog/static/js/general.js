@@ -1,55 +1,63 @@
 'user strict';
-var $ = require('jquery');
-var _ = require('underscore');
-require('bootstrap-3-typeahead');
-require('bootstrap-notify');
 
 
+document.addEventListener('load', function(){
+  var  url=location.pathname;
+  actify(url);
 
-
-$(document).ready(function() {
-
-
-
-     var actify=function (url){
-        $('.nav-item').each(function(){
-	    $(this).removeClass('active');
-            var link=$(this).children().first()[0].pathname;
-
-            if (url===link){
-                $(this).addClass('active');}
-
-            });
-      }
-
-
-   var  url=location.pathname;
-   actify(url);
-
-  $("#ga-accept").on( "click", function() {
-        $.post('/ga-accept',  function(data){
-
-        });
+  const el = document.getElementsByClassName("aggregate").getElementsByClassName("answer-choice");
+  let answerEl = {};
+  el.addEventListener("click", (e) =>{
+    if (!isObjectEmpty(answerEl)) {
+      answerEl.parentNode.parentNode.classList.remove(["bg-success", "bg-danger"]);
+    } else {
+      answerEl.parentNode.parentNode.parentNode.parentNode.nextSibling.clasList.remove('disabled');
+    }
+ 
   });
 
-   $("#ga-decline").on( "click", function() {
-        $.post('/ga-decline',  function(data){
+  const filePostFormEl = document.getElementById("#files-post-form")
 
-        });
-  })
-
-
-    var answerEl = {};
-
-    $('.aggregate .answer-choice').on("click", function(){
-         if (!_.isEmpty(answerEl)) {
-             answerEl.parent().parent().removeClass("bg-success").removeClass("bg-danger");
-         }
-           answerEl = $(this);
-           answerEl.parent().parent().parent().parent().next().removeClass('disabled');
+  filePostFormEl.addEventListener("submit", (e) =>{
+    e.preventDefault();
+    const csrf_token = $(this).children().first();
+    const formData = new FormData(filePostFormEl);
+    const files = filePostFormEl.getElementsByTagName("input").files 
+    files.forEach((file, idx) => {
+      formData.append("file"+idx, file);
+    })
+    
+  });
 
 
-     });
+})
+
+
+const isObjectEmpty = (objectName) => {
+  return Object.keys(objectName).length === 0
+}
+
+
+function actify(url) {
+  const navitems = Array.from(document.getElementsByClassName('.nav-item'));
+  navitems.forEach(navitem => {
+    navitem.classList.remove('active');
+    let link = navitem.firstChild.pathname; 
+    if (url === link) {
+      navitem.classList.add('active');
+
+    }
+  });
+
+  
+}
+
+
+
+/*$(document).ready(function() {
+
+
+
 
   $("body").on('submit',"#files-post-form", function(event){
     event.preventDefault();
@@ -205,4 +213,4 @@ $(document).ready(function() {
 
 
 });
-
+*/
