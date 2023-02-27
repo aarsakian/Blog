@@ -56,24 +56,24 @@ def redirect_nonwww():
         return redirect(urlunparse(urlparts_list), code=301)
 
 
-@app.before_request
-def accept_google_analytics():
-    app.jinja_env.globals['ga_accepted'] = False
+#@app.before_request
+# def accept_google_analytics():
+#     app.jinja_env.globals['ga_accepted'] = False
 
-    if request.path not in (url_for('login'), url_for('logout'), url_for('edit_a_post_view')):
-        accept_google_analytics = request.cookies.get('ga_accepted')
+#     if request.path not in (url_for('login'), url_for('logout'), url_for('edit_a_post_view')):
+#         accept_google_analytics = request.cookies.get('ga_accepted')
 
-        if not accept_google_analytics and app.static_url_path not in request.path:
+#         if not accept_google_analytics and app.static_url_path not in request.path:
 
-            msgs = [msg for _, msg in session.get('_flashes', [])]
-            if MSG not in msgs:
-                flash(MSG)
+#             msgs = [msg for _, msg in session.get('_flashes', [])]
+#             if MSG not in msgs:
+#                 flash(MSG)
                 
-        elif accept_google_analytics == 'False':
-            app.jinja_env.globals['ga_accepted'] = False
+#         elif accept_google_analytics == 'False':
+#             app.jinja_env.globals['ga_accepted'] = False
 
-        elif accept_google_analytics == 'True':
-            app.jinja_env.globals['ga_accepted'] = True
+#         elif accept_google_analytics == 'True':
+#             app.jinja_env.globals['ga_accepted'] = True
 
 
 def fetch_everything_from_db():
@@ -337,7 +337,7 @@ def index(posts, tags, categories, passed_days,
     return render_template('posts.html', user_status=current_user.is_admin, siteupdated=site_updated, \
                            daysleft=remaining_days, dayspassed=passed_days, tags=tags, categories=categories,
                            posts=posts.to_json(),
-                           codeversion=CODEVERSION,
+                           codeversion=CODEVERSION, title="Welcome to my page",
                            form=form)
 
 
@@ -642,7 +642,8 @@ def edit_a_post_view(postkey=None):
 
     passed_days, remaining_days = calculate_work_date_stats()
     site_updated = posts.site_last_updated()
-    return render_template('posts.html',user_status=current_user.is_admin, siteupdated=site_updated,\
+    return render_template('posts.html',user_status=current_user.is_admin, 
+                           siteupdated=site_updated,
                            daysleft=remaining_days,dayspassed=passed_days,
                            codeversion=CODEVERSION, form=form)
 
