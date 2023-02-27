@@ -27,10 +27,10 @@
 
             {% for l in form.answers %}
                 <div class="row answer3">
-                    {{ wtf.form_field(l.p_answer, class="new-post-answer col-10",
+                    {{ wtf.form_field(l.p_answer, class_="new-post-answer col-10",
                     placeholder="Answer") }}
-                    {{ wtf.form_field(l.is_correct, label="", value="",
-                    class="new-post-answer-is-correct col-2") }}
+                    {{ wtf.form_field(l.is_correct,
+                    class_="form-check-input col-1") }}
                 </div>
             {% endfor %}
             {{'{{'}}/unless{{'}}'}}
@@ -45,11 +45,13 @@
 
                         <input class="new-post-answer col-11" id="answers-{{'{{'}}@index{{'}}'}}-p_answer"
                             name="answers-{{'{{'}}@index{{'}}'}}-p_answer"
-                            placeholder="Answer" type="text" value="{{'{{'}}this.p_answer{{'}}'}}">
+                            placeholder="Answer" type="text" 
+                            value="{{'{{'}}this.p_answer{{'}}'}}">
 
                     </div>
                     <div class="col-1 my-1">
                         <label class="form-check-label">
+                            Is Correct
                         </label>
                         <input class="form-check-input" id="answers-0-is_correct" name="answers-0-is_correct"
                             type="checkbox"
