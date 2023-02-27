@@ -394,7 +394,7 @@ class PostForm extends ModelView {
     }
 
     var answers_a = this.getInputs('.new-post-answer');
-    var areCorrect = this.getInputsCheckbox('.form-check-input');//.new-post-answer-is-correct
+    var areCorrect = this.getInputsCheckbox('.answers .checkbox input');
 
     var answers = _.map(answers_a, function (answer, idx){
         return {'p_answer': answer, 'is_correct':areCorrect[idx]}

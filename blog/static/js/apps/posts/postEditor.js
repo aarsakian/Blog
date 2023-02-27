@@ -52,7 +52,7 @@ class EditPostForm extends PostForm {
     this.model.set('csrf_token', this.getInput('#csrf_token'));
 
     var answers_a = this.getInputs('.new-post-answer');
-    var areCorrect = this.getInputsCheckbox('.form-check-input');//.new-post-answer-is-correct
+    var areCorrect = this.getInputsCheckbox('.answers .form-check-input');
 
     var answers = _.map(answers_a, function (answer, idx){
         return {'p_answer': answer, 'is_correct':areCorrect[idx]}
