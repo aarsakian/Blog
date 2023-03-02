@@ -26,7 +26,7 @@
 
 
             {% for l in form.answers %}
-                <div class="row answer3">
+                <div class="row answer">
                     {{ wtf.form_field(l.p_answer, class_="new-post-answer col-10",
                     placeholder="Answer") }}
                     {{ wtf.form_field(l.is_correct,
@@ -35,11 +35,11 @@
             {% endfor %}
             {{'{{'}}/unless{{'}}'}}
 
-
+<!-- new post -->
             {{'{{'}}#each answers{{'}}'}}
-               
-                    <div class="col-11 my-1">
-                        <label class="form-control-label" 
+                <div class="row answer">
+                    <div class="form-group">
+                        <label class="control-label" 
                         for="answers-{{'{{'}}@index{{'}}'}}-p_answer">
                         </label>
 
@@ -49,11 +49,11 @@
                             value="{{'{{'}}this.p_answer{{'}}'}}">
 
                     </div>
-                    <div class="col-1 my-1">
+                    <div class="checkbox">
                         <label class="form-check-label">
                             Is Correct
                         </label>
-                        <input class="form-check-input" id="answers-0-is_correct" name="answers-0-is_correct"
+                        <input class="form-check-input" id="answers-{{'{{'}}@index{{'}}'}}-is_correct" name="answers-0-is_correct"
                             type="checkbox"
                             {{'{{'}}# if this.is_correct{{'}}'}}
                                     checked = "checked"
