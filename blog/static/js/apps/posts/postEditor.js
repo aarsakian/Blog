@@ -47,12 +47,19 @@ class EditPostForm extends PostForm {
     this.model.set('body',this.getInput('#new-post-body'));
     this.model.set('title',this.getInput('#new-post-title'));
     this.model.set('summary',this.getInput('#new-post-summary'));
-    this.model.set('tags',this.getInput('#new-post-tags').split(','));
     this.model.set('category',this.getInput('#new-post-category'));
     this.model.set('csrf_token', this.getInput('#csrf_token'));
+  
+    let tags = this.getInput('#new-post-tags').split(',')
+
+    if (tags[tags.length-1] === "") {
+      tags = tags.slice(0, -1) //remove ""
+    }
+    this.model.set('tags', tags);
+   
 
     var answers_a = this.getInputs('.new-post-answer');
-    var areCorrect = this.getInputsCheckbox('.answers .form-check-input');
+    var areCorrect = this.getInputsCheckbox('.answer .checkbox input');
 
     var answers = _.map(answers_a, function (answer, idx){
         return {'p_answer': answer, 'is_correct':areCorrect[idx]}
@@ -108,7 +115,7 @@ class PostEditor {
     var layout = new PostFormLayout({model: post});
 
     var postForm = new EditPostForm({model: post});
-
+ 
     // Render the views
     layout.$el.addClass("row col-12");
     this.region.show(layout);

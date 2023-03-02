@@ -76,7 +76,7 @@ class TagListItemView extends ModelView {
   }
 
   deleteTag() {
-     console.log("MODE"+this.destroy)
+ 
      this.model.destroy({
 
             success() {
@@ -260,10 +260,9 @@ class PostList {
         var tags = new Backbone.Collection(null, {
             model: Tag
         });
-        tags.push(_.map(post.get("tags"), function(tag) {
-            return new Tag({val:tag["val"], key:tag["key"]});
-        }));
-
+        post.get("tags").forEach(tag=>
+          {tags.push(new Tag({val:tag["val"], key:tag["key"]}))});
+      
         var tagList = new TagListView({collection:tags});
 
         this.layout.getRegion('tagsform').show(tagList);
@@ -368,8 +367,6 @@ class PostForm extends ModelView {
 
 
   serializeData() {
-    var str = JSON.stringify(this.model.toJSON());
-
     return _.defaults(this.model.toJSON());
   }
 
@@ -386,8 +383,15 @@ class PostForm extends ModelView {
     this.model.set('body',this.getInput('#new-post-body'));
     this.model.set('title',this.getInput('#new-post-title'));
     this.model.set('summary',this.getInput('#new-post-summary'));
-    this.model.set('tags',this.getInput('#new-post-tags').split(','));
     this.model.set('category',this.getInput('#new-post-category'));
+
+    let tags = this.getInput('#new-post-tags').split(',')
+
+    if (tags[tags.length-1] === "") {
+      tags = tags.slice(0, -1) //remove ""
+    }
+    this.model.set('tags', tags);
+   
 
     if (!this.model.isValid(true)) {
       return;
