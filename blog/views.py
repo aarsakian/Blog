@@ -155,6 +155,9 @@ def oauth2callback():
             return abort(400)
 
         return redirect(url_for('edit_a_post_view'))
+    else:
+        flash("something went wrong")
+        redirect(url_for('index'))
 
 
 
@@ -523,8 +526,8 @@ def get_post_images(id):
             image_filename = secure_filename(file.filename)
             mime_type = file.content_type
 
-            image_key = asked_post.add_blob(file.read(), image_filename, mime_type)
-            return jsonify(image_key=image_key)
+            blob_image = asked_post.add_blob(file.read(), image_filename, mime_type)
+            return jsonify(image_key=blob_image.id)
 
 
 @csrf.exempt
@@ -537,11 +540,11 @@ def delete_post_images(id, filename):
         if filename == '':
             flash('No selected file')
             abort(500)
-        if file and allowed_file(filename):
+        if filename and allowed_file(filename):
             image_filename = secure_filename(filename)
 
             asked_post.delete_blob_from_post(image_filename)
-            return jsonify(msg="file deleted")
+            return jsonify(msg="file {} deleted ".format(image_filename))
 
 
 @app.route('/api/posts/<id>', methods=['GET'])
