@@ -66,9 +66,10 @@
         </div>
  <div id="images" class="col-12 row">
   {{'{{'}}#each images{{'}}'}}
-                <button data-image-filename="{{'{{'}}this.filename{{'}}'}}" class="delete-image btn btn-link"><i class="far fa-trash-alt"></i></button>
+                <button data-image-filename="{{'{{'}}this.filename{{'}}'}}"
+                 class="delete-image btn btn-link"><i class="far fa-trash-alt"></i></button>
 
-                <img  class="img-fluid col-5"   src={{request.url_root}}images/{{'{{'}}this.filename{{'}}'}} alt={{'{{'}}this.filename{{'}}'}}
+                <img  class="img-fluid col-5"   src={{'{{'}}this.path{{'}}'}} alt={{'{{'}}this.filename{{'}}'}}
                                                title={{'{{'}}this.filename{{'}}'}}>
 
 

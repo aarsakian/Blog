@@ -53,14 +53,14 @@ Armen Arsakian personal blog {{Post.title}}
 
         <div class="tags row col-md-9">
             {%for tag in Post.tags %}
-                <span class="col-md-1 mx-1" data-tag-key="{{tag.key}}">{{tag.val}}</span>
+                <span class="col-md-1 mx-1" data-tag-key="{{tag.key}}">{{tag.tag}}</span>
             {% endfor %}
         </div>
 
 
         {%if Post.images != 'None' %}
           {%for image in Post.images%}
-            <img src="{{request.url_root}}images/{{image.filename}}">
+            <img src="{{image.path}}" title="{{image.filename}}" alt="{{image.filename}}">
           {% endfor %}
         {%endif%}
 
