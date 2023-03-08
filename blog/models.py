@@ -1,11 +1,12 @@
 import logging
 import os
-
+import io
 from google.cloud import ndb
 from google.cloud.exceptions import GoogleCloudError
-from google.cloud.storage import Blob
+from google.cloud import storage 
+from google.api_core.exceptions import NotFound
 from flask_login import UserMixin, AnonymousUserMixin
-from . import login_manager
+from . import login_manager, storage_client
 from .errors import InvalidUsage
 
 from .forms import AnswerRadioForm
@@ -43,62 +44,68 @@ class User(ndb.Model, UserMixin):
 
 class ViewImageHandler:
 
-    def add_to_gcp(self,  storage_client, image_filename, mime_type='image/jpeg'):
-        bucket_name = os.environ["BUCKET_NAME"]
-
-        bucket = storage_client.get_bucket(bucket_name)
+    def add_to_gcp(self, content, image_filename, mime_type='image/jpeg'):
+      
+        bucket = storage_client.get_bucket(os.environ["BUCKET_NAME"])
+      
         # Cloud Storage file names are in the format /bucket/object.
-        filename = '/{}/{}'.format(bucket, image_filename)
+        filename = '/{}/{}'.format('images', image_filename)
 
-        blob = Blob(filename, bucket)
+        blob = storage.Blob(filename, bucket)
         # Create a file in Google Cloud Storage and write something to it.
         try:
-            blob.upload_from_filename(filename=image_filename, content_type=mime_type)
+            blob.upload_from_file(io.BytesIO(content), content_type=mime_type)
         except GoogleCloudError as gcp_e:
             logging.error("Uploading error {}".format(image_filename, gcp_e))
 
         return blob
 
-    def read_blob_image(self, storage_client, image_filename):
-        bucket_name = os.environ["BUCKET_NAME"]
-
-        bucket = storage_client.get_bucket(bucket_name)
-
+    def read_blob_image(self, image_filename):
+        storage_client = storage.Client(project=os.environ["PROJECT_NAME"])
+        bucket = storage_client.get_bucket(os.environ["BUCKET_NAME"])
+       
         # Cloud Storage file names are in the format /bucket/object.
-        filename = '/{}/{}'.format(bucket, image_filename)
+        filename = '/{}/{}'.format('images', image_filename)
         blob = bucket.get_blob(filename)
 
         return blob.download_as_string()
 
-    def get_mime_type(self, image_filename):
-        bucket_name = os.environ["BUCKET_NAME"]
-
-        bucket = storage_client.get_bucket(bucket_name)
-
+    def get_blob_path(self, image_filename):
+        storage_client = storage.Client(project=os.environ["PROJECT_NAME"])
+        bucket = storage_client.get_bucket(os.environ["BUCKET_NAME"])
+       
         # Cloud Storage file names are in the format /bucket/object.
-        filename = '/{}/{}'.format(bucket, image_filename)
-        stat = storage_client.stat(filename)
-        if stat:
-            return stat.content_type
+        filename = '/{}/{}'.format('images', image_filename)
+        blob = bucket.blob(filename)
+        return blob.path 
+
+    def get_mime_type(self, image_filename):
+        storage_client = storage.Client(project=os.environ["PROJECT_NAME"])
+        bucket = storage_client.get_bucket(os.environ["BUCKET_NAME"])
+       
+        # Cloud Storage file names are in the format /bucket/object.
+        filename = '/{}/{}'.format('images', image_filename)
+        blob = bucket.blob(filename)
+        if blob:
+            return blob.content_type
 
     def _delete_blob(self, filename):
-        bucket_name = os.environ["BUCKET_NAME"]
-
-        bucket = storage_client.get_bucket(bucket_name)
+        bucket = storage_client.get_bucket(os.environ["BUCKET_NAME"])
+       
         # Cloud Storage file names are in the format /bucket/object.
-        filename = '/{}/{}'.format(bucket, filename)
+        filename = '/{}/{}'.format('images', filename)
+        blob = bucket.blob(filename)
         try:
-            storage_client.delete(filename)
-        except storage_client.NotFoundError:
+            blob.delete()
+        except NotFound:
             logging.info("file not found {}".format(filename))
 
     def list_images(self):
         """List all files in GCP bucket."""
-        bucket_name = os.environ["BUCKET_NAME"]
-
-        bucket = storage_client.get_bucket(bucket_name)
-
-        stats = storage_client.listbucket("/"+bucket)
+        storage_client = storage.Client(project=os.environ["PROJECT_NAME"])
+        bucket = storage_client.get_bucket(os.environ["BUCKET_NAME"])
+        
+        stats = storage_client.listbucket("/"+ bucket)
         return [stat.filename for stat in stats if stat.filename]
 
 
@@ -124,9 +131,7 @@ class Tag(ndb.Model):
     tag = ndb.StringProperty()
 
     def to_json(self):
-        tag_dict = self.to_dict()
-        tag_dict["id"] = str(self.key.id())
-        return tag_dict
+        return {"id":self.key.id(), "tag":self.tag}
 
     @classmethod
     def get(cls, id):
@@ -162,10 +167,13 @@ class AnswersDict(dict):
     pass
 
 
-class Image(ndb.Model):
+class Image(ndb.Model, ViewImageHandler):
     blob_key = ndb.StringProperty()
     filename = ndb.StringProperty()
 
+    def to_json(self):
+        return {"blob_key":self.blob_key,
+             "filename":self.filename, "path":self.get_blob_path(self.filename)}
 
 class BlogPost(ndb.Model, ViewImageHandler):
     title = ndb.StringProperty()
@@ -217,15 +225,14 @@ class BlogPost(ndb.Model, ViewImageHandler):
         jsoned_data[u"body"] = post_dict["body"]
         jsoned_data[u"summary"] = post_dict["summary"]
         jsoned_data[u"id"] = str(self.key.id())
-        jsoned_data[u"tags"] = [{"key":tag_key.id(),"val":tag_key.get().tag} for tag_key in self.tags]
+        jsoned_data[u"tags"] = [tag_key.get().to_json() 
+        for tag_key in self.tags]
         jsoned_data[u"category"] = self.category.get().category
         jsoned_data[u"updated"] = datetimeformat(post_dict["updated"])
         jsoned_data[u"timestamp"] = datetimeformat(post_dict["timestamp"])
         jsoned_data[u"answers"] = post_dict["answers"]
-        jsoned_data[u"images"] = \
-            [{u"blob_key":str(image["blob_key"]),u"filename":image["filename"]}
-             for idx, image in enumerate(post_dict["images"]) if post_dict["images"]]
-
+        jsoned_data[u"images"] = [image.to_json()
+             for image in self.images]
         return jsoned_data
 
     def to_answers_form(self):
@@ -288,13 +295,14 @@ class BlogPost(ndb.Model, ViewImageHandler):
             answers_stats.update({answer.p_answer: answer.nof_times_selected})
         return answers_stats
 
-    def add_blob(self, storage_client, image_filename, mime_type):
-        blob = self.add_to_gcp(storage_client, image_filename, mime_type)
+    def add_blob(self, content, image_filename, mime_type):
+        blob = self.add_to_gcp(content, image_filename, mime_type)
         self.add_image(blob.id, image_filename)
         return blob
 
     def delete_blob_from_post(self, image_filename):
-        [self.images.pop(idx) for idx, image in enumerate(self.images) if image.filename == image_filename]
+        [self.images.pop(idx) for idx, image in enumerate(self.images)
+         if image.filename == image_filename]
         self.put()
         self._delete_blob(image_filename)
 
