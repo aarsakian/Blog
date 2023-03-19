@@ -3,7 +3,7 @@
 {% block new_post %}
 {%if user_status%}
 <script id="post-form" type="text/x-handlebars-template">
-
+  
 
     <form class="form form-horizontal row col-12"  method="post"
           role="form">
@@ -69,10 +69,18 @@
                 <button data-image-filename="{{'{{'}}this.filename{{'}}'}}"
                  class="delete-image btn btn-link"><i class="far fa-trash-alt"></i></button>
 
-                <img  class="img-fluid col-5"   src={{'{{'}}this.path{{'}}'}} alt={{'{{'}}this.filename{{'}}'}}
+                <img  class="img-fluid col-5"   src='https://storage.cloud.google.com/'{{'{{'}}this.path{{'}}'}} 
+                alt={{'{{'}}this.filename{{'}}'}}
                                                title={{'{{'}}this.filename{{'}}'}}>
+                                               {{'{{'}}#  if this.path {{'}}'}}
+                                               <button data-image-makepublic="{{'{{'}}this.filename{{'}}'}}"
+                class="publish-image btn btn-link">Publish</button>
+                {{'{{'}}/if{{'}}'}}>
+                {{'{{'}}# unless this.path {{'}}'}}
+                <button data-image-makeprivate="{{'{{'}}this.filename{{'}}'}}"
+                class="unpublish-image btn btn-link">Unpublish</button>
 
-
+                {{'{{'}}/unless{{'}}'}}>
   {{'{{'}}/each{{'}}'}}
      </div>
         <div id="preview" class="img-fluid col-2 row"></div>
