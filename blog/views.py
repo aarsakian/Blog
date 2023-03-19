@@ -461,6 +461,7 @@ def answers(title):
 
 
 @app.route('/api/posts',methods=['GET'])
+@login_required
 def main():
         posts = Posts()
 
@@ -508,9 +509,17 @@ def new_post():
 
 
 @csrf.exempt
+@app.route('/api/images/<image_name>/publish', methods=['POST'])
+@login_required
+def publish_image(image_name):
+    view_image_handler = ViewImageHandler()
+    view_image_handler.make_blob_public(image_name)
+    
+
+@csrf.exempt
 @app.route('/api/posts/<id>/images', methods=['POST'])
 @login_required
-def get_post_images(id):
+def upload_image(id):
     """get images from a post with id"""
     if current_user.is_admin:
         asked_post = BlogPost.get(id)
@@ -630,7 +639,7 @@ def view_a_post(category, year, month, title):
 
     answers_form.r_answers.choices = [(answer.p_answer, answer.p_answer) for answer in current_post.answers
                                       if answer.p_answer != u'']
-    return render_template('singlepost.html', user_status=current_user.is_admin, siteupdated=site_updated, \
+    return render_template('post.html', user_status=current_user.is_admin, siteupdated=site_updated, \
                                         daysleft=remaining_days, dayspassed=passed_days, RelatedPosts=related_posts, \
                                         Post=current_post.to_json(), posttagnames=post_tag_names, category=category,
                                         answers_field = answers_form)
