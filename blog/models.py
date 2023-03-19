@@ -60,45 +60,45 @@ class ViewImageHandler:
 
         return blob
 
-    def read_blob_image(self, image_filename):
+    def get_blob(self, image_filename):
         storage_client = storage.Client(project=os.environ["PROJECT_NAME"])
         bucket = storage_client.get_bucket(os.environ["BUCKET_NAME"])
        
         # Cloud Storage file names are in the format /bucket/object.
         filename = '/{}/{}'.format('images', image_filename)
-        blob = bucket.get_blob(filename)
+        return bucket.get_blob(filename)
+
+    def read_blob_image(self, image_filename):
+        blob = self.get_blob(image_filename)
 
         return blob.download_as_string()
 
-    def get_blob_path(self, image_filename):
-        storage_client = storage.Client(project=os.environ["PROJECT_NAME"])
-        bucket = storage_client.get_bucket(os.environ["BUCKET_NAME"])
-       
-        # Cloud Storage file names are in the format /bucket/object.
-        filename = '/{}/{}'.format('images', image_filename)
-        blob = bucket.blob(filename)
-        return blob.path 
+    def get_blob_public_url(self, image_filename):
+        blob = self.get_blob(image_filename)
+        print(blob.path, blob.media_link)
+        return blob.public_url
 
     def get_mime_type(self, image_filename):
-        storage_client = storage.Client(project=os.environ["PROJECT_NAME"])
-        bucket = storage_client.get_bucket(os.environ["BUCKET_NAME"])
-       
-        # Cloud Storage file names are in the format /bucket/object.
-        filename = '/{}/{}'.format('images', image_filename)
-        blob = bucket.blob(filename)
+        blob = self.get_blob(image_filename)
         if blob:
             return blob.content_type
 
-    def _delete_blob(self, filename):
-        bucket = storage_client.get_bucket(os.environ["BUCKET_NAME"])
-       
-        # Cloud Storage file names are in the format /bucket/object.
-        filename = '/{}/{}'.format('images', filename)
-        blob = bucket.blob(filename)
+    def make_blob_public(self, image_filename):
+        blob = self.get_blob(image_filename)
+        if blob:
+            blob.make_public()
+
+    def make_blob_private(self, image_filename):
+        blob = self.get_blob(image_filename)
+        if blob:
+            blob.make_private()
+
+    def _delete_blob(self, image_filename):
+        blob = self.get_blob(image_filename)
         try:
             blob.delete()
         except NotFound:
-            logging.info("file not found {}".format(filename))
+            logging.info("file not found {}".format(image_filename))
 
     def list_images(self):
         """List all files in GCP bucket."""
@@ -173,7 +173,8 @@ class Image(ndb.Model, ViewImageHandler):
 
     def to_json(self):
         return {"blob_key":self.blob_key,
-             "filename":self.filename, "path":self.get_blob_path(self.filename)}
+             "filename":self.filename,
+              "path":self.get_blob_public_url(self.filename)}
 
 class BlogPost(ndb.Model, ViewImageHandler):
     title = ndb.StringProperty()
