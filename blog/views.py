@@ -2,7 +2,7 @@ import logging, base64, io, os, requests
 from urllib.parse import urlparse
 from blog import app, csrf
 from flask_login import login_user, login_required, logout_user, current_user
-from .models import Posts, Tags, Categories, BlogPost, ViewImageHandler, User
+from .models import Posts, Tags, Categories, BlogPost, Image, ViewImageHandler, User
 from flask import render_template,request,jsonify,\
     redirect,url_for, flash, session, make_response, send_file, abort, escape
 from werkzeug.utils import secure_filename
@@ -509,12 +509,37 @@ def new_post():
 
 
 @csrf.exempt
-@app.route('/api/images/<image_name>/publish', methods=['POST'])
+@app.route('/api/posts/<id>/images/<image_name>/publish', methods=['GET'])
 @login_required
-def publish_image(image_name):
-    view_image_handler = ViewImageHandler()
-    view_image_handler.make_blob_public(image_name)
-    
+def publish_image(id, image_name):
+    if current_user.is_admin:
+        asked_post = BlogPost.get(id)
+
+        if image_name  == '':
+            flash('No selected file')
+            abort(500)
+        if image_name and allowed_file(image_name):
+            image_name = secure_filename(image_name)
+            msg = asked_post.publish_image(image_name)
+
+            return jsonify(msg=msg)
+
+@csrf.exempt
+@app.route('/api/posts/<id>/images/<image_name>/unpublish', methods=['GET'])
+@login_required
+def unpublish_image(id, image_name):
+    if current_user.is_admin:
+        asked_post = BlogPost.get(id)
+
+        if image_name  == '':
+            flash('No selected file')
+            abort(500)
+        if image_name and allowed_file(image_name):
+            image_name = secure_filename(image_name)
+            msg = asked_post.unpublish_image(image_name)
+
+            return jsonify(msg=msg)
+
 
 @csrf.exempt
 @app.route('/api/posts/<id>/images', methods=['POST'])
@@ -535,25 +560,24 @@ def upload_image(id):
             image_filename = secure_filename(file.filename)
             mime_type = file.content_type
 
-            blob_image = asked_post.add_blob(file.read(), image_filename, mime_type)
-            return jsonify(image_key=blob_image.id)
+            image_id = asked_post.add_blob(file.read(), image_filename, mime_type)
+            return jsonify(image_id=image_id)
 
 
 @csrf.exempt
-@app.route('/api/posts/<id>/images/<filename>', methods=['DELETE'])
-def delete_post_images(id, filename):
+@app.route('/api/posts/<id>/images/<image_name>', methods=['DELETE'])
+def delete_post_images(id, image_name):
     """get images from a post with id"""
     if current_user.is_admin:
         asked_post = BlogPost.get(id)
 
-        if filename == '':
+        if image_name  == '':
             flash('No selected file')
             abort(500)
-        if filename and allowed_file(filename):
-            image_filename = secure_filename(filename)
-
-            asked_post.delete_blob_from_post(image_filename)
-            return jsonify(msg="file {} deleted ".format(image_filename))
+        if image_name and allowed_file(image_name):
+            image_name = secure_filename(image_name)
+            asked_post.delete_blob_from_post(image_name)
+            return jsonify(msg="file {} deleted ".format(image_name))
 
 
 @app.route('/api/posts/<id>', methods=['GET'])
