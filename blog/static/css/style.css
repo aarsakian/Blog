@@ -68,7 +68,7 @@ textarea{min-height:60px;}
 #newpost input,.post input{width:70%;padding:6px;display:block;}
 #posts  .post  .edit{display:inline;}
 #right .row-fluid,#posts .row-fluid{margin-bottom:20px;}
-#posts textarea,#posts  input,.post  .hide,.morelinks .hide{visibility:hidden;}
+#posts textarea, #posts  input, .hide{visibility:hidden;}
 #posts .aggregate input {visibility:visible;}
 input,textarea{font-size:0.8em;}
 
@@ -99,7 +99,7 @@ overflow:hidden;height:100%;color:#111;}/*328f59*/
 #images  a{padding:0px;}
 #images i{font-weight:normal;font-size:1.1em;}
 #images i:hover,#images  a:hover{text-decoration:none;color:#c1baaf;}
-#images  img{width:30px;opacity:0.9;}
+#images  img{width:250px;}
 .contactinfo{margin:0px 5px;}
 .icon-tags{padding-top:4px;padding-left:3px;}
 .icon-tags:hover{text-decoration:none;}
