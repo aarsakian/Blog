@@ -66,21 +66,22 @@
         </div>
  <div id="images" class="col-12 row">
   {{'{{'}}#each images{{'}}'}}
-                <button data-image-filename="{{'{{'}}this.filename{{'}}'}}"
-                 class="delete-image btn btn-link"><i class="far fa-trash-alt"></i></button>
+            
 
-                <img  class="img-fluid col-5"   src='https://storage.cloud.google.com/'{{'{{'}}this.path{{'}}'}} 
-                alt={{'{{'}}this.filename{{'}}'}}
-                                               title={{'{{'}}this.filename{{'}}'}}>
-                                               {{'{{'}}#  if this.path {{'}}'}}
-                                               <button data-image-makepublic="{{'{{'}}this.filename{{'}}'}}"
+                <img  class="img-fluid"  src="{{'{{'}}this.url{{'}}'}}" alt="{{'{{'}}this.filename{{'}}'}}" title="{{'{{'}}this.filename{{'}}'}}">
+             <button data-image-filename="{{'{{'}}this.filename{{'}}'}}"
+                    class="delete-image col-1 btn btn-link"><i class="far fa-trash-alt"></i></button>
+                {{'{{'}}#  unless this.ispublished {{'}}'}}
+            
+                
+                <button data-image-makepublic="{{'{{'}}this.filename{{'}}'}}"
                 class="publish-image btn btn-link">Publish</button>
-                {{'{{'}}/if{{'}}'}}>
-                {{'{{'}}# unless this.path {{'}}'}}
+                {{'{{'}}/unless{{'}}'}}
+                {{'{{'}}# if this.ispublished {{'}}'}}
                 <button data-image-makeprivate="{{'{{'}}this.filename{{'}}'}}"
                 class="unpublish-image btn btn-link">Unpublish</button>
 
-                {{'{{'}}/unless{{'}}'}}>
+                {{'{{'}}/if{{'}}'}}
   {{'{{'}}/each{{'}}'}}
      </div>
         <div id="preview" class="img-fluid col-2 row"></div>
