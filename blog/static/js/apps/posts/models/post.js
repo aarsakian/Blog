@@ -4,6 +4,8 @@
 var $ = require('jquery');
 var _ = require('underscore');
 var Backbone = require('../../../libs/backbone/backbone-nested');
+var Image = require('./image');
+ 
 
 
 class Post extends Backbone.NestedModel {
@@ -33,19 +35,54 @@ class Post extends Backbone.NestedModel {
       updated:"",
       tags:[],
       summary:"",
-      images:[],
+      images:[new Image()],
       answers:[]
 
     };
+  
   }
 
-  deleteImage(filename, options) {
+  parse(data) {
+    return {
+      title:data.title,
+      body:data.body,
+      category:data.category,
+      images:[new Image(data.images[0])]
+    }
+  }
+
+  publishImage(imageFilename, options) {
     var ajaxOptions = {
-      url: '/api/posts/' + this.get('id') + '/images/' + filename,
+      url: '/api/posts/' + this.get('id') + '/images/' + imageFilename + '/publish',
+      type: 'GET',
+      cache: false,
+      contentType: false,
+    };
+    _.extend(ajaxOptions, _.pick(options, 'success', 'error'));
+
+    $.ajax(ajaxOptions);
+  }
+
+
+  unPublishImage(imageFilename, options) {
+    var ajaxOptions = {
+      url: '/api/posts/' + this.get('id') + '/images/' + imageFilename + '/unpublish',
+      type: 'GET',
+      cache: false,
+      contentType: false,
+    };
+    _.extend(ajaxOptions, _.pick(options, 'success', 'error'));
+
+    $.ajax(ajaxOptions);
+  }
+
+
+  deleteImage(imageFilename, options) {
+    var ajaxOptions = {
+      url: '/api/posts/' + this.get('id') + '/images/' + imageFilename,
       type: 'DELETE',
       cache: false,
       contentType: false,
-      processData: false
     };
     _.extend(ajaxOptions, _.pick(options, 'success', 'error'));
 

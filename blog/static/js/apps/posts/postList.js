@@ -90,7 +90,7 @@ class TagListItemView extends ModelView {
 
   editTag(event) {
     var new_tag = $(event.currentTarget).prev().val();
-    this.model.set("val", new_tag);
+    this.model.set("tag", new_tag);
     this.model.updateTags({
       success: () => {
         // Tell to others that upload was done successfully
@@ -261,7 +261,7 @@ class PostList {
             model: Tag
         });
         post.get("tags").forEach(tag=>
-          {tags.push(new Tag({val:tag["val"], key:tag["key"]}))});
+          {tags.push(new Tag({val:tag["tag"], key:tag["id"]}))});
       
         var tagList = new TagListView({collection:tags});
 
@@ -318,7 +318,9 @@ class PostForm extends ModelView {
       'click #cancel': 'cancel',
       'keydown #new-post-body': 'previewMarkdownAndResizeTextArea',
       'change #files': 'fileSelected',
-      'click .delete-image': 'deleteImage'
+      'click .delete-image': 'deleteImage',
+      'click .publish-image': 'publishImage',
+      'click .unpublish-image': 'unPublishImage'
     };
   }
 
@@ -339,11 +341,12 @@ class PostForm extends ModelView {
 
          images.push({
             url: event.target.result,
+            
             filename: fileBlob.name
           });
         }
         var image = new Image();
-        image.height = 150;
+        image.height = 250;
         image.title = fileBlob.name;
         image.src = event.target.result;
         preview.appendChild(image);
@@ -362,7 +365,22 @@ class PostForm extends ModelView {
 
   deleteImage(event) {
     event.preventDefault();
-    this.trigger('image:delete', $(event.currentTarget).data('image-filename'), $(event.currentTarget));
+    this.trigger('image:delete', 
+    $(event.currentTarget).data('image-filename'), $(event.currentTarget));
+  }
+
+  publishImage(event) {
+    event.preventDefault();
+    this.trigger('image:publish', 
+    $(event.currentTarget).data('image-makepublic'), 
+    $(event.currentTarget));
+  }
+
+  unPublishImage(event) {
+    event.preventDefault();
+    this.trigger('image:unpublish', 
+    $(event.currentTarget).data('image-makeprivate'), 
+    $(event.currentTarget));
   }
 
 

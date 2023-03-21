@@ -124,17 +124,34 @@ class PostEditor {
 
     this.listenTo(postForm, 'form:save', this.savePost);
     this.listenTo(postForm, 'form:cancel', this.cancel);
-    this.listenTo(postForm, 'image:delete', (filename, $el )=> {
+    this.listenTo(postForm, 'image:delete', (imageFilename, $el )=> {
         this.$el = $el;
-        this.imageFilename = filename;
+        this.imageFilename = imageFilename;
         if (!post.isNew()) {
             this.deleteImage(post);
         }
     });
 
-    this.listenTo(postForm, 'image:selected', blob => {
-      this.imageSelected = blob;
+    this.listenTo(postForm, 'image:publish', (imageFilename, $el )=> {
+      this.$el = $el;
 
+      if (!post.isNew()) {
+
+        this.publishImage(post, imageFilename);
+      }
+    });
+
+    this.listenTo(postForm, 'image:unpublish', (imageFilename, $el) => {
+      this.$el = $el;
+
+       
+        this.unPublishImage(post, imageFilename);
+      
+    });
+
+    this.listenTo(postForm, 'image:selected', (blob, $el) => {
+      this.imageSelected = blob;
+      this.$el = $el;
 
       if (!post.isNew()) {
         this.uploadImage(post);
@@ -142,6 +159,54 @@ class PostEditor {
     });
 
   }
+
+   publishImage(post, imageFilename, options) {
+   
+    post.publishImage(imageFilename, {
+      progress: (length, uploaded, percent) => {
+        // Tell to others that upload is in progress
+        this.trigger('avatar:publishing:progress',
+                     length, uploaded, percent);
+        if (options && _.isFunction(options.success)) {
+          options.success();
+        }
+      },
+      success: () => {
+        // Tell to others that upload was done successfully
+        this.trigger('image:publishing:done', this.imageFilename);
+        console.log(this.$el);
+        this.$el.hide();
+      },
+      error: err => {
+        // Tell to others that upload was error
+        this.trigger('avatar:publishing:error', err);
+      }
+    });
+  }
+
+  unPublishImage(post, imageFilename, options) {
+    post.unPublishImage(imageFilename, {
+      progress: (length, uploaded, percent) => {
+        // Tell to others that upload is in progress
+        this.trigger('avatar:unpublishing:progress',
+                     length, uploaded, percent);
+        if (options && _.isFunction(options.success)) {
+          options.success();
+        }
+      },
+      success: () => {
+        // Tell to others that upload was done successfully
+        this.trigger('image:unpublishing:done', this.imageFilename);
+        this.$el.next().remove();
+        this.$el.remove();
+      },
+      error: err => {
+        // Tell to others that upload was error
+        this.trigger('avatar:publishing:error', err);
+      }
+    });
+  }
+
 
   deleteImage(post, options) {
     post.deleteImage(this.imageFilename, {
@@ -182,6 +247,7 @@ class PostEditor {
       success: () => {
         // Tell to others that upload was done successfully
         this.trigger('avatar:uploading:done');
+        console.log(this.$el);
       },
       error: err => {
         // Tell to others that upload was error

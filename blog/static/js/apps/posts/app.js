@@ -75,8 +75,8 @@ class PostsApp {
       App.trigger('app:contacts:started');
 
       new Post({id: postId}).fetch({
-         success: (model) => {
-            this.showEditor(model);
+         success: (post) => {
+            this.showEditor(post);
             App.trigger('loading:stop');
       },
       fail: (collection, response) => {
