@@ -40,7 +40,7 @@ class User(ndb.Model, UserMixin):
     def get_id(self):
         return self.key.id()
 
-
+    
 
 class ViewImageHandler:
 
@@ -75,7 +75,6 @@ class ViewImageHandler:
 
     def get_blob_public_url(self, image_filename):
         blob = self.get_blob(image_filename)
-        print(blob.path, blob.media_link)
         return blob.public_url
 
     def get_mime_type(self, image_filename):
@@ -83,15 +82,24 @@ class ViewImageHandler:
         if blob:
             return blob.content_type
 
-    def make_blob_public(self, image_filename):
+    def _make_blob_public(self, image_filename):
         blob = self.get_blob(image_filename)
+     
         if blob:
             blob.make_public()
+            msg =  "image {} published".format(image_filename)
+        else:
+            msg = "image {} not found error".format(image_filename)
+        return msg
 
-    def make_blob_private(self, image_filename):
+    def _make_blob_private(self, image_filename):
         blob = self.get_blob(image_filename)
         if blob:
             blob.make_private()
+            msg =  "image {} unpublished".format(image_filename)
+        else:
+            msg = "image {} not found error".format(image_filename)
+        return msg
 
     def _delete_blob(self, image_filename):
         blob = self.get_blob(image_filename)
@@ -168,13 +176,29 @@ class AnswersDict(dict):
 
 
 class Image(ndb.Model, ViewImageHandler):
-    blob_key = ndb.StringProperty()
+    blob_id = ndb.StringProperty()
     filename = ndb.StringProperty()
+    is_public = ndb.BooleanProperty(default=False)
 
-    def to_json(self):
-        return {"blob_key":self.blob_key,
-             "filename":self.filename,
-              "path":self.get_blob_public_url(self.filename)}
+    def to_json(self):    
+        return { "id":self.blob_id,
+                "filename":self.filename,
+                "url":self.get_blob_public_url(self.filename),
+                "ispublished":self.is_public}
+
+    def publish(self):
+        msg = self._make_blob_public(self.filename)
+        self.is_public = True 
+        return msg
+    
+    def unpublish(self):
+        msg = self._make_blob_private(self.filename)
+        self.is_public = False
+        return msg
+
+    def delete(self):
+        self._delete_blob(self.filename)
+
 
 class BlogPost(ndb.Model, ViewImageHandler):
     title = ndb.StringProperty()
@@ -240,7 +264,7 @@ class BlogPost(ndb.Model, ViewImageHandler):
 
         self.answers_form = AnswerRadioForm()
         self.answers_form.r_answers.choices = [(answer.p_answer, answer.p_answer) for answer in self.answers]
-        print("CHOICES", self.answers_form.r_answers.choices)
+        
 
     def edit(self, title, body, updated, tags, category_key, summary=None, raw_answers=[]):
 
@@ -298,19 +322,36 @@ class BlogPost(ndb.Model, ViewImageHandler):
 
     def add_blob(self, content, image_filename, mime_type):
         blob = self.add_to_gcp(content, image_filename, mime_type)
-        self.add_image(blob.id, image_filename)
-        return blob
-
-    def delete_blob_from_post(self, image_filename):
-        [self.images.pop(idx) for idx, image in enumerate(self.images)
-         if image.filename == image_filename]
-        self.put()
-        self._delete_blob(image_filename)
-
-    def add_image(self, blob_key, image_filename):
-        image = Image(blob_key=blob_key, filename=image_filename)
+        return self.add_image(blob.id, image_filename)
+        
+    def add_image(self, blob_id, image_filename):
+        image = Image(blob_id=blob_id, filename=image_filename)
         self.images.append(image)
         self.put()
+        return blob_id
+
+    def _find_image(self, image_filename):
+        for image in self.images:
+            if image.filename == image_filename:
+                return image
+
+    def delete_blob_from_post(self, image_filename):
+        image = self._find_image(image_filename)
+        self.images.remove(image)
+        self.put()
+        image.delete()
+             
+    def publish_image(self, image_filename):
+        image = self._find_image(image_filename)
+        image.publish()
+        self.put()
+       
+    def unpublish_image(self, image_filename):
+        image = self._find_image(image_filename)
+        image.unpublish()
+        self.put()
+       
+
 
 
 class BlogList(list):
