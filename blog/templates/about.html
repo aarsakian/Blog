@@ -6,13 +6,14 @@
 
 {% block content%}
 
-    <div class="page-header">
+    {% block header%}
+        {% include 'header.html' %}
+
+    {% endblock %}
+
 	 
 	 <div class="row-fluid" id="about">
-	      <div class="span6">
-                    <h2 class="editable">{{Post.title}}</h2>
-                           
-	     </div>
+       
 	     <div class="span3 offset1">
 			     
             	   <div id="updated"> Updated: {{ Post.updated|datetimeformat('%d-%m-%Y')}}    </div>

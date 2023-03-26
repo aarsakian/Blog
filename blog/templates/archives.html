@@ -3,26 +3,23 @@
 {% block title %}Armen Arsakian personal blog{% endblock %}
 
 
-{% block header %}
+{% block head %}
 
 {{ super() }}
-{%if tags%}
-{%for tag in tags%}
-<meta name="keywords" content={{tag}}>
-{% endfor %}
-{%endif%}
+    {%if tags%}
+        {%for tag in tags%}
+            <meta name="keywords" content={{tag}}>
+        {% endfor %}
+    {%endif%}
 {% endblock %}
 
 {% block content%}
 
 
-<div class="page-header clear col-12 my-5">
-    <div class="page-header-inner">
-        <h1>Archives</h1>
-
-    </div>
-
+<div class="page-header mt-1 row col-12 my-md-4 mx-0 py-1">
+    <h2 class="p-1">Archives</h1>
 </div>
+
 
 <div id="posts" class="col-12">
     {%if posts %}
