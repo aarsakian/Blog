@@ -149,10 +149,9 @@ class PostEditor {
       
     });
 
-    this.listenTo(postForm, 'image:selected', (blob, $el) => {
+    this.listenTo(postForm, 'image:selected', (blob) => {
       this.imageSelected = blob;
-      this.$el = $el;
-
+  
       if (!post.isNew()) {
         this.uploadImage(post);
       }
@@ -174,8 +173,9 @@ class PostEditor {
       success: () => {
         // Tell to others that upload was done successfully
         this.trigger('image:publishing:done', this.imageFilename);
-        console.log(this.$el);
-        this.$el.hide();
+        this.$el.next().removeClass('d-none');
+        this.$el.addClass('d-none');
+     
       },
       error: err => {
         // Tell to others that upload was error
@@ -197,8 +197,8 @@ class PostEditor {
       success: () => {
         // Tell to others that upload was done successfully
         this.trigger('image:unpublishing:done', this.imageFilename);
-        this.$el.next().remove();
-        this.$el.remove();
+        this.$el.prev().removeClass('d-none')
+        this.$el.addClass('d-none');
       },
       error: err => {
         // Tell to others that upload was error
@@ -221,8 +221,8 @@ class PostEditor {
       success: () => {
         // Tell to others that upload was done successfully
         this.trigger('image:deleting:done', this.imageFilename);
-        this.$el.next().remove();
-        this.$el.remove();
+        this.$el.addClass('d-none');
+      
       },
       error: err => {
         // Tell to others that upload was error
@@ -244,10 +244,13 @@ class PostEditor {
           options.success();
         }
       },
-      success: () => {
+      success: msg => {
         // Tell to others that upload was done successfully
         this.trigger('avatar:uploading:done');
-        console.log(this.$el);
+        
+        document.getElementsByClassName('publish-image')[0].dataset.imageMakepublic = msg.image_name;
+        document.getElementsByClassName('publish-image')[0].dataset.imageMakeprivate = msg.imageFilename;
+        
       },
       error: err => {
         // Tell to others that upload was error
