@@ -34,7 +34,7 @@ background:#ebebeb;
 }
 
 #hd .nav-link  {
-font-size:1.3rem;
+font-size:1.6rem;
 }
 #hd  .icon i {
     font-size:1.6rem;
@@ -109,6 +109,8 @@ overflow:hidden;height:100%;color:#111;}/*328f59*/
 a.tag{color:#303030;text-shadow:1px 1px #eee;
 
 }
+
+#navbarNav li{margin-right:6px;}
 a.tags{color:#303030;font-size:18px;}
 #about #updated{padding-top:25px;}
 
