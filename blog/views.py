@@ -23,7 +23,7 @@ import googleapiclient.discovery
 
 # The path to the client-secrets.json file obtained from the Google API
 # Console. You must set this before running this application.
-CLIENT_SECRETS_FILENAME = os.environ['GOOGLE_CLIENT_SECRETS']
+CLIENT_SECRETS_FILENAME = app.config['GOOGLE_CLIENT_SECRETS']
 # The OAuth 2.0 scopes that this application will ask the user for. In this
 # case the application will ask for basic profile information.
 SCOPES = ['https://www.googleapis.com/auth/userinfo.email', 
@@ -145,7 +145,7 @@ def oauth2callback():
 
     
     auth_obj = client.userinfo().v2().me().get().execute()
-    if auth_obj['email'] == os.environ['ADMIN_EMAIL'] and auth_obj['verified_email']:
+    if auth_obj['email'] == app.config['ADMIN_EMAIL'] and auth_obj['verified_email']:
        
         user_key = User(email=auth_obj['email'], name=auth_obj['name'], is_admin=True).put()
         user = user_key.get() 
