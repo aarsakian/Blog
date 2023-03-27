@@ -328,7 +328,7 @@ class BlogPost(ndb.Model, ViewImageHandler):
         image = Image(blob_id=blob_id, filename=image_filename)
         self.images.append(image)
         self.put()
-        return blob_id
+        return image_filename
 
     def _find_image(self, image_filename):
         for image in self.images:
