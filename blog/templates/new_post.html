@@ -66,22 +66,24 @@
         </div>
  <div id="images" class="col-12 row">
   {{'{{'}}#each images{{'}}'}}
-            
-
-                <img  class="img-fluid"  src="{{'{{'}}this.url{{'}}'}}" alt="{{'{{'}}this.filename{{'}}'}}" title="{{'{{'}}this.filename{{'}}'}}">
+ 
+                <img  class="img-fluid {{'{{'}}# unless this.filename {{'}}'}} d-none
+                {{'{{'}}/unless {{'}}'}}
+                "  src="{{'{{'}}this.url{{'}}'}}" alt="{{'{{'}}this.filename{{'}}'}}" title="{{'{{'}}this.filename{{'}}'}}">
              <button data-image-filename="{{'{{'}}this.filename{{'}}'}}"
                     class="delete-image col-1 btn btn-link"><i class="far fa-trash-alt"></i></button>
-                {{'{{'}}#  unless this.ispublished {{'}}'}}
-            
                 
                 <button data-image-makepublic="{{'{{'}}this.filename{{'}}'}}"
-                class="publish-image btn btn-link">Publish</button>
-                {{'{{'}}/unless{{'}}'}}
-                {{'{{'}}# if this.ispublished {{'}}'}}
+                class="publish-image btn btn-link
+                {{'{{'}}#  if this.ispublished {{'}}'}} d-none {{'{{'}}/if{{'}}'}}">
+                Publish</button>
+              
                 <button data-image-makeprivate="{{'{{'}}this.filename{{'}}'}}"
-                class="unpublish-image btn btn-link">Unpublish</button>
+                class="unpublish-image   {{'{{'}}# unless this.ispublished {{'}}'}} d-none
+                {{'{{'}}/unless{{'}}'}}
+                btn btn-link">Unpublish</button>
 
-                {{'{{'}}/if{{'}}'}}
+              
   {{'{{'}}/each{{'}}'}}
      </div>
         <div id="preview" class="img-fluid col-2 row"></div>
