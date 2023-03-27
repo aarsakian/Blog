@@ -38,22 +38,24 @@ if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine/'):
     app.jinja_env.globals['DEV'] = False
     client = ndb.Client()
     storage_client = storage.Client()
-    os.environ["BUCKET_NAME"] = 'aarsakian'
+    os.environ["BUCKET_NAME"] =  app.config["BUCKET_NAME"]
 else:
     app = Flask(__name__)
-
+    app.config.from_object('blog.settings.Development')
+    os.environ["PROJECT_NAME"] = app.config["PROJECT_NAME"]
     os.environ["DATASTORE_EMULATOR_HOST"] = "localhost:8081"
     os.environ["DATASTORE_PROJECT_ID"] = "test"
-    os.environ["BUCKET_NAME"] = "test-bucket"
+    os.environ["BUCKET_NAME"] = app.config["BUCKET_NAME"]
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
     credentials = mock.Mock(spec=google.auth.credentials.Credentials)
     storage_client = mock.create_autospec(storage.Client)
     client = ndb.Client(project="test", credentials=credentials)
+    storage_client = storage.Client(project=os.environ["PROJECT_NAME"])
     #storage_client = storage.Client(project="test", credentials=credentials)
 
     mock_bucket = mock.create_autospec(storage.Bucket)
-    storage_client.get_bucket.return_value = mock_bucket
+   # storage_client.get_bucket.return_value = mock_bucket
     mock_blob = mock.create_autospec(storage.Blob)
     mock_bucket.blob.return_value = mock_blob
 
