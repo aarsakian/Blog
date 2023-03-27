@@ -33,7 +33,7 @@ SCOPES = ['https://www.googleapis.com/auth/userinfo.email',
 KEY="posts"
 TAG="tags"
 CATEGORY="categories"
-CODEVERSION=":v0.7"
+CODEVERSION=":v0.85"
 
 headerdict={"machine_learning":"Gaussian Graphical Models","programming":"Programming","about":"About Me"}
 
@@ -560,8 +560,8 @@ def upload_image(id):
             image_filename = secure_filename(file.filename)
             mime_type = file.content_type
 
-            image_id = asked_post.add_blob(file.read(), image_filename, mime_type)
-            return jsonify(image_id=image_id)
+            image_name = asked_post.add_blob(file.read(), image_filename, mime_type)
+            return jsonify(image_name=image_name)
 
 
 @csrf.exempt
