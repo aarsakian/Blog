@@ -1,4 +1,8 @@
 {% extends "rebase/base.html" %}
+{% block title %}
+    Armen Arsakian 500 error personal blog
+{% endblock %}
+
 
 {% block content %}
 		<h1>Aw, snap</h1>
@@ -7,13 +11,7 @@
 {% endblock %}
 
 
-
 {% block footer%}
-    <div class="span10">
-        <p> Armen Arsakian updated at <span class="siteupdate">{{siteupdated}}</span><span class="countdown">  {{daysleft}} . {{dayspassed}}</span></p>
-    </div>
-    <div class="span1 offset1">
-        <span class="version"><a href="/built with...">{{codeversion}}</a></span>
-    </div>
+    {% include 'footer.html' %}
 
 {% endblock %}
