@@ -147,17 +147,21 @@ def oauth2callback():
     auth_obj = client.userinfo().v2().me().get().execute()
     if auth_obj['email'] == app.config['ADMIN_EMAIL'] and auth_obj['verified_email']:
        
-        user_key = User(email=auth_obj['email'], name=auth_obj['name'], is_admin=True).put()
-        user = user_key.get() 
-        login_user(user)
-        next = request.args.get('next')
-        if not escape(next):
-            return abort(400)
+        user = User.get_by_email( auth_obj['email'] )
+        if user.is_admin:
+            user.update_connection_time()
+      
+            login_user(user)
+            next = request.args.get('next')
 
-        return redirect(url_for('edit_a_post_view'))
-    else:
-        flash("something went wrong")
-        redirect(url_for('index'))
+            if not escape(next):
+                return abort(400)
+
+            return redirect(url_for('edit_a_post_view'))
+
+    
+    flash("something went wrong")
+    return redirect(url_for('index'))
 
 
 
