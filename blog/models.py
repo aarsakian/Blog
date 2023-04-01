@@ -1,6 +1,7 @@
 import logging
 import os
 import io
+import datetime
 from google.cloud import ndb
 from google.cloud.exceptions import GoogleCloudError
 from google.cloud import storage 
@@ -36,11 +37,19 @@ class User(ndb.Model, UserMixin):
     email = ndb.StringProperty()
     name = ndb.StringProperty()
     is_admin = ndb.BooleanProperty(default=False)
+    connected_at = ndb.DateTimeProperty(repeated=True)
 
     def get_id(self):
         return self.key.id()
 
-    
+    @classmethod
+    def get_by_email(cls, email):
+        return list(cls.query(cls.email==email))[0]
+
+    def update_connection_time(self):
+        self.connected_at.append(datetime.datetime.now())
+        self.put()
+
 
 class ViewImageHandler:
 
@@ -479,7 +488,7 @@ class Posts(BlogList, JsonMixin):
 
     def get_related_posts(self, current_post_id):
 
-        current_post = BlogPost.get(current_post_id)
+        current_post =  current_post_id
         current_post_tags = current_post.get_tag_names()
         return [post for post in self.posts if post.id !=
                 current_post.id and set(current_post_tags)&set(post.get_tag_names())]
