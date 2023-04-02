@@ -54,7 +54,7 @@ function actify(url) {
 
 
 
-/*$(document).ready(function() {
+$(document).ready(function() {
 
 
 
@@ -174,7 +174,7 @@ function actify(url) {
 
   }
 
-
+/*
     var map = {}
     $('.typeahead').typeahead({
         minLength: 3,
@@ -209,8 +209,8 @@ function actify(url) {
      } 
   
   });
-
+*/
 
 
 });
-*/
+
