@@ -36,25 +36,17 @@
 
     <div class="container-fluid w-100 col-12">
         {% with messages = get_flashed_messages() %}
-        {% if messages %}
-
-        {% for message in messages %}
-        <div class="alert alert-info alert-dismissible fade show p-2 messages" role="alert">
-            <strong>{{ message }}</strong>
-            <div class="row">
-            <button id="ga-accept" type="button" class="p-1 ml-4 btn btn-primary" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">Accept</span>
-            </button>
-            <button id="ga-decline" type="button" class="ml-2 p-1 btn btn-primary" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">Decline</span>
-            </button>
-
-            </div>
-        </div>
-
-        {% endfor %}
-
-        {% endif %}
+        
+            {% if messages %}
+                <div class="alert alert-warning alert-dismissible fade show m-3" role="alert">
+                    {% for message in messages %}      
+                        <p class="text-center"><strong>{{ message }}</strong></p>
+                
+                    {% endfor %}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endif %}
+        
         {% endwith %}
         <div class="row col-12" id="searchfield">
             <div class="row ml-auto col-sm-8 col-xs-4">
