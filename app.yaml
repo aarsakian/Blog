@@ -1,6 +1,6 @@
 runtime: python310
 default_expiration: "10m"
-entrypoint: gunicorn -b :8100 -w 2 blog:app
+entrypoint: gunicorn -b :$PORT -w 2 blog:app
 
 handlers:
 - url: /favicon.ico
@@ -33,19 +33,4 @@ env_variables:
   GOOGLE_APPLICATION_CREDENTIALS: 'aarsakian-1e9c52345507.json'
 
 
-skip_files:
- - ^(.*/)?#.*#$
- - ^(.*/)?.*~$
- - ^(.*/)?.*\.py[co]$
- - ^(.*/)?.*/RCS/.*$
- - ^(.*/)?\..*$
- - ^google_appengine_*
- - ^tests/
- - ^cover/
- - ^scripts/
- - ^node_modules/
- - ^man/
- - ^emulators/
- - ^gulpfile.js
- - ^virtualEnv3?/*$
 
