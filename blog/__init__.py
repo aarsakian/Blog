@@ -28,7 +28,7 @@ login_manager = LoginManager()
 
 
 
-if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine/'):
+if os.getenv('GAE_ENV', '').startswith('standard'):
 
     app = Flask(__name__, root_path='blog',
                 template_folder='templates/production',
