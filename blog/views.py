@@ -1,21 +1,17 @@
 import logging, base64, io, requests
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlunparse
 from blog import app, csrf
 from flask_login import login_user, login_required, logout_user, current_user
 from .models import Posts, Tags, Categories, BlogPost, ViewImageHandler, User
 from flask import render_template,request,jsonify,\
-    redirect,url_for, flash, session, make_response, send_file, abort, escape
+    redirect,url_for, flash, session, send_file, abort, escape
 from werkzeug.utils import secure_filename
 from .errors import InvalidUsage
 import google.oauth2.id_token
 import datetime
 from functools import wraps
-
-
 from .forms import PostForm, AnswerRadioForm
 from .utils import datetimeformat, calculate_work_date_stats,  to_markdown, generate_uid_token, allowed_file
-
-
 
 import google.oauth2.credentials
 import google_auth_oauthlib.flow
