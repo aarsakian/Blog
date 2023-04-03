@@ -1,0 +1,14 @@
+ ^(.*/)?#.*#$
+ ^(.*/)?.*~$
+ ^(.*/)?.*\.py[co]$
+ ^(.*/)?.*/RCS/.*$
+ ^(.*/)?\..*$
+ ^google_appengine_*
+ ^tests/
+ ^cover/
+ ^scripts/
+ ^node_modules/
+ ^man/
+ ^emulators/
+ ^gulpfile.js
+ ^virtualEnv?/*$
