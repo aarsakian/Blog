@@ -1,5 +1,52 @@
 'user strict';
 
+function highlightResult(data) {
+
+  if (data.hasOwnProperty('result')) {
+    const result = data.result;
+    changeColor(result);
+
+    if (result) {
+
+          /*     $.notify({
+	        // options
+	            message: 'You found it.'
+                },{
+	            // settings
+	            type:'success'
+	            });
+          */
+            }
+  }
+
+  if (data.remaining_attempts == 0 && !data.result) {
+       /*  $.notify({
+	        // options
+	            message: 'you can retry if you know how http works -)'
+            },{
+	            // settings
+	            type:'info'
+	        });*/
+        }
+
+   if (data.hasOwnProperty('msg')) {
+        /*    $.notify({
+	        // options
+	            message: data.msg
+            },{
+	            // settings
+	            type: function(){
+	                if (data.remaining_attempts != 0)
+	                   return 'warning';
+	                else
+	                    return 'danger';
+
+	            }
+            });*/
+    }
+
+  }
+
 
 document.addEventListener('load', function(){
   var  url=location.pathname;
@@ -11,8 +58,10 @@ document.addEventListener('load', function(){
     if (!isObjectEmpty(answerEl)) {
       answerEl.parentNode.parentNode.classList.remove(["bg-success", "bg-danger"]);
     } else {
-      answerEl.parentNode.parentNode.parentNode.parentNode.nextSibling.clasList.remove('disabled');
+      answerEl = e.target; 
     }
+    answerEl.parentNode.parentNode.parentNode.parentNode.nextSibling.clasList.remove('disabled');
+    
  
   });
 
@@ -25,18 +74,50 @@ document.addEventListener('load', function(){
     const files = filePostFormEl.getElementsByTagName("input").files 
     files.forEach((file, idx) => {
       formData.append("file"+idx, file);
-    })
+    });
     
   });
 
 
-})
+  const submitAnswersEl = document.getElementsByClassName('aggregate').getElementsByClassName('submit');
+  submitAnswersEl.addEventListener("click", (e) => {
+    e.preventDefault();
+    const title = e.parentNode.dataset.title;
+    const url = new this.URL(`/api/answers/${title}`);
+    const p_answer = answerEl.dataset.answer;
+    const csrf_token = e.previousSibling.previousSibling.nodevalue;
+
+    const headers = new Headers();
+    headers.append('X-CSRF-TOKEN', csrf_token);
+    const data = JSON.stringify({p_answer:p_answer,is_correct:"True" });
+    fetch(url, {headers:headers, body:data}).then
+      (response => response.json()).then
+      (data => highlightResult(data));
+      
+  });
+
+   
 
 
-const isObjectEmpty = (objectName) => {
-  return Object.keys(objectName).length === 0
-}
 
+
+  const isObjectEmpty = (objectName) => {
+      return Object.keys(objectName).length === 0
+  }
+
+  function changeColor(result) {
+    let colorResult = ""
+    if (result) {
+      colorResult = "bg-success";
+  
+      } else {
+        colorResult = "bg-danger";
+      }
+         answerEl.parentNode.parentNode.classList.add(colorResult);
+  
+    }
+
+});
 
 function actify(url) {
   const navitems = Array.from(document.getElementsByClassName('.nav-item'));
@@ -48,131 +129,17 @@ function actify(url) {
 
     }
   });
-
-  
+ 
 }
 
 
 
-$(document).ready(function() {
+
+
+ 
 
 
 
-
-  $("body").on('submit',"#files-post-form", function(event){
-    event.preventDefault();
-    var csrf_token = $(this).children().first();
-    var formData = new FormData($("#files-post-form")[0]);
-
-    $.each($("#files-post-form input")[0].files, function(idx, file){
-        formData.append("file"+idx, file);
-    })
-    $.ajax({
-      type:'POST',
-      url:'/upload',
-      processData: false,
-      contentType: false,
-      async: false,
-      cache: false,
-      data : formData,
-      success: function(response){
-
-      },
-      headers:
-      {
-            'X-CSRF-TOKEN': csrf_token
-      }
-    });
-  });
-
-
-  $(".aggregate .submit").on("click", function(event){
-     event.preventDefault();
-
-     var title = $(this).parent().data("title");
-     var url = '/api/answers/'+title;
-     var p_answer = answerEl.data("answer");
-     var data = JSON.stringify({p_answer:p_answer,is_correct:"True" });
-     var csrf_token = $(this).prev().prev().val();
-
-
-     $.ajax({
-		url : url,
-		type: "post",
-		data: data,
-		dataType:  "json",
-		contentType: "application/json",
-		success: highlightResult,
-		headers:
-        {
-            'X-CSRF-TOKEN': csrf_token
-        }
-	  });
-
-  })
-
-  function highlightResult(data) {
-
-       if (_.has(data, 'result')) {
-            var result = data.result;
-            changeColor(result);
-
-            if (result) {
-
-               $.notify({
-	        // options
-	            message: 'You found it.'
-                },{
-	            // settings
-	            type:'success'
-	            });
-
-            }
-        }
-
-        if (data.remaining_attempts == 0 && !data.result) {
-         $.notify({
-	        // options
-	            message: 'you can retry if you know how http works -)'
-            },{
-	            // settings
-	            type:'info'
-	        });
-        }
-
-        if (_.has(data, 'msg')) {
-            $.notify({
-	        // options
-	            message: data.msg
-            },{
-	            // settings
-	            type: function(){
-	                if (data.remaining_attempts != 0)
-	                   return 'warning';
-	                else
-	                    return 'danger';
-
-	            }
-            });
-        }
-
-
-
-
-
-   }
-
-   function changeColor(result) {
-       var colorResult = ""
-       if (result) {
-         colorResult = "bg-success";
-
-       } else {
-         colorResult = "bg-danger";
-       }
-       answerEl.parent().parent().addClass(colorResult);
-
-  }
 
 /*
     var map = {}
@@ -212,5 +179,5 @@ $(document).ready(function() {
 */
 
 
-});
+
 
