@@ -195,21 +195,21 @@ def logout():
     return redirect(url_for('index'))
 
 
-@app.route('/ga-accept', methods=['POST'])
-@csrf.exempt
-def ga_accept():
-    resp = make_response(redirect(url_for('index')))
-    resp.set_cookie('ga_accepted', 'True', max_age=30 * 24 * 60 * 60)
-    return resp
+# @app.route('/ga-accept', methods=['POST'])
+# @csrf.exempt
+# def ga_accept():
+#     resp = make_response(redirect(url_for('index')))
+#     resp.set_cookie('ga_accepted', 'True', max_age=30 * 24 * 60 * 60)
+#     return resp
 
 
 
-@app.route('/ga-decline', methods=['POST'])
-@csrf.exempt
-def ga_decline():
-    resp = make_response(redirect(url_for('index')))
-    resp.set_cookie('ga_accepted', 'False', max_age=30 * 24 * 60 * 60)
-    return resp
+# @app.route('/ga-decline', methods=['POST'])
+# @csrf.exempt
+# def ga_decline():
+#     resp = make_response(redirect(url_for('index')))
+#     resp.set_cookie('ga_accepted', 'False', max_age=30 * 24 * 60 * 60)
+#     return resp
 
 
 @app.route('/images/<file_name>')
@@ -282,24 +282,24 @@ def view_all_categories(posts, tags, categories,  passed_days,
 
 
 
-@app.route('/searchresults',methods=['GET'])
-@boilercode
-def searchresults(posts, tags, categories,  passed_days,
-          remaining_days):
-    query_string = request.args.get('q')
-    results = query_search_index(query_string)
-    form = PostForm()
+# @app.route('/searchresults',methods=['GET'])
+# @boilercode
+# def searchresults(posts, tags, categories,  passed_days,
+#           remaining_days):
+#     query_string = request.args.get('q')
+#     results = query_search_index(query_string)
+#     form = PostForm()
 
-    if results:
-        posts_ids = find_posts_from_index(results)
-        posts.filter_matched(posts_ids)
+#     if results:
+#         posts_ids = find_posts_from_index(results)
+#         posts.filter_matched(posts_ids)
 
-    site_updated = posts.site_last_updated()
+#     site_updated = posts.site_last_updated()
 
-    return render_template('posts.html', user_status=current_user.is_admin, siteupdated=site_updated, \
-                           daysleft=remaining_days, dayspassed=passed_days,
-                           posts=posts.to_json(),
-                           codeversion=CODEVERSION, form=form)
+#     return render_template('posts.html', user_status=current_user.is_admin, siteupdated=site_updated, \
+#                            daysleft=remaining_days, dayspassed=passed_days,
+#                            posts=posts.to_json(),
+#                            codeversion=CODEVERSION, form=form)
 
 
 @app.route('/built with',methods=['GET'])
@@ -385,6 +385,7 @@ def subject_questions(posts, tags, categories, passed_days,
 
 
 @app.route('/api/tags/<tagid>', methods=['PUT'])
+@login_required
 def updateTags(tagid):
     tag = request.json['tag']
     if current_user.is_admin:
@@ -570,6 +571,7 @@ def upload_image(id):
 
 @csrf.exempt
 @app.route('/api/posts/<id>/images/<image_name>', methods=['DELETE'])
+@login_required
 def delete_post_images(id, image_name):
     """get images from a post with id"""
     if current_user.is_admin:
@@ -701,32 +703,32 @@ def edit_a_post_view(postkey=None):
 #     return feed.get_response()
 
 
-@app.route('/rebuild_index', methods=['GET'])
-def rebuild_index():
-    if current_user.is_admin:
-        delete_all_in_index()
-        posts = Posts()
-        posts.rebuild_index()
-        return redirect(url_for('index'))
+# @app.route('/rebuild_index', methods=['GET'])
+# def rebuild_index():
+#     if current_user.is_admin:
+#         delete_all_in_index()
+#         posts = Posts()
+#         posts.rebuild_index()
+#         return redirect(url_for('index'))
 
 
 
-@app.route('/search',methods=['GET'])
-def searchsite():
+# @app.route('/search',methods=['GET'])
+# def searchsite():
 
-    query_string = request.args.get('query', '')
-    try:
+#     query_string = request.args.get('query', '')
+#     try:
 
-        results = query_search_index(query_string)
-        posts_ids = find_posts_from_index(results)
-        posts = Posts()
-        posts.filter_matched(posts_ids)
-        data = posts.to_json()
-    except Exception as e:
-        logging.error("error while searching {}".format(e))
-        data = "something went wrong while searching"
+#         results = query_search_index(query_string)
+#         posts_ids = find_posts_from_index(results)
+#         posts = Posts()
+#         posts.filter_matched(posts_ids)
+#         data = posts.to_json()
+#     except Exception as e:
+#         logging.error("error while searching {}".format(e))
+#         data = "something went wrong while searching"
 
-    return jsonify(data=data)
+#     return jsonify(data=data)
 
 
 @app.errorhandler(InvalidUsage)
