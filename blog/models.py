@@ -245,7 +245,6 @@ class BlogPost(ndb.Model, ViewImageHandler):
     def set_selected_answer(self, p_answer):
         for answer in self.answers:
             if answer.p_answer == p_answer:
-                print("A",answer)
                 self.selected_answer = answer
                 self._update_answers_statistics()
                 return True
@@ -471,7 +470,6 @@ class Posts(BlogList, JsonMixin):
     def filter_by_tag(self, tag):
         [self.posts.pop(post_idx) for post_idx, post in enumerate(self.posts)
                 if tag not in post.get_tag_names()]
-        print(hex(id(self.posts)))
 
     def filter_by_category(self, category):
         [self.posts.pop(post_idx) for post_idx, post in enumerate(self.posts)
@@ -488,7 +486,7 @@ class Posts(BlogList, JsonMixin):
 
     def get_related_posts(self, current_post_id):
 
-        current_post =  current_post_id
+        current_post =  BlogPost.get(current_post_id)
         current_post_tags = current_post.get_tag_names()
         return [post for post in self.posts if post.id !=
                 current_post.id and set(current_post_tags)&set(post.get_tag_names())]
