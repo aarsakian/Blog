@@ -9,13 +9,11 @@ var htmlmin = require('gulp-htmlmin');
 var sourcemaps = require('gulp-sourcemaps')
 var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
-var minifyStream = require('minify-stream')
+
 var babelify = require('babelify');
-var resolveDependencies = require('gulp-resolve-dependencies');
-var concat = require('gulp-concat');
 
 var browserSync = require('browser-sync');
-var httpProxy = require('http-proxy');
+
 var useref = require('gulp-useref');
 var gulpif = require('gulp-if');
 var minifyCss = require('gulp-clean-css');
@@ -56,7 +54,7 @@ gulp.task('browserify-crud-prod', () => {
     };
     bundler.on('update', rebundle);
     bundler.on('log', log.info);
-    bundler.on('error', $.util.log);
+    bundler.on('error', log.error);
     return rebundle();
 });
 
@@ -73,7 +71,7 @@ gulp.task('browserify-general', () => {
 
      var rebundle = function() {
           return bundler.bundle()
-            .on('error', $.util.log)
+            .on('error', log.error)
             .pipe(source('general.min.js'))
       .pipe(buffer()).on('error', function(e){
             console.log(e);
@@ -81,7 +79,7 @@ gulp.task('browserify-general', () => {
       .pipe(terser())
       .pipe(sourcemaps.init({loadMaps: true}))
         // Add transformation tasks to the pipeline here.
-        .on('error', $.util.log)
+        .on('error', log.error)
       .pipe(sourcemaps.write('./'))
       .pipe(gulp.dest('./blog/static/js/tmp/'));
   };
@@ -105,7 +103,7 @@ gulp.task('browserify-general-prod', () => {
 
      var rebundle = function() {
           return bundler.bundle()
-            .on('error', $.util.log)
+          .on('error', log.error)
             .pipe(source('general.min.js'))
       .pipe(buffer()).on('error', function(e){
             console.log(e);
@@ -113,7 +111,7 @@ gulp.task('browserify-general-prod', () => {
       .pipe(terser())
       .pipe(sourcemaps.init({loadMaps: true}))
         // Add transformation tasks to the pipeline here.
-        .on('error', $.util.log)
+        .on('error', log.error)
       .pipe(sourcemaps.write('./'))
       .pipe(gulp.dest('./blog/static/js/prod/'));
   };
@@ -261,7 +259,8 @@ gulp.task('browser-sync', function(done) {
 
 });
 
-gulp.task('serve-prod', gulp.series('browserify-crud-prod', 'browserify-general-prod', 'html', 'fonts',
-                        'minify-html','minify-html-rebase', 'generate-service-worker', 'browser-sync'));
+gulp.task('serve-prod', gulp.series('browserify-crud-prod', 'browserify-general-prod', 
+                        'html', 'fonts',
+                        'minify-html','minify-html-rebase', 'browser-sync'));
 
 
