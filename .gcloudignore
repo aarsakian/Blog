@@ -7,9 +7,9 @@
 *.idea
 *.json
 !aarsakian-1e9c52345507.json
+!client-secret.json
 package-lock.json
 credentials.tar.gz
-client-secret.json
 .DS_Store 
 bfg-1.14.0.jar
 .git/**
