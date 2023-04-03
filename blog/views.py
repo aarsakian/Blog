@@ -1,8 +1,8 @@
-import logging, base64, io, os, requests
+import logging, base64, io, requests
 from urllib.parse import urlparse
 from blog import app, csrf
 from flask_login import login_user, login_required, logout_user, current_user
-from .models import Posts, Tags, Categories, BlogPost, Image, ViewImageHandler, User
+from .models import Posts, Tags, Categories, BlogPost, ViewImageHandler, User
 from flask import render_template,request,jsonify,\
     redirect,url_for, flash, session, make_response, send_file, abort, escape
 from werkzeug.utils import secure_filename
