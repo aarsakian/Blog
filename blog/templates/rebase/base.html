@@ -30,6 +30,7 @@
 
     <script defer src="{{url_for('static', filename='js/prod/app.min.js')}}"></script>
 
+  
 
     <div class="container-fluid w-100 col-12">
         {% with messages = get_flashed_messages() %}
@@ -65,10 +66,10 @@
 
             </div>
         </div>
-
-
+        
         <nav id="hd" class="no-gutters col-12 mt-md-3 mb-md-2 mb-xs-1 navbar navbar-expand-md navbar-light">
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+             data-bs-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -242,7 +243,7 @@
     {% block scripts %}
 
 
-       
+    {{ bootstrap.load_js() }}
 
     
     {% endblock %}
