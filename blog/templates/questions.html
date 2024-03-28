@@ -1,5 +1,5 @@
 {% extends "rebase/base.html" %}
-{% import "bootstrap/wtf.html" as wtf %}
+{% import "bootstrap/form.html" as wtf %}
 {% block title %}Armen Arsakian personal blog questions{% endblock %}
 
 
@@ -64,7 +64,7 @@
                     {% endfor %}
                     </tbody>
                 </table>
-                {{ wtf.form_field(Post.answers_form.submit, type="submit", class="disabled mb-4 col-md-4 col-sm-4 .mx-left
+                {{ wtf.render_field(Post.answers_form.submit, type="submit", class="disabled mb-4 col-md-4 col-sm-4 .mx-left
                 float-left btn btn-primary
                 submit button")}}
 
