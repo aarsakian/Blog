@@ -96,12 +96,10 @@ class AnswersView extends ModelView {
     this.collection.each(function (model, idx){
           var id = idx+1;
           var checked = modelView.getSelector("#r_answers-"+id).is(':checked');
-          if (checked) {
-            model.set("is_correct",  'True');
-            model.set("idx",  idx);
-            modelView.saveModel(model);
-
-           }
+        
+          model.set("is_correct",  checked?'True':'False');
+          model.set("idx",  idx);
+          modelView.saveModel(model);
 
     });
 

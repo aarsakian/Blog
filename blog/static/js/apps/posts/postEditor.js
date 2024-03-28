@@ -59,7 +59,7 @@ class EditPostForm extends PostForm {
    
 
     var answers_a = this.getInputs('.new-post-answer');
-    var areCorrect = this.getInputsCheckbox('.answer .checkbox input');
+    var areCorrect = this.getInputsCheckbox('.answer .form-check-input');
 
     var answers = _.map(answers_a, function (answer, idx){
         return {'p_answer': answer, 'is_correct':areCorrect[idx]}
