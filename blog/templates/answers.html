@@ -1,4 +1,4 @@
-{% import "bootstrap/wtf.html" as wtf %}
+{% import "bootstrap/form.html" as wtf %}
 
 {% block answers %}
 
@@ -37,7 +37,7 @@
         </tbody>
     </table>
 
-    {{ wtf.form_field(answers_field.submit, type="submit", class="disabled col-md-2 col-sm-4 .mx-left float-left btn btn-primary
+    {{ wtf.render_field(answers_field.submit, type="submit", class="disabled col-md-2 col-sm-4 .mx-left float-left btn btn-primary
     submit button")}}
 
 </form>
