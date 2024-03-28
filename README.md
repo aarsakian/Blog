@@ -8,5 +8,5 @@
 MyBlog
 ======
 
-my blog on Google App Engine with python 2.7.
+my blog on Google App Engine Standard Environment with python 3.12.
 Client side code is based on the Backbone MVC Framework whereas server code is based on the Flask Framework.
