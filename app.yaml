@@ -1,4 +1,4 @@
-runtime: python310
+runtime: python312
 default_expiration: "10m"
 entrypoint: gunicorn -b :$PORT -w 2 blog:app
 
