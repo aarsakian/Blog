@@ -4,7 +4,8 @@ from blog import app, csrf
 from flask_login import login_user, login_required, logout_user, current_user
 from .models import Posts, Tags, Categories, BlogPost, ViewImageHandler, User
 from flask import render_template,request,jsonify,\
-    redirect,url_for, flash, session, send_file, abort, escape
+    redirect,url_for, flash, session, send_file, abort
+from markupsafe import escape
 from werkzeug.utils import secure_filename
 from .errors import InvalidUsage
 import google.oauth2.id_token
