@@ -1,7 +1,7 @@
 from urllib.parse import urljoin
 from datetime import date
 from math import ceil
-from mistune import markdown, HTMLRenderer
+from mistune import create_markdown, HTMLRenderer
 from itsdangerous.url_safe import URLSafeTimedSerializer as Serializer
 from flask import g
 
@@ -27,15 +27,15 @@ ALLOWED_EXTENSIONS = set([  'png', 'jpg', 'jpeg', 'gif'])
 
 
 class BlogRenderer(HTMLRenderer):
-    def table(self, header, body):
+    def table(self, text):
         """Rendering table element. Wrap header and body in it.
                :param header: header part of the table.
                :param body: body part of the table.
                """
+       
         return (
-                   '<table class="table table-bordered">\n<thead>%s</thead>\n'
-                   '<tbody>\n%s</tbody>\n</table>\n'
-               ) % (header, body)
+                   '<table class="table table-bordered">%s</table>\n'
+               ) % (text)
 
     def table_cell(self, content, **flags):
         """Rendering a table cell. Like ``<th>`` ``<td>``.
@@ -43,7 +43,8 @@ class BlogRenderer(HTMLRenderer):
         :param header: whether this is header or not.
         :param align: align of current table cell.
         """
-        if flags['header']:
+
+        if flags['head']:
             tag = 'th scope="col"'
         else:
             tag = 'td'
@@ -77,7 +78,8 @@ def datetimeformat(value, format='%A, %d %B %Y'):
 
 def to_markdown(text):
     renderer = BlogRenderer()
-    return bleach_it(markdown(text,  escape=True, renderer=renderer))
+    markdown = create_markdown(escape=True, renderer=renderer, plugins=['table'])
+    return bleach_it(markdown(text))
 
 
 def bleach_it(text):
