@@ -6,6 +6,8 @@
 *.pyc
 *.idea
 *.json
+*.sh
+*.log
 !aarsakian-1e9c52345507.json
 !client-secret.json
 package-lock.json
@@ -20,7 +22,12 @@ scripts/
 node_modules/
 man/
 emulators/
+ClientLIBS/
 gulpfile.js
-virtualEnv*/**
-ClientLIBS/**
-lib/**
+blog/templates/rebase/
+blog/templates/*.html
+blog/static/js/libs/
+blog/static/js/apps/
+README*
+gulp
+
