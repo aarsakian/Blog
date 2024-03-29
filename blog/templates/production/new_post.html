@@ -1,15 +1,15 @@
-{% import "bootstrap/wtf.html" as wtf %} {% block new_post %} {%if user_status%}<script id="post-form" type="text/x-handlebars-template"><form class="form form-horizontal row col-12"  method="post"
+{% import "bootstrap/form.html" as wtf %} {% block new_post %} {%if user_status%}<script id="post-form" type="text/x-handlebars-template"><form class="form form-horizontal row col-12"  method="post"
           role="form">
         {{ form.hidden_tag()}}
-        {{ wtf.form_errors(form, hiddens="only") }}
-        {{ wtf.form_field(form.title, id="new-post-title",placeholder="Enter your title here")}}
-        {{ wtf.form_field(form.summary, id="new-post-summary",placeholder="Enter your summary here")}}
+        {{ wtf.render_hidden_errors(form) }}
+        {{ wtf.render_field(form.title, id="new-post-title",placeholder="Enter your title here")}}
+        {{ wtf.render_field(form.summary, id="new-post-summary",placeholder="Enter your summary here")}}
 
-        {{ wtf.form_field(form.body, rows=8, id="new-post-body", type="text")}}
+        {{ wtf.render_field(form.body, rows=8, id="new-post-body", type="text")}}
         <div id="preview-post-body" class="col-12 border border-info"></div>
-        {{ wtf.form_field(form.category, id="new-post-category",
+        {{ wtf.render_field(form.category, id="new-post-category",
         placeholder="Enter your category or use existing one")}}
-        {{ wtf.form_field(form.tags,id="new-post-tags",
+        {{ wtf.render_field(form.tags,id="new-post-tags",
         placeholder="Enter your tags here,use comma between")}}
 
 
@@ -20,9 +20,9 @@
 
             {% for l in form.answers %}
                 <div class="row answer">
-                    {{ wtf.form_field(l.p_answer, class_="new-post-answer col-10",
+                    {{ wtf.render_field(l.p_answer, class_="new-post-answer col-10",
                     placeholder="Answer") }}
-                    {{ wtf.form_field(l.is_correct,
+                    {{ wtf.render_field(l.is_correct,
                     class_="form-check-input col-1") }}
                 </div>
             {% endfor %}
@@ -80,8 +80,8 @@
   {{'{{'}}/each{{'}}'}}
      </div>
         <div id="preview" class="img-fluid col-2 row"></div>
-         {{wtf.form_field(form.images_upload,  id="files", multiple='')}}
-        {{wtf.form_field(form.submit, type="submit", id="post-submit",
+         {{wtf.render_field(form.images_upload,  id="files", multiple='')}}
+        {{wtf.render_field(form.submit, type="submit", id="post-submit",
         class="submit btn btn-primary m-3 col-2" )}}
 
     </form></script>{%endif%} {% endblock %}

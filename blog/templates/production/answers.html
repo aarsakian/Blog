@@ -1,4 +1,4 @@
-{% import "bootstrap/wtf.html" as wtf %} {% block answers %}<div id="answers-container" class="col-12"></div><script id="answers-layout" type="text/x-handlebars-template"><div class="notifications-container col-12"></div>
+{% import "bootstrap/form.html" as wtf %} {% block answers %}<div id="answers-container" class="col-12"></div><script id="answers-layout" type="text/x-handlebars-template"><div class="notifications-container col-12"></div>
  <div class="answers-layout-container col-12"></div>
  <div class="g-charts-layout col-12"></div></script><script id="post-answers" type="text/x-handlebars-template"><form class="form form-horizontal col-10 gx-5" method="post" role="form">
   <p>By answering this question you agree to the collection of answers statistics.</p>
@@ -25,7 +25,7 @@
         </tbody>
     </table>
 
-    {{ wtf.form_field(answers_field.submit, type="submit", class="disabled col-md-2 col-sm-4 .mx-left float-left btn btn-primary
+    {{ wtf.render_field(answers_field.submit, type="submit", class="disabled col-md-2 col-sm-4 .mx-left float-left btn btn-primary
     submit button")}}
 
 </form></script>{% raw %}<script id="answers-graph" type="text/x-handlebars-template"><div id="gviz"></div></script>{% endraw %} {% block gscripts %}<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>{% endblock %} {% block notifications %} {% include 'notifications.html' %} {% endblock %} {% endblock %}
