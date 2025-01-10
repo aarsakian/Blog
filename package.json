@@ -6,15 +6,18 @@
     "backbone": "^1.6.0",
     "backbone-validation": "^0.11.5",
     "browserify": "^17.0.0",
+    "gulp-cli": "^3.0.0",
     "gulp-htmlmin": "^5.0.1",
     "gulp-sourcemaps": "^2.6.5",
     "gulp-useref": "^3.1.6",
     "jquery": "^3.7.1",
     "marked-forms": "^5.0.2",
+    "package.json": "^2.0.1",
     "popper.js": "^1.16.1",
     "source-map": "^0.7.4",
     "underscore": "1.13.6",
     "vinyl-buffer": "^1.0.1",
+    "vinyl-source-stream": "^2.0.0",
     "watchify": "^4.0.0"
   },
   "devDependencies": {
