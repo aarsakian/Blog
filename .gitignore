@@ -8,3 +8,4 @@ credentials.tar.gz
 secret_keys.py
 client-secret.json
 .DS_Store 
+node_modules
