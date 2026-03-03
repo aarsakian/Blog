@@ -8,7 +8,6 @@
 *.json
 *.sh
 *.log
-!aarsakian-1e9c52345507.json
 !client-secret.json
 package-lock.json
 credentials.tar.gz

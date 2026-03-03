@@ -30,7 +30,6 @@ handlers:
 env_variables:
   GOOGLE_CLOUD_PROJECT: 'aarsakian'
   FIREBASE_PROJECT_ID: 'aarsakian'
-  GOOGLE_APPLICATION_CREDENTIALS: 'aarsakian-1e9c52345507.json'
 
 
 
