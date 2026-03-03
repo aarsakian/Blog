@@ -110,7 +110,8 @@ def login():
     # Store the state in the session so that the callback can verify the
     # authorization server response.
     session['state'] = state
-
+    session['code_verifier'] = flow.code_verifier
+ 
     return redirect(authorization_url)
 
 
@@ -118,11 +119,15 @@ def login():
 def oauth2callback():
     # Specify the state when creating the flow in the callback so that it can
     # verify the authorization server response.
+  
     state = session['state']
     flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
         CLIENT_SECRETS_FILENAME, scopes=SCOPES, state=state)
     flow.redirect_uri = url_for('oauth2callback', _external=True)
 
+    stored_verifier = session.get('code_verifier')
+  
+    flow.code_verifier = stored_verifier
     # Use the authorization server's response to fetch the OAuth 2.0 tokens.
     authorization_response = request.url
     flow.fetch_token(authorization_response=authorization_response)
