@@ -2,6 +2,7 @@ import logging
 import os
 import io
 import datetime
+import markdown
 from google.cloud import ndb
 from google.cloud.exceptions import GoogleCloudError
 from google.cloud import storage 
@@ -457,13 +458,15 @@ class Posts(BlogList, JsonMixin):
         #delete_document(post_key.id())
 
     def get_by_title(self, title):
+        search_term = title.lower()
         for post in self.posts:
-            if post.title.lower() == title or post.title == title:
-                post_f = post
-                break
-        try:
-            return post_f
-        except:
+            if post.title.lower() == search_term:
+                post.body = markdown.markdown(
+                    post.body, 
+                    extensions=['fenced_code', 'codehilite', 'tables']
+                )
+                return post
+        else:
             logging.error("Post Not Found")
             raise InvalidUsage('This post is not found', status_code=404)
 
