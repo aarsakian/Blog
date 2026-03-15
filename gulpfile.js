@@ -137,11 +137,12 @@ gulp.task('html', function() {
 
 gulp.task('fonts', function () {
     return gulp.src([
-        'blog/static/webfonts/*'])
+        'blog/static/webfonts/*.woff',
+        'blog/static/webfonts/*.woff2',
+        'blog/static/webfonts/*.ttf']) 
         .pipe($.flatten())
         .pipe(gulp.dest('blog/static/fonts'));
-})
-
+});
 gulp.task('minify-html', function() {
   return gulp.src([ 'blog/templates/*.html'
                   ])
