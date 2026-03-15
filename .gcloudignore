@@ -29,4 +29,7 @@ blog/static/js/libs/
 blog/static/js/apps/
 README*
 gulp
-
+*.map
+*.map
+*.eot
+*.svg
