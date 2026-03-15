@@ -3,9 +3,6 @@ default_expiration: "10m"
 # The entrypoint should point to your 'blog.py' file's 'app' object
 entrypoint: gunicorn -b :$PORT -w 2 blog:app
 
-# Required if you want to use 'login: admin' in Python 3
-app_engine_apis: true
-
 handlers:
 - url: /favicon.ico
   static_files: blog/static/images/favicon.ico
