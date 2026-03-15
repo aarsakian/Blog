@@ -1,6 +1,10 @@
 runtime: python312
 default_expiration: "10m"
+# The entrypoint should point to your 'blog.py' file's 'app' object
 entrypoint: gunicorn -b :$PORT -w 2 blog:app
+
+# Required if you want to use 'login: admin' in Python 3
+app_engine_apis: true
 
 handlers:
 - url: /favicon.ico
@@ -16,20 +20,20 @@ handlers:
 - url: /static
   static_dir: blog/static
   http_headers:
-    expiration: "10m"
-    Cache-Control:  must-revalidate 
+    Cache-Control: "public, max-age=600, must-revalidate"
   secure: always
-- url: .*
-  script: blog.app
-  secure: always
+
+# 'login: admin' requires 'script: auto' in Python 3
 - url: /edit
-  script: blog.app
+  script: auto
   login: admin
+  secure: always
+
+# Catch-all handler must come last and use 'script: auto'
+- url: .*
+  script: auto
   secure: always
 
 env_variables:
   GOOGLE_CLOUD_PROJECT: 'aarsakian'
   FIREBASE_PROJECT_ID: 'aarsakian'
-
-
-
