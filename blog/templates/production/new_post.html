@@ -1,4 +1,4 @@
-{% import "bootstrap/form.html" as wtf %} {% block new_post %} {%if user_status%}<script id="post-form" type="text/x-handlebars-template"><form class="form form-horizontal row col-12"  method="post"
+{% import "bootstrap4/form.html" as wtf %} {% block new_post %} {%if user_status%}<script id="post-form" type="text/x-handlebars-template"><form class="form form-horizontal row col-12"  method="post"
           role="form">
         {{ form.hidden_tag()}}
         {{ wtf.render_hidden_errors(form) }}
