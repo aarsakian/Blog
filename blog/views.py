@@ -242,19 +242,20 @@ app.jinja_env.filters['markdown'] = to_markdown
 
 
 def boilercode(func):
-    """accepts function as argument enhance with new vars"""
-    @wraps(func)#propagate func attributes
-    def wrapper_func(*args,**kwargs):
+    @wraps(func)
+    def wrapper_func(*args, **kwargs):
         posts, tags, categories = fetch_everything_from_db()
-       # recentposts=posts[:3]
-
-
         passed_days, remaining_days = calculate_work_date_stats()
 
-        return func(posts, tags, categories, passed_days,
-                    remaining_days, *args, **kwargs)
-    return wrapper_func
+        # Inject into kwargs so they are passed to the function correctly
+        kwargs['posts'] = posts
+        kwargs['tags'] = tags
+        kwargs['categories'] = categories
+        kwargs['passed_days'] = passed_days
+        kwargs['remaining_days'] = remaining_days
 
+        return func(*args, **kwargs)
+    return wrapper_func
 
 
 
@@ -304,18 +305,25 @@ def view_all_categories(posts, tags, categories,  passed_days,
 #                            codeversion=CODEVERSION, form=form)
 
 
-@app.route('/built with',methods=['GET'])
-@app.route('/about',methods=['GET'])
+@app.route('/about', methods=['GET'])
 @boilercode
-def about(posts, tags, categories, passed_days,
-                    remaining_days, postkey=None):
+def about(posts=None, tags=None, categories=None, passed_days=None, 
+          remaining_days=None, postkey=None):
+    
+    # Now posts is correctly injected by the decorator
     requested_post = posts.get_by_title("about")
 
-    if request.args.get('q'):return redirect(url_for('searchresults',q=request.args.get('q')))
+    if request.args.get('q'):
+        return redirect(url_for('searchresults', q=request.args.get('q')))
+    
     site_updated = posts.site_last_updated()
 
-    return render_template('about.html',user_status=current_user.is_admin,siteupdated=site_updated,\
-                           daysleft=remaining_days,dayspassed=passed_days,Post=requested_post,
+    return render_template('about.html',
+                           Post=requested_post,
+                           daysleft=remaining_days,
+                           dayspassed=passed_days,
+                           siteupdated=site_updated,
+                           user_status=current_user.is_admin,
                            codeversion=CODEVERSION)
 
 
