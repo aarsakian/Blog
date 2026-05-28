@@ -1,4 +1,4 @@
-runtime: python312
+runtime: python314
 default_expiration: "10m"
 # The entrypoint should point to your 'blog.py' file's 'app' object
 entrypoint: gunicorn -b :$PORT -w 2 blog:app
