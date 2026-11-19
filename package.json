@@ -13,7 +13,7 @@
     "jquery": "^4.0.0",
     "marked-forms": "^6.0.0",
     "popper.js": "^1.16.1",
-    "source-map": "^0.7.6",
+    "source-map": "^0.8.0",
     "underscore": "1.13.8",
     "vinyl-buffer": "^1.0.1",
     "vinyl-source-stream": "^2.0.0",
